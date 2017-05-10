@@ -1,0 +1,88 @@
+---
+title: "Initial Implementation of penfam algorithm"
+author: "Sahir"
+date: "May 10, 2017"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Source code
+
+The source code used to create this report, including the main function can be found at https://github.com/sahirbhatnagar/penfam. 
+
+```{r}
+source()
+```
+
+
+
+## Required Packages
+
+```{r}
+pacman::p_load(MASS) 
+pacman::p_load(glmnet)
+```
+
+
+## Simulation Details
+
+### Kinship Matrix and Eigen Decomposition
+```{r}
+# Kinship matrix from Karim
+load("~/Dropbox/PhD/Year4/penfam/data/kin1.Rdata")
+Phi <- 2 * kin1
+dim(Phi)
+Phi[1:10, 1:10]
+
+# eigen decomposition
+Phi_eigen <- eigen(Phi)
+
+# eigenvalues
+Lambda <- Phi_eigen$values
+any(Lambda < 1e-3)
+all(Lambda > 0)
+rcond(Phi)
+kappa(Phi)
+```
+
+### Simulation parameters
+```{r}
+eta <- 0.15
+sigma2 <- 2
+
+# number of predictors
+p <- 1000
+
+# intercept
+b0 <- 3 
+
+# true betas
+b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
+```
+
+### Simulate data
+```{r}
+n <- nrow(Phi)
+
+# polygenic random effect
+P <- mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * Phi)
+
+# environment random effect
+E <- mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+
+# independent predictors
+X <- mvrnorm(n, rep(1,p), diag(p))
+dim(X)
+
+# response
+Y <- b0 + X %*% b + P + E
+```
+
+
+
