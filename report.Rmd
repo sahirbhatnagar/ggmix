@@ -10,6 +10,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(digits=4)
 ```
 
 ## Source code
@@ -17,9 +18,18 @@ knitr::opts_chunk$set(echo = TRUE)
 The source code used to create this report, including the main function can be found at https://github.com/sahirbhatnagar/penfam. 
 
 ```{r}
-source()
-```
+# block relaxation for fitting the penfam model
+source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/fitting.R")
 
+# utility functions 
+source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/functions.R")
+
+# print, plot and predict methods 
+source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/methods.R")
+
+# plotting functions
+source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/plot.R")
+```
 
 
 ## Required Packages
@@ -27,6 +37,7 @@ source()
 ```{r}
 pacman::p_load(MASS) 
 pacman::p_load(glmnet)
+pacman::p_load(progress)
 ```
 
 
@@ -82,6 +93,62 @@ dim(X)
 
 # response
 Y <- b0 + X %*% b + P + E
+```
+
+
+## Fit the penfam model
+
+This outputs an object of class `penfam`:
+```{r}
+# lambda_min_ratio is what I call \tau in the paper
+# in the paragraph after equation 20
+res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001)
+class(res)
+```
+
+Print method:
+```{r}
+res
+```
+
+## Coefficients at Minimum BIC
+
+```{r}
+coef(res, s=res$lambda_min)
+```
+
+## Non-zero Coefficients at Minimum BIC
+
+```{r}
+predict(res, type = "nonzero", s = res$lambda_min)
+```
+
+
+## Plot of Coefficient Paths
+
+```{r}
+plot(res, xvar = "norm")
+plot(res, xvar = "lambda")
+plot(res, xvar = "dev")
+```
+
+## Plot of BIC as a function of Tuning parameters
+
+```{r}
+plot(res, type = "BIC")
+```
+
+
+## Compare Estimated vs. Truth
+
+```{r, fig.keep='last'}
+plot(coef(res, s = res$lambda_min), pch = 19, col = "red")
+points(seq_along(c(b0,b, eta, sigma2)), c(b0,b, eta, sigma2), pch = 19, col = "blue")
+legend("bottomleft",
+       legend = c("Estimated", "Truth"),
+       col = c("red","blue"),
+       pch = c(19, 19),
+       bg = "gray90")
 ```
 
 
