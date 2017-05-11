@@ -110,6 +110,7 @@ system.time(
                 an = log(log(n)) * log(n))
 )
 class(res)
+res$x
 # res$coef[,c("s1","s2"), drop = F]
 # nonzeroCoef(res$coef, bystep = T)
 ```
