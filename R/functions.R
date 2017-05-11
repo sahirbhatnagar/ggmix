@@ -28,7 +28,7 @@ grr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
   kernel <- 1 + eta * (eigenvalues - 1)
 
-  (1 / 2) * sum(((eigenvalues - 1) / kernel) * (((y - x %*% beta) ^ 2) / (sigma2 * kernel) - 1))
+  (1 / 2) * sum(((eigenvalues - 1) / kernel) * (1 - (((y - x %*% beta) ^ 2) / (sigma2 * kernel))))
 }
 
 # log likelihood (used to calculate BIC)
@@ -48,9 +48,9 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
   kernel <- 1 + eta * (eigenvalues - 1)
 
   -1 * (
-    (nt / 2) * log(2 * pi) +
-      (nt / 2) * log(sigma2) +
-      0.5 * sum(log(kernel)) +
+     (nt / 2) * log(2 * pi) +
+       (nt / 2) * log(sigma2) +
+       0.5 * sum(log(kernel)) +
       (1 / (2 * sigma2)) * sum((y - x %*% beta) ^ 2 / kernel)
   )
 
@@ -207,11 +207,11 @@ lambda_sequence <- function(x, y, phi, weights = NULL,
     # fit eta
     eta_next <- optim(par = eta_init,
                       fn = fr_eta,
-                      # gr = grr_eta,
+                      gr = grr_eta,
                       method = "L-BFGS-B",
                       control = list(fnscale = 1),
-                      lower = 1e-5,
-                      upper = 1 - 1e-5,
+                      lower = 1e-6,
+                      upper = 1 - 1e-6,
                       sigma2 = sigma2_init,
                       beta = beta0_init,
                       eigenvalues = Lambda,
@@ -251,7 +251,8 @@ lambda_sequence <- function(x, y, phi, weights = NULL,
 
   lambda.max <- max(abs(colSums(as.vector(uty) * utx * wi)))
 
-  rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda)))
+  out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
+              eta = eta_next, sigma2 = sigma2_next)
 
 }
 
@@ -263,6 +264,32 @@ bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
 
 
 
+#' Check of KKT
+#' @param tol.beta Tolerance for determining if a coefficient is zero
+#' @param tol.kkt Tolerance for determining if an entry of the subgradient is zero
 
+kkt_check <- function(bhat, lambda, tol.beta = 1e-5, tol.kkt = 0.1){
+
+  xx=cbind(1,x)
+
+  bhatt=c(0,bhat)
+
+  g0=t(xx)%*%(y-xx%*%bhatt)
+
+  g <- g0 - lambda * sign(bhatt)
+
+  gg=g0/lambda
+
+  # which of the betas are non-zero, subject to the tolerance level for beta
+  oo <- abs(bhatt) > tol.beta
+
+  cat(
+    c(
+      max(abs(g[oo])) > tol.kkt,
+      min(gg[!oo]) < -1 - tol.kkt,
+      max(gg[!oo]) > 1 + tol.kkt
+    ),
+    fill = T)
+}
 
 

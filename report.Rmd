@@ -19,16 +19,17 @@ The source code used to create this report, including the main function can be f
 
 ```{r}
 # block relaxation for fitting the penfam model
-source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/fitting.R")
-
+# source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/fitting.R")
+source("~/git_repositories/penfam/R/fitting.R")
 # utility functions 
-source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/functions.R")
-
+# source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/functions.R")
+source("~/git_repositories/penfam/R/functions.R")
 # print, plot and predict methods 
-source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/methods.R")
-
+# source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/methods.R")
+source("~/git_repositories/penfam/R/methods.R")
 # plotting functions
-source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/plot.R")
+# source("https://raw.githubusercontent.com/sahirbhatnagar/penfam/master/R/plot.R")
+source("~/git_repositories/penfam/R/plot.R")
 ```
 
 
@@ -64,11 +65,8 @@ kappa(Phi)
 
 ### Simulation parameters
 ```{r}
-eta <- 0.15
+eta <- 0.25
 sigma2 <- 2
-
-# number of predictors
-p <- 1000
 
 # intercept
 b0 <- 3 
@@ -79,6 +77,9 @@ b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8))
 
 ### Simulate data
 ```{r}
+# number of predictors
+p <- length(b)
+
 n <- nrow(Phi)
 
 # polygenic random effect
@@ -102,8 +103,12 @@ This outputs an object of class `penfam`:
 ```{r}
 # lambda_min_ratio is what I call \tau in the paper
 # in the paragraph after equation 20
-res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001)
+res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001, 
+              nlambda = 100,
+              an = log(log(n)) * log(n))
 class(res)
+# res$coef[,c("s1","s2"), drop = F]
+# nonzeroCoef(res$coef, bystep = T)
 ```
 
 Print method:
@@ -142,7 +147,7 @@ plot(res, type = "BIC")
 ## Compare Estimated vs. Truth
 
 ```{r, fig.keep='last'}
-plot(coef(res, s = res$lambda_min), pch = 19, col = "red")
+plot(coef(res, s = res$lambda_min), pch = 19, col = "red", ylim = range(c(b0,b, eta, sigma2,drop(coef(res, s = res$lambda_min)))))
 points(seq_along(c(b0,b, eta, sigma2)), c(b0,b, eta, sigma2), pch = 19, col = "blue")
 legend("bottomleft",
        legend = c("Estimated", "Truth"),

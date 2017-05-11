@@ -1,18 +1,25 @@
+#' @param an is the constant used in the BIC calculation. The default choice is
+#'   from Wang et al. (2009)
+#' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
+#'   selection with a diverging number of parameters.J. R. Statist. Soc. B, 71,
+#'   671–683.
 penfam <- function(x, y, phi, lambda = NULL,
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                    nlambda = 100,
                    maxit = 100000,
-                   epsilon = 1e-7) {
+                   epsilon = 1e-7,
+                   an = log(log(n)) * log(n)) {
 
   # x <- X
   # y <- Y
   # phi <- Phi
-  # lambda_min_ratio <- 0.00001
+  # lambda_min_ratio <- 0.001
   # nlambda <- 100
   # #convergence criterion
   # epsilon <- 1e-7
-  # maxit = 1e6
-  # # lambda <- 0.10
+  # maxit <- 1e6
+  # an = log(log(600)) * log(600)
+  # lambda <- 0.10
   #======================================
 
   this.call <- match.call()
@@ -33,8 +40,11 @@ penfam <- function(x, y, phi, lambda = NULL,
   # x[1:5, 1:5]
 
   phi_eigen <- eigen(phi)
+  # this is a N_T x N_T matrix
   U <- phi_eigen$vectors
+
   # dim(U)
+  # vector of length N_T
   Lambda <- phi_eigen$values
 
   utx <- crossprod(U, x)
@@ -43,7 +53,7 @@ penfam <- function(x, y, phi, lambda = NULL,
   # get sequence of tuning parameters
   lamb <- lambda_sequence(x = utx, y = uty, phi = phi, lambda_min_ratio = lambda_min_ratio)
 
-  tuning_params_mat <- matrix(lamb, nrow = 1, ncol = nlambda, byrow = T)
+  tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
   dimnames(tuning_params_mat)[[1]] <- list("lambda")
   dimnames(tuning_params_mat)[[2]] <- paste0("s",seq_len(nlambda))
   lambda_names <- dimnames(tuning_params_mat)[[2]]
@@ -82,15 +92,16 @@ penfam <- function(x, y, phi, lambda = NULL,
                               intercept = FALSE,
                               lambda = lambda)
 
+      # coef(beta_init_fit) %>% head
       # plot(beta_init_fit)
-      coef(beta_init_fit)[nonzeroCoef(coef(beta_init_fit)), , drop = F]
+      # coef(beta_init_fit)[nonzeroCoef(coef(beta_init_fit)), , drop = F]
 
       # remove intercept since V1 is intercept
       beta_init <- coef(beta_init_fit)[-1, , drop = F]
       # head(beta_init)
 
-      # initial value for eta
-      eta_init <- .5
+      # initial value for eta from lambda_sequence results
+      eta_init <- lamb$eta
 
       # closed form solution value for sigma^2
       sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
@@ -135,11 +146,11 @@ penfam <- function(x, y, phi, lambda = NULL,
       # fit eta
       eta_next <- optim(par = eta_init,
                         fn = fr_eta,
-                        # gr = grr_eta,
+                        gr = grr_eta,
                         method = "L-BFGS-B",
                         control = list(fnscale = 1),
-                        lower = 1e-4,
-                        upper = 1 - 1e-4,
+                        lower = 1e-6,
+                        upper = 1 - 1e-6,
                         sigma2 = sigma2_init,
                         beta = beta_next,
                         eigenvalues = Lambda,
@@ -168,13 +179,17 @@ penfam <- function(x, y, phi, lambda = NULL,
     # converged observation weights
     # wi <- (1 / sigma2_next) * (1 / (1 + eta_next * (Lambda - 1)))
 
-    nulldev <- drop(crossprod(uty - beta_next[1]))
+    nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
     deviance <- drop(crossprod(uty - utx %*% beta_next))
     devRatio <- drop(1-deviance/nulldev)
 
-    df <- length(glmnet::nonzeroCoef(coef(beta_next_fit)))
+    # the minus 1 is because our intercept is actually the first coefficient
+    # that shows up in the glmnet solution.
+    df <- length(glmnet::nonzeroCoef(coef(beta_next_fit))) - 1
 
-    bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda, x = utx, y = uty, nt = n, c = log(n), df_lambda = df)
+    bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+                      eigenvalues = Lambda, x = utx, y = uty, nt = n,
+                      c = an, df_lambda = df)
 
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
                             devRatio,
