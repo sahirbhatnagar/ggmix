@@ -10,16 +10,22 @@ penfam <- function(x, y, phi, lambda = NULL,
                    epsilon = 1e-7,
                    an = log(log(n)) * log(n)) {
 
-  # x <- X
-  # y <- Y
-  # phi <- Phi
-  # lambda_min_ratio <- 0.001
-  # nlambda <- 100
-  # #convergence criterion
-  # epsilon <- 1e-7
-  # maxit <- 1e6
-  # an = log(log(600)) * log(600)
-  # lambda <- 0.10
+  rm(list=ls())
+  source("~/git_repositories/penfam/R/fitting.R")
+  source("~/git_repositories/penfam/R/functions.R")
+  source("~/git_repositories/penfam/R/methods.R")
+  source("~/git_repositories/penfam/R/plot.R")
+  source("~/git_repositories/penfam/R/sim-data.R")
+  x <- X
+  y <- Y
+  phi <- Phi
+  lambda_min_ratio <- 0.001
+  nlambda <- 100
+  #convergence criterion
+  epsilon <- 1e-7
+  maxit <- 1e6
+  an = log(log(600)) * log(600)
+  lambda <- 0.10
   #======================================
 
   this.call <- match.call()
@@ -36,8 +42,8 @@ penfam <- function(x, y, phi, lambda = NULL,
   p <- np[[2]]
 
   # add column of 1s to x for intercept
-  x <- cbind(rep(1, n), x)
-  # x[1:5, 1:5]
+  x <- cbind(1, x)
+  x[1:5, 1:5]
 
   phi_eigen <- eigen(phi)
   # this is a N_T x N_T matrix
@@ -63,9 +69,15 @@ penfam <- function(x, y, phi, lambda = NULL,
                             dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
                                             lambda_names))
 
-  out_print <- matrix(NA, nrow = nlambda, ncol = 4,
+  out_print <- matrix(NA, nrow = nlambda, ncol = 10,
                       dimnames = list(lambda_names,
-                                      c("Df","%Dev","Lambda","BIC")))
+                                      c("Df","%Dev","Lambda","BIC",
+                                        "kkt_beta0",
+                                        "kkt_eta",
+                                        "kkt_sigma2",
+                                        "kkt_beta_nonzero",
+                                        "kkt_beta_subgr1",
+                                        "kkt_beta_subgr2")))
 
   pb <- progress::progress_bar$new(
     format = "  fitting over all pairs of tuning parameters [:bar] :percent eta: :eta",
@@ -75,7 +87,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
   for (LAMBDA in lambda_names) {
 
-    # LAMBDA <- "s1"
+    # LAMBDA <- "s95"
     # ===========================
 
     lambda_index <- which(LAMBDA == lambda_names)
@@ -191,10 +203,16 @@ penfam <- function(x, y, phi, lambda = NULL,
                       eigenvalues = Lambda, x = utx, y = uty, nt = n,
                       c = an, df_lambda = df)
 
+    kkt_lambda <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+                            eigenvalues = Lambda, x = utx, y = uty, nt = n,
+                            lambda = lambda, tol.beta = 1e-5, tol.kkt = 0.1)
+
+
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
                             devRatio,
                             lambda,
-                            bic_lambda)
+                            bic_lambda,
+                            kkt_lambda)
 
     coefficient_mat[,LAMBDA] <- Theta_next
     pb$tick()

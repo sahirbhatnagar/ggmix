@@ -40,7 +40,7 @@ kappa(Phi)
 
 
 # simulation parameters
-eta <- 0.15
+eta <- 0.35
 sigma2 <- 2
 p <- 1000
 b0 <- 3
@@ -56,7 +56,7 @@ E <- mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
 
 X <- mvrnorm(n, rep(1,p), diag(p))
 
-Y <- 3 + X %*% b + P + E
+Y <- b0 + X %*% b + P + E
 
 
 

@@ -14,21 +14,98 @@ fr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
   # nt = n
   # ============
 
-  kernel <- 1 + eta * (eigenvalues - 1)
+  di <- 1 + eta * (eigenvalues - 1)
 
   (nt / 2) * log(2 * pi) +
     (nt / 2) * log(sigma2) +
-    0.5 * sum(log(kernel)) +
-    (1 / (2 * sigma2)) * sum((y - x %*% beta) ^ 2 / kernel)
+    0.5 * sum(log(di)) +
+    (1 / (2 * sigma2)) * sum((y - x %*% beta) ^ 2 / di)
 
 }
 
-#gradient of eta (currently not being passed to optim)
+
+#' @param x should be U^T X, where U is the matrix of eigenvectors and X
+#'   contains the first column of ones for the intercept. Used for gradient of eta
+#'   (currently being passed to optim)
 grr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
-  kernel <- 1 + eta * (eigenvalues - 1)
+  di <- 1 + eta * (eigenvalues - 1)
 
-  (1 / 2) * sum(((eigenvalues - 1) / kernel) * (1 - (((y - x %*% beta) ^ 2) / (sigma2 * kernel))))
+  (1 / 2) * sum(((eigenvalues - 1) / di) * (1 - (((y - x %*% beta) ^ 2) / (sigma2 * di))))
+}
+
+# gradient of sigma2 (used for KKT check)
+grr_sigma2 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
+
+  di <- 1 + eta * (eigenvalues - 1)
+
+  sigma2 - (1 / nt) * sum((((y - x %*% beta) ^ 2) / di))
+
+}
+
+
+grr_beta0 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
+
+  di <- 1 + eta * (eigenvalues - 1)
+  wi <- (1 / sigma2) * diag(1 / di)
+
+  as.numeric(crossprod(x[,1, drop = FALSE], wi) %*% (y - x %*% beta))
+
+}
+
+#' Check of KKT
+#' @param x should be U^T X, where U is the matrix of eigenvectors and X
+#'   contains the first column of ones for the intercept. x should be a mtrix of
+#'   dimension n x (p+1)
+#' @param beta should include intercept as well. A 1 column matrix of dimension
+#'   (p+1) x 1.
+#' @param tol.beta Tolerance for determining if a coefficient is zero
+#' @param tol.kkt Tolerance for determining if an entry of the subgradient is
+#'   zero
+
+kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
+                      lambda, tol.kkt = 0.1){
+
+  # eta = eta_next; sigma2 = sigma2_next; beta = beta_next;
+  # eigenvalues = Lambda; x = utx; y = uty; nt = n;
+  # lambda = lambda; tol.kkt = 0.1
+  # =======================
+
+  di <- 1 + eta * (eigenvalues - 1)
+  wi <- (1 / sigma2) * diag(1 / di)
+
+  # KKT for beta0
+  kkt_beta0 <- abs(grr_beta0(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)) < tol.kkt
+
+  # KKT for eta
+  kkt_eta <- grr_eta(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
+
+  # KKT for sigma2
+  kkt_sigma2 <- grr_sigma2(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
+
+  # KKT for beta
+  g0 <- crossprod(x[,-1, drop = F], wi) %*% (y - x %*% beta)
+
+  g <- g0 - lambda * sign(beta[-1])
+
+  gg <- g0/lambda
+
+  # which of the betas are non-zero, subject to the tolerance level for beta
+  oo <- abs(beta[-1]) > 0
+
+  # if all betas are 0 then set to false, else abs(g[oo]) will give error since 'oo' is all FALSE
+  kkt_beta_nonzero <- if (all(!oo)) TRUE else max(abs(g[oo])) < tol.kkt
+  kkt_beta_subgr1 <- min(gg[!oo]) > -1
+  kkt_beta_subgr2 <- max(gg[!oo]) < 1
+
+  return(c(kkt_beta0 = kkt_beta0,
+              kkt_eta = kkt_eta,
+              kkt_sigma2 = kkt_sigma2,
+              kkt_beta_nonzero = kkt_beta_nonzero,
+              kkt_beta_subgr1 = kkt_beta_subgr1,
+              kkt_beta_subgr2 = kkt_beta_subgr2))
+
+
 }
 
 # log likelihood (used to calculate BIC)
@@ -161,7 +238,6 @@ lambda_sequence <- function(x, y, phi, weights = NULL,
   # column of 1s for intercept
   x0 <- cbind(rep(1, n))
 
-
   phi_eigen <- eigen(phi)
   U <- phi_eigen$vectors
   dim(U)
@@ -252,7 +328,7 @@ lambda_sequence <- function(x, y, phi, weights = NULL,
   lambda.max <- max(abs(colSums(as.vector(uty) * utx * wi)))
 
   out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
-              eta = eta_next, sigma2 = sigma2_next)
+              eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next)
 
 }
 
@@ -264,32 +340,6 @@ bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
 
 
 
-#' Check of KKT
-#' @param tol.beta Tolerance for determining if a coefficient is zero
-#' @param tol.kkt Tolerance for determining if an entry of the subgradient is zero
 
-kkt_check <- function(bhat, lambda, tol.beta = 1e-5, tol.kkt = 0.1){
-
-  xx=cbind(1,x)
-
-  bhatt=c(0,bhat)
-
-  g0=t(xx)%*%(y-xx%*%bhatt)
-
-  g <- g0 - lambda * sign(bhatt)
-
-  gg=g0/lambda
-
-  # which of the betas are non-zero, subject to the tolerance level for beta
-  oo <- abs(bhatt) > tol.beta
-
-  cat(
-    c(
-      max(abs(g[oo])) > tol.kkt,
-      min(gg[!oo]) < -1 - tol.kkt,
-      max(gg[!oo]) > 1 + tol.kkt
-    ),
-    fill = T)
-}
 
 

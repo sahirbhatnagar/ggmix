@@ -11,6 +11,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(digits=4)
+rm(list=ls())
 ```
 
 ## Source code
@@ -66,7 +67,7 @@ kappa(Phi)
 ### Simulation parameters
 ```{r}
 eta <- 0.25
-sigma2 <- 2
+sigma2 <- 3
 
 # intercept
 b0 <- 3 
@@ -103,9 +104,11 @@ This outputs an object of class `penfam`:
 ```{r}
 # lambda_min_ratio is what I call \tau in the paper
 # in the paragraph after equation 20
-res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001, 
-              nlambda = 100,
-              an = log(log(n)) * log(n))
+system.time(
+  res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001, 
+                nlambda = 100,
+                an = log(log(n)) * log(n))
+)
 class(res)
 # res$coef[,c("s1","s2"), drop = F]
 # nonzeroCoef(res$coef, bystep = T)
