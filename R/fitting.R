@@ -8,24 +8,25 @@ penfam <- function(x, y, phi, lambda = NULL,
                    nlambda = 100,
                    maxit = 100000,
                    epsilon = 1e-7,
-                   an = log(log(n)) * log(n)) {
+                   an = log(log(n)) * log(n),
+                   tol.kkt = 0.1) {
 
-  rm(list=ls())
-  source("~/git_repositories/penfam/R/fitting.R")
-  source("~/git_repositories/penfam/R/functions.R")
-  source("~/git_repositories/penfam/R/methods.R")
-  source("~/git_repositories/penfam/R/plot.R")
-  source("~/git_repositories/penfam/R/sim-data.R")
-  x <- X
-  y <- Y
-  phi <- Phi
-  lambda_min_ratio <- 0.001
-  nlambda <- 100
-  #convergence criterion
-  epsilon <- 1e-7
-  maxit <- 1e6
-  an = log(log(600)) * log(600)
-  lambda <- 0.10
+  # rm(list=ls())
+  # source("~/git_repositories/penfam/R/fitting.R")
+  # source("~/git_repositories/penfam/R/functions.R")
+  # source("~/git_repositories/penfam/R/methods.R")
+  # source("~/git_repositories/penfam/R/plot.R")
+  # source("~/git_repositories/penfam/R/sim-data.R")
+  # x <- X
+  # y <- Y
+  # phi <- Phi
+  # lambda_min_ratio <- 0.001
+  # nlambda <- 100
+  # #convergence criterion
+  # epsilon <- 1e-7
+  # maxit <- 1e6
+  # an = log(log(600)) * log(600)
+  # lambda <- 0.10
   #======================================
 
   this.call <- match.call()
@@ -205,7 +206,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     kkt_lambda <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
                             eigenvalues = Lambda, x = utx, y = uty, nt = n,
-                            lambda = lambda, tol.beta = 1e-5, tol.kkt = 0.1)
+                            lambda = lambda, tol.kkt = tol.kkt)
 
 
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,

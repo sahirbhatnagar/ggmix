@@ -59,7 +59,6 @@ grr_beta0 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 #'   dimension n x (p+1)
 #' @param beta should include intercept as well. A 1 column matrix of dimension
 #'   (p+1) x 1.
-#' @param tol.beta Tolerance for determining if a coefficient is zero
 #' @param tol.kkt Tolerance for determining if an entry of the subgradient is
 #'   zero
 
@@ -88,12 +87,13 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
   g <- g0 - lambda * sign(beta[-1])
 
-  gg <- g0/lambda
+  # this is for when beta=0 and should be between -1 and 1
+  gg <- g0 / lambda
 
-  # which of the betas are non-zero, subject to the tolerance level for beta
+  # which of the betas are non-zero
   oo <- abs(beta[-1]) > 0
 
-  # if all betas are 0 then set to false, else abs(g[oo]) will give error since 'oo' is all FALSE
+  # if all betas are 0 then set to TRUE, else abs(g[oo]) will give error since 'oo' is all FALSE
   kkt_beta_nonzero <- if (all(!oo)) TRUE else max(abs(g[oo])) < tol.kkt
   kkt_beta_subgr1 <- min(gg[!oo]) > -1
   kkt_beta_subgr2 <- max(gg[!oo]) < 1

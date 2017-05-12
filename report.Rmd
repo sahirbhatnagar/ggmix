@@ -10,7 +10,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(digits=4)
+options(digits=4, scipen = 999)
 rm(list=ls())
 ```
 

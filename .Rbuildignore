@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^report\.html$
+^report\.Rmd$
+^R/scrap\.R$
+^R/sim-data\.R$
