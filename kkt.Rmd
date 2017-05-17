@@ -1,0 +1,170 @@
+---
+title: "KKT with Weights"
+author: "Sahir"
+date: "May 16, 2017"
+output:
+  html_document:
+    toc: true
+    toc_float: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+```
+
+## Overview
+
+This document verifies the KKT conditions for `glmnet` without and with weights. Note that `glmnet` internally rescales the observation weights to sum to the number of predictors. Let $N_T$ be the total number of observations and $w_i$ the observation weights for subject $i$. The following code rescales the weights:
+
+```{r, eval=FALSE}
+wi_scaled <- wi / sum(wi) * n
+```
+
+Let $\widetilde{w}_i$ be the re-scaled weights. Then the KKT equation is given by:
+
+$$
+\frac{1}{\sum_i^{N_T} \widetilde{w}_i} \sum_i^{N_T} \widetilde{w}_i \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j
+$$
+When all the weights are equal, $\sum_i^{N_T} \widetilde{w}_i = N_T$, and this equation simplifies to
+
+$$
+\frac{1}{N_T}  \sum_i^{N_T} \frac{w_i}{\sum_i^{N_T} w_i} N_T  \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j\\
+\frac{w_i}{\sum_i^{N_T} w_i}  \sum_i^{N_T}  \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j\\
+\frac{w_i}{N_T \cdot w_i}  \sum_i^{N_T}  \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j\\
+\frac{1}{N_T }  \sum_i^{N_T}  \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j
+$$
+
+$$
+\frac{1}{N_T}  \sum_i^{N_T}  \widetilde{X}_{ij} \left( \widetilde{Y}_i - \sum_{j=0}^{p}\widetilde{X}_{ij+1}\beta_j \right) = \lambda \gamma_j
+$$
+
+
+## Simulate Data
+
+```{r}
+library(glmnet)
+library(MASS)
+
+set.seed(1234)
+# intercept
+b0 <- 3
+# true betas
+b <- c(runif(10, 0.8,1.2), rep(0,180), runif(10, -1.2, -0.8))
+# number of predictors
+p <- length(b)
+# sample size
+n <- 100
+# independent predictors
+X <- mvrnorm(n, rep(1,p), diag(p))
+# response
+Y <- b0 + X %*% b + rnorm(n)
+```
+
+
+## KKT with Equal Weights
+
+```{r}
+# weights
+wi <- rep(1, n)
+# wi <- sample(1:10, size = n, replace = T)
+
+(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = 1e-20, weights = wi))
+B <- as.matrix(m2$beta)
+tol.kkt <- 1e-9
+
+out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
+                    dimnames = list(colnames(B),
+                                    c("kkt_beta_nonzero",
+                                      "kkt_beta_subgr", "sum_wi_scaled")))
+```
+
+
+
+```{r}
+for (lambda in colnames(B)) {
+  # lambda = colnames(B)[1]
+  beta <- B[, lambda, drop = F]
+  lambda_value <- m2$lambda[which(lambda==colnames(B))]
+  n <- nrow(X)
+  
+  # scale the weights to sum to nobs
+  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
+  wi_mat <- diag(wi_scaled)
+
+  # KKT for beta
+  g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
+
+  g <- g0 - lambda_value * sign(beta)
+
+  # this is for when beta=0 and should be between -1 and 1
+  gg <- g0 / lambda_value
+
+  # which of the betas are non-zero
+  oo <- abs(beta) > 0
+
+  # if all betas are 0 then set to TRUE, else abs(g[oo]) will give error since 'oo' is all FALSE
+  out_print[lambda, "kkt_beta_nonzero"] <- if (all(!oo)) 0 else sum(abs(g[oo]) > tol.kkt)
+  out_print[lambda, "kkt_beta_subgr"] <- sum(abs(gg[!oo]) > 1)
+  out_print[lambda, "sum_wi_scaled"] <- sum(wi_scaled)
+  
+  if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
+
+}
+
+out_print
+```
+
+
+## KKT with Different Weights
+
+```{r}
+# weights
+wi <- sample(1:10, size = n, replace = T)
+
+(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = 1e-20, weights = wi))
+B <- as.matrix(m2$beta)
+tol.kkt <- 1e-9
+
+out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
+                    dimnames = list(colnames(B),
+                                    c("kkt_beta_nonzero",
+                                      "kkt_beta_subgr", "sum_wi_scaled")))
+```
+
+
+```{r}
+for (lambda in colnames(B)) {
+# lambda=colnames(B)[1]
+  beta <- B[, lambda, drop = F]
+  lambda_value <- m2$lambda[which(lambda==colnames(B))]
+  n <- nrow(X)
+  
+  # scale the weights to sum to nobs
+  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
+  wi_mat <- diag(wi_scaled)
+
+  # KKT for beta
+  g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
+
+  g <- g0 - lambda_value * sign(beta)
+
+  # this is for when beta=0 and should be between -1 and 1
+  gg <- g0 / lambda_value
+
+  # which of the betas are non-zero
+  oo <- abs(beta) > 0
+
+  # if all betas are 0 then set to TRUE, else abs(g[oo]) will give error since 'oo' is all FALSE
+  out_print[lambda, "kkt_beta_nonzero"] <- if (all(!oo)) 0 else sum(abs(g[oo]) > tol.kkt)
+  out_print[lambda, "kkt_beta_subgr"] <- sum(abs(gg[!oo]) > 1)
+  out_print[lambda, "sum_wi_scaled"] <- sum(wi_scaled)
+  
+  if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
+
+}
+
+out_print
+```
+
+

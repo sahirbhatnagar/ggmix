@@ -6,10 +6,11 @@
 penfam <- function(x, y, phi, lambda = NULL,
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                    nlambda = 100,
+                   eta_init = 0.5,
                    maxit = 100000,
-                   epsilon = 1e-7,
+                   thresh = 1e-14,
                    an = log(log(n)) * log(n),
-                   tol.kkt = 0.1) {
+                   tol.kkt = 1e-9) {
 
   # rm(list=ls())
   # source("~/git_repositories/penfam/R/fitting.R")
@@ -23,8 +24,10 @@ penfam <- function(x, y, phi, lambda = NULL,
   # lambda_min_ratio <- 0.001
   # nlambda <- 100
   # #convergence criterion
-  # epsilon <- 1e-7
+  # thresh <- 1e-14
+  # tol.kkt <- 1e-9
   # maxit <- 1e6
+  # eta_init <- 0.5
   # an = log(log(600)) * log(600)
   # lambda <- 0.10
   #======================================
@@ -57,8 +60,11 @@ penfam <- function(x, y, phi, lambda = NULL,
   utx <- crossprod(U, x)
   uty <- crossprod(U, y)
 
-  # get sequence of tuning parameters
-  lamb <- lambda_sequence(x = utx, y = uty, phi = phi, lambda_min_ratio = lambda_min_ratio)
+ # get sequence of tuning parameters
+  (lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda,
+                           lambda_min_ratio = lambda_min_ratio,
+                           eta_init = eta_init, thresh = thresh,
+                           tol.kkt = tol.kkt))
 
   tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
   dimnames(tuning_params_mat)[[1]] <- list("lambda")
@@ -77,8 +83,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                                         "kkt_eta",
                                         "kkt_sigma2",
                                         "kkt_beta_nonzero",
-                                        "kkt_beta_subgr1",
-                                        "kkt_beta_subgr2")))
+                                        "kkt_beta_subgr", "sum_wi")))
 
   pb <- progress::progress_bar$new(
     format = "  fitting over all pairs of tuning parameters [:bar] :percent eta: :eta",
@@ -88,7 +93,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
   for (LAMBDA in lambda_names) {
 
-    # LAMBDA <- "s95"
+    # LAMBDA <- "s1"
     # ===========================
 
     lambda_index <- which(LAMBDA == lambda_names)
@@ -150,7 +155,8 @@ penfam <- function(x, y, phi, lambda = NULL,
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,
-                              lambda = lambda)
+                              lambda = lambda,
+                              thresh = thresh)
       # coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F]
 
       beta_next <- coef(beta_next_fit)[-1,, drop = F]
@@ -162,8 +168,8 @@ penfam <- function(x, y, phi, lambda = NULL,
                         gr = grr_eta,
                         method = "L-BFGS-B",
                         control = list(fnscale = 1),
-                        lower = 1e-6,
-                        upper = 1 - 1e-6,
+                        lower = 0.01,
+                        upper = 0.99,
                         sigma2 = sigma2_init,
                         beta = beta_next,
                         eigenvalues = Lambda,
@@ -178,7 +184,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
       Theta_next <- c(drop(beta_next), eta_next, sigma2_next)
 
-      converged <- crossprod(Theta_next - Theta_init) < epsilon
+      converged <- crossprod(Theta_next - Theta_init) < thresh
 
       beta_init <- beta_next
       eta_init <- eta_next
@@ -190,7 +196,7 @@ penfam <- function(x, y, phi, lambda = NULL,
     }
 
     # converged observation weights
-    # wi <- (1 / sigma2_next) * (1 / (1 + eta_next * (Lambda - 1)))
+    wi <- (1 / sigma2_next) * (1 / (1 + eta_next * (Lambda - 1)))
 
     nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
     deviance <- drop(crossprod(uty - utx %*% beta_next))
@@ -213,7 +219,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                             devRatio,
                             lambda,
                             bic_lambda,
-                            kkt_lambda)
+                            kkt_lambda, sum(wi))
 
     coefficient_mat[,LAMBDA] <- Theta_next
     pb$tick()

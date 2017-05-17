@@ -5,7 +5,7 @@ date: "May 10, 2017"
 output:
   html_document:
     toc: true
-    toc_float: true
+    toc_float: false
 ---
 
 ```{r setup, include=FALSE}
@@ -40,6 +40,7 @@ source("~/git_repositories/penfam/R/plot.R")
 pacman::p_load(MASS) 
 pacman::p_load(glmnet)
 pacman::p_load(progress)
+pacman::p_load(magrittr)
 ```
 
 
@@ -73,7 +74,7 @@ sigma2 <- 3
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -105,7 +106,10 @@ This outputs an object of class `penfam`:
 # lambda_min_ratio is what I call \tau in the paper
 # in the paragraph after equation 20
 system.time(
-  res <- penfam(x = X, y = Y, phi = Phi, lambda_min_ratio = 0.001, 
+  res <- penfam(x = X, y = Y, phi = Phi, 
+                lambda_min_ratio = 0.001,
+                thresh = 1e-14,
+                tol.kkt = 1e-8,
                 nlambda = 100,
                 an = log(log(n)) * log(n))
 )

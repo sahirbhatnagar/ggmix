@@ -25,7 +25,7 @@
 # diag(s.g*Phi)
 
 
-
+set.seed(12345678)
 library(magrittr)
 library(MASS)
 load("~/Dropbox/PhD/Year4/penfam/data/kin1.Rdata")
