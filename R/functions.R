@@ -76,10 +76,10 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
   di <- 1 + eta * (eigenvalues - 1)
   wi <- (1 / sigma2) * (1 / di)
-  p <- ncol(x) - 1
+
 
   # scale the weights to sum to nvars
-  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * p
+  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * nt
   # wi_mat <- diag(wi_scaled)
 
   # KKT for beta0
@@ -124,6 +124,7 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
   kkt_beta_nonzero <- if (all(!oo)) 0 else sum(abs(g[oo]) > tol.kkt)
   kkt_beta_subgr <- sum(abs(gg[!oo]) > 1)
+  if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
   return(c(kkt_beta0 = kkt_beta0,
            kkt_eta = kkt_eta,
@@ -380,13 +381,11 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   if (any(wi < 0)) stop("weights are negative")
 
   # scale the weights to sum to nvars
-  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * p
+  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
 
-  # lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
+  lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
 
-  lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
-
-  # lambda.max <- max(abs(colSums(((wi * x[,-1]) * drop(y - x %*% beta_next))) / (colSums(x[,-1, drop = F]^2 * wi))))
+  # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
 
   # (x[,-1, drop = F]) %>% dim
   # a <- colSums(x[,-1, drop = F]^2 * wi)

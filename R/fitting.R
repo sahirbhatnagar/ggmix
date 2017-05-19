@@ -8,7 +8,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                    nlambda = 100,
                    eta_init = 0.5,
                    maxit = 100000,
-                   thresh = 1e-14,
+                   thresh = 1e-18,
                    an = log(log(n)) * log(n),
                    tol.kkt = 1e-9) {
 
@@ -141,7 +141,9 @@ penfam <- function(x, y, phi, lambda = NULL,
       Theta_init <- c(drop(beta_init), eta_init, sigma2_init)
 
       # observation weights
-      wi <- (1 / sigma2_init) * (1 / (1 + eta_init * (Lambda - 1)))
+      di <- 1 + eta_init * (Lambda - 1)
+      wi <- (1 / sigma2_init) * (1 / di)
+      # wi <- (1 / sigma2_init) * (1 / (1 + eta_init * (Lambda - 1)))
       # length(wi)
       # plot(wi)
       # are all weights positive?
@@ -155,7 +157,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,
-                              lambda = lambda,
+                              lambda = lambda / sum(wi),
                               thresh = thresh)
       # coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F]
 
@@ -217,7 +219,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
                             devRatio,
-                            lambda,
+                            lambda / sum(wi),
                             bic_lambda,
                             kkt_lambda, sum(wi))
 

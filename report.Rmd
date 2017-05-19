@@ -108,8 +108,8 @@ This outputs an object of class `penfam`:
 system.time(
   res <- penfam(x = X, y = Y, phi = Phi, 
                 lambda_min_ratio = 0.001,
-                thresh = 1e-14,
-                tol.kkt = 1e-8,
+                thresh = 1e-20,
+                tol.kkt = 1e-7,
                 nlambda = 100,
                 an = log(log(n)) * log(n))
 )
