@@ -7,8 +7,9 @@ penfam <- function(x, y, phi, lambda = NULL,
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                    nlambda = 100,
                    eta_init = 0.5,
-                   maxit = 100000,
-                   thresh = 1e-18,
+                   maxit = 100,
+                   thresh_glmnet = 1e-18, # this is for glmnet
+                   thresh_penfam = 1e-9, # this is for penfam
                    an = log(log(n)) * log(n),
                    tol.kkt = 1e-9) {
 
@@ -24,10 +25,11 @@ penfam <- function(x, y, phi, lambda = NULL,
   # lambda_min_ratio <- 0.001
   # nlambda <- 100
   # #convergence criterion
-  # thresh <- 1e-14
-  # tol.kkt <- 1e-9
-  # maxit <- 1e6
-  # eta_init <- 0.5
+  # thresh_glmnet <- 1e-10
+  # thresh_penfam <- 1e-5
+  # tol.kkt <- 1e-5
+  # maxit <- 100
+  # eta_init <- 0.4
   # an = log(log(600)) * log(600)
   # lambda <- 0.10
   #======================================
@@ -60,10 +62,10 @@ penfam <- function(x, y, phi, lambda = NULL,
   utx <- crossprod(U, x)
   uty <- crossprod(U, y)
 
- # get sequence of tuning parameters
-  (lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda,
+  # get sequence of tuning parameters
+  (lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda, nlambda = nlambda,
                            lambda_min_ratio = lambda_min_ratio,
-                           eta_init = eta_init, thresh = thresh,
+                           eta_init = eta_init, thresh_penfam = thresh_penfam,
                            tol.kkt = tol.kkt))
 
   tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
@@ -76,24 +78,24 @@ penfam <- function(x, y, phi, lambda = NULL,
                             dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
                                             lambda_names))
 
-  out_print <- matrix(NA, nrow = nlambda, ncol = 10,
+  out_print <- matrix(NA, nrow = nlambda, ncol = 11,
                       dimnames = list(lambda_names,
                                       c("Df","%Dev","Lambda","BIC",
                                         "kkt_beta0",
                                         "kkt_eta",
                                         "kkt_sigma2",
                                         "kkt_beta_nonzero",
-                                        "kkt_beta_subgr", "sum_wi")))
+                                        "kkt_beta_subgr", "sum_wi", "converged")))
 
   pb <- progress::progress_bar$new(
-    format = "  fitting over all pairs of tuning parameters [:bar] :percent eta: :eta",
+    format = "  fitting over all tuning parameters [:bar] :percent eta: :eta",
     total = 100, clear = FALSE, width= 90)
   pb$tick(0)
 
 
   for (LAMBDA in lambda_names) {
 
-    # LAMBDA <- "s1"
+    # LAMBDA <- "s70"
     # ===========================
 
     lambda_index <- which(LAMBDA == lambda_names)
@@ -102,21 +104,60 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     if (lambda_index == 1) {
       # initial values for beta
+
+      # this shows that fitting entire sequence of lambda is faster
+      # tu <- microbenchmark::microbenchmark(
+      # beta_init_fit <- glmnet(x = utx,
+      #                         y = uty,
+      #                         thresh = thresh_glmnet,
+      #                         family = "gaussian",
+      #                         penalty.factor = c(0, rep(1, p)),
+      #                         standardize = FALSE,
+      #                         intercept = FALSE,
+      #                         lambda = lambda),
+      # beta_init_fit <- glmnet(x = utx,
+      #                         y = uty,
+      #                         thresh = thresh_glmnet,
+      #                         family = "gaussian",
+      #                         penalty.factor = c(0, rep(1, p)),
+      #                         standardize = FALSE,
+      #                         intercept = FALSE,
+      #                         lambda = NULL)
+      # , times = 10)
+
       beta_init_fit <- glmnet(x = utx,
                               y = uty,
+                              thresh = thresh_glmnet,
                               family = "gaussian",
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,
-                              lambda = lambda)
+                              lambda = NULL)
 
       # coef(beta_init_fit) %>% head
       # plot(beta_init_fit)
       # coef(beta_init_fit)[nonzeroCoef(coef(beta_init_fit)), , drop = F]
 
       # remove intercept since V1 is intercept
-      beta_init <- coef(beta_init_fit)[-1, , drop = F]
+      beta_init <- coef(beta_init_fit, s = lambda, exact = T,
+                        x = utx,
+                        y = uty,
+                        thresh = thresh_glmnet,
+                        family = "gaussian",
+                        penalty.factor = c(0, rep(1, p)),
+                        standardize = FALSE,
+                        intercept = FALSE)[-1, , drop = F]
       # head(beta_init)
+      # coef.approx = coef(beta_init_fit, s = lambda, exact = F)
+      # coef.exact = coef(beta_init_fit, s = lambda, exact = T)
+      # plot(coef.approx, coef.exact, xlab="not exact", ylab = "exact")
+      # abline(a=0, b=1, col="red")
+      #
+      # nonzeroCoef(coef.approx) %>% length()
+      # nonzeroCoef(coef.exact) %>% length()
+      #
+      # sum(nonzeroCoef(coef.approx) %in% nonzeroCoef(coef.exact)) / length(nonzeroCoef(coef.approx))
+      # sum(nonzeroCoef(coef.exact) %in% nonzeroCoef(coef.approx)) / length(nonzeroCoef(coef.exact))
 
       # initial value for eta from lambda_sequence results
       eta_init <- lamb$eta
@@ -125,6 +166,7 @@ penfam <- function(x, y, phi, lambda = NULL,
       sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
     } else {
 
+      # warm start
       beta_init <- beta_next
       eta_init <- eta_next
       sigma2_init <- sigma2_next
@@ -157,11 +199,19 @@ penfam <- function(x, y, phi, lambda = NULL,
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,
-                              lambda = lambda / sum(wi),
-                              thresh = thresh)
+                              lambda = NULL,
+                              thresh = thresh_glmnet)
       # coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F]
 
-      beta_next <- coef(beta_next_fit)[-1,, drop = F]
+      beta_next <- coef(beta_next_fit, s = lambda, exact = T,
+                        x = utx,
+                        y = uty,
+                        family = "gaussian",
+                        weights = wi,
+                        penalty.factor = c(0, rep(1, p)),
+                        standardize = FALSE,
+                        intercept = FALSE,
+                        thresh = thresh_glmnet)[-1, , drop = F]
       # plot(beta_next)
 
       # fit eta
@@ -186,27 +236,30 @@ penfam <- function(x, y, phi, lambda = NULL,
 
       Theta_next <- c(drop(beta_next), eta_next, sigma2_next)
 
-      converged <- crossprod(Theta_next - Theta_init) < thresh
+      converged <- crossprod(Theta_next - Theta_init) < thresh_penfam
+      # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) <
 
       beta_init <- beta_next
       eta_init <- eta_next
       sigma2_init <- sigma2_next
 
-      # message(sprintf("l2 norm of Theta: %f \n log-lik: %f", crossprod(Theta_next - Theta_init),
-      #                 log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda,x = utx, y = uty, nt = n)))
+      message(sprintf("lambda = %s, iter = %f, l2 norm squared of Theta: %f \n log-lik: %f", LAMBDA, k, crossprod(Theta_next - Theta_init),
+                      log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda,x = utx, y = uty, nt = n)))
 
     }
 
+    if (!converged) message(sprintf("algorithm did not converge for %s", LAMBDA))
     # converged observation weights
-    wi <- (1 / sigma2_next) * (1 / (1 + eta_next * (Lambda - 1)))
+    di <- 1 + eta_next * (Lambda - 1)
+    wi <- (1 / sigma2_next) * (1 / di)
 
     nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
     deviance <- drop(crossprod(uty - utx %*% beta_next))
-    devRatio <- drop(1-deviance/nulldev)
+    devRatio <- drop(1 - deviance/nulldev)
 
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution.
-    df <- length(glmnet::nonzeroCoef(coef(beta_next_fit))) - 1
+    df <- length(glmnet::nonzeroCoef(beta_next)) - 1
 
     bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
                       eigenvalues = Lambda, x = utx, y = uty, nt = n,
@@ -219,9 +272,9 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
                             devRatio,
-                            lambda / sum(wi),
+                            lambda,
                             bic_lambda,
-                            kkt_lambda, sum(wi))
+                            kkt_lambda, sum(wi), converged)
 
     coefficient_mat[,LAMBDA] <- Theta_next
     pb$tick()

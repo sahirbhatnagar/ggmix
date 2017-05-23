@@ -48,6 +48,7 @@ pacman::p_load(magrittr)
 
 ### Kinship Matrix and Eigen Decomposition
 ```{r}
+set.seed(12345678)
 # Kinship matrix from Karim
 load("~/Dropbox/PhD/Year4/penfam/data/kin1.Rdata")
 Phi <- 2 * kin1
@@ -74,7 +75,7 @@ sigma2 <- 3
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -106,12 +107,14 @@ This outputs an object of class `penfam`:
 # lambda_min_ratio is what I call \tau in the paper
 # in the paragraph after equation 20
 system.time(
-  res <- penfam(x = X, y = Y, phi = Phi, 
-                lambda_min_ratio = 0.001,
-                thresh = 1e-20,
-                tol.kkt = 1e-7,
-                nlambda = 100,
-                an = log(log(n)) * log(n))
+res <- penfam(x = X, y = Y, phi = Phi, 
+                         lambda_min_ratio = 0.001,
+                         thresh_glmnet = 1e-10,
+                         thresh_penfam = 1e-6,
+                         tol.kkt = 1e-3,
+                         nlambda = 100,
+                         an = log(log(n)) * log(n)) 
+
 )
 class(res)
 res$x

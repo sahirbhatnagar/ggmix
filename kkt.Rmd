@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 rm(list=ls())
 ```
 
@@ -42,9 +42,13 @@ $$
 
 ## Simulate Data
 
+
+
+
 ```{r}
 library(glmnet)
 library(MASS)
+library(magrittr)
 
 set.seed(1234)
 # intercept
@@ -59,6 +63,12 @@ n <- 100
 X <- mvrnorm(n, rep(1,p), diag(p))
 # response
 Y <- b0 + X %*% b + rnorm(n)
+
+# threshold
+threshold <- 1e-20
+
+# kkt tolerance
+tol.kkt <- 1e-9
 ```
 
 
@@ -69,32 +79,35 @@ Y <- b0 + X %*% b + rnorm(n)
 wi <- rep(1, n)
 # wi <- sample(1:10, size = n, replace = T)
 
-(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = 1e-20, weights = wi))
+(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = threshold, weights = wi))
+(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = threshold))
+max(m2$lambda)
 B <- as.matrix(m2$beta)
-tol.kkt <- 1e-9
 
 out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
                     dimnames = list(colnames(B),
                                     c("kkt_beta_nonzero",
-                                      "kkt_beta_subgr", "sum_wi_scaled")))
+                                      "kkt_beta_subgr", 
+                                      "sum_wi_scaled")))
 ```
 
 
 
-```{r}
+```{r, echo=FALSE}
 for (lambda in colnames(B)) {
   # lambda = colnames(B)[1]
   beta <- B[, lambda, drop = F]
   lambda_value <- m2$lambda[which(lambda==colnames(B))]
   n <- nrow(X)
-  
+
   # scale the weights to sum to nobs
   wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
   wi_mat <- diag(wi_scaled)
 
   # KKT for beta
-  g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
-
+  # g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
+  g0 <- (1 / sum(wi)) * crossprod(X * wi, (Y - X %*% beta - drop(m2$a0[lambda])))
+  
   g <- g0 - lambda_value * sign(beta)
 
   # this is for when beta=0 and should be between -1 and 1
@@ -113,6 +126,33 @@ for (lambda in colnames(B)) {
 }
 
 out_print
+
+mysd <- function(y) sqrt(sum((y - mean(y)) ^ 2)/length(y))
+sy <- as.vector(scale(Y, scale = mysd(Y)))
+sx <- scale(X, scale = apply(X, 2, mysd))
+sx <- as.matrix(sx, ncol = p, nrow = n)
+dim(sx)
+(lambda.max <- max(abs(colSums(wi * sx * drop(sy)))) / n)
+m2$lambda
+
+sx <- scale(X,scale=apply(X,2,mysd))
+sx <- as.matrix(sx,ncol=p,nrow=n)
+sy <- as.vector(scale(Y, scale = mysd(Y)))
+max(abs(colSums(sx*sy)))/100
+fitGLM <- glmnet(sx, sy, standardize = F)
+max(fitGLM$lambda)
+
+
+rm(list = ls())
+set.seed(1)
+library("glmnet")
+x <- matrix(rnorm(100*20),100,20)
+y <- rnorm(100)
+fitGLM <- glmnet(x,y)
+max(fitGLM$lambda)
+
+
+
 ```
 
 
@@ -122,9 +162,8 @@ out_print
 # weights
 wi <- sample(1:10, size = n, replace = T)
 
-(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = 1e-20, weights = wi))
+(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = threshold, weights = wi))
 B <- as.matrix(m2$beta)
-tol.kkt <- 1e-9
 
 out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
                     dimnames = list(colnames(B),
@@ -145,7 +184,8 @@ for (lambda in colnames(B)) {
   wi_mat <- diag(wi_scaled)
 
   # KKT for beta
-  g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
+  # g0 <- (1 / sum(wi_scaled)) * crossprod(X * wi_scaled, (Y - X %*% beta - drop(m2$a0[lambda])))
+  g0 <- (1 / sum(wi)) * crossprod(X * wi, (Y - X %*% beta - drop(m2$a0[lambda])))
 
   g <- g0 - lambda_value * sign(beta)
 
@@ -163,6 +203,13 @@ for (lambda in colnames(B)) {
   if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
 }
+
+(lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * X) * drop(Y))))))
+
+(lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * X) * drop(Y))))))
+  
+  
+m2$lambda
 
 out_print
 ```

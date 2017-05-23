@@ -25,7 +25,7 @@
 # diag(s.g*Phi)
 
 
-set.seed(12345678)
+set.seed(12345)
 library(magrittr)
 library(MASS)
 load("~/Dropbox/PhD/Year4/penfam/data/kin1.Rdata")
@@ -41,7 +41,7 @@ kappa(Phi)
 
 # simulation parameters
 eta <- 0.35
-sigma2 <- 2
+sigma2 <- 3
 p <- 1000
 b0 <- 3
 b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8))

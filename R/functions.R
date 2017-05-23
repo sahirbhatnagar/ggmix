@@ -248,7 +248,7 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
                             # lambda_min_ratio = ifelse(n < p, 0.01, 0.001),
                             lambda_min_ratio,
-                            thresh = 1e-14,
+                            thresh_penfam = 1e-14,
                             tol.kkt = 1e-9,
                             eta_init = 0.5,
                             nlambda = 100, scale_x = F, center_y = F) {
@@ -282,7 +282,7 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   # eigenvalues <- Lambda
   # # utx0 <- utx[, 1, drop = F]
   #convergence criterion
-  # thresh <- 1e-7
+  # epsilon <- 1e-7
 
   #======================================
 
@@ -359,10 +359,11 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
 
     Theta_next <- c(beta_next, eta_next, sigma2_next)
 
-    converged <- sqrt(crossprod(Theta_next - Theta_init)) < thresh
+    converged <- crossprod(Theta_next - Theta_init) < thresh_penfam
+    # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) < epsilon
 
-    message(sprintf("l2 norm of Theta_k+1 - Theta_k: %f \n log-lik: %f",
-                    sqrt(crossprod(Theta_next - Theta_init)),
+    message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
+                    crossprod(Theta_next - Theta_init),
                     log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
                             eigenvalues = eigenvalues,
                             x = x, y = y, nt = n)))
@@ -383,9 +384,11 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   # scale the weights to sum to nvars
   wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
 
-  lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
+  # wi_scaled <- as.vector(wi) * n
 
-  # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
+  # lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
+
+  lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
 
   # (x[,-1, drop = F]) %>% dim
   # a <- colSums(x[,-1, drop = F]^2 * wi)
@@ -396,7 +399,7 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   kkt <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
                    eigenvalues = eigenvalues, x = x, y = y, nt = n,
                    lambda = lambda.max, tol.kkt = tol.kkt)
-
+  # message(kkt)
   out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
               eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next, kkt = kkt)
 
