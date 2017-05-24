@@ -1,5 +1,11 @@
 #' @param an is the constant used in the BIC calculation. The default choice is
 #'   from Wang et al. (2009)
+#' @param exact If exact=FALSE, then the results from glmnet uses linear
+#'   interpolation to make predictions for values of lambda that do not coincide
+#'   with those used in the fitting algorithm. While this is often a good
+#'   approximation, it can sometimes be a bit coarse. With exact=TRUE (default),
+#'   the model is refit before predictions are made. See
+#'   \code{\link[glmnet]{coef.glmnet}} for more details.
 #' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
 #'   selection with a diverging number of parameters.J. R. Statist. Soc. B, 71,
 #'   671–683.
@@ -8,10 +14,11 @@ penfam <- function(x, y, phi, lambda = NULL,
                    nlambda = 100,
                    eta_init = 0.5,
                    maxit = 100,
-                   thresh_glmnet = 1e-18, # this is for glmnet
-                   thresh_penfam = 1e-9, # this is for penfam
+                   thresh_glmnet = 1e-10, # this is for glmnet
+                   epsilon = 1e-5, # this is for penfam
                    an = log(log(n)) * log(n),
-                   tol.kkt = 1e-9) {
+                   tol.kkt = 1e-9,
+                   exact = T) {
 
   # rm(list=ls())
   # source("~/git_repositories/penfam/R/fitting.R")
@@ -22,16 +29,17 @@ penfam <- function(x, y, phi, lambda = NULL,
   # x <- X
   # y <- Y
   # phi <- Phi
-  # lambda_min_ratio <- 0.001
+  # lambda_min_ratio <- ifelse(n < p, 0.01, 0.001)
   # nlambda <- 100
   # #convergence criterion
   # thresh_glmnet <- 1e-10
-  # thresh_penfam <- 1e-5
+  # epsilon <- 1e-5
   # tol.kkt <- 1e-5
   # maxit <- 100
   # eta_init <- 0.4
   # an = log(log(600)) * log(600)
   # lambda <- 0.10
+  # exact = T
   #======================================
 
   this.call <- match.call()
@@ -59,13 +67,17 @@ penfam <- function(x, y, phi, lambda = NULL,
   # vector of length N_T
   Lambda <- phi_eigen$values
 
+  # Phi Inverse (used for prediction of random effects)
+  D_inv <- diag(1 / Lambda)
+  Phi_inv <- U %*% D_inv %*% t(U)
+
   utx <- crossprod(U, x)
   uty <- crossprod(U, y)
 
   # get sequence of tuning parameters
   (lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda, nlambda = nlambda,
                            lambda_min_ratio = lambda_min_ratio,
-                           eta_init = eta_init, thresh_penfam = thresh_penfam,
+                           eta_init = eta_init, epsilon = epsilon,
                            tol.kkt = tol.kkt))
 
   tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
@@ -77,6 +89,21 @@ penfam <- function(x, y, phi, lambda = NULL,
                             ncol = nlambda,
                             dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
                                             lambda_names))
+
+  randomeff_mat <- matrix(nrow = n,
+                            ncol = nlambda,
+                            dimnames = list(c(paste0("Subject",1:n)),
+                                            lambda_names))
+
+  fitted_mat <- matrix(nrow = n,
+                       ncol = nlambda,
+                       dimnames = list(c(paste0("Subject",1:n)),
+                                       lambda_names))
+
+  resid_mat <- matrix(nrow = n,
+                       ncol = nlambda,
+                       dimnames = list(c(paste0("Subject",1:n)),
+                                       lambda_names))
 
   out_print <- matrix(NA, nrow = nlambda, ncol = 11,
                       dimnames = list(lambda_names,
@@ -95,7 +122,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
   for (LAMBDA in lambda_names) {
 
-    # LAMBDA <- "s70"
+    # LAMBDA <- "s1"
     # ===========================
 
     lambda_index <- which(LAMBDA == lambda_names)
@@ -139,7 +166,7 @@ penfam <- function(x, y, phi, lambda = NULL,
       # coef(beta_init_fit)[nonzeroCoef(coef(beta_init_fit)), , drop = F]
 
       # remove intercept since V1 is intercept
-      beta_init <- coef(beta_init_fit, s = lambda, exact = T,
+      beta_init <- coef(beta_init_fit, s = lambda, exact = exact,
                         x = utx,
                         y = uty,
                         thresh = thresh_glmnet,
@@ -203,7 +230,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                               thresh = thresh_glmnet)
       # coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F]
 
-      beta_next <- coef(beta_next_fit, s = lambda, exact = T,
+      beta_next <- coef(beta_next_fit, s = lambda, exact = exact,
                         x = utx,
                         y = uty,
                         family = "gaussian",
@@ -236,15 +263,15 @@ penfam <- function(x, y, phi, lambda = NULL,
 
       Theta_next <- c(drop(beta_next), eta_next, sigma2_next)
 
-      converged <- crossprod(Theta_next - Theta_init) < thresh_penfam
+      converged <- crossprod(Theta_next - Theta_init) < epsilon
       # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) <
 
       beta_init <- beta_next
       eta_init <- eta_next
       sigma2_init <- sigma2_next
 
-      message(sprintf("lambda = %s, iter = %f, l2 norm squared of Theta: %f \n log-lik: %f", LAMBDA, k, crossprod(Theta_next - Theta_init),
-                      log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda,x = utx, y = uty, nt = n)))
+      # message(sprintf("lambda = %s, iter = %f, l2 norm squared of Theta: %f \n log-lik: %f", LAMBDA, k, crossprod(Theta_next - Theta_init),
+      #                 log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda,x = utx, y = uty, nt = n)))
 
     }
 
@@ -277,6 +304,30 @@ penfam <- function(x, y, phi, lambda = NULL,
                             kkt_lambda, sum(wi), converged)
 
     coefficient_mat[,LAMBDA] <- Theta_next
+
+
+    # prediction of random effects
+    # bi <- drop(eta_next * Phi %*% (y - x %*% beta_next)) / di
+    D_tilde_inv <- diag(1 / di)
+    V_inv <- U %*% D_tilde_inv %*% t(U)
+
+    bi <- drop(solve((1 / eta_next) * Phi_inv + V_inv) %*% V_inv %*% (y - x %*% beta_next))
+
+    # fitted values
+    yi_hat <- drop(x %*% beta_next) + bi
+
+    # residuals
+    ri <- drop(y) - yi_hat
+
+    # bi <- drop(eta_next * Phi %*% (uty - utx %*% beta_next)) / di
+    # qqnorm(bi)
+    # abline(a = 0, b = 1, col = "red")
+    # plot(density(bi))
+
+    randomeff_mat[,LAMBDA] <- bi
+    fitted_mat[,LAMBDA] <- yi_hat
+    resid_mat[,LAMBDA] <- ri
+
     pb$tick()
   }
 
@@ -291,6 +342,9 @@ penfam <- function(x, y, phi, lambda = NULL,
               eta = coefficient_mat["eta",,drop = FALSE],
               sigma2 = coefficient_mat["sigma2",,drop = FALSE],
               nlambda = nlambda,
+              randomeff = randomeff_mat,
+              fitted = fitted_mat,
+              residuals = resid_mat,
               cov_names = paste0("beta",1:p),
               lambda_min = id_min,
               lambda_min_value = lambda_min)

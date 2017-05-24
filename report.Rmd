@@ -75,7 +75,7 @@ sigma2 <- 3
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -102,22 +102,77 @@ Y <- b0 + X %*% b + P + E
 
 ## Fit the penfam model
 
-This outputs an object of class `penfam`:
+This outputs an object of class `penfam`. We fit using the option `exact = TRUE` and `exact = FALSE`.
 ```{r}
-# lambda_min_ratio is what I call \tau in the paper
-# in the paragraph after equation 20
 system.time(
-res <- penfam(x = X, y = Y, phi = Phi, 
-                         lambda_min_ratio = 0.001,
-                         thresh_glmnet = 1e-10,
-                         thresh_penfam = 1e-6,
-                         tol.kkt = 1e-3,
-                         nlambda = 100,
-                         an = log(log(n)) * log(n)) 
+  exact <- penfam(x = X, y = Y, phi = Phi, 
+                 thresh_glmnet = 1e-10,
+                 epsilon = 1e-4,
+                 tol.kkt = 1e-3,
+                 nlambda = 100,
+                 exact = T,
+                 an = log(log(n)) * log(n)) 
+  )
 
+exact = approx
+plot(exact, type = "BIC")
+predict(exact, type = "nonzero", s = exact$lambda_min)
+
+View(lmmlasso:::plot.lmmlasso)
+qqnorm(exact$randomeff[, exact$lambda_min])
+qqline(exact$randomeff[, exact$lambda_min], col = "red")
+
+qqnorm(exact$residuals[, exact$lambda_min])
+qqline(exact$residuals[, exact$lambda_min], col = "red")
+
+
+plot(exact$randomeff[, exact$lambda_min],
+     P, xlab = "estimated", ylab = "truth")
+abline(a = 0, b = 1, col = "red")
+cor(exact$randomeff[, exact$lambda_min],P)
+
+# Tukey-Anscombe
+plot(exact$fitted[, exact$lambda_min],
+     exact$residuals[, exact$lambda_min])
+abline(a = 0, b = 0, col = "red")
+
+lmmlasso:::plot.lmmlasso()
+
+plot(exact$fitted[, exact$lambda_min], Y)
+abline(a = 0, b = 1, col = "red")
+cor(exact$fitted[, exact$lambda_min],Y)
+
+
+
+system.time(
+approx <- penfam(x = X, y = Y, phi = Phi, 
+                 thresh_glmnet = 1e-10,
+                 epsilon = 1e-4,
+                 tol.kkt = 1e-3,
+                 nlambda = 100,
+                 exact = F,
+                 an = log(log(n)) * log(n))
 )
+
+par(mfrow=c(2,1))
+plot(exact, type = "BIC")
+plot(approx, type = "BIC")
+cbind(
+  predict(exact, type = "nonzero", s = exact$lambda_min),
+  predict(approx, type = "nonzero", s = approx$lambda_min)
+)
+
+all(exact$x[,"converged"]==1)
+all(approx$x[,"converged"]==1)
+
+dev.off()
+plot(predict(exact, type = "nonzero", s = exact$lambda_min),
+  predict(approx, type = "nonzero", s = approx$lambda_min))
+abline(a = 0, b = 1, col = "red")
+
 class(res)
 res$x
+
 # res$coef[,c("s1","s2"), drop = F]
 # nonzeroCoef(res$coef, bystep = T)
 ```
