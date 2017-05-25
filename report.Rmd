@@ -5,11 +5,11 @@ date: "May 10, 2017"
 output:
   html_document:
     toc: true
-    toc_float: false
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, tidy = FALSE)
 options(digits=4, scipen = 999)
 rm(list=ls())
 ```
@@ -75,7 +75,7 @@ sigma2 <- 3
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -100,66 +100,88 @@ Y <- b0 + X %*% b + P + E
 ```
 
 
-## Fit the penfam model
+## A note on using `glmnet`
 
-This outputs an object of class `penfam`:
+As per [Appendix 2 of the `glmnet` vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf), the recommended way to obtain a lasso solution for a single value of $\lambda$ is to
+> fit the entire lasso or elastic-net path without specifying lambda, letting it chose its own sequence. Then make a call to coef or predict (using the exact = TRUE option) and provide the requested $\lambda$ to extract the corresponding coefficients. 
+
+We provide these two main options for fitting the `penfam` model by specifying the `exact` argument:
+- `exact = TRUE`: this will use the exact value of lambda provided and re-fit the model using `glmnet`
+- `exact = FALSE`: this will use a linear interpolation 
+In both cases, the entire lasso path is being fit.
+
+## Fit the penfam model with `exact = TRUE`
+
+We first fit using the option `exact = TRUE`
+
 ```{r}
-# lambda_min_ratio is what I call \tau in the paper
-# in the paragraph after equation 20
 system.time(
-res <- penfam(x = X, y = Y, phi = Phi, 
-                         lambda_min_ratio = 0.001,
-                         thresh_glmnet = 1e-10,
-                         thresh_penfam = 1e-6,
-                         tol.kkt = 1e-3,
-                         nlambda = 100,
-                         an = log(log(n)) * log(n)) 
-
+  exact <- penfam(x = X, 
+                  y = Y, 
+                  phi = Phi, 
+                  thresh_glmnet = 1e-10,
+                  epsilon = 1e-9,
+                  tol.kkt = 1e-3,
+                  nlambda = 100,
+                  exact = TRUE,
+                  an = log(log(n)) * log(n),
+                  lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
+                  eta_init = 0.5,
+                  maxit = 100) 
 )
-class(res)
-res$x
-# res$coef[,c("s1","s2"), drop = F]
-# nonzeroCoef(res$coef, bystep = T)
 ```
 
 Print method:
 ```{r}
-res
+exact
 ```
 
-## Coefficients at Minimum BIC
+
+### KKT Checks
 
 ```{r}
-coef(res, s=res$lambda_min)
+exact$result[,c(-2,-3,-4,-10)]
 ```
 
-## Non-zero Coefficients at Minimum BIC
+
+
+### Coefficients at Minimum BIC
 
 ```{r}
-predict(res, type = "nonzero", s = res$lambda_min)
+coef(exact, s = exact$lambda_min)
 ```
 
-
-## Plot of Coefficient Paths
+### Non-zero Coefficients at Minimum BIC
 
 ```{r}
-plot(res, xvar = "norm")
-plot(res, xvar = "lambda")
-plot(res, xvar = "dev")
+predict(exact, type = "nonzero", s = exact$lambda_min)
 ```
 
-## Plot of BIC as a function of Tuning parameters
+### Plot of Coefficient Paths
 
 ```{r}
-plot(res, type = "BIC")
+plot(exact, type = "coef", xvar = "norm")
+plot(exact, type = "coef", xvar = "lambda")
+plot(exact, type = "coef", xvar = "dev")
 ```
 
 
-## Compare Estimated vs. Truth
+### Plot of BIC as a function of Tuning parameters
+
+```{r}
+plot(exact, type = "BIC")
+```
+
+
+### Compare Estimated vs. Truth
 
 ```{r, fig.keep='last'}
-plot(coef(res, s = res$lambda_min), pch = 19, col = "red", ylim = range(c(b0,b, eta, sigma2,drop(coef(res, s = res$lambda_min)))))
-points(seq_along(c(b0,b, eta, sigma2)), c(b0,b, eta, sigma2), pch = 19, col = "blue")
+plot(coef(exact, s = exact$lambda_min), 
+     pch = 19, col = "red", 
+     ylim = range(c(b0, b, eta, sigma2, drop(coef(exact, s = exact$lambda_min)))))
+
+points(seq_along(c(b0, b, eta, sigma2)), c(b0, b, eta, sigma2), pch = 19, col = "blue")
+
 legend("bottomleft",
        legend = c("Estimated", "Truth"),
        col = c("red","blue"),
@@ -167,5 +189,172 @@ legend("bottomleft",
        bg = "gray90")
 ```
 
+
+### Prediction of Random Effects
+
+```{r}
+plot(exact, type = c("QQranef"), s = exact$lambda_min)
+```
+
+
+### Tukey-Anscombe Plot
+
+```{r}
+plot(exact, type = c("Tukey"), s = exact$lambda_min)
+```
+
+
+### Residuals
+
+```{r}
+plot(exact, type = c("QQresid"), s = exact$lambda_min)
+```
+
+
+### Fitted vs. Observed response
+
+
+```{r}
+plot(exact, type = c("fitted"), s = exact$lambda_min)
+```
+
+
+
+## Fit the penfam model with `exact = FALSE`
+
+Now we fit using the option `exact = FALSE`
+
+```{r}
+system.time(
+  approx <- penfam(x = X, 
+                   y = Y, 
+                   phi = Phi, 
+                   thresh_glmnet = 1e-10,
+                   epsilon = 1e-6,
+                   tol.kkt = 1e-4,
+                   nlambda = 100,
+                   exact = FALSE,
+                   an = log(log(n)) * log(n),
+                   lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
+                   eta_init = 0.5,
+                   maxit = 100) 
+)
+```
+
+Print method:
+```{r}
+approx
+```
+
+
+### KKT Checks
+
+```{r}
+approx$result[,c(-2,-3,-4,-10)]
+```
+
+
+
+### Coefficients at Minimum BIC
+
+```{r}
+coef(approx, s = approx$lambda_min)
+```
+
+### Non-zero Coefficients at Minimum BIC
+
+```{r}
+predict(approx, type = "nonzero", s = approx$lambda_min)
+```
+
+### Plot of Coefficient Paths
+
+```{r}
+plot(approx, type = "coef", xvar = "norm")
+plot(approx, type = "coef", xvar = "lambda")
+plot(approx, type = "coef", xvar = "dev")
+```
+
+
+### Plot of BIC as a function of Tuning parameters
+
+```{r}
+plot(approx, type = "BIC")
+```
+
+
+### Compare Estimated vs. Truth
+
+```{r, fig.keep='last'}
+plot(coef(approx, s = approx$lambda_min), 
+     pch = 19, col = "red", 
+     ylim = range(c(b0, b, eta, sigma2, drop(coef(approx, s = approx$lambda_min)))))
+
+points(seq_along(c(b0, b, eta, sigma2)), c(b0, b, eta, sigma2), pch = 19, col = "blue")
+
+legend("bottomleft",
+       legend = c("Estimated", "Truth"),
+       col = c("red","blue"),
+       pch = c(19, 19),
+       bg = "gray90")
+```
+
+
+### Prediction of Random Effects
+
+```{r}
+plot(approx, type = c("QQranef"), s = approx$lambda_min)
+```
+
+
+### Tukey-Anscombe Plot
+
+```{r}
+plot(approx, type = c("Tukey"), s = approx$lambda_min)
+```
+
+
+### Residuals
+
+```{r}
+plot(approx, type = c("QQresid"), s = approx$lambda_min)
+```
+
+
+### Fitted vs. Observed response
+
+
+```{r}
+plot(approx, type = c("fitted"), s = approx$lambda_min)
+```
+
+
+
+
+## Compare Exact to Approximate
+
+```{r}
+exact_coef <- coef(exact, s = exact$lambda_min)
+approx_coef <- coef(approx, s = approx$lambda_min)
+plot(drop(exact_coef),
+     drop(approx_coef),
+     xlab = "exact", ylab = "approximate", main = "Estimated parameters at minimum BIC")
+```
+
+```{r}
+cbind(exact_coef, approx_coef)
+```
+
+
+### Pearson Correlation
+```{r}
+cor(drop(exact_coef), drop(approx_coef))
+```
+
+### Spearman Correlation
+```{r}
+cor(drop(exact_coef), drop(approx_coef),
+    method = "spearman")
+```
 
 

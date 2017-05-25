@@ -102,7 +102,8 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
   # g0 <- (1 / nt) * crossprod(x[,-1, drop = F], wi) %*% (y - x %*% beta) / (colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi_vec, '*')))
 
   # KKT for beta
-  g0 <- (1 / sum(wi_scaled)) * crossprod(x[,-1, drop = F] * wi_scaled, (y - x %*% beta ))
+  # g0 <- (1 / sum(wi_scaled)) * crossprod(x[,-1, drop = F] * wi_scaled, (y - x %*% beta ))
+  g0 <- (1 / sum(wi)) * crossprod(x[,-1, drop = F] * wi, (y - x %*% beta ))
 
   # this gives same result as g0
   # g1 <- colSums((1 / nt) * sweep(sweep(x[,-1], MARGIN = 1, wi_vec, '*'), MARGIN = 1, drop((y - x %*% beta)),'*'))
@@ -124,7 +125,7 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
   kkt_beta_nonzero <- if (all(!oo)) 0 else sum(abs(g[oo]) > tol.kkt)
   kkt_beta_subgr <- sum(abs(gg[!oo]) > 1)
-  if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
+  # if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
   return(c(kkt_beta0 = kkt_beta0,
            kkt_eta = kkt_eta,
@@ -248,7 +249,7 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
                             # lambda_min_ratio = ifelse(n < p, 0.01, 0.001),
                             lambda_min_ratio,
-                            thresh_penfam = 1e-14,
+                            epsilon = 1e-14,
                             tol.kkt = 1e-9,
                             eta_init = 0.5,
                             nlambda = 100, scale_x = F, center_y = F) {
@@ -359,7 +360,7 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
 
     Theta_next <- c(beta_next, eta_next, sigma2_next)
 
-    converged <- crossprod(Theta_next - Theta_init) < thresh_penfam
+    converged <- crossprod(Theta_next - Theta_init) < epsilon
     # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) < epsilon
 
     message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
@@ -382,14 +383,20 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   if (any(wi < 0)) stop("weights are negative")
 
   # scale the weights to sum to nvars
-  wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
+  # wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
 
   # wi_scaled <- as.vector(wi) * n
 
   # lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
 
-  lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
+  # this gives the same answer (see paper for details)
+  # we divide by sum(wi) here and not in glmnet because the sequence is determined
+  # on the log scale
+  # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
 
+  lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * x[,-1]) * drop(y - x %*% beta_next)))))
+
+  # lambda.max <- lambda.max * sum(wi)
   # (x[,-1, drop = F]) %>% dim
   # a <- colSums(x[,-1, drop = F]^2 * wi)
   # b <- colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi, '*'))
