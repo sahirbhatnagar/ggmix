@@ -102,7 +102,8 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
   # g0 <- (1 / nt) * crossprod(x[,-1, drop = F], wi) %*% (y - x %*% beta) / (colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi_vec, '*')))
 
   # KKT for beta
-  g0 <- (1 / sum(wi_scaled)) * crossprod(x[,-1, drop = F] * wi_scaled, (y - x %*% beta ))
+  # g0 <- (1 / sum(wi_scaled)) * crossprod(x[,-1, drop = F] * wi_scaled, (y - x %*% beta ))
+  g0 <- (1 / sum(wi)) * crossprod(x[,-1, drop = F] * wi, (y - x %*% beta ))
 
   # this gives same result as g0
   # g1 <- colSums((1 / nt) * sweep(sweep(x[,-1], MARGIN = 1, wi_vec, '*'), MARGIN = 1, drop((y - x %*% beta)),'*'))

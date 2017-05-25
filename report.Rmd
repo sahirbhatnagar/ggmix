@@ -75,7 +75,7 @@ sigma2 <- 3
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -120,8 +120,8 @@ system.time(
                   y = Y, 
                   phi = Phi, 
                   thresh_glmnet = 1e-10,
-                  epsilon = 1e-6,
-                  tol.kkt = 1e-4,
+                  epsilon = 1e-9,
+                  tol.kkt = 1e-3,
                   nlambda = 100,
                   exact = TRUE,
                   an = log(log(n)) * log(n),
