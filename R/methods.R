@@ -5,10 +5,10 @@
 
 print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nCall: ", deparse(x$call), "\n\n")
-  print(cbind(Df = x$x[,"Df"],
-              `%Dev` = signif(x$x[,"%Dev"], digits),
-              Lambda = signif(x$x[,"Lambda"], digits),
-              BIC = signif(x$x[,"BIC"], digits)))
+  print(cbind(Df = x$result[,"Df"],
+              `%Dev` = signif(x$result[,"%Dev"], digits),
+              Lambda = signif(x$result[,"Lambda"], digits),
+              BIC = signif(x$result[,"BIC"], digits)))
 }
 
 
@@ -103,19 +103,48 @@ predict.penfam <- function(object, newx, s = NULL,
 
 
 
-plot.penfam <- function(x, type=c("coef","BIC"), xvar=c("norm","lambda","dev"),
+plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "fitted", "Tukey-Anscombe"),
+                        xvar=c("norm","lambda","dev"), s = x$lambda_min,
                         label=FALSE, sign.lambda = 1, ...){
-  xvar=match.arg(xvar)
-  type=match.arg(type)
+  xvar <- match.arg(xvar)
+  type <- match.arg(type, several.ok = TRUE)
 
-  if (type == "coef") {
-    plotCoef(x$beta, lambda=drop(x$x[,"Lambda"]),
-             df=drop(x$x[,"Df"]), dev=drop(x$x[,"%Dev"]),
+  if (any(type == "coef")) {
+    plotCoef(x$beta, lambda=drop(x$result[,"Lambda"]),
+             df=drop(x$result[,"Df"]), dev=drop(x$result[,"%Dev"]),
              label=label, xvar=xvar,...)
   }
 
-  if (type == "BIC"){
-    plotBIC(object = x$x, sign.lambda=sign.lambda, lambda.min = x$lambda_min, ...)
+  if (any(type == "BIC")){
+    plotBIC(object = x$result, sign.lambda=sign.lambda, lambda.min = x$lambda_min, ...)
   }
+
+
+  if (any(type == "QQranef")){
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s,"Lambda"]))
+    qqline(x$randomeff[, s], col = "red")
+  }
+
+  if (any(type == "QQresid")){
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s,"Lambda"]))
+    qqline(x$residuals[, s], col = "red")
+  }
+
+  if (any(type == "fitted")){
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    plot(x$fitted[, s], drop(x$y), xlab = "fitted values", ylab = "observed values",
+         main = "Observed vs. Fitted values")
+    abline(a = 0, b = 1, col = "red")
+  }
+
+  if (any(type == "Tukey-Anscombe")){
+    plot(x$fitted[, s], x$residuals[, s], main = "Tukey-Anscombe Plot",
+         xlab = "fitted values", ylab = "residuals")
+    abline(h = 0, col = "red")
+  }
+
+
 }
 

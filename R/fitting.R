@@ -335,7 +335,9 @@ penfam <- function(x, y, phi, lambda = NULL,
   lambda_min <- out_print[which.min(out_print[,"BIC"]),"Lambda"]
   id_min <- names(which(out_print[,"Lambda"] == lambda_min))
 
-  out <- list(x = out_print,
+  out <- list(result = out_print,
+              x = x,
+              y = y,
               coef = coefficient_mat,
               b0 = coefficient_mat["beta0",],
               beta = as(coefficient_mat[paste0("beta",1:p),, drop = FALSE],"dgCMatrix"),

@@ -124,7 +124,7 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
   kkt_beta_nonzero <- if (all(!oo)) 0 else sum(abs(g[oo]) > tol.kkt)
   kkt_beta_subgr <- sum(abs(gg[!oo]) > 1)
-  if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
+  # if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
   return(c(kkt_beta0 = kkt_beta0,
            kkt_eta = kkt_eta,
