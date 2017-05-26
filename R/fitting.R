@@ -14,6 +14,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                    nlambda = 100,
                    eta_init = 0.5,
                    maxit = 100,
+                   fdev = 1e-4,
                    thresh_glmnet = 1e-10, # this is for glmnet
                    epsilon = 1e-5, # this is for penfam
                    an = log(log(n)) * log(n),
@@ -39,7 +40,8 @@ penfam <- function(x, y, phi, lambda = NULL,
   # eta_init <- 0.4
   # an = log(log(600)) * log(600)
   # lambda <- 0.10
-  # exact = T
+  # exact = F
+  # fdev <- 1e-4
   #======================================
 
   this.call <- match.call()
@@ -80,6 +82,8 @@ penfam <- function(x, y, phi, lambda = NULL,
                            eta_init = eta_init, epsilon = epsilon,
                            tol.kkt = tol.kkt))
 
+  lambda_max <- lamb$sequence[[1]]
+
   tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
   dimnames(tuning_params_mat)[[1]] <- list("lambda")
   dimnames(tuning_params_mat)[[2]] <- paste0("s",seq_len(nlambda))
@@ -100,24 +104,41 @@ penfam <- function(x, y, phi, lambda = NULL,
                        dimnames = list(c(paste0("Subject",1:n)),
                                        lambda_names))
 
+  predicted_mat <- matrix(nrow = n,
+                       ncol = nlambda,
+                       dimnames = list(c(paste0("Subject",1:n)),
+                                       lambda_names))
+
   resid_mat <- matrix(nrow = n,
                        ncol = nlambda,
                        dimnames = list(c(paste0("Subject",1:n)),
                                        lambda_names))
 
-  out_print <- matrix(NA, nrow = nlambda, ncol = 11,
+  out_print <- matrix(NA, nrow = nlambda, ncol = 10,
                       dimnames = list(lambda_names,
-                                      c("Df","%Dev","Lambda","BIC",
+                                      c("Df",
+                                        # "%Dev",
+                                        "Deviance",
+                                        "Lambda",
+                                        "BIC",
                                         "kkt_beta0",
                                         "kkt_eta",
                                         "kkt_sigma2",
                                         "kkt_beta_nonzero",
-                                        "kkt_beta_subgr", "sum_wi", "converged")))
+                                        "kkt_beta_subgr", "converged")))
 
   pb <- progress::progress_bar$new(
     format = "  fitting over all tuning parameters [:bar] :percent eta: :eta",
-    total = 100, clear = FALSE, width= 90)
+    total = nlambda, clear = FALSE, width= 90)
   pb$tick(0)
+
+  beta_init <- matrix(0, nrow = p + 1, ncol = 1)
+
+  # initial value for eta from lambda_sequence results
+  eta_init <- lamb$eta
+
+  # closed form solution value for sigma^2
+  sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
 
 
   for (LAMBDA in lambda_names) {
@@ -127,77 +148,6 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     lambda_index <- which(LAMBDA == lambda_names)
     lambda <- tuning_params_mat["lambda", LAMBDA][[1]]
-
-
-    if (lambda_index == 1) {
-      # initial values for beta
-
-      # this shows that fitting entire sequence of lambda is faster
-      # tu <- microbenchmark::microbenchmark(
-      # beta_init_fit <- glmnet(x = utx,
-      #                         y = uty,
-      #                         thresh = thresh_glmnet,
-      #                         family = "gaussian",
-      #                         penalty.factor = c(0, rep(1, p)),
-      #                         standardize = FALSE,
-      #                         intercept = FALSE,
-      #                         lambda = lambda),
-      # beta_init_fit <- glmnet(x = utx,
-      #                         y = uty,
-      #                         thresh = thresh_glmnet,
-      #                         family = "gaussian",
-      #                         penalty.factor = c(0, rep(1, p)),
-      #                         standardize = FALSE,
-      #                         intercept = FALSE,
-      #                         lambda = NULL)
-      # , times = 10)
-
-      beta_init_fit <- glmnet(x = utx,
-                              y = uty,
-                              thresh = thresh_glmnet,
-                              family = "gaussian",
-                              penalty.factor = c(0, rep(1, p)),
-                              standardize = FALSE,
-                              intercept = FALSE,
-                              lambda = NULL)
-
-      # coef(beta_init_fit) %>% head
-      # plot(beta_init_fit)
-      # coef(beta_init_fit)[nonzeroCoef(coef(beta_init_fit)), , drop = F]
-
-      # remove intercept since V1 is intercept
-      beta_init <- coef(beta_init_fit, s = lambda, exact = exact,
-                        x = utx,
-                        y = uty,
-                        thresh = thresh_glmnet,
-                        family = "gaussian",
-                        penalty.factor = c(0, rep(1, p)),
-                        standardize = FALSE,
-                        intercept = FALSE)[-1, , drop = F]
-      # head(beta_init)
-      # coef.approx = coef(beta_init_fit, s = lambda, exact = F)
-      # coef.exact = coef(beta_init_fit, s = lambda, exact = T)
-      # plot(coef.approx, coef.exact, xlab="not exact", ylab = "exact")
-      # abline(a=0, b=1, col="red")
-      #
-      # nonzeroCoef(coef.approx) %>% length()
-      # nonzeroCoef(coef.exact) %>% length()
-      #
-      # sum(nonzeroCoef(coef.approx) %in% nonzeroCoef(coef.exact)) / length(nonzeroCoef(coef.approx))
-      # sum(nonzeroCoef(coef.exact) %in% nonzeroCoef(coef.approx)) / length(nonzeroCoef(coef.exact))
-
-      # initial value for eta from lambda_sequence results
-      eta_init <- lamb$eta
-
-      # closed form solution value for sigma^2
-      sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
-    } else {
-
-      # warm start
-      beta_init <- beta_next
-      eta_init <- eta_next
-      sigma2_init <- sigma2_next
-    }
 
     #iteration counter
     k <- 0
@@ -212,11 +162,6 @@ penfam <- function(x, y, phi, lambda = NULL,
       # observation weights
       di <- 1 + eta_init * (Lambda - 1)
       wi <- (1 / sigma2_init) * (1 / di)
-      # wi <- (1 / sigma2_init) * (1 / (1 + eta_init * (Lambda - 1)))
-      # length(wi)
-      # plot(wi)
-      # are all weights positive?
-      # all(wi > 0)
 
       # fit beta
       beta_next_fit <- glmnet(x = utx,
@@ -226,20 +171,10 @@ penfam <- function(x, y, phi, lambda = NULL,
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,
-                              lambda = NULL,
+                              lambda = c(.Machine$double.xmax, lambda),
                               thresh = thresh_glmnet)
-      # coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F]
 
-      beta_next <- coef(beta_next_fit, s = lambda, exact = exact,
-                        x = utx,
-                        y = uty,
-                        family = "gaussian",
-                        weights = wi,
-                        penalty.factor = c(0, rep(1, p)),
-                        standardize = FALSE,
-                        intercept = FALSE,
-                        thresh = thresh_glmnet)[-1, , drop = F]
-      # plot(beta_next)
+      beta_next <- beta_next_fit$beta[ , 2, drop = FALSE]
 
       # fit eta
       eta_next <- optim(par = eta_init,
@@ -280,9 +215,13 @@ penfam <- function(x, y, phi, lambda = NULL,
     di <- 1 + eta_next * (Lambda - 1)
     wi <- (1 / sigma2_next) * (1 / di)
 
-    nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
-    deviance <- drop(crossprod(uty - utx %*% beta_next))
-    devRatio <- drop(1 - deviance/nulldev)
+    # nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
+    # deviance <- drop(crossprod(uty - utx %*% beta_next))
+    # devRatio <- drop(1 - deviance/nulldev)
+
+    deviance <- log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+                        eigenvalues = Lambda,x = utx, y = uty, nt = n)
+
 
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution.
@@ -298,10 +237,11 @@ penfam <- function(x, y, phi, lambda = NULL,
 
 
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
-                            devRatio,
+                            # devRatio,
+                            deviance,
                             lambda,
                             bic_lambda,
-                            kkt_lambda, sum(wi), converged)
+                            kkt_lambda, converged)
 
     coefficient_mat[,LAMBDA] <- Theta_next
 
@@ -313,8 +253,11 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     bi <- drop(solve((1 / eta_next) * Phi_inv + V_inv) %*% V_inv %*% (y - x %*% beta_next))
 
-    # fitted values
+    # predicted values
     yi_hat <- drop(x %*% beta_next) + bi
+
+    # fitted values
+    xbhat <- yi_hat - bi
 
     # residuals
     ri <- drop(y) - yi_hat
@@ -325,8 +268,17 @@ penfam <- function(x, y, phi, lambda = NULL,
     # plot(density(bi))
 
     randomeff_mat[,LAMBDA] <- bi
-    fitted_mat[,LAMBDA] <- yi_hat
+    fitted_mat[,LAMBDA] <- xbhat
+    predicted_mat[,LAMBDA] <- yi_hat
     resid_mat[,LAMBDA] <- ri
+
+    deviance_change <- abs((out_print[lambda_index, "Deviance"] - out_print[lambda_index - 1, "Deviance"]) /  out_print[lambda_index, "Deviance"])
+    message(sprintf("Deviance change = %.6f", deviance_change))
+
+    # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
+    if (length(deviance_change) > 0) {
+      if (deviance_change < fdev) break
+    }
 
     pb$tick()
   }
@@ -335,18 +287,25 @@ penfam <- function(x, y, phi, lambda = NULL,
   lambda_min <- out_print[which.min(out_print[,"BIC"]),"Lambda"]
   id_min <- names(which(out_print[,"Lambda"] == lambda_min))
 
+  # if there is early stopping due to fdev, remove NAs
+  out_print <- out_print[complete.cases(out_print),]
+
+  # get names of lambdas for which a solution was obtained
+  lambdas_fit <- rownames(out_print)
+
   out <- list(result = out_print,
               x = x,
               y = y,
-              coef = coefficient_mat,
-              b0 = coefficient_mat["beta0",],
-              beta = as(coefficient_mat[paste0("beta",1:p),, drop = FALSE],"dgCMatrix"),
-              eta = coefficient_mat["eta",,drop = FALSE],
-              sigma2 = coefficient_mat["sigma2",,drop = FALSE],
-              nlambda = nlambda,
-              randomeff = randomeff_mat,
-              fitted = fitted_mat,
-              residuals = resid_mat,
+              coef = coefficient_mat[,lambdas_fit, drop = F],
+              b0 = coefficient_mat["beta0", lambdas_fit],
+              beta = as(coefficient_mat[paste0("beta",1:p), lambdas_fit, drop = FALSE],"dgCMatrix"),
+              eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
+              sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
+              nlambda = length(lambdas_fit),
+              randomeff = randomeff_mat[, lambdas_fit, drop = FALSE],
+              fitted = fitted_mat[, lambdas_fit, drop = FALSE],
+              predicted = predicted_mat[, lambdas_fit, drop = FALSE],
+              residuals = resid_mat[, lambdas_fit, drop = FALSE],
               cov_names = paste0("beta",1:p),
               lambda_min = id_min,
               lambda_min_value = lambda_min)

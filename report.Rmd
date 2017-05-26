@@ -69,13 +69,13 @@ kappa(Phi)
 ### Simulation parameters
 ```{r}
 eta <- 0.25
-sigma2 <- 3
+sigma2 <- 4
 
 # intercept
 b0 <- 3 
 
 # true betas
-b <- c(runif(10, 0.8,1.2), rep(0,80), runif(10, -1.2, -0.8)) 
+b <- c(runif(10, 0.8,1.2), rep(0,1980), runif(10, -1.2, -0.8)) 
 ```
 
 ### Simulate data
@@ -123,7 +123,7 @@ system.time(
                   epsilon = 1e-9,
                   tol.kkt = 1e-3,
                   nlambda = 100,
-                  exact = TRUE,
+                  exact = FALSE,
                   an = log(log(n)) * log(n),
                   lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                   eta_init = 0.5,
@@ -194,6 +194,7 @@ legend("bottomleft",
 
 ```{r}
 plot(exact, type = c("QQranef"), s = exact$lambda_min)
+plot(exact$randomeff[,exact$lambda_min])
 ```
 
 
@@ -211,11 +212,11 @@ plot(exact, type = c("QQresid"), s = exact$lambda_min)
 ```
 
 
-### Fitted vs. Observed response
+### Predicted vs. Observed response
 
 
 ```{r}
-plot(exact, type = c("fitted"), s = exact$lambda_min)
+plot(exact, type = c("predicted"), s = exact$lambda_min)
 ```
 
 
@@ -232,7 +233,7 @@ system.time(
                    thresh_glmnet = 1e-10,
                    epsilon = 1e-6,
                    tol.kkt = 1e-4,
-                   nlambda = 100,
+                   nlambda = 50,
                    exact = FALSE,
                    an = log(log(n)) * log(n),
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
@@ -321,11 +322,11 @@ plot(approx, type = c("QQresid"), s = approx$lambda_min)
 ```
 
 
-### Fitted vs. Observed response
+### Predicted vs. Observed response
 
 
 ```{r}
-plot(approx, type = c("fitted"), s = approx$lambda_min)
+plot(approx, type = c("predicted"), s = approx$lambda_min)
 ```
 
 

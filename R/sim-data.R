@@ -41,10 +41,12 @@ kappa(Phi)
 
 # simulation parameters
 eta <- 0.35
-sigma2 <- 3
-p <- 1000
+sigma2 <- 4
+
 b0 <- 3
-b <- c(runif(10, 0.8,1.2), rep(0,980), runif(10, -1.2, -0.8))
+b <- c(runif(10, 0.8,1.2), rep(0,580), runif(10, -1.2, -0.8))
+
+p <- length(b)
 
 n <- nrow(Phi)
 
@@ -55,9 +57,36 @@ P <- mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * Phi)
 E <- mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
 
 X <- mvrnorm(n, rep(1,p), diag(p))
+wi <- sample(1:10, n, replace = T)
+# times <- 1:p
+# H <- abs(outer(times, times, "-"))
+# V1 <- 0.1^H
+# V2 <- 0.3^H
+# V3 <- 0.5^H
+# V4 <- 0.7^H
+# V5 <- 0.9^H
+#
+# X1 <- MASS::mvrnorm(n = n/5, mu = rep(0,p), Sigma = V1)
+# X2 <- MASS::mvrnorm(n = n/5, mu = rep(0,p), Sigma = V2)
+# X3 <- MASS::mvrnorm(n = n/5, mu = rep(0,p), Sigma = V3)
+# X4 <- MASS::mvrnorm(n = n/5, mu = rep(0,p), Sigma = V4)
+# X5 <- MASS::mvrnorm(n = n/5, mu = rep(0,p), Sigma = V5)
+# X <- rbind(X1,X2,X3,X4,X5)
+#
+# X <- mvrnorm(n, rep(1,p), diag(p))
 
 Y <- b0 + X %*% b + P + E
 
-
-
-
+# fit1 <- glmnet(X,Y)
+# plot(fit1)
+# fit1$lambda
+#
+#
+# fit2 <- glmnet(X,Y, lambda = c(7, 6, 5, fit1$lambda[3]))
+# coef(fit2, s = fit1$lambda[3]-.001, exact = T)
+#
+# plot(fit2)
+#
+#
+#
+#
