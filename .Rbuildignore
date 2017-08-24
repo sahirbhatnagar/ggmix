@@ -4,3 +4,6 @@
 ^report\.Rmd$
 ^R/scrap\.R$
 ^R/sim-data\.R$
+^\.travis\.yml$
+^CONDUCT\.md$
+^cran-comments\.md$
