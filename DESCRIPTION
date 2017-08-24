@@ -1,8 +1,17 @@
 Package: penfam
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations
 Version: 0.1.0
-Author: Who wrote it
+Authors@R: c(
+  person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
+  role = c("aut", "cre"), comment = "http://sahirbhatnagar.com/"),
+  person("Yi", "Yang", email = "yi.yang6@mcgill.ca",
+  role = c("aut"), comment = "http://www.math.mcgill.ca/yyang/"),
+  person("Karim", "Oualkacha", email = "oualkacha.karim@uqam.ca",
+  role = c("aut"), comment = "http://karimoualkacha.uqam.ca/"),
+  person("Celia", "Greenwood", email = "celia.greenwood@mcgill.ca",
+  role = c("aut"), comment = "http://www.mcgill.ca/statisticalgenetics/")
+  )
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
