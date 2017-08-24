@@ -6,7 +6,7 @@
 print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nCall: ", deparse(x$call), "\n\n")
   print(cbind(Df = x$result[,"Df"],
-              `%Dev` = signif(x$result[,"%Dev"], digits),
+              `Deviance` = signif(x$result[,"Deviance"], digits),
               Lambda = signif(x$result[,"Lambda"], digits),
               BIC = signif(x$result[,"BIC"], digits)))
 }
@@ -103,7 +103,7 @@ predict.penfam <- function(object, newx, s = NULL,
 
 
 
-plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "fitted", "Tukey-Anscombe"),
+plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted", "Tukey-Anscombe"),
                         xvar=c("norm","lambda","dev"), s = x$lambda_min,
                         label=FALSE, sign.lambda = 1, ...){
   xvar <- match.arg(xvar)
@@ -111,7 +111,7 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "fitted",
 
   if (any(type == "coef")) {
     plotCoef(x$beta, lambda=drop(x$result[,"Lambda"]),
-             df=drop(x$result[,"Df"]), dev=drop(x$result[,"%Dev"]),
+             df=drop(x$result[,"Df"]), dev=drop(x$result[,"Deviance"]),
              label=label, xvar=xvar,...)
   }
 
@@ -132,16 +132,23 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "fitted",
     qqline(x$residuals[, s], col = "red")
   }
 
-  if (any(type == "fitted")){
+  if (any(type == "predicted")){
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    plot(x$fitted[, s], drop(x$y), xlab = "fitted values", ylab = "observed values",
-         main = "Observed vs. Fitted values")
+    plot(x$predicted[, s], drop(x$y), xlab = "predicted response (XB + b)", ylab = "observed response",
+         main = "Observed vs. Predicted response")
+    abline(a = 0, b = 1, col = "red")
+  }
+
+  if (any(type == "predicted")){
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    plot(x$predicted[, s], drop(x$y), xlab = "predicted response (XB + b)", ylab = "observed response",
+         main = "Observed vs. Predicted response")
     abline(a = 0, b = 1, col = "red")
   }
 
   if (any(type == "Tukey-Anscombe")){
     plot(x$fitted[, s], x$residuals[, s], main = "Tukey-Anscombe Plot",
-         xlab = "fitted values", ylab = "residuals")
+         xlab = "fitted values (XB)", ylab = "residuals")
     abline(h = 0, col = "red")
   }
 
