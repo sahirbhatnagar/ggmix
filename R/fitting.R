@@ -1,11 +1,5 @@
 #' @param an is the constant used in the BIC calculation. The default choice is
 #'   from Wang et al. (2009)
-#' @param exact If exact=FALSE, then the results from glmnet uses linear
-#'   interpolation to make predictions for values of lambda that do not coincide
-#'   with those used in the fitting algorithm. While this is often a good
-#'   approximation, it can sometimes be a bit coarse. With exact=TRUE (default),
-#'   the model is refit before predictions are made. See
-#'   \code{\link[glmnet]{coef.glmnet}} for more details.
 #' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
 #'   selection with a diverging number of parameters.J. R. Statist. Soc. B, 71,
 #'   671–683.
@@ -15,11 +9,11 @@ penfam <- function(x, y, phi, lambda = NULL,
                    eta_init = 0.5,
                    maxit = 100,
                    fdev = 1e-4,
+                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                    thresh_glmnet = 1e-10, # this is for glmnet
                    epsilon = 1e-5, # this is for penfam
                    an = log(log(n)) * log(n),
-                   tol.kkt = 1e-9,
-                   exact = T) {
+                   tol.kkt = 1e-9) {
 
   # rm(list=ls())
   # source("~/git_repositories/penfam/R/fitting.R")
@@ -77,10 +71,10 @@ penfam <- function(x, y, phi, lambda = NULL,
   uty <- crossprod(U, y)
 
   # get sequence of tuning parameters
-  (lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda, nlambda = nlambda,
+  lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda, nlambda = nlambda,
                            lambda_min_ratio = lambda_min_ratio,
                            eta_init = eta_init, epsilon = epsilon,
-                           tol.kkt = tol.kkt))
+                           tol.kkt = tol.kkt)
 
   lambda_max <- lamb$sequence[[1]]
 
@@ -168,6 +162,7 @@ penfam <- function(x, y, phi, lambda = NULL,
                               y = uty,
                               family = "gaussian",
                               weights = wi,
+                              alpha = alpha,
                               penalty.factor = c(0, rep(1, p)),
                               standardize = FALSE,
                               intercept = FALSE,

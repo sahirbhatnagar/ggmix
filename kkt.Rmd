@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 ```
 
@@ -41,8 +41,6 @@ $$
 
 
 ## Simulate Data
-
-
 
 
 ```{r}
@@ -80,8 +78,7 @@ wi <- rep(1, n)
 # wi <- sample(1:10, size = n, replace = T)
 
 (m2 <- glmnet(y = Y, x = X, standardize = F, thresh = threshold, weights = wi))
-(m2 <- glmnet(y = Y, x = X, standardize = F, thresh = threshold))
-max(m2$lambda)
+
 B <- as.matrix(m2$beta)
 
 out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
@@ -93,7 +90,7 @@ out_print <- matrix(NA, nrow = length(m2$lambda), ncol = 3,
 
 
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 for (lambda in colnames(B)) {
   # lambda = colnames(B)[1]
   beta <- B[, lambda, drop = F]
@@ -126,33 +123,6 @@ for (lambda in colnames(B)) {
 }
 
 out_print
-
-mysd <- function(y) sqrt(sum((y - mean(y)) ^ 2)/length(y))
-sy <- as.vector(scale(Y, scale = mysd(Y)))
-sx <- scale(X, scale = apply(X, 2, mysd))
-sx <- as.matrix(sx, ncol = p, nrow = n)
-dim(sx)
-(lambda.max <- max(abs(colSums(wi * sx * drop(sy)))) / n)
-m2$lambda
-
-sx <- scale(X,scale=apply(X,2,mysd))
-sx <- as.matrix(sx,ncol=p,nrow=n)
-sy <- as.vector(scale(Y, scale = mysd(Y)))
-max(abs(colSums(sx*sy)))/100
-fitGLM <- glmnet(sx, sy, standardize = F)
-max(fitGLM$lambda)
-
-
-rm(list = ls())
-set.seed(1)
-library("glmnet")
-x <- matrix(rnorm(100*20),100,20)
-y <- rnorm(100)
-fitGLM <- glmnet(x,y)
-max(fitGLM$lambda)
-
-
-
 ```
 
 
@@ -203,13 +173,6 @@ for (lambda in colnames(B)) {
   if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
 }
-
-(lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * X) * drop(Y))))))
-
-(lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * X) * drop(Y))))))
-  
-  
-m2$lambda
 
 out_print
 ```
