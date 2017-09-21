@@ -4,3 +4,6 @@
 .Ruserdata
 *.html
 report.html
+datahydra/*
+datahydra
+simulation/files/*

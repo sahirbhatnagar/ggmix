@@ -52,7 +52,7 @@ penfam <- function(x, y, phi, lambda = NULL,
   p <- np[[2]]
 
   # add column of 1s to x for intercept
-  x <- cbind(1, x)
+  x <- cbind(beta0 = 1, x)
   x[1:5, 1:5]
 
   phi_eigen <- eigen(phi)
@@ -83,9 +83,14 @@ penfam <- function(x, y, phi, lambda = NULL,
   dimnames(tuning_params_mat)[[2]] <- paste0("s",seq_len(nlambda))
   lambda_names <- dimnames(tuning_params_mat)[[2]]
 
+  # coefficient_mat <- matrix(nrow = p + 3,
+  #                           ncol = nlambda,
+  #                           dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
+  #                                           lambda_names))
+
   coefficient_mat <- matrix(nrow = p + 3,
                             ncol = nlambda,
-                            dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
+                            dimnames = list(c(colnames(x), "eta","sigma2"),
                                             lambda_names))
 
   randomeff_mat <- matrix(nrow = n,
@@ -190,7 +195,7 @@ penfam <- function(x, y, phi, lambda = NULL,
       sigma2_next <- (1 / n) * sum(((uty - utx %*% beta_next) ^ 2) / (1 + eta_next * (Lambda - 1)))
 
       k <- k + 1
-
+      # print(k)
       Theta_next <- c(drop(beta_next), eta_next, sigma2_next)
 
       converged <- crossprod(Theta_next - Theta_init) < epsilon
@@ -272,7 +277,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
     if (length(deviance_change) > 0) {
-      if (deviance_change < fdev) break
+      if (deviance_change < fdev | lambda_index > 70 | !converged) break
     }
 
     pb$tick()
@@ -293,7 +298,7 @@ penfam <- function(x, y, phi, lambda = NULL,
               y = y,
               coef = coefficient_mat[,lambdas_fit, drop = F],
               b0 = coefficient_mat["beta0", lambdas_fit],
-              beta = as(coefficient_mat[paste0("beta",1:p), lambdas_fit, drop = FALSE],"dgCMatrix"),
+              beta = as(coefficient_mat[colnames(x)[-1], lambdas_fit, drop = FALSE],"dgCMatrix"),
               eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
               sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
               nlambda = length(lambdas_fit),
@@ -301,7 +306,7 @@ penfam <- function(x, y, phi, lambda = NULL,
               fitted = fitted_mat[, lambdas_fit, drop = FALSE],
               predicted = predicted_mat[, lambdas_fit, drop = FALSE],
               residuals = resid_mat[, lambdas_fit, drop = FALSE],
-              cov_names = paste0("beta",1:p),
+              cov_names = colnames(x),
               lambda_min = id_min,
               lambda_min_value = lambda_min)
   # beta = beta_next,

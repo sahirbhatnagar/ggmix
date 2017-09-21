@@ -42,6 +42,8 @@ pacman::p_load(Matrix)
 pacman::p_load(glmnet)
 pacman::p_load(progress)
 pacman::p_load(magrittr)
+pacman::p_load(regress)
+pacman::p_load(coxme)
 ```
 
 
@@ -52,6 +54,7 @@ pacman::p_load(magrittr)
 set.seed(12345678)
 # Kinship matrix from Karim
 load("~/Dropbox/PhD/Year4/penfam/data/kin1.Rdata")
+diag(kin1)
 Phi <- 2 * kin1
 dim(Phi)
 Phi[1:10, 1:10]
@@ -92,6 +95,13 @@ P <- mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * Phi)
 # environment random effect
 E <- mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
 
+# nsim = 5
+# P <- mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * Phi) %>% t
+# dim(P)
+# # environment random effect
+# E <- mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n)) %>% t
+# dim(E)
+
 # independent predictors
 # X <- mvrnorm(n, rep(1,p), diag(p))
 
@@ -104,12 +114,19 @@ diag(k1) <- 1
 k2 <- rho2 ^ toeplitz(seq_len(p/2))
 diag(k2) <- 1
 k <- Matrix::bdiag(k1,k2) 
-  
+dim(k)
+
+# eig <- svd(Phi, nu = 100, nv = 100)
+
 X <- mvrnorm(n, rep(1,p), k)
 
+dimnames(X)[[2]] <- paste0("alpha",1:p)
+# colnames(cbind(beta0=1,X))
 # pheatmap::pheatmap(cor(X))
 # response
-Y <- b0 + X %*% b + P + E
+Y <- b0 + as.numeric(X %*% b) + P + E
+
+pheno_dat <- data.frame(Y = Y, id = 1:n)
 ```
 
 
@@ -126,6 +143,47 @@ In both cases, the entire lasso path is being fit.
 **This is no longer being implemented.**
 
 Instead we are providing two lambdas to glmnet, the `.Machine$double.xmax` and the actual value of lambda.
+
+## Two-Step Method
+
+
+```{r}
+fit_regress <- regress(Y ~ 1, ~ Phi, pos = TRUE)
+summary(fit_regress)
+
+
+fit_lme <- lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = Phi)
+newy <- residuals(fit_lme)
+
+plot(Y, newy)
+abline(a=0,b=1, col="red")
+cv_fit <- glmnet::cv.glmnet(x = X, y = newy)
+plot(cv_fit)
+
+coef(cv_fit)
+
+# this is XB only
+plot(fit_regress$fitted,
+matrix(1, nrow = n) %*% t(t(coef(fit_lme)$fixed)))
+
+plot(fit_regress$predicted, matrix(1, nrow = n) %*% t(t(coef(fit_lme)$fixed)) + coef(fit_lme)$random$id)
+abline(a=0, b=1)
+plot(fit_regress$predicted)
+
+fit_regress$Z$Phi
+
+
+plot(residuals(fit_lme),
+     Y - matrix(1, nrow = n) %*% t(t(coef(fit_lme)$fixed)) - coef(fit_lme)$random$id)
+
+W <- chol(kin1)
+dim(W)
+W[1:10,1:10]
+```
+
+
+
+
 
 ## Fit the penfam model
 
@@ -167,6 +225,7 @@ lasso$result[,c(-2,-3,-4,-10)]
 ```{r}
 coef(lasso, s = lasso$lambda_min)
 
+coef(lasso, s = lasso$lambda_min)
 ```
 
 ### Non-zero Coefficients at Minimum BIC
