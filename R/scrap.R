@@ -254,3 +254,64 @@ print(jj.3)
 
 emulator::quad.form
 cprod()
+
+
+# checking lower rank approx ----------------------------------------------
+
+library(magrittr)
+options(digits = 4, scipen = 999)
+X <- matrix(rnorm(n=100*40), ncol = 40)
+X <- matrix(rnorm(n=100*40), ncol = 100)
+dim(X)
+Y <- rnorm(100)
+Y <- rnorm(40)
+xtx <- tcrossprod(X)
+eigX <- eigen(xtx)
+
+U <- eigX$vectors
+eigX$values %>% length()
+
+crossprod(U)[1:5,1:5]
+tcrossprod(U)[1:5,1:5]
+
+svdX <- svd(X, nv = 100)
+dim(X)
+svdX$u %>% dim
+svdX$d %>% length()
+svdX$v %>% dim
+U <- svdX$u
+dim(U)
+U1 <- U[,1:40]
+U2 <- U[,41:100]
+
+(t(U2) %*% U2)[1:5,1:5]
+(t(U2) %*% U2) %>% dim
+(U2 %*% t(U2))[1:5,1:5]
+crossprod(U2)[1:5,1:5]
+
+round(tcrossprod(U2)[1:5,1:5] + tcrossprod(U1)[1:5,1:5], 2)
+
+svdX$v %>% dim
+
+
+crossprod(U1,Y) %>% dim
+
+
+U1 %*% crossprod(U1,Y) %>% dim
+
+dim(U1)
+
+
+Matrix::rankMatrix(X)
+
+
+
+eta = 0.6
+I_nk = diag(5)
+I_nk - eta * I_nk
+
+all.equal((1 - eta) * I_nk, I_nk - eta * I_nk)
+
+
+all.equal(solve((1 - eta) * I_nk), 1/(1 - eta) * I_nk)
+
