@@ -9,3 +9,4 @@
 ^cran-comments\.md$
 ^simulation/$
 ^datahydra/$
+^datahydra_related/$

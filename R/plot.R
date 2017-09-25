@@ -12,7 +12,7 @@ plotCoef <- function(beta,norm,lambda,df,dev,label=FALSE,
   ##beta should be in "dgCMatrix" format
   ### bystep = FALSE means which variables were ever nonzero
   ### bystep = TRUE means which variables are nonzero for each step
-  which=nonzeroCoef(beta, bystep = FALSE)
+  which=glmnet::nonzeroCoef(beta, bystep = FALSE)
   nwhich=length(which)
   switch(nwhich+1,#we add one to make switch work
          "0"={

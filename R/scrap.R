@@ -1,3 +1,33 @@
+
+# Trying low rank ---------------------------------------------------------
+
+rm(list = ls())
+source("~/git_repositories/penfam/R/fitting.R")
+source("~/git_repositories/penfam/R/functions.R")
+source("~/git_repositories/penfam/R/methods.R")
+source("~/git_repositories/penfam/R/plot.R")
+source("~/git_repositories/penfam/simulation/model_functions.R")
+dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.5, sigma2 = 1, type = "causal_400", related = FALSE)
+
+res <- lowrank(x = dat$x, y = dat$y, w = dat$w)
+
+
+
+par(mfrow=c(3,2))
+plot(res)
+plot(res, type = "BIC")
+plot(res, type = "")
+dev.off()
+predict(res, type = "nonzero", s = res$lambda_min)
+res$eta
+res$sigma2
+
+
+
+
+
+
+
 # options(warnPartialMatchArgs = FALSE, warnPartialMatchDollar = TRUE, warnPartialMatchAttr = TRUE)
 library(magrittr)
 library(glmnet)
