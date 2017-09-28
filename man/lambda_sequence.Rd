@@ -9,6 +9,11 @@ lambda_sequence(x, y, eigenvalues, weights = NULL, lambda_min_ratio,
   scale_x = F, center_y = F)
 }
 \arguments{
+\item{x}{input matrix, of dimension n x p; where n is the number of
+observations and p are the number of predictors.}
+
+\item{y}{response variable. must be a quantitative variable}
+
 \item{weights}{Separate penalty factors can be applied to each coefficient.
 This is a number that multiplies lambda to allow differential shrinkage,
 and can be used to apply adaptive LASSO. Can be 0 for some variables, which
@@ -16,6 +21,22 @@ implies no shrinkage, and that variable is always included in the model.
 Default is 1 for all variables (and implicitly infinity for variables
 listed in exclude). Note: the penalty factors are internally rescaled to
 sum to nvars, and the lambda sequence will reflect this change.}
+
+\item{lambda_min_ratio}{Smallest value for lambda, as a fraction of
+lambda.max, the (data derived) entry value (i.e. the smallest value for
+which all coefficients are zero). The default depends on the sample size
+nobs relative to the number of variables nvars. If nobs > nvars, the
+default is 0.0001, close to zero. If nobs < nvars, the default is 0.01. A
+very small value of lambda.min.ratio will lead to a saturated fit in the
+nobs < nvars case.}
+
+\item{epsilon}{Convergence threshold for block relaxation of the entire
+parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
+converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
+Defaults value is 1E-7}
+
+\item{eta_init}{initial value for the eta parameter. used in determining
+lambda.max}
 
 \item{nlambda}{the number of lambda values - default is 100.}
 

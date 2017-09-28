@@ -6,8 +6,8 @@
 \usage{
 lowrank(x, y, d, u, lambda = NULL, lambda_min_ratio = ifelse(n < p, 0.01,
   1e-04), nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-05,
-  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-10,
-  epsilon = 1e-05)
+  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
+  epsilon = 1e-04)
 }
 \arguments{
 \item{x}{input matrix, of dimension n x p; where n is the number of

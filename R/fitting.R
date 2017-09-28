@@ -1,3 +1,7 @@
+#' Fit a linear mixed model with lasso or elasticnet regularization
+#'
+#' @description this is an older version of the code. currently not being used.
+#' use \link{\code{lowrank}} instead
 #' @param an is the constant used in the BIC calculation. The default choice is
 #'   from Wang et al. (2009)
 #' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
@@ -371,6 +375,8 @@ penfam <- function(x, y, phi, lambda = NULL,
 #'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 #'   Defaults value is 1E-7
 #' @seealso \code{\link[glmnet]{glmnet}}
+#'
+#' @export
 # w_svd <- svd(w)
 
 # this is a N_T x N_T matrix
@@ -738,7 +744,7 @@ lowrank <- function(x, y, d, u,
               utx = utx,
               uty = uty,
               u = u,
-              Lambda = Lambda,
+              eigenvalues = Lambda,
               coef = coefficient_mat[,lambdas_fit, drop = F],
               b0 = coefficient_mat["beta0", lambdas_fit],
               beta = as(coefficient_mat[colnames(x)[-1], lambdas_fit, drop = FALSE],"dgCMatrix"),

@@ -14,10 +14,10 @@ print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 
 #' Get coefficients from a "penfam" object
 #'
-#' @param object
-#' @param s
+#' @param object object of class penfam
+#' @param s lambda value
 #' @param which a character of either "beta", "eta", or "sigma2" if the user wants only th
-#' @param ...
+#' @param ... additional arguments to pass to predict function
 #'
 #' @rdname predict.penfam
 #' @export
@@ -27,7 +27,8 @@ coef.penfam <- function(object, s = NULL, which = NULL, ...) {
     predict(object, s = s, type = which, ...)
 }
 
-coef.bic_penfam <- function (object, s = "lambda.min", ...) {
+#' @rdname predict.penfam
+coef.gic.penfam <- function (object, s = "lambda.min", ...) {
   if (is.numeric(s))
     lambda = s
   else if (is.character(s)) {
@@ -49,15 +50,16 @@ coef.bic_penfam <- function (object, s = "lambda.min", ...) {
 #'   "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 #'   parameters. Default is \code{NULL}
 #' @param object Fitted shim model object
-#' @param type Type of prediction required. Type "link" gives the fitted values.
-#'   Type "response" for "gaussian" type "response" is equivalent to type
-#'   "link". Type "coefficients" computes the coefficients at the requested
-#'   values for s. Type "nonzero" returns a list of the indices of the nonzero
-#'   coefficients for each value of s.
+#' @param type Type of prediction required. Type "link" gives the fitted values
+#'   given by \deqn{X\beta + b} where b is a subject-specific random effect. For
+#'   "gaussian" type "response" is equivalent to type "link". Type
+#'   "coefficients" computes the coefficients at the requested values for s.
+#'   Type "nonzero" returns a list of the indices of the nonzero coefficients
+#'   for each value of s.
 #' @export
 
 predict.penfam <- function(object, newx, s = NULL,
-                           type = c("link", "response", "coefficients",
+                           type = c("link", "response", "coefficients","ranef",
                                     "nonzero", "beta", "eta", "sigma2")) {
 
   # object = res
@@ -131,7 +133,7 @@ predict.penfam <- function(object, newx, s = NULL,
   # which will subsequently be used for calculating MSE for each fold
   if (type == "link") {
 
-    nfit = as.matrix(cbind2(1, newx) %*% nbeta)
+    nfit = as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
 
     return(nfit)
   }
@@ -188,8 +190,18 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicte
 
 }
 
-
-plot.bic_penfam <- function(x, sign.lambda = 1, ...) {
+#' Plot the Generalised Information Criteria curve produced by gic.penfam
+#'
+#' @param x fitted "gic.penfam" object
+#' @param sign.lambda Either plot against log(lambda) (default) or its negative
+#'   if sign.lambda=-1
+#' @param ... Other graphical parameters to plot
+#' @details A plot is produced, and nothing is returned.
+#' @seealso \code{\link{penfam}} and \code{\link{gic.penfam}}
+#' @description Plots the Generalised Information Criteria curve, as a function
+#'   of the lambda values used
+#' @export
+plot.gic.penfam <- function(x, sign.lambda = 1, ...) {
 
   # x <- res
   # sign.lambda = 1
@@ -218,4 +230,59 @@ plot.bic_penfam <- function(x, sign.lambda = 1, ...) {
 }
 
 
+#' @param s lamda at which to predict the random effects. current option is only
+#'   "lambda.min"
+#'
+#' @details For objects of class "gic.penfam", this function returns the
+#'   subject-specific random effect value for the model which minimizes the GIC
+#'   using the maximum a posteriori principle
+#'
+#' @method ranef gic.penfam
+#' @rdname ranef
+#' @export
+ranef.gic.penfam <- function(object, s = "lambda.min") {
 
+  # object = res
+  # s = "lambda.min"
+  #==================
+
+  U <- object$penfam.fit[["u"]]
+  estimates <- coef(object, s = s)
+  eta_next <- estimates["eta",]
+  beta_next <- estimates[c("(Intercept)",object$penfam.fit$cov_names[-1]),,drop=F]
+  eigenvalues <- object$penfam.fit$eigenvalues
+
+  di <- 1 + eta_next * (eigenvalues - 1)
+  D_tilde_inv <- diag(1 / di)
+  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$penfam.fit$uty - object$penfam.fit$utx %*% beta_next))
+  bi
+
+}
+
+
+
+
+
+
+
+#' @method random.effects gic.penfam
+#' @rdname ranef
+#' @export
+random.effects.gic.penfam <- function(object, s = "lambda.min") {
+
+  # object = res
+  # s = "lambda.min"
+  #==================
+
+  U <- object$penfam.fit[["u"]]
+  estimates <- coef(object, s = s)
+  eta_next <- estimates["eta",]
+  beta_next <- estimates[c("(Intercept)",object$penfam.fit$cov_names[-1]),,drop=F]
+  eigenvalues <- object$penfam.fit$eigenvalues
+
+  di <- 1 + eta_next * (eigenvalues - 1)
+  D_tilde_inv <- diag(1 / di)
+  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$penfam.fit$uty - object$penfam.fit$utx %*% beta_next))
+  bi
+
+}

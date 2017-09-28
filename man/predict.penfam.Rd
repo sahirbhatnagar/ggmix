@@ -2,26 +2,38 @@
 % Please edit documentation in R/methods.R
 \name{coef.penfam}
 \alias{coef.penfam}
+\alias{coef.gic.penfam}
 \alias{predict.penfam}
 \title{Get coefficients from a "penfam" object}
 \usage{
-\method{coef}{penfam}(object, s = NULL, ...)
+\method{coef}{penfam}(object, s = NULL, which = NULL, ...)
+
+\method{coef}{gic.penfam}(object, s = "lambda.min", ...)
 
 \method{predict}{penfam}(object, newx, s = NULL, type = c("link",
-  "response", "coefficients", "nonzero"))
+  "response", "coefficients", "ranef", "nonzero", "beta", "eta", "sigma2"))
 }
 \arguments{
-\item{object}{Fitted shim model object}
+\item{object}{object of class penfam}
+
+\item{s}{lambda value}
+
+\item{which}{a character of either "beta", "eta", or "sigma2" if the user wants only th}
+
+\item{...}{additional arguments to pass to predict function}
+
+\item{type}{Type of prediction required. Type "link" gives the fitted values
+given by \deqn{X\beta + b} where b is a subject-specific random effect. For
+"gaussian" type "response" is equivalent to type "link". Type
+"coefficients" computes the coefficients at the requested values for s.
+Type "nonzero" returns a list of the indices of the nonzero coefficients
+for each value of s.}
 
 \item{s}{index of tuning parameter. Must be a character and an element of
 "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 parameters. Default is \code{NULL}}
 
-\item{type}{Type of prediction required. Type "link" gives the fitted values.
-Type "response" for "gaussian" type "response" is equivalent to type
-"link". Type "coefficients" computes the coefficients at the requested
-values for s. Type "nonzero" returns a list of the indices of the nonzero
-coefficients for each value of s.}
+\item{object}{Fitted shim model object}
 }
 \description{
 Get coefficients from a "penfam" object
