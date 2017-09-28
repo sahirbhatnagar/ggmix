@@ -2,30 +2,130 @@
 # Trying low rank ---------------------------------------------------------
 
 rm(list = ls())
+pacman::p_load(gaston)
+pacman::p_load(glmnet)
+pacman::p_load(magrittr)
+pacman::p_load(snpStats)
 source("~/git_repositories/penfam/R/fitting.R")
 source("~/git_repositories/penfam/R/functions.R")
 source("~/git_repositories/penfam/R/methods.R")
 source("~/git_repositories/penfam/R/plot.R")
 source("~/git_repositories/penfam/simulation/model_functions.R")
-dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.5, sigma2 = 1, type = "causal_400", related = FALSE)
+dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
+w_svd <- svd(dat$w)
+U <- w_svd$u
 
-res <- lowrank(x = dat$x, y = dat$y, w = dat$w)
+# we dived by p-1 because thats how the matrix was standardized
+Lambda <- w_svd$d^2 / (ncol(dat$x)-1)
+any(Lambda<1e-5)
+Lambda[Lambda<1e-5] <- 1e-5
+
+res <- lowrank(x = dat$x[,1:500], y = dat$y,  d = Lambda, u = U)
+
+res <- bic_penfam(x = dat$x, y = dat$y,  d = Lambda, u = U)
+
+res
+
+plot(res)
+coef(res)
+plot(res$penfam.fit, type="coef")
+
+t(res$coef)
+
+bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
+
+  -2 * log_lik(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) + c * df_lambda
+
+}
 
 
+
+
+bic(eta = res$eta, sigma2 = res$sigma2)
+
+lasso <- cv.glmnet(x = dat$x, y = dat$y, alpha = 1)
+
+plot(lasso)
+
+coef(lasso, s="lambda.min")[nonzeroCoef(coef(lasso, s="lambda.min")),,drop=F]
+grep("rs", rownames(coef(lasso)[nonzeroCoef(coef(lasso)),,drop=F]), value = T) %in% dat$causal
+grep("rs", rownames(coef(res)[nonzeroCoef(coef(res)),,drop=F]), value = T) %in% dat$causal
+
+coef(lasso)[nonzeroCoef(coef(lasso)),,drop=F]
+coef(res)[nonzeroCoef(coef(res)),,drop=F]
+
+dat$beta[dat$beta!=0]
+
+plot(coef(lass0)[-1], dat$beta)
+abline(a=0, b=1)
+all(colnames(dat$x)==rownames(coef(lass0)[-1]))
+
+coef(res, s = res$lambda_min) %>% head
+plot(coef(resenet, s = resenet$lambda_min)[c(-1,-4002,-4003),,drop=T], dat$beta)
+abline(a=0, b=1)
+all(colnames(dat$x)==rownames(coef(lass0)[-1]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+# this needs work, as lambda.min is different
+resenet <- lowrank(x = dat$x, y = dat$y, w = dat$w, alpha = 1)
+
+dim(dat$x)
 
 par(mfrow=c(3,2))
 plot(res)
+# c("coef","BIC", "QQranef","QQresid", "predicted", "Tukey-Anscombe")
 plot(res, type = "BIC")
+plot(res, type = "QQranef")
+plot(res, type = "QQresid")
+plot(res, type = "predicted")
+plot(res, type = "Tukey")
+
+plot(resenet, type = "BIC")
+predict(res, type = "nonzero", s = resenet$lambda_min)
+
+grep("rs", rownames(predict(res, type = "nonzero", s = res$lambda_min)), value = T) %in% dat$causal
+grep("rs", rownames(predict(resenet, type = "nonzero", s = resenet$lambda_min)), value = T) %in% dat$causal
+
+plot(resenet, type = "QQranef")
+plot(resenet, type = "QQresid")
+plot(resenet, type = "predicted")
+plot(resenet, type = "Tukey")
+
+
 plot(res, type = "")
 dev.off()
 predict(res, type = "nonzero", s = res$lambda_min)
+dat$causal
 res$eta
 res$sigma2
 
+lass0 <- cv.glmnet(x = dat$x, y = dat$y, alpha = 0.5)
+plot(lass0)
 
+coef(lass0)[nonzeroCoef(coef(lass0)),,drop=F]
+grep("rs", rownames(coef(lass0)[nonzeroCoef(coef(lass0)),,drop=F]), value = T) %in% dat$causal
 
+dat$beta[dat$beta!=0]
 
+plot(coef(lass0)[-1], dat$beta)
+abline(a=0, b=1)
+all(colnames(dat$x)==rownames(coef(lass0)[-1]))
 
+coef(res, s = res$lambda_min) %>% head
+plot(coef(resenet, s = resenet$lambda_min)[c(-1,-4002,-4003),,drop=T], dat$beta)
+abline(a=0, b=1)
+all(colnames(dat$x)==rownames(coef(lass0)[-1]))
 
 
 # options(warnPartialMatchArgs = FALSE, warnPartialMatchDollar = TRUE, warnPartialMatchAttr = TRUE)

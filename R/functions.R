@@ -419,7 +419,37 @@ bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
 }
 
 
+#' Closed form solution for sigma^2, given beta and eta
+sigma2 <- function(n, x, y, beta, eta, eigenvalues){
+  (1 / n) * sum(((y - x %*% beta) ^ 2) / (1 + eta * (eigenvalues - 1)))
+}
 
 
+
+
+bic_penfam <- function(x, y, d, u,
+                       c = log(log(n)) * log(p),
+                       lambda = NULL, ...) {
+
+  penfam.object <- lowrank(x = x, y = y, d = d, u = u, lambda = lambda, ...)
+
+  n <- nrow(penfam.object$x)
+  p <- ncol(penfam.object$x) - 1
+
+  df <- penfam.object$result[,"Df"]
+  model_loglik <- penfam.object$result[,"model_loglik"]
+
+  model_bic <- -2 * model_loglik + c * df
+
+  out = list(lambda = penfam.object$result[,"Lambda"],
+             nzero = df,
+             bic = model_bic,
+             lambda.min = names(which.min(model_bic)),
+             lambda.min.value = penfam.object$result[names(which.min(model_bic)),"Lambda"],
+             penfam.fit = penfam.object)
+  obj <- c(out)
+  class(obj) <- "bic_penfam"
+  obj
+}
 
 

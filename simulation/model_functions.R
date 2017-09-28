@@ -190,6 +190,10 @@ make_mixed_model_not_simulator <- function(b0, eta, sigma2, type, related = TRUE
   gaston_mat <- gaston::read.bed.matrix(file_paths$bedfile_for_kinship)
   gaston::standardize(gaston_mat) <- "p"
   kin <- gaston::GRM(gaston_mat)
+  # kin[c("1461915","3271722","1292864","2960625","2837648"),c("1461915","3271722","1292864","2960625","2837648")]
+  # dat <- snpStats::read.plink(file_paths$bedfile_for_kinship)
+  # snpstat_mat <- snpStats::xxt(dat$genotypes)
+  # snpstat_mat[c("1461915","3271722","1292864","2960625","2837648"),c("1461915","3271722","1292864","2960625","2837648")] * (1 / (4000-1))
 
   isPD <- all(eigen(kin)$values > 0)
   how_many_neg_eigenvalues <- sum(eigen(kin)$values <= 0)
@@ -207,7 +211,6 @@ make_mixed_model_not_simulator <- function(b0, eta, sigma2, type, related = TRUE
   # genotypes by the mean genotype
   w[is.na(w)] <- 0
 
-
 # X matrix ----------------------------------------------------------------
 
   dat <- gaston::read.bed.matrix(file_paths$bedfile)
@@ -220,9 +223,11 @@ make_mixed_model_not_simulator <- function(b0, eta, sigma2, type, related = TRUE
   p <- np[[2]]
 
   causal <- data.table::fread(file_paths$causal_list, header = FALSE)$V1
+  causal <- causal[sample(seq_len(length(causal)), 10)]
   not_causal <- setdiff(colnames(x), causal)
   beta <- rep(0, length = p)
-  beta[which(colnames(x) %in% causal)] <- runif(n = length(causal), 0.1, 0.3)
+  # beta[which(colnames(x) %in% causal)] <- runif(n = length(causal), 0.1, 0.3)
+  beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
   mu <- as.numeric(x %*% beta)
 
   P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)

@@ -6,22 +6,37 @@
 print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nCall: ", deparse(x$call), "\n\n")
   print(cbind(Df = x$result[,"Df"],
-              `Deviance` = signif(x$result[,"Deviance"], digits),
-              Lambda = signif(x$result[,"Lambda"], digits),
-              BIC = signif(x$result[,"BIC"], digits)))
+              `%Dev` = signif(x$result[,"%Dev"], digits),
+              Lambda = signif(x$result[,"Lambda"], digits)))
 }
 
 
 
 #' Get coefficients from a "penfam" object
 #'
+#' @param object
+#' @param s
+#' @param which a character of either "beta", "eta", or "sigma2" if the user wants only th
+#' @param ...
+#'
 #' @rdname predict.penfam
 #' @export
 
-coef.penfam <- function(object, s = NULL,  ...) {
-  predict(object, s = s, type = "coefficients", ...)
+coef.penfam <- function(object, s = NULL, which = NULL, ...) {
+  if(is.null(which)) predict(object, s = s, type = "coefficients", ...) else
+    predict(object, s = s, type = which, ...)
 }
 
+coef.bic_penfam <- function (object, s = "lambda.min", ...) {
+  if (is.numeric(s))
+    lambda = s
+  else if (is.character(s)) {
+    s = match.arg(s)
+    lambda = object[[s]]
+  }
+  else stop("Invalid form for s")
+  coef(object$penfam.fit, s = lambda, ...)
+}
 
 
 
@@ -43,7 +58,7 @@ coef.penfam <- function(object, s = NULL,  ...) {
 
 predict.penfam <- function(object, newx, s = NULL,
                            type = c("link", "response", "coefficients",
-                                    "nonzero")) {
+                                    "nonzero", "beta", "eta", "sigma2")) {
 
   # object = res
   # s = "s88"
@@ -75,6 +90,29 @@ predict.penfam <- function(object, newx, s = NULL,
   if (type == "coefficients" && !is.null(s)) {
     return(nbeta[ , s, drop = F])
   }
+
+  if (type == "beta" && is.null(s)) {
+    return(object$beta)
+  }
+
+  if (type == "beta" && !is.null(s)) {
+    return(object$beta[ , s, drop = F])
+  }
+
+
+  if (type == "varparams" && !is.null(s)) {
+    return(object$beta[ , s, drop = F])
+  }
+
+
+  if (type == "response" && is.null(s)) {
+    return(object$predicted)
+  }
+
+  if (type == "response" && !is.null(s)) {
+    return(object$predicted[, s, drop = F])
+  }
+
 
   if (type == "nonzero" && is.null(s)) {
     return(glmnet::nonzeroCoef(nbeta[, , drop = FALSE], bystep = TRUE))
@@ -135,16 +173,11 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicte
   if (any(type == "predicted")){
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
     plot(x$predicted[, s], drop(x$y), xlab = "predicted response (XB + b)", ylab = "observed response",
-         main = "Observed vs. Predicted response")
+         main = sprintf("Observed vs. Predicted response
+                        R2 = %g", cor(x$predicted[, s], drop(x$y))))
     abline(a = 0, b = 1, col = "red")
   }
 
-  if (any(type == "predicted")){
-    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    plot(x$predicted[, s], drop(x$y), xlab = "predicted response (XB + b)", ylab = "observed response",
-         main = "Observed vs. Predicted response")
-    abline(a = 0, b = 1, col = "red")
-  }
 
   if (any(type == "Tukey-Anscombe")){
     plot(x$fitted[, s], x$residuals[, s], main = "Tukey-Anscombe Plot",
@@ -154,4 +187,35 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicte
 
 
 }
+
+
+plot.bic_penfam <- function(x, sign.lambda = 1, ...) {
+
+  # x <- res
+  # sign.lambda = 1
+  # lambda.min = res$lambda_min
+  # ===============
+
+  bicobj = x
+  xlab="log(Lambda)"
+  if(sign.lambda<0) xlab=paste("-",xlab,sep="")
+  plot.args=list(x=sign.lambda*log(bicobj$lambda),
+                 y=bicobj$bic,
+                 ylim=range(bicobj$bic),
+                 xlab=xlab,
+                 ylab="BIC", type="n")
+  new.args=list(...)
+  if (length(new.args)) plot.args[names(new.args)]=new.args
+  do.call("plot",plot.args)
+  points(sign.lambda*log(bicobj$lambda),
+         bicobj$bic,pch=20,col="red")
+  axis(side=3,at=sign.lambda*log(bicobj$lambda),
+       labels=paste(bicobj$nzero), tick=FALSE, line=0)
+  abline(v=sign.lambda*log(bicobj$lambda.min.value),lty=3)
+  # abline(v=sign.lambda*log(.1605),lty=3)
+  # abline(v=sign.lambda*log(cvobj$lambda.1se),lty=3)
+  # invisible()
+}
+
+
 

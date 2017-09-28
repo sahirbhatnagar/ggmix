@@ -321,29 +321,108 @@ penfam <- function(x, y, phi, lambda = NULL,
 }
 
 
+#' Fit a linear mixed model with lasso or elasticnet regularization
+#'
+#' @description By the time the user gets to this point in the function they
+#'   should have already computed the singular values and the eigenvectors. this
+#'   is to allow flexibility with this software, so that if for example its
+#'   easier to those things elsewhere they can, else they will be computed in a
+#'   wrapper function
+#'
+#' @param x input matrix, of dimension n x p; where n is the number of
+#'   observations and p are the number of predictors.
+#' @param y response variable. must be a quantitative variable
+#' @param d non-zero eigenvalues
+#' @param u left singular vectors corresponding to the non-zero eigenvalues
+#' @param lambda A user supplied lambda sequence (this is the tuning parameter).
+#'   Typical usage is to have the program compute its own lambda sequence based
+#'   on nlambda and lambda.min.ratio. Supplying a value of lambda overrides
+#'   this. WARNING: use with care. Do not supply a single value for lambda (for
+#'   predictions after CV use predict() instead). Supply instead a decreasing
+#'   sequence of lambda values. glmnet relies on its warms starts for speed, and
+#'   its often faster to fit a whole path than compute a single fit.
+#' @param lambda_min_ratio Smallest value for lambda, as a fraction of
+#'   lambda.max, the (data derived) entry value (i.e. the smallest value for
+#'   which all coefficients are zero). The default depends on the sample size
+#'   nobs relative to the number of variables nvars. If nobs > nvars, the
+#'   default is 0.0001, close to zero. If nobs < nvars, the default is 0.01. A
+#'   very small value of lambda.min.ratio will lead to a saturated fit in the
+#'   nobs < nvars case.
+#' @param nlambda he number of lambda values - default is 100.
+#' @param eta_init initial value for the eta parameter. used in determining
+#'   lambda.max
+#' @param maxit Maximum number of passes over the data for all lambda values;
+#'   default is 10^2.
+#' @param fdev Fractional deviance change theshold. If change in deviance
+#'   between adjacent lambdas is less than fdev, the solution path stops early.
+#'   factory default = 1.0e-5
+#' @param alpha The elasticnet mixing parameter, with \eqn{0 \leq \alpha \leq
+#'   1}. alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' @param thresh_glmnet Convergence threshold for coordinate descent for
+#'   updating beta parameters. Each inner coordinate-descent loop continues
+#'   until the maximum change in the objective after any coefficient update is
+#'   less than thresh times the null deviance. Defaults value is 1E-7
+#' @param standardize Logical flag for x variable standardization, prior to
+#'   fitting the model sequence. The coefficients are always returned on the
+#'   original scale. Default is standardize=FALSE. If variables are in the same
+#'   units already, you might not wish to standardize.
+#' @param epsilon Convergence threshold for block relaxation of the entire
+#'   parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
+#'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
+#'   Defaults value is 1E-7
+#' @seealso \code{\link[glmnet]{glmnet}}
+# w_svd <- svd(w)
 
+# this is a N_T x N_T matrix
+# U <- w_svd$u
 
-lowrank <- function(x, y, w,
+# we dived by p-1 because thats how the matrix was standardized
+# Lambda <- w_svd$d^2 / (p-1)
+# Lambda[Lambda<1e-5] <- 1e-5
+
+# This part shows the equivalence between the eigenvectors and eigenvalues
+# from the kinship matrix vs. the SNP matrix used to construct the kinship
+# U_w=U
+# plot(U_w[,1],U_w[,2])
+# phi_eigen <- eigen(phi)
+# U_kinship <- phi_eigen$vectors
+# plot(U_kinship[,1], U_w[,1])
+# abline(a=0, b=-1)
+# dim(U)
+# vector of length N_T
+# Lambda <- phi_eigen$values
+# plot(Lambda, w_svd$d^2 / (p-1))
+# abline(a=0,b=1,col="red")
+# all.equal(Lambda, w_svd$d^2 / (p-1))
+
+lowrank <- function(x, y, d, u,
+                    # w,
+                    # an = log(log(n)) * log(p),
                     lambda = NULL,
                     lambda_min_ratio  = ifelse(n < p, 0.01, 0.0001),
                     nlambda = 100,
                     eta_init = 0.5,
                     maxit = 100,
-                    fdev = 1e-4,
+                    fdev = 1e-5,
+                    standardize = FALSE,
                     alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
-                    thresh_glmnet = 1e-10, # this is for glmnet
-                    epsilon = 1e-7, # this is for penfam
-                    an = log(log(n)) * log(p),
-                    tol.kkt = 1e-9) {
+                    thresh_glmnet = 1e-8, # this is for glmnet
+                    epsilon = 1e-4 # this is for penfam
+                    # tol.kkt = 1e-9
+                    ) {
 
   # rm(list=ls())
+  # pacman::p_load(gaston)
+  # pacman::p_load(glmnet)
+  # pacman::p_load(magrittr)
+  # pacman::p_load(snpStats)
   # source("~/git_repositories/penfam/R/fitting.R")
   # source("~/git_repositories/penfam/R/functions.R")
   # source("~/git_repositories/penfam/R/methods.R")
   # source("~/git_repositories/penfam/R/plot.R")
   # # source("~/git_repositories/penfam/R/sim-data.R")
   # source("~/git_repositories/penfam/simulation/model_functions.R")
-  # dat <- make_mixed_model_not_simulator(1, 0.5, 2, type = "causal_400", related = TRUE)
+  # dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
   #
   # x <- dat$x
   # y <- dat$y
@@ -353,15 +432,13 @@ lowrank <- function(x, y, w,
   # lambda_min_ratio <- 0.01
   # nlambda <- 100
   # #convergence criterion
-  # thresh_glmnet <- 1e-10
-  # epsilon <- 1e-5
-  # tol.kkt <- 1e-5
+  # thresh_glmnet <- 1e-7
+  # epsilon <- 1e-7
+  # # tol.kkt <- 1e-5
   # maxit <- 100
-  # eta_init <- 0.4
-  # an = log(log(4000))
+  # eta_init <- 0.5
+  # an = log(log(1069)) * log(4000)
   # alpha = 1
-  # # lambda <- 0.10
-  # # exact = F
   # fdev <- 1e-4
   #======================================
 
@@ -380,40 +457,18 @@ lowrank <- function(x, y, w,
 
   # add column of 1s to x for intercept
   x <- cbind(beta0 = 1, x)
-  x[1:5, 1:5]
 
-  w[1:5, 1:5]
-  w_svd <- svd(w)
-
-  # this is a N_T x N_T matrix
-  U <- w_svd$u
-  # we dived by p-1 because thats how the matrix was standardized
-  Lambda <- w_svd$d^2 / (p-1)
-  Lambda[Lambda<1e-5] <- 1e-5
-  # plot(U_w[,1],U_w[,2])
-  # phi_eigen <- eigen(phi)
-  # U_kinship <- phi_eigen$vectors
-  # plot(U_kinship[,1], U_w[,1])
-  # abline(a=0, b=-1)
-  # dim(U)
-  # vector of length N_T
-  # Lambda <- phi_eigen$values
-  # plot(Lambda, w_svd$d^2 / (p-1))
-  # abline(a=0,b=1,col="red")
-  # all.equal(Lambda, w_svd$d^2 / (p-1))
-
-  # Phi Inverse (used for prediction of random effects)
-  D_inv <- diag(1 / Lambda)
-  Phi_inv <- U %*% D_inv %*% t(U)
-
-  utx <- crossprod(U, x)
-  uty <- crossprod(U, y)
+  utx <- crossprod(u, x)
+  uty <- crossprod(u, y)
 
   # get sequence of tuning parameters
-  lamb <- lambda_sequence(x = utx, y = uty, eigenvalues = Lambda, nlambda = nlambda,
+  lamb <- lambda_sequence(x = utx,
+                          y = uty,
+                          eigenvalues = Lambda,
+                          nlambda = nlambda,
                           lambda_min_ratio = lambda_min_ratio,
-                          eta_init = eta_init, epsilon = epsilon,
-                          tol.kkt = tol.kkt)
+                          eta_init = eta_init,
+                          epsilon = epsilon)
 
   lambda_max <- lamb$sequence[[1]]
 
@@ -422,62 +477,71 @@ lowrank <- function(x, y, w,
   dimnames(tuning_params_mat)[[2]] <- paste0("s",seq_len(nlambda))
   lambda_names <- dimnames(tuning_params_mat)[[2]]
 
-  # coefficient_mat <- matrix(nrow = p + 3,
-  #                           ncol = nlambda,
-  #                           dimnames = list(c(paste0("beta",0:p), "eta","sigma2"),
-  #                                           lambda_names))
-
   coefficient_mat <- matrix(nrow = p + 3,
                             ncol = nlambda,
-                            dimnames = list(c(colnames(x), "eta","sigma2"),
+                            dimnames = list(c(colnames(x),
+                                              "eta","sigma2"),
                                             lambda_names))
 
-  randomeff_mat <- matrix(nrow = n,
-                          ncol = nlambda,
-                          dimnames = list(c(paste0("Subject",1:n)),
-                                          lambda_names))
-
-  fitted_mat <- matrix(nrow = n,
-                       ncol = nlambda,
-                       dimnames = list(c(paste0("Subject",1:n)),
-                                       lambda_names))
-
-  predicted_mat <- matrix(nrow = n,
-                          ncol = nlambda,
-                          dimnames = list(c(paste0("Subject",1:n)),
-                                          lambda_names))
-
-  resid_mat <- matrix(nrow = n,
-                      ncol = nlambda,
-                      dimnames = list(c(paste0("Subject",1:n)),
-                                      lambda_names))
-
-  out_print <- matrix(NA, nrow = nlambda, ncol = 10,
+  out_print <- matrix(NA, nrow = nlambda, ncol = 8,
                       dimnames = list(lambda_names,
                                       c("Df",
-                                        # "%Dev",
+                                        "%Dev",
                                         "Deviance",
                                         "Lambda",
-                                        "BIC",
-                                        "kkt_beta0",
-                                        "kkt_eta",
-                                        "kkt_sigma2",
-                                        "kkt_beta_nonzero",
-                                        "kkt_beta_subgr", "converged")))
+                                        "saturated_loglik",
+                                        "model_loglik",
+                                        "intercept_loglik",
+                                        "converged")))
+
+  # randomeff_mat <- matrix(nrow = n,
+  #                         ncol = nlambda,
+  #                         dimnames = list(c(paste0("Subject",1:n)),
+  #                                         lambda_names))
+
+  # fitted_mat <- matrix(nrow = n,
+  #                      ncol = nlambda,
+  #                      dimnames = list(c(paste0("Subject",1:n)),
+  #                                      lambda_names))
+
+  # predicted_mat <- matrix(nrow = n,
+  #                         ncol = nlambda,
+  #                         dimnames = list(c(paste0("Subject",1:n)),
+  #                                         lambda_names))
+
+  # resid_mat <- matrix(nrow = n,
+  #                     ncol = nlambda,
+  #                     dimnames = list(c(paste0("Subject",1:n)),
+  #                                     lambda_names))
+
+
 
   pb <- progress::progress_bar$new(
     format = "  fitting over all tuning parameters [:bar] :percent eta: :eta",
     total = nlambda, clear = FALSE, width= 90)
   pb$tick(0)
+  # pb <- progress::progress_bar$new(total = nlambda)
+  # pb$tick(0)
 
+  # this includes the intercept
   beta_init <- matrix(0, nrow = p + 1, ncol = 1)
 
   # initial value for eta from lambda_sequence results
   eta_init <- lamb$eta
 
   # closed form solution value for sigma^2
-  sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
+  # sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
 
+  Lambda <- d
+
+  sigma2_init <- sigma2(n = n,
+                        x = utx,
+                        y = uty,
+                        eta = eta_init,
+                        beta = beta_init,
+                        eigenvalues = Lambda)
+
+  # pb = txtProgressBar(min = 0, max = nlambda, initial = 0)
 
   for (LAMBDA in lambda_names) {
 
@@ -513,6 +577,7 @@ lowrank <- function(x, y, w,
                                       lambda = c(.Machine$double.xmax, lambda),
                                       thresh = thresh_glmnet)
 
+      # print(coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),])
       beta_next <- beta_next_fit$beta[ , 2, drop = FALSE]
 
       # fit eta
@@ -521,8 +586,8 @@ lowrank <- function(x, y, w,
                         gr = grr_eta,
                         method = "L-BFGS-B",
                         control = list(fnscale = 1),
-                        lower = 0.01,
-                        upper = 0.99,
+                        lower = 0.1,
+                        upper = 0.90,
                         sigma2 = sigma2_init,
                         beta = beta_next,
                         eigenvalues = Lambda,
@@ -531,61 +596,79 @@ lowrank <- function(x, y, w,
                         nt = n)$par
 
       # fit sigma (closed form)
-      sigma2_next <- (1 / n) * sum(((uty - utx %*% beta_next) ^ 2) / (1 + eta_next * (Lambda - 1)))
+      # sigma2_next <- (1 / n) * sum(((uty - utx %*% beta_next) ^ 2) / (1 + eta_next * (Lambda - 1)))
+      sigma2_next <- sigma2(n = n, x = utx, y = uty, beta = beta_next, eta = eta_next, eigenvalues = Lambda)
 
       k <- k + 1
-      # print(k)
+
       Theta_next <- c(as.vector(beta_next), eta_next, sigma2_next)
 
-
-      # browser()
-
       converged <- (crossprod(Theta_next - Theta_init) < epsilon)[1,1]
-
-      # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) <
 
       beta_init <- beta_next
       eta_init <- eta_next
       sigma2_init <- sigma2_next
 
-      # message(sprintf("lambda = %s, iter = %f, l2 norm squared of Theta: %f \n log-lik: %f", LAMBDA, k, crossprod(Theta_next - Theta_init),
-      #                 log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next, eigenvalues = Lambda,x = utx, y = uty, nt = n)))
-
     }
 
-    # browser()
-
     if (!converged) message(sprintf("algorithm did not converge for %s", LAMBDA))
+
     # converged observation weights
-    di <- 1 + eta_next * (Lambda - 1)
-    wi <- (1 / sigma2_next) * (1 / di)
+    # di <- 1 + eta_next * (Lambda - 1)
+    # wi <- (1 / sigma2_next) * (1 / di)
 
-    # nulldev <- drop(crossprod(uty - utx[,1, drop = F] %*% beta_next[1]))
-    # deviance <- drop(crossprod(uty - utx %*% beta_next))
-    # devRatio <- drop(1 - deviance/nulldev)
+    # a parameter for each observation
+    saturated_loglik <- log_lik(eta = eta_next,
+                                sigma2 = sigma2_next,
+                                beta = 1,
+                                eigenvalues = Lambda,
+                                x = uty,
+                                y = uty,
+                                nt = n)
+    # print(saturated_loglik)
+    # intercept only model
+    intercept_loglik <- log_lik(eta = eta_next,
+                                sigma2 = sigma2_next,
+                                beta = beta_next[1, , drop = FALSE],
+                                eigenvalues = Lambda,
+                                x = utx[ , 1, drop = FALSE],
+                                y = uty,
+                                nt = n)
+    # print(intercept_loglik)
+    # model log lik
+    model_loglik <- log_lik(eta = eta_next,
+                            sigma2 = sigma2_next,
+                            beta = beta_next,
+                            eigenvalues = Lambda,
+                            x = utx,
+                            y = uty,
+                            nt = n)
+    # print(model_loglik)
 
-    deviance <- log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                        eigenvalues = Lambda,x = utx, y = uty, nt = n)
-
+    deviance <- 2 * (saturated_loglik - model_loglik)
+    nulldev <- 2 * (saturated_loglik - intercept_loglik)
+    devratio <- 1 - deviance / nulldev
 
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution.
     df <- length(glmnet::nonzeroCoef(beta_next)) - 1
 
-    bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                      eigenvalues = Lambda, x = utx, y = uty, nt = n,
-                      c = an, df_lambda = df)
+    # bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+    #                   eigenvalues = Lambda, x = utx, y = uty, nt = n,
+    #                   c = an, df_lambda = df)
 
     # kkt_lambda <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
     #                         eigenvalues = Lambda, x = utx, y = uty, nt = n,
     #                         lambda = lambda, tol.kkt = tol.kkt)
 
-
     out_print[LAMBDA,] <- c(if (df == 0) 0 else df,
-                            # devRatio,
+                            devratio,
                             deviance,
                             lambda,
-                            bic_lambda,
+                            saturated_loglik,
+                            model_loglik,
+                            intercept_loglik,
+                            # bic_lambda,
                             # kkt_lambda,
                             converged)
 
@@ -594,44 +677,54 @@ lowrank <- function(x, y, w,
 
     # prediction of random effects
     # bi <- drop(eta_next * Phi %*% (y - x %*% beta_next)) / di
-    D_tilde_inv <- diag(1 / di)
-    V_inv <- U %*% D_tilde_inv %*% t(U)
 
-    bi <- as.vector(solve((1 / eta_next) * Phi_inv + V_inv) %*% V_inv %*% (y - x %*% beta_next))
+    # Phi Inverse (used for prediction of random effects)
+    # D_inv <- diag(1 / Lambda)
+    # Phi_inv <- U %*% D_inv %*% t(U)
 
-    # predicted values
-    yi_hat <- as.vector(x %*% beta_next) + bi
+    # D_tilde_inv <- diag(1 / di)
+    # V_inv <- U %*% D_tilde_inv %*% t(U)
+
+    # bi <- as.vector(solve((1 / eta_next) * Phi_inv + V_inv) %*% U %*% D_inv %*% (uty - utx %*% beta_next))
+    # bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*Lambda))) %*% t(U) %*% U %*% D_tilde_inv %*% (uty - utx %*% beta_next))
+
+    # predicted values (this contains the intercept)
+    # yi_hat <- as.vector(x %*% beta_next) + bi
 
     # fitted values
-    xbhat <- yi_hat - bi
+    # xbhat <- yi_hat - bi
 
     # residuals
-    ri <- drop(y) - yi_hat
+    # ri <- drop(y) - yi_hat
 
     # bi <- drop(eta_next * Phi %*% (uty - utx %*% beta_next)) / di
     # qqnorm(bi)
     # abline(a = 0, b = 1, col = "red")
     # plot(density(bi))
 
-    randomeff_mat[,LAMBDA] <- bi
-    fitted_mat[,LAMBDA] <- xbhat
-    predicted_mat[,LAMBDA] <- yi_hat
-    resid_mat[,LAMBDA] <- ri
+    # randomeff_mat[,LAMBDA] <- bi
+    # fitted_mat[,LAMBDA] <- xbhat
+    # predicted_mat[,LAMBDA] <- yi_hat
+    # resid_mat[,LAMBDA] <- ri
 
-    deviance_change <- abs((out_print[lambda_index, "Deviance"] - out_print[lambda_index - 1, "Deviance"]) /  out_print[lambda_index, "Deviance"])
-    message(sprintf("Deviance change = %.6f", deviance_change))
+    deviance_change <- abs((out_print[lambda_index, "%Dev"] - out_print[lambda_index - 1, "%Dev"]) /  out_print[lambda_index, "%Dev"])
+    # message(sprintf("Deviance change = %.6f", deviance_change))
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
     if (length(deviance_change) > 0) {
-      if (deviance_change < fdev | !converged) break
+      if (deviance_change < fdev ) break
     }
 
     pb$tick()
+
+    # setTxtProgressBar(pb,lambda_index)
+
+
   }
 
 
-  lambda_min <- out_print[which.min(out_print[,"BIC"]),"Lambda"]
-  id_min <- names(which(out_print[,"Lambda"] == lambda_min))
+  # lambda_min <- out_print[which.min(out_print[,"BIC"]),"Lambda"]
+  # id_min <- names(which(out_print[,"Lambda"] == lambda_min))
 
   # if there is early stopping due to fdev, remove NAs
   out_print <- out_print[complete.cases(out_print),]
@@ -642,19 +735,25 @@ lowrank <- function(x, y, w,
   out <- list(result = out_print,
               x = x,
               y = y,
+              utx = utx,
+              uty = uty,
+              u = u,
+              Lambda = Lambda,
               coef = coefficient_mat[,lambdas_fit, drop = F],
               b0 = coefficient_mat["beta0", lambdas_fit],
               beta = as(coefficient_mat[colnames(x)[-1], lambdas_fit, drop = FALSE],"dgCMatrix"),
+              df = out_print[lambdas_fit, "Df"],
               eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
               sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
               nlambda = length(lambdas_fit),
-              randomeff = randomeff_mat[, lambdas_fit, drop = FALSE],
-              fitted = fitted_mat[, lambdas_fit, drop = FALSE],
-              predicted = predicted_mat[, lambdas_fit, drop = FALSE],
-              residuals = resid_mat[, lambdas_fit, drop = FALSE],
-              cov_names = colnames(x),
-              lambda_min = id_min,
-              lambda_min_value = lambda_min)
+              # randomeff = randomeff_mat[, lambdas_fit, drop = FALSE],
+              # fitted = fitted_mat[, lambdas_fit, drop = FALSE],
+              # predicted = predicted_mat[, lambdas_fit, drop = FALSE],
+              # residuals = resid_mat[, lambdas_fit, drop = FALSE],
+              cov_names = colnames(x)#,
+              # lambda_min = id_min,
+              # lambda_min_value = lambda_min
+              )
   # beta = beta_next,
   # eta = eta_next,
   # sigma2 = sigma2_next,
