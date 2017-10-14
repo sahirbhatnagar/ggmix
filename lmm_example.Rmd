@@ -1,0 +1,225 @@
+---
+title: "Fitting Linear Mixed Model"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    keep_md: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Load Packages
+
+```{r}
+# install.packages("gaston")
+library(gaston)
+```
+
+
+## Set Simulation Parameters
+
+```{r}
+# number of subjects
+n <- 1000
+
+# number of genotypes
+p <- 1e4
+
+# number of causal genotypes
+p_causal <- 50
+
+# Signal to noise ratio
+signal_to_noise_ratio <- 2
+
+# vector of allele frequencies from which to sample
+probs <- c(0.05, 0.1, 0.3, 0.4)
+```
+
+## Generate Sample Data with Missing Genotypes
+
+```{r}
+set.seed(345321)
+geno <- replicate(p, rbinom(n, 2, sample(probs, 1)))
+dim(geno)
+geno[1:5,1:5]
+geno[sample(1:p, 100)] <- NA
+geno[1:5,1:5]
+```
+
+
+## Convert to BED Matrix
+
+This is so that we can use the functions in the `gaston` package for fitting mixed models
+
+```{r}
+DT <- gaston::as.bed.matrix(geno)
+
+# can access the data by 
+as.matrix(DT)[1:5, 1:5]
+
+# see the contents of DT
+slotNames(DT)
+
+# to access the different contents of DT use @ 
+DT@snps[1:5,]
+DT@ped[1:5,]
+
+# p contains the alternate allele frequency 
+# mu is equal to 2*p and is the expected value of the genotype (coded in 0, 1, 2)
+# sigma is the genotype standard error
+DT@p[1:10]
+DT@mu[1:10]
+DT@sigma[1:10]
+plot(2*DT@p, DT@mu)
+abline(a=0,b=1, col = "red")
+```
+
+If the Hardy-Weinberg equilibrium holds, `sigma` should be close to $\sqrt{2*p(1-p)}$. This is illustrated on the figure below
+
+
+```{r}
+plot(DT@p, DT@sigma, xlim=c(0,1))
+t <- seq(0,1,length=101);
+lines(t, sqrt(2*t*(1-t)), col="red")
+```
+
+## Standardized SNP matrix
+
+```{r}
+# this will center the columns of DT to mean 0, and standard deviation sqrt(2p(1-p))
+gaston::standardize(DT) <- "p"
+X <- as.matrix(DT)
+X[1:5, 1:5]
+```
+
+## Dealing With Missing Values
+
+In standardized matrices, the `NA` values are replaced by zeroes, which amount to impute the missing genotypes by the mean genotype.
+
+```{r}
+X[is.na(X)] <- 0
+X[1:5,1:5]
+```
+
+The object `X` is what will be used as the data matrix in the LMM analysis. We also need to create the kinship matrix, which we do next.
+
+
+## Calculate Kinship Matrix
+
+If $X_s$ is a standardized $n \times p$ matrix of genotypes, a Genetic Relationship Matrix of individuals can be computed as \[GRM = \frac{1}{p-1} X_s X_s^\top\] where $p$ is the number of SNPs and $n$ is the number of individuals. This computation is done by the `gaston::GRM` function. Note that we could also use 
+
+```{r, eval=FALSE}
+(1 / (p - 1)) * tcrossprod(X)
+```
+
+to calculate the kinship (covariance) matrix, but the `gaston::GRM` function is faster.  
+
+Note that the `gaston::GRM` function internally standardizes the genotype data, which is why we provide it the object `DT`. The object `X` will be used for fitting the model. We specify `autosome.only = FALSE` because we don't have that information.
+
+
+```{r}
+kin <- gaston::GRM(DT, autosome.only = FALSE)
+kin[1:5,1:5]
+```
+
+
+## Principal Components
+
+From the GRM, we can compute the Principal components. The eigenvectors are normalized. The Principal Components (PC) can be computed by multiplying them by the square root of the associated eigenvalues
+
+```{r}
+eiK <- eigen(kin)
+
+# deal with a small negative eigen value
+eiK$values[ eiK$values < 0 ] <- 0
+
+PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+dim(PC)
+plot(PC[,1], PC[,2])
+```
+
+
+
+## Simulate Phenotype
+
+`p_causal` SNPs are randomly assigned to a Uniform(0.9,1.1) distribution. 
+
+```{r}
+beta <- rep(0, p)
+beta[sample(1:p, p_causal)] <- runif(p_causal, min = 0.9, max = 1.1)
+
+y.star <- X %*% beta 
+
+error <- stats::rnorm(n)
+
+k <- as.numeric(sqrt(stats::var(y.star)/(signal_to_noise_ratio*stats::var(error))))
+
+Y <- y.star + k*error
+```
+
+
+## Run Univariate LMM
+
+There are two packages we can use to fit uni/multivariate LMMs.
+
+### `gaston` package
+
+
+```{r}
+# make design matrix with intercept
+x1 <- cbind(1, X[,1,drop=FALSE])
+
+# with 1 random effect this function is faster than lmm.aireml
+# in gaston::lmm.diago you provide the eigen decomposition 
+# in gaston::lmm.aireml you provide the kinship matrix
+fit <- gaston::lmm.diago(Y, x1, eigenK = eiK)
+
+# equivalently you can also fit using 
+# fit <- gaston::lmm.aireml(Y, x1, K = kin, verbose = FALSE)
+
+# the second coefficient is x1, the first is the intercept
+(z_score <- fit$BLUP_beta[2]/sqrt(fit$varbeta[2,2]))
+
+# pvalue
+2*pnorm(z_score, lower.tail = F)
+
+# random effect variance
+fit$tau
+
+# error variance
+fit$sigma2
+
+# error sd
+sqrt(fit$sigma2)
+
+```
+
+
+### `coxme` package
+
+
+```{r, eval=TRUE}
+# install.packages("coxme")
+library(coxme)
+
+# need an ID variable
+dat <- data.frame(Y, x=X[,1], id = 1:n)
+
+# provide the kinship matrix 
+gfit1 <- lmekin(Y ~ x + (1|id), data=dat, varlist=kin)
+gfit1
+```
+
+
+## Session Info
+
+```{r, echo=FALSE}
+devtools::session_info()
+```
+

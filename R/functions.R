@@ -463,8 +463,8 @@ gic.penfam <- function(x, y, d, u,
   out = list(lambda = penfam.object$result[,"Lambda"],
              nzero = df,
              bic = model_bic,
-             lambda.min = names(which.min(model_bic)),
-             lambda.min.value = penfam.object$result[names(which.min(model_bic)),"Lambda"],
+             lambda.min.name = names(which.min(model_bic)),
+             lambda.min = penfam.object$result[names(which.min(model_bic)),"Lambda"],
              penfam.fit = penfam.object)
   obj <- c(out)
   class(obj) <- "gic.penfam"

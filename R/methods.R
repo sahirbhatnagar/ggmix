@@ -41,6 +41,10 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 
 
 
+
+
+
+
 #' Make predictions from a penfam object
 #'
 #' @description this function only works for tuning parameter values defined by
@@ -49,7 +53,7 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 #' @param s index of tuning parameter. Must be a character and an element of
 #'   "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 #'   parameters. Default is \code{NULL}
-#' @param object Fitted shim model object
+#' @param object Fitted penfam model object
 #' @param type Type of prediction required. Type "link" gives the fitted values
 #'   given by \deqn{X\beta + b} where b is a subject-specific random effect. For
 #'   "gaussian" type "response" is equivalent to type "link". Type
@@ -58,33 +62,72 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 #'   for each value of s.
 #' @export
 
-predict.penfam <- function(object, newx, s = NULL,
+predict.penfam <- function(object, new.x, new.u, new.d, s = NULL,
                            type = c("link", "response", "coefficients","ranef",
                                     "nonzero", "beta", "eta", "sigma2")) {
 
-  # object = res
-  # s = "s88"
+  object = res$penfam.fit
+  s = c(0.1,0.2,0.3)
+  s=NULL
+  type = "link"
+  newx = dat$x[,1:500]
+  new.u = U
+  new.d = Lambda
   # ==================
+
+
+  # need to think about how to project newx... cant use eigenvectors of training sample beacuse thats for a sample i
+  # probably need to recalculate eigenvectors for newx. will not re-calculate. just use original x
 
   type = match.arg(type)
 
-  if (missing(newx)) {
+  if (any(missing(new.x), missing(new.u), missing(new.d))) {
     if (!match(type, c("coefficients", "nonzero"), FALSE))
-      stop("You need to supply a value for 'newx'")
+      stop("You need to supply a value for 'new.x', 'new.u' and 'new.d'")
   }
 
   a0 = t(as.matrix(object$b0))
   rownames(a0) = "(Intercept)"
-  # this includes tuning parameters pairs that didnt converge
-  nbeta = rbind(a0, object$beta, object$eta, object$sigma2)
-  # nbeta@Dimnames <- list(X = c("(Intercept)", object$cov_names, "eta", "sigma2"),
-  #                        Y = paste0("s",seq_len(object$nlambda)))
+  nbeta = rbind2(a0, object$beta)
 
-  # dimnames(nbeta)[[1]] <- list(c("(Intercept)", object$cov_names, "eta", "sigma2"))
-  # dimnames(nbeta)[[2]] <- paste0("s",seq_len(object$nlambda))
 
-  # this is the default returned by coef.shim i.e. any object of class shim
-  # it will return all tuning parameters (including those that didnt converge)
+  if (!is.null(s)) {
+    vnames <- dimnames(nbeta)[[1]]
+    dimnames(nbeta) <- list(NULL, NULL)
+    lambda <- object$lambda
+    lamlist <- glmnet::lambda.interp(lambda, s)
+    if (length(s) == 1) {
+      nbeta = nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
+        nbeta[, lamlist$right, drop = FALSE] * (1 -
+                                                  lamlist$frac)
+    } else {
+      nbeta = nbeta[, lamlist$left, drop = FALSE] %*%
+        diag(lamlist$frac) + nbeta[, lamlist$right,
+                                   drop = FALSE] %*% diag(1 - lamlist$frac)
+    }
+    dimnames(nbeta) <- list(vnames, paste(seq(along = s)))
+  }
+
+
+  if (type == "nonzero")
+    return(glmnet::nonzeroCoef(nbeta[-1, , drop = FALSE], bystep = TRUE))
+
+  if (inherits(newx, "sparseMatrix"))
+    newx = as(newx, "dgCMatrix")
+
+
+  # this is used by the cv_lspath function to calculate predicted values
+  # which will subsequently be used for calculating MSE for each fold
+  if (type == "link") {
+
+    nfit = as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
+    ranef.penfam(object)
+    return(nfit)
+  }
+
+
+
+
   if (type == "coefficients" && is.null(s)) {
     return(nbeta)
   }
@@ -129,17 +172,36 @@ predict.penfam <- function(object, newx, s = NULL,
     newx = as(newx, "dgCMatrix")
   }
 
-  # this is used by the cv_lspath function to calculate predicted values
-  # which will subsequently be used for calculating MSE for each fold
-  if (type == "link") {
-
-    nfit = as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
-
-    return(nfit)
-  }
 
 }
 
+
+#' Make predictions from a "gic.penfam" object.
+#'
+#' @param object a fitted \code{\link{gic.penfam}} object
+#' @param newx matrix of new values for x at which predictions are to be made
+#' @param s value(s) of the penalty parameter lambda at which predictions are
+#'   required. Default is the value s="lambda.min" stored on the
+#'   \code{\link{gic.penfam}} object. If s is numeric, it is taken as the
+#'   value(s) of lambda to be used.
+#' @param ... not used. Other arguments to predict
+#'
+#' @description This function makes predictions from a penfam model with GIC,
+#'   using the stored "penfam.fit" object, and the optimal value chosen for lambda
+#'   based on the minimum GIC.
+#' @details This function makes it easier to use the results of cross-validation
+#'   to make a prediction
+#' @method predict gic.penfam
+#' @export
+predict.gic.penfam <- function(object, newx, s = c("lambda.1se",
+                                                   "lambda.min"), ...) {
+  if (is.numeric(s))
+    lambda <- s else if (is.character(s)) {
+      s <- match.arg(s)
+      lambda <- object[[s]]
+    } else stop("Invalid form for s")
+  predict(object$penfam.fit, newx, s = lambda, ...)
+}
 
 
 
@@ -240,28 +302,104 @@ plot.gic.penfam <- function(x, sign.lambda = 1, ...) {
 #' @method ranef gic.penfam
 #' @rdname ranef
 #' @export
-ranef.gic.penfam <- function(object, s = "lambda.min") {
+ranef.gic.penfam <- function(object, s = "lambda.min", ...) {
 
   # object = res
   # s = "lambda.min"
   #==================
 
-  U <- object$penfam.fit[["u"]]
-  estimates <- coef(object, s = s)
-  eta_next <- estimates["eta",]
-  beta_next <- estimates[c("(Intercept)",object$penfam.fit$cov_names[-1]),,drop=F]
-  eigenvalues <- object$penfam.fit$eigenvalues
+  if (s == "lambda.min") {
+  ranef(object = object$penfam.fit, s = object$lambda.min, ...)
+  } else if(is.numeric(s)) {
 
-  di <- 1 + eta_next * (eigenvalues - 1)
-  D_tilde_inv <- diag(1 / di)
-  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$penfam.fit$uty - object$penfam.fit$utx %*% beta_next))
-  bi
+  }
+
+}
+
+
+
+#' @param s index of tuning parameter. Must be a character and an element of
+#'   "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
+#'   parameters. Default is \code{NULL}
+#' @details For objects of class "penfam", this function returns the
+#'   subject-specific random effect value for the model which minimizes the GIC
+#'   using the maximum a posteriori principle
+#'
+#' @method ranef penfam
+#' @rdname ranef
+#' @export
+ranef.penfam <- function(object, new.x, new.u, new.d, s = NULL,
+                         type = c("fitted", "predicted")) {
+
+  # object = res$penfam.fit
+  # s = c(0.5, 0.3, 0.1)
+  # type = "link"
+  # new.x = dat$x[,1:500]
+  # new.u = U
+  # new.d = Lambda
+  # type = "fitted"
+  # s = "lambda.min"
+  #==================
+
+  type = match.arg(type)
+
+  if (any(missing(new.x), missing(new.u), missing(new.d))) {
+    if (!match(type, c("fitted"), FALSE))
+      stop("You need to supply a value for 'new.x', 'new.u' and 'new.d'")
+  }
+
+  a0 <- t(as.matrix(object$b0))
+  eta <- as.matrix(object$eta)
+  sigma2 <- as.matrix(object$sigma2)
+  rownames(a0) <- "(Intercept)"
+  rownames(eta) <- "eta"
+  rownames(sigma2) <- "sigma2"
+  nbeta = rbind(a0, object$beta, eta, sigma2)
+
+  if (!is.null(s)) {
+    vnames <- dimnames(nbeta)[[1]]
+    dimnames(nbeta) <- list(NULL, NULL)
+    lambda <- object$lambda
+    lamlist <- glmnet::lambda.interp(lambda, s)
+    if (length(s) == 1) {
+      nbeta = nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
+        nbeta[, lamlist$right, drop = FALSE] * (1 -
+                                                  lamlist$frac)
+    } else {
+      nbeta = nbeta[, lamlist$left, drop = FALSE] %*%
+        diag(lamlist$frac) + nbeta[, lamlist$right,
+                                   drop = FALSE] %*% diag(1 - lamlist$frac)
+    }
+    dimnames(nbeta) <- list(vnames, paste(seq(along = s)))
+  }
+
+  if (type == "fitted") {
+
+    bis <- lapply(seq_along(s), function(i) {
+      eta_next <- nbeta["eta",i]
+      beta_next <- nbeta[c("(Intercept)", object$cov_names[-1]),i,drop=F]
+      bi(eta = eta_next, beta = beta_next, eigenvalues = object$eigenvalues,
+         eigenvectors = object$u, x = object$utx, y = object$uty)
+    })
+
+    bisall <- do.call(cbind, bis)
+    dim(bisall)
+    dimnames(bisall) <- list(rownames(object$x), paste(seq(along = s)))
+    return(bisall)
+
+  }
+
 
 }
 
 
 
 
+bi <- function(eta, beta, eigenvalues, eigenvectors, x, y){
+  di <- 1 + eta * (eigenvalues - 1)
+  D_tilde_inv <- diag(1 / di)
+  as.vector(eigenvectors %*% diag(1 / (1/di + 1/(eta * eigenvalues))) %*% t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
+}
 
 
 
