@@ -1,10 +1,10 @@
 # This is the main simulator file
 rm(list = ls())
-setwd("/home/sahir/git_repositories/penfam/simulation/")
+setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
-source("/home/sahir/git_repositories/penfam/simulation/model_functions.R")
-source("/home/sahir/git_repositories/penfam/simulation/method_functions.R")
-source("/home/sahir/git_repositories/penfam/simulation/eval_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 
 ## @knitr init
 
@@ -54,11 +54,51 @@ plot_eval(sim, metric_name = "r2") + panel_border() #+ ylim(c(0,1))
 
 sim %>% evaluate(list(tpr,fpr))
 df <- as.data.frame(evals(sim))
+dfn <- df
+dfn$Method <- as.character(dfn$Method)
+dfn[dfn$Method=="penfam","Method"] <- "ggmix"
 
-ggplot(data = df, aes(x=fpr, y=tpr, color = Method)) + geom_point(size=3) +
-  theme(legend.position = "bottom") + xlab("False positive rate") + ylab("True positive rate") + xlim(c(0.002,0.062)) +
+pdf("~/Dropbox/jobs/hec/talk/tpr_fpr.pdf")#, width = 11, height = 8)
+ggplot(data = dfn[dfn$Method!="twostep",], aes(x=fpr, y=tpr, color = Method)) + geom_point(size=4) +
+  theme(legend.position = "bottom", axis.text=element_text(size=16), axis.title=element_text(size=18,face="bold"),
+        legend.text = element_text(size=16), legend.title = element_text(size=16)) +
+  xlab("False positive rate") + ylab("True positive rate") + xlim(c(0.002,0.062)) +
   ylim(c(0,0.25))
+dev.off()
+
+pdf("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.pdf")#, width = 11, height = 8)
+p1 <- ggplot(data = dfn, aes(x=fpr, y=tpr, color = Method)) + geom_point(size=4) +
+  theme(legend.position = "bottom", axis.text=element_text(size=16), axis.title=element_text(size=18,face="bold"),
+        legend.text = element_text(size=16), legend.title = element_text(size=16)) +
+  xlab("False positive rate") + ylab("True positive rate") + xlim(c(0.002,0.062)) +
+  ylim(c(0,0.25))
+dev.off()
+
+
+pacman::p_load(gridExtra)
+df <- data.frame(ggmix = "26.7 (1.06)", lasso = "32.8 (0.87)", twostep = "4784.1 (0.19)")
+rownames(df) <- "mean RMSE (sd)"
+t1 <- grid.table(df)
+t1 <- tableGrob(df)
+dev.off()
+
+pdf("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.pdf")#, width = 11, height = 8)
+plot_grid(p1,t1, ncol = 1, rel_heights =  c(1,0.2))
+dev.off()
+
+
+png("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.png", width = 11, height = 8, units = "in", res = 150)
+plot_grid(p1,t1, ncol = 1, rel_heights =  c(1,0.2))
+dev.off()
+
+
+
+theme(axis.text=element_text(size=12),
+      axis.title=element_text(size=14,face="bold"))
+
 ggsave(filename = "/home/sahir/Dropbox/PhD/Year4/IGES/poster/tpr_fpr.png")
+ggsave(filename = "/home/sahir/Dropbox/jobs/hec/talk/tpr_fpr.png")
+
 
 sim %>% evaluate(list(rmse))
 plot_eval(sim, metric_name = "rmse") + panel_border()

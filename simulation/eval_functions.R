@@ -39,7 +39,7 @@ rmse <- new_metric("rmse", "Root mean squared error",
 
 r2 <- new_metric("r2", "R squared",
                  metric = function(model, out) {
-                   cor(out$y,out$yhat)
+                   cor(out$y,out$yhat)^2
                  })
 
 muy <- new_metric("muy", "mean of draw",
