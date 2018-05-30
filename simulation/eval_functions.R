@@ -32,6 +32,9 @@ eta <- new_metric("eta", "eta",
 sigma2 <- new_metric("sigma2", "sigma2",
                      metric = function(model, out) out$sigma2)
 
+modelerror <- new_metric("me", "model error",
+                     metric = function(model, out) out$model_error)
+
 rmse <- new_metric("rmse", "Root mean squared error",
                    metric = function(model, out) {
                      as.numeric(sqrt(crossprod(out$y - out$yhat)))
@@ -62,3 +65,8 @@ fpr <- new_metric("fpr", "False Positive Rate",
                     FPR <- sum(out$nonzero_names %ni% model$causal) / (sum(out$nonzero_names %ni% model$causal) + sum(modelIdentifyZero %in% model$not_causal))
                     FPR
                   })
+
+nactive <- new_metric("nactive", "Number of Active Variables",
+                      metric = function(model, out) {
+                        length(out$nonzero_names)
+                      })

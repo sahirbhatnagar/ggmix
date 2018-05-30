@@ -1,34 +1,65 @@
 # This is the main simulator file
 rm(list = ls())
-setwd("/home/sahir/git_repositories/ggmix/simulation/")
+# setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
-source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
-source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
-source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
+
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
 
 ## @knitr init
 
-name_of_simulation <- "Penfam simulation for IGES"
+# name_of_simulation <- "Penfam simulation for IGES"
 
 ## @knitr main
 
+
 # nsim needs to be at least 2
 message("Generating data...")
-sim <- new_simulation("iges-2017-penfam-v2", "IGES 2017") %>%
-  generate_model(make_mixed_model, b0 = 2, sigma2 = 1,
+sim <- new_simulation("ssc-2018-penfam-v4", "SSC 2018", dir = "simulation/") %>%
+  generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = 4,
                  # type = as.list(c(1,2,3)),
-                 type = c("causal_400"),
-                 eta = 0.6) %>%
-  simulate_from_model(nsim = 2, index = 1:5)
+                 # vary_along = "type"
+                 eta = 0.5, 
+                 percent_causal = 1, 
+                 # percent_overlap = "100"
+                 percent_overlap = list("0","100"),
+                 vary_along = "percent_overlap"
+                 ) %>%
+  simulate_from_model(nsim = 4, index = 1:50) %>% 
+  run_method(list(lassoPCpf, PENFAM, TWOSTEP),
+             parallel = list(socket_names = 35,
+                             libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
+save_simulation(sim)
+sim
+
+
+# sim <- sim %>% simulate_from_model(nsim = 2, index = 3) %>% 
+#   run_method(list(lassoPCpf, PENFAM, TWOSTEP))
+# 
+# sim <- sim %>% run_method(list(lassoPCeigenpf),
+#            parallel = list(socket_names = 35,
+#                            libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
 
 message("Done generating data...")
-
+# sim
 message("Running simulations...")
-sim <- run_method(sim, list(lasso, PENFAM, TWOSTEP),
-                  parallel = list(socket_names = 5, libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
+# sim <- run_method(sim, list(lasso))#,
+                  # parallel = list(socket_names = 5, 
+                  #                 libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
+
+# res <- make_mixed_model_not_simulator(b0=2, eta=0.6, sigma2=1, type="causal_400")
+# res$x %>% complete.cases()
+
+# sim <- run_method(sim, list(lasso, PENFAM, TWOSTEP),
+#                   parallel = list(socket_names = 35, 
+#                                   libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
 
 message("Done simulations...")
-sim <- sim %>% evaluate(list(rmse, tpr, fpr, r2))
+sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
 
 save_simulation(sim)
 
@@ -112,7 +143,34 @@ sim %>%
                 format_args = list(nsmall = 3, digits = 0),
                 output_type = "latex")
 
+sim %>%
+  tabulate_eval(metric_name = "tpr",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
 
+sim %>%
+  tabulate_eval(metric_name = "fpr",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
+
+sim %>%
+  tabulate_eval(metric_name = "nactive",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
+sim %>%
+  tabulate_eval(metric_name = "me",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
+
+sim %>%
+  tabulate_eval(metric_name = "eta",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
+
+sim %>%
+  tabulate_eval(metric_name = "sigma2",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "latex")
 #
 #
 # head(df)
@@ -158,7 +216,237 @@ sim %>%
 # # draws@draws$r1.1
 # # draws@draws$r1.2
 # #
-# dat <- make_mixed_model_not_simulator(2,.6,1,"causal_400")
+dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.5, sigma2 = 4, percent_causal = 1, percent_overlap = "100")
+# dat$kin[1:25,1:25]
+pheno_dat <- data.frame(Y = dat$y, id = rownames(dat$kin))
+# all(names(dat$y)==rownames(dat$kin))
+# hist(dat$y)
+# head(pheno_dat)
+# fitting with no intercept, i.e., 0 + (1|id) returns error
+# fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = dat$kin)
+# newy <- residuals(fit_lme)
+# 
+# all(rownames(dat$x)==rownames(dat$kin))
+x1 <- cbind(rep(1, nrow(dat$x)))
+fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
+# plot(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
+#      newy)
+# all.equal(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
+#      newy)
+# abline(a=0,b=1)
+gaston_resid <- dat$y - (fit$BLUP_omega + fit$BLUP_beta) 
+# hist(gaston_resid)
+fitglmnet <- glmnet::cv.glmnet(x = dat$x, y = gaston_resid, standardize = T, alpha = 1, intercept = T)
+# plot(fitglmnet)
+# yhat <- predict(fitglmnet, newx = dat$x_lasso, s = "lambda.min")
+# as.numeric(sqrt(crossprod(gaston_resid - yhat)))
+(nonz2step <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)")))
+(tpr2step <- length(intersect(nonz2step, dat$causal))/length(dat$causal))
+dim(dat$x)
+dim(dat$x_lasso)
+fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
+                                penalty.factor = c(rep(1, 1000), rep(0, 10)))
+# yhat2 = predict(fitglmnet2, newx = dat$x_lasso, s = "lambda.min")
+# as.numeric(sqrt(crossprod(dat$y - yhat2)))
+(nonzlasso <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]),c("(Intercept)","")))
+(tprlasso <- length(intersect(nonzlasso, dat$causal))/length(dat$causal))
+
+l2norm <- function(x) sqrt(sum(x^2))
+
+l2norm(dat$x %*% dat$beta - dat$x %*% coef(fitglmnet2, s = "lambda.min")[2:(ncol(dat$x)+1),,drop=F])
+
+
+coef(fitglmnet2, s = "lambda.min")[1,,drop=F]
+### two step
+length(nonz2step) ; tpr2step
+
+### lasso
+length(nonzlasso) ; tprlasso
+
+
+
+
+all(names(dat$y)==rownames(dat$x))
+all(rownames(dat$x)==rownames(dat$kin))
+fit <- penfam(x = dat$x,
+              y = dat$y,
+              phi = dat$kin,
+              thresh_glmnet = 1e-10,
+              epsilon = 1e-5,
+              fdev = 1e-7,
+              alpha = 1,
+              tol.kkt = 1e-3,
+              nlambda = 100,
+              # an = log(log(length(dat$y))) * log(length(dat$y)),
+              # an = log(log(length(dat$y))),
+              an = log(length(dat$y)),
+              # lambda_min_ratio  = ifelse(model$n < model$p, 0.01, 0.001),
+              lambda_min_ratio  = 0.05,
+              eta_init = 0.5,
+              maxit = 100)
+
+coef(fit)[match(dat$causal, rownames(coef(fit))),]
+nonzero = predict(fit, type = "nonzero", s = fit$lambda_min)
+nonzero_names = setdiff(rownames(predict(fit, type = "nonzero", s = fit$lambda_min)), c("(Intercept)","eta","sigma2"))
+plot(fit, "BIC")
+length(intersect(nonzero_names, dat$causal))/length(dat$causal)
+length(nonzero_names)
+
+l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$x)+1),,drop=F])
+
+
+
+# dat <- make_mixed_model_not_simulator(2,.6, 1, percent_causal = 2.5, percent_overlap = "0")
+dat$kin %>% colnames
+dat$kin %>% rownames
+dat$file_paths
+kins <- snpStats::read.plink(dat$file_paths$X_Phi)
+kins
+
+x <- gaston::read.bed.matrix(dat$file_paths$X_Phi)
+slotNames(x)
+x@snps$chr %>% table
+x@sigma
+
+plot(x@p, x@sigma, xlim=c(0,1))
+t <- seq(0,1,length=101);
+lines(t, sqrt(2*t*(1-t)), col="red")
+plot(2*x@p, x@mu)
+abline(a=0,b=1, col = "red")
+
+as.matrix(x)[1:5,1:5]
+standardize(x) <- "p"
+x@standardize_mu_sigma
+as.matrix(x)[1:5,1:5]
+X <- as.matrix(x)
+# any(is.na(X[,2,drop=F]))
+
+kin <- gaston::GRM(x, autosome.only = FALSE)
+kin[1:5,1:5]
+all(complete.cases(kin))
+eiK <- eigen(kin)
+
+# deal with a small negative eigen value
+eiK$values[ eiK$values < 0 ] <- 0
+any(eiK$values < 0) 
+PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+dim(PC)
+plot(PC[,1], PC[,2])
+PC[,1:10]
+
+rownames(kin)
+head(pheno_dat)
+hist(dat$y)
+dat$kin[1:5,1:5]
+
+# fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = xxmat)
+
+pacman::p_load(snpStats)
+xxmat <- snpStats::xxt(kins$genotypes, correct.for.missing = TRUE)
+evv <- eigen(xxmat, symmetric=TRUE)
+pcs <- evv$vectors[,1:5]
+evals <- evv$values[1:5]
+plot(evv$values)
+str(xxmat)
+xxmat[1:5,1:5]/4000
+kinPD <- as(nearPD(xxmat)$mat,"matrix")
+dimnames(kinPD)[[1]] <- dat$file_paths$Phi_names
+dimnames(kinPD)[[2]] <- kin_names$V1
+kin <- kinPD
+
+dat$kin[1:5,1:5]
+all(eigen(dat$kin)$values > 0)
+all(evv$values > 0)
+# pheno_dat <- data.frame(Y = dat$y, id = rownames(dat$kin))
+
+pheno_dat <- data.frame(Y = dat$y, id = rownames(xxmat))
+head(pheno_dat)
+
+# fitting with no intercept, i.e., 0 + (1|id) returns error
+fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = dat$kin)
+fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = xxmat)
+pheatmap::pheatmap(dat$kin)
+dat$kin[1:5,1:5]
+fit_lme %>% names
+newy <- residuals(fit_lme)
+plot( newy, dat$y)
+cor(newy,dat$y)
+abline(a=0,b=1)
+fit_lme %>% str
+coef(fit_lme)
+newy <- residuals(fit_lme)
+hist(newy)
+fitglmnet <- glmnet::cv.glmnet(x = dat$x_lasso, y = newy, standardize = F, alpha = 1, intercept = F,
+                               penalty.factor = c(rep(1, 4000), rep(0, 10)))
+plot(fitglmnet)
+yhat = predict(fitglmnet, newx = dat$x_lasso, s = "lambda.min")
+as.numeric(sqrt(crossprod(newy - yhat)))
+nonz <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)"))
+length(intersect(nonz, dat$causal))/length(dat$causal)
+coef(fitglmnet, s = "lambda.min")[1:3,]
+
+as.numeric(sqrt(crossprod(dat$y - (yhat+coef(fit_lme)$fixed+coef(fit_lme)$random$id))))
+as.numeric(sqrt(crossprod(dat$y - (yhat+coef(fit_lme)$fixed))))
+
+fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
+                                penalty.factor = c(rep(1, 4000), rep(0, 10)))
+plot(fitglmnet2)
+yhat2 = predict(fitglmnet2, newx = dat$x_lasso, s = "lambda.min")
+as.numeric(sqrt(crossprod(dat$y - yhat2)))
+nonz2 <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]),c("(Intercept)"))
+length(intersect(nonz2, dat$causal))/length(dat$causal)
+
+
+fitglmnetwithint <- glmnet::cv.glmnet(x = dat$x, y = newy, standardize = T, alpha = 1)
+plot(fitglmnetwithint)
+
+fit <- penfam(x = dat$x,
+              y = dat$y,
+              phi = dat$kin,
+              thresh_glmnet = 1e-10,
+              epsilon = 1e-5,
+              fdev = 1e-4,
+              alpha = 1,
+              tol.kkt = 1e-3,
+              nlambda = 100,
+              # an = log(log(model$n)) * log(model$n),
+              an = log(log(length(dat$y))),
+              # lambda_min_ratio  = ifelse(model$n < model$p, 0.01, 0.001),
+              lambda_min_ratio  = 0.05,
+              eta_init = 0.5,
+              maxit = 100)
+
+nonzero = predict(fit, type = "nonzero", s = fit$lambda_min)
+nonzero_names = setdiff(rownames(predict(fit, type = "nonzero", s = fit$lambda_min)), c("(Intercept)","eta","sigma2"))
+plot(fit)
+
+require(snpStats)
+data(for.exercise)
+controls <- rownames(subject.support)[subject.support$cc==0]
+use <- seq(1, ncol(snps.10), 10)
+ctl.10 <- snps.10[controls,use]
+
+
+###################################################
+### code chunk number 2: xxt-matrix
+###################################################
+xxmat <- xxt(ctl.10, correct.for.missing=FALSE)
+xxmat[1:5,1:5]
+
+###################################################
+### code chunk number 3: eigen
+###################################################
+evv <- eigen(xxmat, symmetric=TRUE)
+pcs <- evv$vectors[,1:5]
+evals <- evv$values[1:5]
+evals
+
+
+
+# dat$causal
+# dat$x %>% dim
+# dat$y %>% hist
+# dat$kin %>% dim
 # sum(dat$y>0)
 # plot(dat$y)
 # range(dat$y)

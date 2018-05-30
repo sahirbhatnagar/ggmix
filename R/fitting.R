@@ -226,7 +226,7 @@ penfam <- function(x, y, phi, lambda = NULL,
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution.
     df <- length(glmnet::nonzeroCoef(beta_next)) - 1
-
+print(df)
     bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
                       eigenvalues = Lambda, x = utx, y = uty, nt = n,
                       c = an, df_lambda = df)
@@ -277,7 +277,7 @@ penfam <- function(x, y, phi, lambda = NULL,
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
     if (length(deviance_change) > 0) {
-      if (deviance_change < fdev | lambda_index > 70 | !converged) break
+      if (deviance_change < fdev) break
     }
 
     pb$tick()
