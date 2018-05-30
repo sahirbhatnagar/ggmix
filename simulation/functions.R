@@ -18,3 +18,4 @@ toc <- function()
   toc - tic
 }
 
+l2norm <- function(x) sqrt(sum(x^2))

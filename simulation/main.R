@@ -12,60 +12,131 @@ source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functio
 
 ## @knitr init
 
-# name_of_simulation <- "Penfam simulation for IGES"
+name_of_simulation <- "ssc-2018-penfam-v4"
 
 ## @knitr main
 
-
 # nsim needs to be at least 2
-message("Generating data...")
-sim <- new_simulation("ssc-2018-penfam-v4", "SSC 2018", dir = "simulation/") %>%
+
+sim <- new_simulation(name_of_simulation, "SSC 2018", dir = "simulation/") %>%
   generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = 4,
-                 # type = as.list(c(1,2,3)),
-                 # vary_along = "type"
                  eta = 0.5, 
                  percent_causal = 1, 
-                 # percent_overlap = "100"
                  percent_overlap = list("0","100"),
-                 vary_along = "percent_overlap"
-                 ) %>%
+                 vary_along = "percent_overlap") %>%
   simulate_from_model(nsim = 4, index = 1:50) %>% 
   run_method(list(lassoPCpf, PENFAM, TWOSTEP),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
-save_simulation(sim)
-sim
 
-
-# sim <- sim %>% simulate_from_model(nsim = 2, index = 3) %>% 
-#   run_method(list(lassoPCpf, PENFAM, TWOSTEP))
-# 
-# sim <- sim %>% run_method(list(lassoPCeigenpf),
-#            parallel = list(socket_names = 35,
-#                            libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
-
-message("Done generating data...")
-# sim
-message("Running simulations...")
-# sim <- run_method(sim, list(lasso))#,
-                  # parallel = list(socket_names = 5, 
-                  #                 libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
-
-# res <- make_mixed_model_not_simulator(b0=2, eta=0.6, sigma2=1, type="causal_400")
-# res$x %>% complete.cases()
-
-# sim <- run_method(sim, list(lasso, PENFAM, TWOSTEP),
-#                   parallel = list(socket_names = 35, 
-#                                   libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme")))
-
-message("Done simulations...")
 sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
-
 save_simulation(sim)
 
-sim <- simulator::load_simulation("iges-2017-penfam-v2")
-# # sim %>% evaluate(list(sqrerr))
-sim %>% evaluate(list(rmse))
+## @knitr load-results
+
+sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
+
+
+## @knitr plots
+
+sim %>% 
+  subset_simulation(methods = c("penfam")) %>% 
+  plot_eval(metric_name = "eta") + panel_border() #+ 
+  # ggplot2::geom_hline(yintercept = 0.5)
+
+sim %>% 
+  subset_simulation(methods = c("penfam")) %>% 
+  plot_eval(metric_name = "sigma2") + panel_border()
+
+# appender <- function(string) TeX(paste(string))
+# df <- as.data.frame(evals(sim))
+# df <- df %>% separate(Model, into = c("simnames","beta0","eta","percent_causal","percent_overlap","sigma2"),
+#                       sep = "/")
+# 
+# DT <- as.data.table(df, stringsAsFactors = FALSE)
+# DT[Method=="lassoPCpf", Method := "lasso"]
+# DT[Method=="penfam", Method := "ggmix"]
+# DT[Method=="twostep", Method := "2 step"]
+# DT[, table(Method, useNA = "al")]
+# DT[, Method := droplevels(Method)]
+# DT[, table(Method, useNA = "al")]
+# DT[, scen := case_when(percent_overlap == "percent_overlap_0" ~ "No overlap",
+#                        percent_overlap == "percent_overlap_100" ~ "100% overlap")]
+# DT[,table(scen, useNA = "al")]
+# pacman::p_load_gh("hrbrmstr/hrbrthemes")
+# pacman::p_load(ggrepel)
+# # pacman::p_load(Cairo)
+# pacman::p_load(extrafont)
+# extrafont::loadfonts()
+# 
+# 
+# df_tpr_nactive <- DT[, c("Method","scen","tpr","nactive")] %>%
+#   group_by(Method, scen) %>%
+#   summarise(mean.tpr = mean(tpr, na.rm = TRUE), sd.tpr = sd(tpr, na.rm = TRUE),
+#             mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+# 
+# p1_tpr_nactive <- ggplot(data = df_tpr_nactive, aes(x = mean.nactive, y = mean.tpr, color = Method, label = Method)) +
+#   geom_point(size = 2.1) +
+#   geom_text_repel(
+#     data = subset(df_tpr_nactive, mean.nactive < 40),
+#     nudge_x      = 20,
+#     direction    = "y",
+#     hjust        = 0,
+#     segment.size = 0.2
+#   ) +
+#   geom_text_repel(
+#     data = subset(df_tpr_nactive, mean.nactive >= 40),
+#     nudge_x      = 5,
+#     direction    = "y",
+#     hjust        = 0,
+#     segment.size = 0.2
+#   ) +
+#   geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr), size = 1.1) +
+#   geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
+#   facet_rep_wrap(~scen, scales = "free", ncol = 2,
+#                  repeat.tick.labels = 'left',
+#                  labeller = as_labeller(appender,
+#                                         default = label_parsed)) +
+#   # scale_color_brewer(palette = "Dark2")+
+#   scale_color_manual(values=RColorBrewer::brewer.pal(12, "Paired")[-11], guide=guide_legend(ncol=3)) +
+#   labs(x="Number of active variables", y="True Positive Rate",
+#        title="True Positive Rate vs. Number of Active Variable (Mean +/- 1 SD)",
+#        subtitle="Based on 200 simulations",
+#        caption="") +
+#   theme_ipsum_rc(axis_title_just = "bt") +
+#   theme(legend.position = "right",
+#         legend.text=element_text(size=14),
+#         strip.text = element_text(size=14))
+# 
+# reposition_legend(p1_mse_nactive, 'center', panel='panel-2-3')
+
+
+
+## @knitr tpr
+
+tabulate_eval(sim, "tpr", output_type = "markdown",
+              caption = "Mean True Positive Rate (Standardar Error) over 200 simulations",
+              format_args = list(nsmall = 3, digits = 0))
+
+## @knitr fpr
+
+tabulate_eval(sim, "fpr", output_type = "markdown",
+              format_args = list(digits = 4, nsmall=3))
+
+
+## @knitr nactive
+
+tabulate_eval(sim, "nactive", output_type = "markdown",
+              format_args = list(digits = 3, nsmall=3))
+
+## @knitr model-error
+
+tabulate_eval(sim, "me", output_type = "markdown",
+              format_args = list(digits = 3, nsmall=3))
+
+
+## @knitr not-used
+
 
 # # sim %>% evaluate(list(muy))
 # # warnings()
@@ -143,34 +214,7 @@ sim %>%
                 format_args = list(nsmall = 3, digits = 0),
                 output_type = "latex")
 
-sim %>%
-  tabulate_eval(metric_name = "tpr",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
 
-sim %>%
-  tabulate_eval(metric_name = "fpr",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
-
-sim %>%
-  tabulate_eval(metric_name = "nactive",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
-sim %>%
-  tabulate_eval(metric_name = "me",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
-
-sim %>%
-  tabulate_eval(metric_name = "eta",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
-
-sim %>%
-  tabulate_eval(metric_name = "sigma2",
-                format_args = list(nsmall = 3, digits = 0),
-                output_type = "latex")
 #
 #
 # head(df)

@@ -1,23 +1,13 @@
 ## @knitr methods
-l2norm <- function(x) sqrt(sum(x^2))
-library(glmnet)
+
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/packages.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/functions.R")
 
 lasso <- new_method("lasso", "Lasso",
                     method = function(model, draw) {
                       fitglmnet <- cv.glmnet(x = model$x, y = draw, alpha = 1, standardize = F)
                       list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop=F],
                            yhat = predict(fitglmnet, newx = model$x, s = "lambda.min"),
-                           nonzero = coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F],
-                           nonzero_names = setdiff(rownames(coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F]),c("(Intercept)")),
-                           y = draw)
-                    })
-
-
-lassoPC <- new_method("lassoPC", "Lasso with 10 PC",
-                    method = function(model, draw) {
-                      fitglmnet <- cv.glmnet(x = model$x_lasso, y = draw, alpha = 1, standardize = T)
-                      list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop=F],
-                           yhat = predict(fitglmnet, newx = model$x_lasso, s = "lambda.min"),
                            nonzero = coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F],
                            nonzero_names = setdiff(rownames(coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F]),c("(Intercept)")),
                            y = draw)
@@ -40,28 +30,6 @@ lassoPCpf <- new_method("lassoPCpf", "Lasso with 10 PC Penalty Factor",
                              nonzero_names = setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)")),
                              y = draw)
                       })
-
-# lassoPCeigenpf <- new_method("lassoPCeigenpf", "Lasso with 10 PC Eigen on Kinship Penalty Factor",
-#                         method = function(model, draw) {
-#                           kin <- model$kin
-#                           evv <- eigen(kin, symmetric=TRUE)
-#                           pcs <- evv$vectors[,1:10]
-#                           x_lasso <- cbind(model$x, pcs)
-#                           fitglmnet <- cv.glmnet(x = x_lasso, y = draw, alpha = 1, standardize = T,
-#                                                  penalty.factor = c(rep(1, 4000), rep(0,10)))
-#                           list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop=F],
-#                                yhat = predict(fitglmnet, newx = model$x_lasso, s = "lambda.min"),
-#                                nonzero = coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F],
-#                                nonzero_names = setdiff(rownames(coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F]),c("(Intercept)")),
-#                                y = draw)
-#                         })
-
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/packages.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/fitting.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/methods.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/plot.R")
 
 PENFAM <- new_method("penfam", "Penfam",
                      method = function(model, draw) {
@@ -96,8 +64,7 @@ PENFAM <- new_method("penfam", "Penfam",
                        )
                      })
 
-library(coxme)
-pacman::p_load(gaston)
+
 
 TWOSTEP <- new_method("twostep", "Two Step",
                       method = function(model, draw) {
@@ -127,64 +94,3 @@ TWOSTEP <- new_method("twostep", "Two Step",
                              y = draw)
                       })
 
-
-
-
-
-
-
-
-
-#' Make folds for cross validation
-#'
-#' Divides the indices \code{1:n} into \code{nfolds} random folds of about the same size.
-#'
-#' @param n sample size
-#' @param nfolds number of folds
-make_folds <- function(n, nfolds) {
-  nn <- round(n / nfolds)
-  sizes <- rep(nn, nfolds)
-  sizes[nfolds] <- sizes[nfolds] + n - nn * nfolds
-  b <- c(0, cumsum(sizes))
-  ii <- sample(n)
-  folds <- list()
-  for (i in seq(nfolds))
-    folds[[i]] <- ii[seq(b[i] + 1, b[i + 1])]
-  folds
-}
-
-cv <- new_method_extension("cv", "cross validated",
-                           method_extension = function(model, draw, out,
-                                                       base_method) {
-                             nfolds <- 5
-                             alpha <- base_method@settings$alpha
-                             err <- matrix(NA, ncol(out$beta), nfolds)
-                             ii <- make_folds(model$n, nfolds)
-                             for (i in seq_along(ii)) {
-                               train <- model
-                               train@params$x <- model@params$x[-ii[[i]], ]
-                               train@params$n <- model@params$x[-ii[[i]], ]
-                               train_draw <- draw[-ii[[i]]]
-
-                               test <- model
-                               test@params$x <- model@params$x[ii[[i]], ]
-                               test@params$n <- model@params$x[ii[[i]], ]
-                               test_draw <- draw[ii[[i]]]
-                               fit <- base_method@method(model = train,
-                                                         draw = train_draw,
-                                                         alpha = alpha,
-                                                         lambda = out$lambda)
-                               yhat <- test$x %*% fit$beta
-                               ll <- seq(ncol(yhat))
-                               err[ll, i] <- colMeans((yhat - test_draw)^2)
-                             }
-                             m <- rowMeans(err)
-                             se <- apply(err, 1, sd) / sqrt(nfolds)
-                             imin <- which.min(m)
-                             ioneserule <- max(which(m <= m[imin] + se[imin]))
-                             list(err = err, m = m, se = se, imin = imin,
-                                  ioneserule = ioneserule,
-                                  beta = out$beta[, imin],
-                                  yhat = model$x %*% out$beta[, imin],
-                                  alpha = alpha)
-                           })
