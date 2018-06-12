@@ -3,17 +3,17 @@
 source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/packages.R")
 source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/functions.R")
 
-lasso <- new_method("lasso", "Lasso",
-                    method = function(model, draw) {
-                      fitglmnet <- cv.glmnet(x = model$x, y = draw, alpha = 1, standardize = F)
-                      list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop=F],
-                           yhat = predict(fitglmnet, newx = model$x, s = "lambda.min"),
-                           nonzero = coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F],
-                           nonzero_names = setdiff(rownames(coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F]),c("(Intercept)")),
-                           y = draw)
-                    })
+# lasso <- new_method("lasso", "Lasso",
+#                     method = function(model, draw) {
+#                       fitglmnet <- cv.glmnet(x = model$x, y = draw, alpha = 1, standardize = F)
+#                       list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop=F],
+#                            yhat = predict(fitglmnet, newx = model$x, s = "lambda.min"),
+#                            nonzero = coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F],
+#                            nonzero_names = setdiff(rownames(coef(fitglmnet)[nonzeroCoef(coef(fitglmnet)),,drop=F]),c("(Intercept)")),
+#                            y = draw)
+#                     })
 
-lassoPCpf <- new_method("lassoPCpf", "Lasso with 10 PC Penalty Factor",
+lasso <- new_method("lasso", "lasso",
                       method = function(model, draw) {
                         fitglmnet <- cv.glmnet(x = model$x_lasso, y = draw, alpha = 1, standardize = T,
                                                penalty.factor = c(rep(1, ncol(model$x)), rep(0,10)))
@@ -31,7 +31,7 @@ lassoPCpf <- new_method("lassoPCpf", "Lasso with 10 PC Penalty Factor",
                              y = draw)
                       })
 
-PENFAM <- new_method("penfam", "Penfam",
+ggmix <- new_method("ggmix", "ggmix",
                      method = function(model, draw) {
                        fit <- penfam(x = model$x,
                                      y = draw,
@@ -66,7 +66,7 @@ PENFAM <- new_method("penfam", "Penfam",
 
 
 
-TWOSTEP <- new_method("twostep", "Two Step",
+twostep <- new_method("twostep", "two step",
                       method = function(model, draw) {
                         
                         # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))

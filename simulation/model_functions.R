@@ -1,7 +1,7 @@
 ## @knitr models
 
 
-make_mixed_model_SSC <- function(b0, eta, sigma2, percent_causal, percent_overlap) {
+make_mixed_model_SSC <- function(b0, beta_mean, eta, sigma2, percent_causal, percent_overlap) {
   
   if (percent_causal == 1) {
     
@@ -126,16 +126,16 @@ make_mixed_model_SSC <- function(b0, eta, sigma2, percent_causal, percent_overla
   causal <- data.table::fread(file_paths$causal_list, header = FALSE)$V1
   not_causal <- setdiff(colnames(X), causal)
   beta <- rep(0, length = p)
-  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), 0.9, 1.1)
+  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
   mu <- as.numeric(X %*% beta)
   
-  new_model(name = "ggmixSSCv2", label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s, sigma = %s", 
-                                                 percent_causal, percent_overlap, eta, sigma2),
+  new_model(name = "ggmixSSCv3", label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s, sigma = %s, beta_mean = %s", 
+                                                 percent_causal, percent_overlap, eta, sigma2, beta_mean),
             params = list(mu = mu, n = n, x = X, x_lasso = x_lasso, 
                           beta = beta, percent_causal = percent_causal, 
                           percent_overlap = percent_overlap,
                           not_causal = not_causal,
-                          kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal),
+                          kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal, beta_mean = beta_mean),
             simulate = function(mu, sigma2, eta, kin, n, nsim) {
               P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
               E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
@@ -278,7 +278,7 @@ make_mixed_model <- function(b0, eta, sigma2, type) {
 
 
 
-make_mixed_model_not_simulator <- function(b0, eta, sigma2,  percent_causal, percent_overlap) {
+make_mixed_model_not_simulator <- function(b0,betamean,eta, sigma2,  percent_causal, percent_overlap) {
   
   if (percent_causal == 1) {
     
@@ -509,3 +509,208 @@ make_mixed_model_not_simulator <- function(b0, eta, sigma2,  percent_causal, per
   #             return(split(y, col(y))) # make each col its own list element
   #           })
 }
+
+
+
+
+
+make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_mean, eta, sigma2) {
+  
+  # k:	Number of intermediate subpopulations
+  # s: The desired bias coefficient, which specifies σ indirectly. Required if sigma is missing
+  # F: The length-k vector of inbreeding coefficients (or FST's) of the intermediate subpopulations, 
+  # up to a scaling factor (which cancels out in calculations). Required if sigma is missing
+  # Fst: The desired final FST of the admixed individuals. Required if sigma is missing
+  # browser()
+  # define population structure
+  FF <- 1:k # subpopulation FST vector, up to a scalar
+  # s <- 0.5 # desired bias coefficient
+  # Fst <- 0.1 # desired FST for the admixed individuals
+  obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst) # admixture proportions from 1D geography
+  Q <- obj$Q
+  FF <- obj$F
+  out <- bnpsd::rbnpsd(Q, FF, p)
+  X <- t(out$X) # genotypes are columns, rows are subjects
+  dim(X)
+  colnames(X) <- paste0("X",1:p)
+  rownames(X) <- paste0("id",1:n)
+  dim(X)
+  X[1:5,1:5]
+  subpops <- ceiling( (1:n)/n*k )
+  table(subpops) # got k=10 subpops with 100 individuals each
+  # now estimate kinship using popkin
+  PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+  PhiHat[1:5,1:5]
+  kin <- 2 *PhiHat
+  
+  kin[1:5,1:5]
+  dim(PhiHat)
+  eiK <- eigen(kin)
+  # all(rownames(as.matrix(x))==rownames(kin))
+  # deal with a small negative eigen value
+  if (any(eiK$values < 0)) { eiK$values[ eiK$values < 0 ] <- 0 }
+  PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+  # dev.off()
+  plot(eiK$values)
+  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(10,"Paired"), each = 10))
+  # X <- t(out$X)
+  # dim(X)
+  #Phi;Phi_names;bedfile;causal_list
+  # browser()
+  
+  np <- dim(X)
+  n <- np[[1]]
+  p <- np[[2]]
+
+
+  x_lasso <- cbind(X,PC[,1:10])
+  x_lasso[1:5,1:5]
+  # kin <- snpStats::xxt(dat$genotypes)/p
+  causal <- sample(colnames(X), ncausal, replace = FALSE)
+  not_causal <- setdiff(colnames(X), causal)
+  beta <- rep(0, length = p)
+  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
+  # beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
+  mu <- as.numeric(X %*% beta)
+  
+
+  P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+  E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+  # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+  # y <- b0 + mu + t(P) + t(E)
+  y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
+  # y <- 0 + mu + P + E
+  
+  return(list(y = y, x = X, causal = causal, beta = beta, kin = kin, 
+              x_lasso = x_lasso))
+  
+  # new_model(name = "penfam", label = sprintf("type = %s, eta = %s", type, eta),
+  #           params = list(mu = mu, n = n, x = x, beta = beta, type = type, not_causal = not_causal,
+  #                         kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal),
+  #           simulate = function(mu, sigma2, eta, kin, n, nsim) {
+  #             P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+  #             E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+  #             # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+  #             y <- b0 + mu + t(P) + t(E)
+  #             return(split(y, col(y))) # make each col its own list element
+  #           })
+}
+
+
+make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_mean, eta, sigma2) {
+  
+  # k:	Number of intermediate subpopulations
+  # s: The desired bias coefficient, which specifies σ indirectly. Required if sigma is missing
+  # F: The length-k vector of inbreeding coefficients (or FST's) of the intermediate subpopulations, 
+  # up to a scaling factor (which cancels out in calculations). Required if sigma is missing
+  # Fst: The desired final FST of the admixed individuals. Required if sigma is missing
+  # browser()
+  # define population structure
+  n1 <- 100; n2 <- 100; n3 <- 100
+  # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
+  labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3) )
+  # data dimensions infered from labs:
+  length(labs) # number of individuals "n"
+  # desired admixture matrix ("is" stands for "Independent Subpopulations")
+  Q <- bnpsd::qis(labs)
+  
+  FF <- 1:k # subpopulation FST vector, unnormalized so far
+  FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
+  # s <- 0.5 # desired bias coefficient
+  # Fst <- 0.1 # desired FST for the admixed individuals
+  # obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst) # admixture proportions from 1D geography
+  # Q <- obj$Q
+  # FF <- obj$F
+  out <- bnpsd::rbnpsd(Q, FF, p)
+  X <- t(out$X) # genotypes are columns, rows are subjects
+  dim(X)
+  colnames(X) <- paste0("X",1:ncol(X))
+  rownames(X) <- paste0("id",1:nrow(X))
+  dim(X)
+  X[1:5,1:5]
+  subpops <- ceiling( (1:n)/n*k )
+  table(subpops) # got k=10 subpops with 100 individuals each
+  # now estimate kinship using popkin
+  PhiHat <- popkin::popkin(X, subpops = c(rep(1, n1), rep(2, n2), rep(3, n3)), lociOnCols = TRUE)
+  # PhiHat2 <- popkin::popkin(X, lociOnCols = TRUE)
+  # PhiHat[1:5,1:5]
+  kin <- 2 *PhiHat
+  # kin <- PhiHat
+  # kin <- gaston::GRM(gaston::as.bed.matrix(X), autosome.only = FALSE)
+  # inbrDiag(PhiHat)
+  # dev.off()
+  # plotPopkin(list(PhiHat, PhiHat2))
+  
+  isPD <- all(eigen(kin)$values > 0)
+  how_many_neg_eigenvalues <- sum(eigen(kin)$values <= 0)
+  if (!isPD) {
+    kinPD <- as(nearPD(kin)$mat,"matrix")
+    kin <- kinPD
+  }
+  
+  
+  kin[1:5,1:5]
+  dim(PhiHat)
+  eiK <- eigen(kin)
+  # all(rownames(as.matrix(x))==rownames(kin))
+  # deal with a small negative eigen value
+  plot(eiK$values)
+  sum(eiK$values < 0)
+  if (any(eiK$values < 0)) { eiK$values[ eiK$values < 0 ] <- 0 }
+  PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+  # dev.off()
+  plot(eiK$values)
+  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(3,"Paired"), each = n1))
+  # X <- t(out$X)
+  # dim(X)
+  #Phi;Phi_names;bedfile;causal_list
+  # browser()
+  
+  # need to re-order
+  # all(rownames(X)==rownames(kin))
+  # all(rownames(X) %in% rownames(kin))
+  # X <- X[match(rownames(kin), rownames(X)),]
+  # all(rownames(X)==rownames(kin))
+  
+  
+  np <- dim(X)
+  n <- np[[1]]
+  p <- np[[2]]
+  
+  
+  
+  x_lasso <- cbind(X,PC[,1:10])
+  x_lasso[1:5,1:5]
+  # kin <- snpStats::xxt(dat$genotypes)/p
+  causal <- sample(colnames(X), ncausal, replace = FALSE)
+  not_causal <- setdiff(colnames(X), causal)
+  beta <- rep(0, length = p)
+  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.2, beta_mean + 0.2)
+  # beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
+  mu <- as.numeric(X %*% beta)
+  
+  
+  P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+  E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+  # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+  # y <- b0 + mu + t(P) + t(E)
+  y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
+  # y <- 0 + mu + P + E
+  
+  return(list(y = y, x = X, causal = causal, beta = beta, kin = kin, 
+              x_lasso = x_lasso))
+  
+  # new_model(name = "penfam", label = sprintf("type = %s, eta = %s", type, eta),
+  #           params = list(mu = mu, n = n, x = x, beta = beta, type = type, not_causal = not_causal,
+  #                         kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal),
+  #           simulate = function(mu, sigma2, eta, kin, n, nsim) {
+  #             P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+  #             E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+  #             # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+  #             y <- b0 + mu + t(P) + t(E)
+  #             return(split(y, col(y))) # make each col its own list element
+  #           })
+}
+
+
+

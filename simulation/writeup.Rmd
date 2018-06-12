@@ -51,7 +51,7 @@ We define the following quantities:
 \[\mathbf{Y} | (\boldsymbol{\beta}, \eta, \sigma^2) \sim \mathcal{N}(\mu, \eta \sigma^2 \boldsymbol{\Phi} + (1-\eta)\sigma^2 \boldsymbol{I})\]
 
 
-We will consider the following simulation scenarios. In each scenario we consider $c = 0.01$, $\eta=0.5$ and $\sigma^2 = 4$ :
+We will consider the following simulation scenarios. In each scenario we consider $c = 0.01$, $\eta=0.1, 0.5$ and $\sigma^2 = 4$ :
 
 **Scenario 1**  
 All the causal SNPs are included in the calculation of the kinship matrix.
@@ -137,7 +137,7 @@ Model Error: \[\Vert \mathbf{X}\beta - \mathbf{X}\hat\beta \Vert_2 \]
 ## Estimation of variance components for ggmix only
 
 
-```{r, fig.width = 11, fig.height = 7, results = 'hide', warning = FALSE, message = FALSE, echo=FALSE}
+```{r, fig.width = 11, fig.height = 7, results = 'hide', warning = FALSE, message = FALSE, echo=FALSE, eval=FALSE}
 <<plots>>
 ```
 
