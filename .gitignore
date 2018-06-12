@@ -7,6 +7,7 @@ report.html
 datahydra/*
 datahydra
 simulation/files/*
-datahydra*
+datahydra_related/*
+datahydra_related
 ggmix.Rproj
 files

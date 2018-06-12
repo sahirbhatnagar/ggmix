@@ -23,7 +23,8 @@ fr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
 }
 
-
+#' Gradient of eta parameter
+#'
 #' @param x should be U^T X, where U is the matrix of eigenvectors and X
 #'   contains the first column of ones for the intercept. Used for gradient of eta
 #'   (currently being passed to optim)
@@ -168,8 +169,7 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 #'   the design matrix \code{x} and the response variable {y}. This is used in
 #'   the \code{\link{shim_once}} function to calculate the tuning parameters
 #'   applied to the main effects
-#'
-#' @inheritParams uni_fun
+#' @inheritParams lowrank
 #' @param weights Separate penalty factors can be applied to each coefficient.
 #'   This is a number that multiplies lambda to allow differential shrinkage,
 #'   and can be used to apply adaptive LASSO. Can be 0 for some variables, which
@@ -419,8 +419,57 @@ bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
 }
 
 
+#' Closed form solution for sigma^2, given beta and eta
+sigma2 <- function(n, x, y, beta, eta, eigenvalues){
+  (1 / n) * sum(((y - x %*% beta) ^ 2) / (1 + eta * (eigenvalues - 1)))
+}
 
 
+
+#' Generalised Information Criterion
+#'
+#' Calculates the generalised information criterion for each value of the tuning
+#' parameter lambda
+#'
+#' @inheritParams lowrank
+#' @param an numeric, the penalty per parameter to be used; the default is an =
+#'   log(log(n))*log(p) where n is the number of subjects and p is the number of
+#'   parameters
+#' @param ... other arguments that can be passed to penfam
+#' @details the generalised information criterion used for gaussian response is
+#'   given by \deqn{-2 * loglikelihood(\hat{\Theta}) + an * df} where
+#'   df is the number of non-zero estimated parameters
+#' @references Fan Y, Tang CY. Tuning parameter selection in high dimensional
+#'   penalized likelihood. Journal of the Royal Statistical Society: Series B
+#'   (Statistical Methodology). 2013 Jun 1;75(3):531-52.
+#'
+#'   Nishii R. Asymptotic properties of criteria for selection of variables in
+#'   multiple regression. The Annals of Statistics. 1984;12(2):758-65.
+#' @export
+gic.penfam <- function(x, y, d, u,
+                       an = log(log(n)) * log(p),
+                       lambda = NULL, ...) {
+
+  penfam.object <- lowrank(x = x, y = y, d = d, u = u, lambda = lambda, ...)
+
+  n <- nrow(penfam.object$x)
+  p <- ncol(penfam.object$x) - 1
+
+  df <- penfam.object$result[,"Df"]
+  model_loglik <- penfam.object$result[,"model_loglik"]
+
+  model_bic <- -2 * model_loglik + an * df
+
+  out = list(lambda = penfam.object$result[,"Lambda"],
+             nzero = df,
+             bic = model_bic,
+             lambda.min.name = names(which.min(model_bic)),
+             lambda.min = penfam.object$result[names(which.min(model_bic)),"Lambda"],
+             penfam.fit = penfam.object)
+  obj <- c(out)
+  class(obj) <- "gic.penfam"
+  obj
+}
 
 #' An alternative to \code{summaryRprof()}
 #'

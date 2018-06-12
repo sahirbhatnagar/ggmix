@@ -714,3 +714,68 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
 
 
 
+# not used gaston testing code --------------------------------------------
+
+# gaston_mat
+# head(gaston_mat@ped)
+#
+# ld.x <- gaston::LD(gaston_mat, c(1,ncol(gaston_mat)))
+# standardize(gaston_mat)
+#
+# plot(gaston_mat@p, gaston_mat@sigma, xlim=c(0,1))
+# t <- seq(0,1,length=101);
+# lines(t, sqrt(2*t*(1-t)), col="red")
+#
+# y <- gaston::LD.thin(gaston_mat, threshold = 0.4, max.dist = 500e3)
+# y
+#
+# gaston_mat <- set.stats(gaston_mat)
+# head(gaston_mat@ped)
+# head(gaston_mat@snps)
+#
+#
+# gaston_mat@snps[1:5,1:100]
+#
+# gaston_mat <- gaston::read.bed.matrix(file_paths$bedfile_for_kinship)
+# grm_gaston <- gaston::GRM(gaston_mat)
+#
+# standardize(gaston_mat) <- "p"
+# # head(grm_gaston)
+# # grm_gaston[1:5,1:5]
+# X <- as.matrix(gaston_mat)
+# head(gaston_mat@bed)
+# any(is.na(gaston_mat@p))
+# X[1:5,1:5]
+# X[is.na(X)] <- 0
+# X[1:5,1:5]
+# colMeans(X) %>% round(100) %>% plot
+# apply(X, 2, sd) %>% plot
+# sqrt(2*gaston_mat@p*(1-gaston_mat@p)) %>% plot
+#
+# col(X) %>% round(100) %>% plot
+# scale(X)[1:5,1:5]
+# scale(X, center = 2*gaston_mat@p,scale = sqrt(2*gaston_mat@p*(1-gaston_mat@p)))[1:5,1:5]
+#
+# x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+# X <- as.matrix(x)
+# X[1:5,1:4]
+# standardize(x) <- "p"
+# as.matrix(x)[1:5, 1:4]
+# colMeans(as.matrix(x)) %>% round(10) %>% plot
+# apply(as.matrix(x), 2, sd) %>% plot
+# pheatmap::pheatmap(grm_gaston, show_rownames = F, show_colnames = F, color = rev(viridis::viridis(100)))
+#
+#
+# eiK <- eigen(grm_gaston)
+# any(eiK$values < 0)
+# eiK$values[ eiK$values < 0 ] <- 0
+# plot(eiK$vectors[,1], eiK$vectors[,2])
+#
+# PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+# plot(PC[,1],PC[,2])
+# plot(PC[,2],PC[,3])
+#
+# all(eigen(grm_gaston)$values > 0)
+# eigen(grm_gaston)$values[which(eigen(grm_gaston)$values < 0)]
+#
+# svd()
