@@ -10,3 +10,4 @@
 ^simulation/$
 ^datahydra/$
 ^datahydra_related/$
+^reports$
