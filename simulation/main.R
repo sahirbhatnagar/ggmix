@@ -285,7 +285,7 @@ tabulate_eval(sim, "me", output_type = "markdown",
 # dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.5, sigma2 = 4, percent_causal = 1, percent_overlap = "100")
 dat <- make_ADmixed_model_not_simulator(n = 200, p = 5000, ncausal = 20, k = 3, s = 0.5, Fst = 0.1, b0 = 0, beta_mean = 1, 
                                         eta = 0.5, sigma2 = 4)
-dat <- make_INDmixed_model_not_simulator(n = 200, p = 1000, ncausal = 10, k = 3, s = 0.5, Fst = 0.1, b0 = 0, 
+dat <- make_INDmixed_model_not_simulator(n = 200, p = 5000, ncausal = 10, k = 3, s = 0.5, Fst = 0.1, b0 = 0, 
                                          beta_mean = 1, eta = 0.5, sigma2 = 4)
 # dat$kin[1:25,1:25]
 # pheno_dat <- data.frame(Y = dat$y, id = rownames(dat$kin))
@@ -299,7 +299,7 @@ pheno_dat <- data.frame(Y = dat$y, id = paste0("ID",1:length(dat$y)))
 #
 # all(rownames(dat$x)==rownames(dat$kin))
 x1 <- cbind(rep(1, nrow(dat$x)))
-fit <- gaston::lmm.aireml(dat$y, x1, K = 2*dat$kin)
+fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
 # plot(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
 #      newy)
 # all.equal(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
@@ -316,7 +316,7 @@ plot(fitglmnet)
 dim(dat$x)
 dim(dat$x_lasso)
 fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
-                                penalty.factor = c(rep(1, 1000), rep(0, 10)))
+                                penalty.factor = c(rep(1, 5000), rep(0, 10)))
 plot(fitglmnet2)
 # yhat2 = predict(fitglmnet2, newx = dat$x_lasso, s = "lambda.min")
 # as.numeric(sqrt(crossprod(dat$y - yhat2)))
@@ -343,17 +343,17 @@ all(rownames(dat$x)==rownames(dat$kin))
 fit <- penfam(x = dat$x,
               y = dat$y,
               phi = dat$kin,
-              thresh_glmnet = 1e-10,
-              epsilon = 1e-5,
-              fdev = 1e-7,
-              alpha = 1,
-              tol.kkt = 1e-3,
-              nlambda = 100,
+              # thresh_glmnet = 1e-10,
+              # epsilon = 1e-5,
+              # fdev = 1e-7,
+              # alpha = 1,
+              # tol.kkt = 1e-3,
+              # nlambda = 100,
               # an = log(log(length(dat$y))) * log(length(dat$y)),
               # an = log(log(length(dat$y))),
-              an = log(length(dat$y)),
+              # an = log(length(dat$y)),
               # lambda_min_ratio  = ifelse(model$n < model$p, 0.01, 0.001),
-              lambda_min_ratio  = 0.01,
+              # lambda_min_ratio  = 0.01,
               eta_init = 0.5,
               maxit = 100)
 

@@ -66,13 +66,13 @@ predict.penfam <- function(object, new.x, new.u, new.d, s = NULL,
                            type = c("link", "response", "coefficients","ranef",
                                     "nonzero", "beta", "eta", "sigma2")) {
 
-  object = res$penfam.fit
-  s = c(0.1,0.2,0.3)
-  s=NULL
-  type = "link"
-  newx = dat$x[,1:500]
-  new.u = U
-  new.d = Lambda
+  # object = res$penfam.fit
+  # s = c(0.1,0.2,0.3)
+  # s=NULL
+  # type = "link"
+  # newx = dat$x[,1:500]
+  # new.u = U
+  # new.d = Lambda
   # ==================
 
 

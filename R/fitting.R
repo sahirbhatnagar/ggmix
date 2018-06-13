@@ -281,7 +281,7 @@ print(df)
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
     if (length(deviance_change) > 0) {
-      if (deviance_change < fdev) break
+      if (deviance_change < fdev | df > 50) break
     }
 
     pb$tick()

@@ -68,3 +68,30 @@ plotCoef <- function(beta,norm,lambda,df,dev,label=FALSE,
 }
 
 
+plotBIC <- function(object, sign.lambda, lambda.min, ...) {
+  
+  # object = res$x
+  # sign.lambda = 1
+  # lambda.min = res$lambda_min
+  # ===============
+  
+  xlab="log(Lambda)"
+  lambda_min <- drop(object[lambda.min,"Lambda"])
+  if(sign.lambda<0) xlab=paste("-",xlab,sep="")
+  plot.args=list(x=sign.lambda*log(drop(object[,"Lambda"])),
+                 y=drop(object[,"BIC"]),
+                 ylim=range(drop(object[,"BIC"])),
+                 xlab=xlab,
+                 ylab="BIC", type="n")
+  new.args=list(...)
+  if (length(new.args)) plot.args[names(new.args)]=new.args
+  do.call("plot",plot.args)
+  points(sign.lambda*log(drop(object[,"Lambda"])),
+         drop(object[,"BIC"]),pch=20,col="red")
+  axis(side=3,at=sign.lambda*log(drop(object[,"Lambda"])),
+       labels=paste(drop(object[,"Df"])), tick=FALSE, line=0)
+  abline(v=sign.lambda*log(lambda_min),lty=3)
+  # abline(v=sign.lambda*log(.1605),lty=3)
+  # abline(v=sign.lambda*log(cvobj$lambda.1se),lty=3)
+  # invisible()
+}
