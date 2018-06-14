@@ -461,7 +461,14 @@ lowrank <- function(x, y, d, u,
   n <- np[[1]]
   p <- np[[2]]
 
+  # browser()
   # add column of 1s to x for intercept
+  vnames <- colnames(x)
+  if (is.null(vnames)) {
+    vnames <- paste("V", seq(p), sep = "")
+    colnames(x) <- vnames
+  }
+
   x <- cbind(beta0 = 1, x)
 
   utx <- crossprod(u, x)
@@ -475,9 +482,12 @@ lowrank <- function(x, y, d, u,
                           lambda_min_ratio = lambda_min_ratio,
                           eta_init = eta_init,
                           epsilon = epsilon)
-
+# browser()
   lambda_max <- lamb$sequence[[1]]
 
+  lamb$sequence[[1]] <- .Machine$double.xmax
+
+  # tuning_params_mat <- matrix(c(lambda_max,lamb$sequence[-1]), nrow = 1, ncol = nlambda, byrow = T)
   tuning_params_mat <- matrix(lamb$sequence, nrow = 1, ncol = nlambda, byrow = T)
   dimnames(tuning_params_mat)[[1]] <- list("lambda")
   dimnames(tuning_params_mat)[[2]] <- paste0("s",seq_len(nlambda))
@@ -533,7 +543,9 @@ lowrank <- function(x, y, d, u,
   beta_init <- matrix(0, nrow = p + 1, ncol = 1)
 
   # initial value for eta from lambda_sequence results
-  eta_init <- lamb$eta
+  # this gives issues if lamb sequence returns eta at the boundary and
+  # fails kkt check
+  # eta_init <- lamb$eta
 
   # closed form solution value for sigma^2
   # sigma2_init <- (1 / n) * sum(((uty - utx %*% beta_init) ^ 2) / (1 + eta_init * (Lambda - 1)))
@@ -737,7 +749,7 @@ lowrank <- function(x, y, d, u,
 
   # get names of lambdas for which a solution was obtained
   lambdas_fit <- rownames(out_print)
-
+  out_print[1,"Lambda"] <- lambda_max
   out <- list(result = out_print,
               x = x,
               y = y,

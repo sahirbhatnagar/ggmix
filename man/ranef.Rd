@@ -6,6 +6,7 @@
 \alias{random.effects.default}
 \alias{ranef.default}
 \alias{ranef.gic.penfam}
+\alias{ranef.penfam}
 \alias{random.effects.gic.penfam}
 \title{Extract Random Effects}
 \usage{
@@ -17,7 +18,10 @@ random.effects(object, ...)
 
 \method{ranef}{default}(object)
 
-\method{ranef}{gic.penfam}(object, s = "lambda.min")
+\method{ranef}{gic.penfam}(object, s = "lambda.min", ...)
+
+\method{ranef}{penfam}(object, new.x, new.u, new.d, s = NULL,
+  type = c("fitted", "predicted"))
 
 \method{random.effects}{gic.penfam}(object, s = "lambda.min")
 }
@@ -30,6 +34,10 @@ arguments.}
 
 \item{s}{lamda at which to predict the random effects. current option is only
 "lambda.min"}
+
+\item{s}{index of tuning parameter. Must be a character and an element of
+"s1","s2",...."s100", where "s100" is the index of the last pair of tuning
+parameters. Default is \code{NULL}}
 }
 \value{
 a numeric vector of length n of subject-specific random effects
@@ -40,6 +48,10 @@ Generic function for extracting the random effects. This is the same generic
 }
 \details{
 For objects of class "gic.penfam", this function returns the
+  subject-specific random effect value for the model which minimizes the GIC
+  using the maximum a posteriori principle
+
+For objects of class "penfam", this function returns the
   subject-specific random effect value for the model which minimizes the GIC
   using the maximum a posteriori principle
 }

@@ -309,7 +309,7 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
   # )
 
   # closed form for sigma^2
-  sigma2_init <- (1 / n) * sum ((y - x %*% beta_init) ^ 2 / di)
+  sigma2_init <- (1 / n) * sum((y - x %*% beta_init) ^ 2 / di)
 
   # sum version is faster
   # mb <- microbenchmark(
@@ -354,7 +354,7 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
     beta_next <- as.matrix(c(beta0_next, rep(0, p)))
 
     # closed form for sigma^2
-    sigma2_next <- (1 / n) * sum ((y - x %*% beta_next) ^ 2 / di)
+    sigma2_next <- (1 / n) * sum((y - x %*% beta_next) ^ 2 / di)
 
     k <- k + 1
 

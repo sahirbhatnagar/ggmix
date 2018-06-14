@@ -265,27 +265,22 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicte
 #' @export
 plot.gic.penfam <- function(x, sign.lambda = 1, ...) {
 
-  # x <- res
-  # sign.lambda = 1
-  # lambda.min = res$lambda_min
-  # ===============
-
-  bicobj = x
-  xlab="log(Lambda)"
-  if(sign.lambda<0) xlab=paste("-",xlab,sep="")
-  plot.args=list(x=sign.lambda*log(bicobj$lambda),
-                 y=bicobj$bic,
-                 ylim=range(bicobj$bic),
-                 xlab=xlab,
-                 ylab="BIC", type="n")
-  new.args=list(...)
-  if (length(new.args)) plot.args[names(new.args)]=new.args
-  do.call("plot",plot.args)
+  bicobj <- x
+  xlab <- "log(Lambda)"
+  if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
+  plot.args <- list(x = sign.lambda*log(bicobj$lambda),
+                 y = bicobj$bic,
+                 ylim = range(bicobj$bic),
+                 xlab = xlab,
+                 ylab = "BIC", type = "n")
+  new.args = list(...)
+  if (length(new.args)) plot.args[names(new.args)] = new.args
+  do.call("plot", plot.args)
   points(sign.lambda*log(bicobj$lambda),
-         bicobj$bic,pch=20,col="red")
-  axis(side=3,at=sign.lambda*log(bicobj$lambda),
-       labels=paste(bicobj$nzero), tick=FALSE, line=0)
-  abline(v=sign.lambda*log(bicobj$lambda.min.value),lty=3)
+         bicobj$bic, pch = 20, col = "red")
+  axis(side = 3, at = sign.lambda*log(bicobj$lambda),
+       labels = paste(bicobj$nzero), tick = FALSE, line = 0)
+  abline(v = sign.lambda*log(bicobj$lambda.min), lty = 3)
   # abline(v=sign.lambda*log(.1605),lty=3)
   # abline(v=sign.lambda*log(cvobj$lambda.1se),lty=3)
   # invisible()

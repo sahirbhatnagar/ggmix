@@ -10,8 +10,9 @@
 
 \method{coef}{gic.penfam}(object, s = "lambda.min", ...)
 
-\method{predict}{penfam}(object, newx, s = NULL, type = c("link",
-  "response", "coefficients", "ranef", "nonzero", "beta", "eta", "sigma2"))
+\method{predict}{penfam}(object, new.x, new.u, new.d, s = NULL,
+  type = c("link", "response", "coefficients", "ranef", "nonzero", "beta",
+  "eta", "sigma2"))
 }
 \arguments{
 \item{object}{object of class penfam}
@@ -33,7 +34,7 @@ for each value of s.}
 "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 parameters. Default is \code{NULL}}
 
-\item{object}{Fitted shim model object}
+\item{object}{Fitted penfam model object}
 }
 \description{
 Get coefficients from a "penfam" object

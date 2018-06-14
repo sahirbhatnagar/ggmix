@@ -6,32 +6,134 @@ pacman::p_load(gaston)
 pacman::p_load(glmnet)
 pacman::p_load(magrittr)
 pacman::p_load(snpStats)
+pacman::p_load_gh('StoreyLab/popkin')
+pacman::p_load_gh('StoreyLab/bnpsd')
+pacman::p_load(MASS)
+devtools::load_all()
+data("karim")
 
-source("~/git_repositories/ggmix/R/fitting.R")
-source("~/git_repositories/ggmix/R/functions.R")
-source("~/git_repositories/ggmix/R/methods.R")
-source("~/git_repositories/ggmix/R/plot.R")
-source("~/git_repositories/ggmix/simulation/model_functions.R")
-dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
-w_svd <- svd(dat$w)
-U <- w_svd$u
+karim$b %>% plot
+Phi <- 2 * karim$kin1
+P <- mvrnorm(1, rep(0,600), karim$s.g * Phi)
+X <- karim$G
+colnames(X) <- paste0("V",seq(ncol(X)))
+ncausal <- 10
+beta_mean <- 1
+causal <- sample(colnames(X), ncausal, replace = FALSE)
+not_causal <- setdiff(colnames(X), causal)
+beta <- rep(0, length = ncol(X))
+beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.2, beta_mean + 0.2)
+plot(beta)
+# beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
+mu <- as.numeric(X %*% beta)
+mu <- as.numeric(X %*% karim$b)
+# eta <- karim$s.g / (karim$s.e + karim$s.g)
+# P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+# E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+# # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+# # y <- b0 + mu + t(P) + t(E)
+# y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
 
-# we dived by p-1 because thats how the matrix was standardized
-Lambda <- w_svd$d^2 / (ncol(dat$x)-1)
-any(Lambda<1e-5)
-Lambda[Lambda<1e-5] <- 1e-5
+y <- mu + P + rnorm(600, 0, karim$s.e)
+hist(y)
+phi_eigen <- eigen(Phi)
+Phi[1:5,1:5]
+# popkin::plotPopkin(karim$kin1)
+phi_eigen$vectors[,2]
+U_kinship <- phi_eigen$vectors
+Lambda <- phi_eigen$values
+any(Lambda < 1e-5)
+plot(Lambda)
+any(Lambda == 0)
 
-res <- lowrank(x = dat$x[,1:500], y = dat$y,  d = Lambda, u = U)
 
-res <- gic.penfam(x = dat$x[,1:100], y = dat$y,  d = Lambda, u = U)
+source("simulation/model_functions.R")
+dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 3, s = 0.5, Fst = 0.1, b0 = 1,
+                                         beta_mean = 1, eta = 0.4, sigma2 = 2)
+phi_eigen <- eigen(dat$kin)
+dat$kin[1:5,1:5]
+popkin::plotPopkin(dat$kin)
+U_kinship <- phi_eigen$vectors
+Lambda <- phi_eigen$values
+any(Lambda < 1e-5)
+plot(Lambda)
+any(Lambda == 0)
+dev.off()
+hist(dat$y)
+# ggmix -------------------------------------------------------------------
 
-res
-
+devtools::load_all()
+# res <- lowrank(x = X, y = y,  d = Lambda, u = U_kinship)
+# this is for karim data
+res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship)#, an = log(length(y)))
+# this is for make_INDmixed_model_not_simulator data
+res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(log(length(dat$y))))
+dev.off()
 plot(res)
-coef(res)
-plot(res$penfam.fit, type="coef")
+res$penfam.fit$result
+(nonzero = res$penfam.fit$coef[,res$lambda.min.name,drop = F][nonzeroCoef(res$penfam.fit$coef[,res$lambda.min.name,drop = F]),,drop = F])
+nonzero_names = setdiff(rownames(nonzero), c("beta0","eta","sigma2"))
+length(intersect(nonzero_names, causal))/length(causal)
+length(intersect(nonzero_names, dat$causal))/length(dat$causal)
+length(nonzero_names)
+res$penfam.fit$sigma2
+###########$%$%#$%^#$%# Make sure that the first lambda sets everything to 0. its not
+# curently doing this
+# now fixed (june 14,2018)
+# res$penfam.fit$coef[,1][which(res$penfam.fit$coef[,1] != 0)]
 
-t(res$coef)
+# lasso -------------------------------------------------------------------
+
+fitglmnet <- cv.glmnet(x = X, y = y)
+plot(fitglmnet)
+(nonzlasso <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)","")))
+(tprlasso <- length(intersect(nonzlasso, causal))/length(causal))
+
+
+
+# two-step ----------------------------------------------------------------
+
+pheno_dat <- data.frame(Y = y, id = paste0("ID",1:length(y)))
+x1 <- cbind(rep(1, nrow(X)))
+fit <- gaston::lmm.aireml(y, x1, K = Phi)
+gaston_resid <- y - (fit$BLUP_omega + fit$BLUP_beta)
+hist(gaston_resid)
+twostep <- glmnet::cv.glmnet(x = X, y = gaston_resid, standardize = T, alpha = 1, intercept = T)
+plot(twostep)
+(nonz2step <- setdiff(rownames(coef(twostep, s = "lambda.min")[nonzeroCoef(coef(twostep, s = "lambda.min")),,drop=F]),c("(Intercept)")))
+(tpr2step <- length(intersect(nonz2step, causal))/length(causal))
+
+
+
+
+
+
+coef(res$penfam.fit)
+
+# dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
+# w_svd <- svd(karim$G)
+# U <- w_svd$u
+# dim(U)
+# length(w_svd)
+# This part shows the equivalence between the eigenvectors and eigenvalues
+# from the kinship matrix vs. the SNP matrix used to construct the kinship
+# U_w=U
+# plot(U_w[,1],U_w[,2])
+# phi_eigen <- eigen(phi)
+# U_kinship <- phi_eigen$vectors
+# plot(U_kinship[,1], U_w[,1])
+# abline(a=0, b=-1)
+# dim(U)
+# vector of length N_T
+# Lambda <- phi_eigen$values
+# plot(Lambda, w_svd$d^2 / (p-1))
+# abline(a=0,b=1,col="red")
+# all.equal(Lambda, w_svd$d^2 / (p-1))
+# we dived by p-1 because thats how the matrix was standardized
+# Lambda <- w_svd$d^2 / (ncol(dat$x)-1)
+# Lambda <- w_svd$d^2
+# if (any(Lambda<1e-5)) Lambda[Lambda<1e-5] <- 1e-5
+
 
 bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
 
