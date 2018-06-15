@@ -26,7 +26,7 @@ beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.
 plot(beta)
 # beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
 mu <- as.numeric(X %*% beta)
-mu <- as.numeric(X %*% karim$b)
+# mu <- as.numeric(X %*% karim$b)
 # eta <- karim$s.g / (karim$s.e + karim$s.g)
 # P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
 # E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
@@ -45,17 +45,25 @@ Lambda <- phi_eigen$values
 any(Lambda < 1e-5)
 plot(Lambda)
 any(Lambda == 0)
-
+PC <- sweep(phi_eigen$vectors, 2, sqrt(phi_eigen$values), "*")
+plot(PC[,1],PC[,2])
+X_lasso <- cbind(X,PC[,1:10])
+dim(X_lasso)
 
 source("simulation/model_functions.R")
-dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 3, s = 0.5, Fst = 0.1, b0 = 1,
-                                         beta_mean = 1, eta = 0.4, sigma2 = 2)
+dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
+                                         b0 = 1, beta_mean = 1,
+                                         eta = 0.10, sigma2 = 4)
+dat2 <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
+                                        b0 = 0, beta_mean = 1,
+                                        eta = 0.10, sigma2 = 4)
 phi_eigen <- eigen(dat$kin)
 dat$kin[1:5,1:5]
 popkin::plotPopkin(dat$kin)
 U_kinship <- phi_eigen$vectors
 Lambda <- phi_eigen$values
 any(Lambda < 1e-5)
+Lambda[which(Lambda < 1e-5)] <- 1e-05
 plot(Lambda)
 any(Lambda == 0)
 dev.off()
@@ -65,9 +73,9 @@ hist(dat$y)
 devtools::load_all()
 # res <- lowrank(x = X, y = y,  d = Lambda, u = U_kinship)
 # this is for karim data
-res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship)#, an = log(length(y)))
-# this is for make_INDmixed_model_not_simulator data
-res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(log(length(dat$y))))
+res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
+# for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
+res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(length(dat$y)))
 dev.off()
 plot(res)
 res$penfam.fit$result
@@ -84,15 +92,26 @@ res$penfam.fit$sigma2
 
 # lasso -------------------------------------------------------------------
 
-fitglmnet <- cv.glmnet(x = X, y = y)
+# for karim data
+fitglmnet <- cv.glmnet(x = X_lasso, y = y, penalty.factor = c(rep(1, 1000), rep(0, 10)))
 plot(fitglmnet)
 (nonzlasso <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)","")))
 (tprlasso <- length(intersect(nonzlasso, causal))/length(causal))
+length(nonzlasso)
 
-
+# for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
+fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
+                                penalty.factor = c(rep(1, 10000), rep(0, 10)))
+plot(fitglmnet2)
+# yhat2 = predict(fitglmnet2, newx = dat$x_lasso, s = "lambda.min")
+# as.numeric(sqrt(crossprod(dat$y - yhat2)))
+(nonzlasso <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]),c("(Intercept)","")))
+(tprlasso <- length(intersect(nonzlasso, dat$causal))/length(dat$causal))
+length(nonzlasso)
 
 # two-step ----------------------------------------------------------------
 
+#for karim data
 pheno_dat <- data.frame(Y = y, id = paste0("ID",1:length(y)))
 x1 <- cbind(rep(1, nrow(X)))
 fit <- gaston::lmm.aireml(y, x1, K = Phi)
@@ -102,13 +121,25 @@ twostep <- glmnet::cv.glmnet(x = X, y = gaston_resid, standardize = T, alpha = 1
 plot(twostep)
 (nonz2step <- setdiff(rownames(coef(twostep, s = "lambda.min")[nonzeroCoef(coef(twostep, s = "lambda.min")),,drop=F]),c("(Intercept)")))
 (tpr2step <- length(intersect(nonz2step, causal))/length(causal))
+length(nonz2step)
+
+# for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
+pheno_dat <- data.frame(Y = dat$y, id = paste0("ID",1:length(dat$y)))
+x1 <- cbind(rep(1, nrow(dat$x)))
+fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
+gaston_resid <- dat$y - (fit$BLUP_omega + fit$BLUP_beta)
+hist(gaston_resid)
+fitglmnet <- glmnet::cv.glmnet(x = dat$x, y = gaston_resid, standardize = T, alpha = 1, intercept = T)
+plot(fitglmnet)
+(nonz2step <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)")))
+(tpr2step <- length(intersect(nonz2step, dat$causal))/length(dat$causal))
+length(nonz2step)
 
 
 
 
 
 
-coef(res$penfam.fit)
 
 # dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
 # w_svd <- svd(karim$G)

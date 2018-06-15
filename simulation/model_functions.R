@@ -552,7 +552,7 @@ make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_
   PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
   # dev.off()
   plot(eiK$values)
-  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(10,"Paired"), each = 10))
+  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
   # X <- t(out$X)
   # dim(X)
   #Phi;Phi_names;bedfile;causal_list
@@ -606,9 +606,9 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   # Fst: The desired final FST of the admixed individuals. Required if sigma is missing
   # browser()
   # define population structure
-  n1 <- 100; n2 <- 100; n3 <- 100
+  n1 <- 200; n2 <- 200; n3 <- 200; n4 <- 200; n5 <- 200
   # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
-  labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3) )
+  labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3), rep.int("S4", n4), rep.int("S5", n5))
   # data dimensions infered from labs:
   length(labs) # number of individuals "n"
   # desired admixture matrix ("is" stands for "Independent Subpopulations")
@@ -631,7 +631,7 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   subpops <- ceiling( (1:n)/n*k )
   table(subpops) # got k=10 subpops with 100 individuals each
   # now estimate kinship using popkin
-  PhiHat <- popkin::popkin(X, subpops = c(rep(1, n1), rep(2, n2), rep(3, n3)), lociOnCols = TRUE)
+  PhiHat <- popkin::popkin(X, subpops = c(rep(1, n1), rep(2, n2), rep(3, n3), rep(4, n4), rep(5, n5)), lociOnCols = TRUE)
   # PhiHat2 <- popkin::popkin(X, lociOnCols = TRUE)
   # PhiHat[1:5,1:5]
   kin <- 2 *PhiHat
@@ -660,7 +660,7 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
   # dev.off()
   plot(eiK$values)
-  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(3,"Paired"), each = n1))
+  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = n1))
   # X <- t(out$X)
   # dim(X)
   #Phi;Phi_names;bedfile;causal_list
@@ -690,16 +690,16 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   mu <- as.numeric(X %*% beta)
 
 
-  # P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
-  # E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+  P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+  E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
 
-  P <- MASS::mvrnorm(1, rep(0,n), 1.2625 * kin)
+  # P <- MASS::mvrnorm(1, rep(0,n), 1.2625 * kin)
 
   # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
   # y <- b0 + mu + t(P) + t(E)
   # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
-  y <- mu + P + rnorm(n, 0, 1)
-  # y <- 0 + mu + P + E
+  # y <- mu + P + rnorm(n, 0, 1)
+  y <- 0 + mu + P + E
 
   return(list(y = y, x = X, causal = causal, beta = beta, kin = kin,
               x_lasso = x_lasso))

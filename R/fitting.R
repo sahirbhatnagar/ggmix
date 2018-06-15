@@ -669,7 +669,7 @@ lowrank <- function(x, y, d, u,
 
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution.
-    df <- length(glmnet::nonzeroCoef(beta_next)) - 1
+    df <- length(glmnet::nonzeroCoef(beta_next)) - 1 + 2
 
     # bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
     #                   eigenvalues = Lambda, x = utx, y = uty, nt = n,
