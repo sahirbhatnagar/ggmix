@@ -54,7 +54,7 @@ source("simulation/model_functions.R")
 dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
                                          b0 = 1, beta_mean = 1,
                                          eta = 0.10, sigma2 = 4)
-dat2 <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
+dat <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
                                         b0 = 0, beta_mean = 1,
                                         eta = 0.10, sigma2 = 4)
 phi_eigen <- eigen(dat$kin)
@@ -63,11 +63,20 @@ popkin::plotPopkin(dat$kin)
 U_kinship <- phi_eigen$vectors
 Lambda <- phi_eigen$values
 any(Lambda < 1e-5)
+which(Lambda < 1e-5)
 Lambda[which(Lambda < 1e-5)] <- 1e-05
 plot(Lambda)
 any(Lambda == 0)
 dev.off()
 hist(dat$y)
+
+correct_sparsity <- function(causal, not_causal, active, p){
+  correct_nonzeros <- sum(active %in% causal)
+  correct_zeros <- length(setdiff(not_causal, active))
+  #correct sparsity
+  (1 / p) * (correct_nonzeros + correct_zeros)
+}
+
 # ggmix -------------------------------------------------------------------
 
 devtools::load_all()
@@ -85,6 +94,9 @@ length(intersect(nonzero_names, causal))/length(causal)
 length(intersect(nonzero_names, dat$causal))/length(dat$causal)
 length(nonzero_names)
 res$penfam.fit$sigma2
+
+correct_sparsity(causal = dat$causal, not_causal = dat$not_causal, active = nonzero_names, p = ncol(dat$x))
+
 ###########$%$%#$%^#$%# Make sure that the first lambda sets everything to 0. its not
 # curently doing this
 # now fixed (june 14,2018)
@@ -108,6 +120,10 @@ plot(fitglmnet2)
 (nonzlasso <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]),c("(Intercept)","")))
 (tprlasso <- length(intersect(nonzlasso, dat$causal))/length(dat$causal))
 length(nonzlasso)
+
+correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
+                 active = nonzlasso, p = ncol(dat$x))
+
 
 # two-step ----------------------------------------------------------------
 
@@ -135,6 +151,8 @@ plot(fitglmnet)
 (tpr2step <- length(intersect(nonz2step, dat$causal))/length(dat$causal))
 length(nonz2step)
 
+correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
+                 active = nonz2step, p = ncol(dat$x))
 
 
 

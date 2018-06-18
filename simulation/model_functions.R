@@ -582,6 +582,7 @@ make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_
   # y <- 0 + mu + P + E
 
   return(list(y = y, x = X, causal = causal, beta = beta, kin = kin,
+              not_causal = not_causal,
               x_lasso = x_lasso))
 
   # new_model(name = "penfam", label = sprintf("type = %s, eta = %s", type, eta),
@@ -702,6 +703,7 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   y <- 0 + mu + P + E
 
   return(list(y = y, x = X, causal = causal, beta = beta, kin = kin,
+              not_causal = not_causal,
               x_lasso = x_lasso))
 
   # new_model(name = "penfam", label = sprintf("type = %s, eta = %s", type, eta),
