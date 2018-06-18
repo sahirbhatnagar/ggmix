@@ -539,7 +539,9 @@ make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_
   subpops <- ceiling( (1:n)/n*k )
   table(subpops) # got k=10 subpops with 100 individuals each
   # now estimate kinship using popkin
-  PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+  PhiHat <- popkin::popkin(X, lociOnCols = TRUE)
+
   PhiHat[1:5,1:5]
   kin <- 2 *PhiHat
 
@@ -578,8 +580,8 @@ make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_
   E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
   # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
   # y <- b0 + mu + t(P) + t(E)
-  y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
-  # y <- 0 + mu + P + E
+  # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
+  y <- 0 + mu + P + E
 
   return(list(y = y, x = X, causal = causal, beta = beta, kin = kin,
               not_causal = not_causal,
@@ -632,10 +634,10 @@ make_INDmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta
   subpops <- ceiling( (1:n)/n*k )
   table(subpops) # got k=10 subpops with 100 individuals each
   # now estimate kinship using popkin
-  PhiHat <- popkin::popkin(X, subpops = c(rep(1, n1), rep(2, n2), rep(3, n3), rep(4, n4), rep(5, n5)), lociOnCols = TRUE)
-  # PhiHat2 <- popkin::popkin(X, lociOnCols = TRUE)
+  # PhiHat <- popkin::popkin(X, subpops = c(rep(1, n1), rep(2, n2), rep(3, n3), rep(4, n4), rep(5, n5)), lociOnCols = TRUE)
+  PhiHat <- popkin::popkin(X, lociOnCols = TRUE)
   # PhiHat[1:5,1:5]
-  kin <- 2 *PhiHat
+  kin <- 2 * PhiHat
   # kin <- PhiHat
   # kin <- gaston::GRM(gaston::as.bed.matrix(X), autosome.only = FALSE)
   # inbrDiag(PhiHat)
