@@ -514,7 +514,8 @@ make_mixed_model_not_simulator <- function(b0,betamean,eta, sigma2,  percent_cau
 
 
 
-make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_mean, eta, sigma2) {
+make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_mean, eta, sigma2,
+                                             percent_causal, percent_overlap) {
 
   # k:	Number of intermediate subpopulations
   # s: The desired bias coefficient, which specifies σ indirectly. Required if sigma is missing
@@ -523,47 +524,48 @@ make_ADmixed_model_not_simulator <- function(n, p, ncausal, k, s, Fst, b0, beta_
   # Fst: The desired final FST of the admixed individuals. Required if sigma is missing
   # browser()
   # define population structure
+
   FF <- 1:k # subpopulation FST vector, up to a scalar
   # s <- 0.5 # desired bias coefficient
   # Fst <- 0.1 # desired FST for the admixed individuals
   obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst) # admixture proportions from 1D geography
   Q <- obj$Q
   FF <- obj$F
-  out <- bnpsd::rbnpsd(Q, FF, p)
-  X <- t(out$X) # genotypes are columns, rows are subjects
-  dim(X)
-  colnames(X) <- paste0("X",1:p)
-  rownames(X) <- paste0("id",1:n)
-  dim(X)
-  X[1:5,1:5]
-  subpops <- ceiling( (1:n)/n*k )
-  table(subpops) # got k=10 subpops with 100 individuals each
-  # now estimate kinship using popkin
-  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
-  PhiHat <- popkin::popkin(X, lociOnCols = TRUE)
 
-  PhiHat[1:5,1:5]
-  kin <- 2 *PhiHat
+  if (percent_overlap == "100") {
+    out <- bnpsd::rbnpsd(Q, FF, p)
+    X <- t(out$X) # genotypes are columns, rows are subjects
+    colnames(X) <- paste0("X",1:p)
+    rownames(X) <- paste0("id",1:n)
+    subpops <- ceiling( (1:n)/n*k )
+    table(subpops) # got k=10 subpops with 100 individuals each
+    # now estimate kinship using popkin
+    # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+    PhiHat <- popkin::popkin(X, lociOnCols = TRUE)
 
-  kin[1:5,1:5]
-  dim(PhiHat)
+  } else if (percent_overlap == "0") {
+    out <- bnpsd::rbnpsd(Q, FF, p)
+    X <- t(out$X) # genotypes are columns, rows are subjects
+    colnames(X) <- paste0("X",1:p)
+    rownames(X) <- paste0("id",1:n)
+    subpops <- ceiling( (1:n)/n*k )
+    table(subpops) # got k=10 subpops with 100 individuals each
+    # now estimate kinship using popkin
+    # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+    PhiHat <- popkin::popkin(X, lociOnCols = TRUE)
+  }
+
+  kin <- 2 * PhiHat
   eiK <- eigen(kin)
-  # all(rownames(as.matrix(x))==rownames(kin))
-  # deal with a small negative eigen value
-  if (any(eiK$values < 0)) { eiK$values[ eiK$values < 0 ] <- 0 }
+  if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
   PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
-  # dev.off()
   plot(eiK$values)
   plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
-  # X <- t(out$X)
-  # dim(X)
-  #Phi;Phi_names;bedfile;causal_list
-  # browser()
+
 
   np <- dim(X)
   n <- np[[1]]
   p <- np[[2]]
-
 
   x_lasso <- cbind(X,PC[,1:10])
   x_lasso[1:5,1:5]
