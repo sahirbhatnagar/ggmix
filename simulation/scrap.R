@@ -54,8 +54,12 @@ source("simulation/model_functions.R")
 dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
                                          b0 = 1, beta_mean = 1,
                                          eta = 0.10, sigma2 = 4)
-dat <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, percent_causal = 0.01,
-                                        percent_overlap = "0",
+dat <- make_ADmixed_model_not_simulator(n = 1000,
+                                        p_test = 2000,
+                                        p_kinship = 1e4,
+                                        geography = "circ",
+                                        percent_causal = 0.01,
+                                        percent_overlap = "100",
                                         k = 5, s = 0.5, Fst = 0.1,
                                         b0 = 0, beta_mean = 1,
                                         eta = 0.1, sigma2 = 1)
@@ -95,7 +99,8 @@ nonzero_names = setdiff(rownames(nonzero), c("beta0","eta","sigma2"))
 length(intersect(nonzero_names, causal))/length(causal)
 length(intersect(nonzero_names, dat$causal))/length(dat$causal)
 length(nonzero_names)
-res$penfam.fit$sigma2
+res$penfam.fit$sigma2[,res$lambda.min.name]
+res$penfam.fit$eta[,res$lambda.min.name]
 
 correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
                  active = nonzero_names, p = ncol(dat$x))
@@ -106,7 +111,8 @@ l2norm(res$penfam.fit$coef[colnames(dat$x),res$lambda.min.name,drop = F] -
          matrix(dat$beta))
 plot(res$penfam.fit$coef[colnames(dat$x),res$lambda.min.name,drop = F])
 sum(res$penfam.fit$coef[dat$causal,res$lambda.min.name,drop = F] > 0) / sum(dat$beta>0)
-plot(res$penfam.fit$coef[dat$causal,res$lambda.min.name,drop = F])
+plot(res$penfam.fit$coef[dat$causal,res$lambda.min.name,drop = F], pch = 19, col = "blue")
+points(dat$beta[which(dat$causal==colnames(dat$x))], pch = 19, col = "red")
 ###########$%$%#$%^#$%# Make sure that the first lambda sets everything to 0. its not
 # curently doing this
 # now fixed (june 14,2018)

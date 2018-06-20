@@ -548,17 +548,16 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
     FF <- 1:k # subpopulation FST vector, unnormalized so far
     FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
   } else if (geography == "circ") {
-
+    obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
+    Q <- obj$Q
+    FF <- obj$F
     }
 
-
-
-
   ncausal <- p_test * percent_causal
-# browser()
+  # browser()
   if (percent_overlap == "100") {
 
-    total_snps_to_simulate <- 2 * p - ncausal
+    total_snps_to_simulate <- p_test + p_kinship - ncausal
     # this contains all SNPs (X_{Testing}:X_{kinship})
     out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
     Xall <- t(out$X) # genotypes are columns, rows are subjects
@@ -571,7 +570,7 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
     table(subpops) # got k=10 subpops with 100 individuals each
 
     # Snps used for kinship
-    snps_kinships <- sample(cnames, p, replace = FALSE)
+    snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
     length(snps_kinships)
 
     # all causal snps are in kinship matrix
@@ -591,7 +590,7 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
 
   } else if (percent_overlap == "0") {
 
-    total_snps_to_simulate <- 2 * p
+    total_snps_to_simulate <- p_test + p_kinship
     # this contains all SNPs (X_{Testing}:X_{kinship})
     out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
     Xall <- t(out$X) # genotypes are columns, rows are subjects
@@ -604,7 +603,7 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
     table(subpops) # got k=10 subpops with 100 individuals each
 
     # Snps used for kinship
-    snps_kinships <- sample(cnames, p, replace = FALSE)
+    snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
     length(snps_kinships)
 
     snps_test <- setdiff(cnames, snps_kinships)
@@ -637,8 +636,8 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
   # kin <- snpStats::xxt(dat$genotypes)/p
 
   beta <- rep(0, length = p)
-  beta[which(colnames(Xtest) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
-  # beta[which(colnames(x) %in% causal)] <- rnorm(n = length(causal))
+  # beta[which(colnames(Xtest) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
+  beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
   mu <- as.numeric(Xtest %*% beta)
 
   P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
@@ -646,7 +645,7 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
   # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
   # y <- b0 + mu + t(P) + t(E)
   # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
-  y <- 0 + mu + P + E
+  y <- b0 + mu + P + E
 
   return(list(y = y, x = Xtest, causal = causal, beta = beta, kin = kin,
               not_causal = not_causal,
