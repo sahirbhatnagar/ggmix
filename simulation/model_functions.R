@@ -513,7 +513,10 @@ make_mixed_model_not_simulator <- function(b0,betamean,eta, sigma2,  percent_cau
 
 
 
-
+# this function is similar to the one used to simulate the data included in the ggmix package
+# see data-raw/bnpsd-data.R. I copied over this function to the R/utils.R file, because i modified it
+# a little bit so that it doenst plot anyhting. and also in case I remove it here. that function
+# will also be included in the package to simulate data
 make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                                              eta, sigma2, geography = c("ind", "1d","circ"),
                                              percent_causal, percent_overlap) {
