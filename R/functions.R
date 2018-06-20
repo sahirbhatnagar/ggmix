@@ -471,6 +471,9 @@ gic.penfam <- function(x, y, d, u,
   obj
 }
 
+
+l2norm <- function(x) sqrt(sum(x^2))
+
 #' An alternative to \code{summaryRprof()}
 #'
 #' \code{proftools} parses a profiling file and prints an easy-to-understand

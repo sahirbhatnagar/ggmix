@@ -54,9 +54,11 @@ source("simulation/model_functions.R")
 dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
                                          b0 = 1, beta_mean = 1,
                                          eta = 0.10, sigma2 = 4)
-dat <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
+dat <- make_ADmixed_model_not_simulator(n = 1000, p = 10000, percent_causal = 0.01,
+                                        percent_overlap = "0",
+                                        k = 5, s = 0.5, Fst = 0.1,
                                         b0 = 0, beta_mean = 1,
-                                        eta = 0.10, sigma2 = 4)
+                                        eta = 0.1, sigma2 = 1)
 phi_eigen <- eigen(dat$kin)
 dat$kin[1:5,1:5]
 popkin::plotPopkin(dat$kin)
@@ -95,8 +97,16 @@ length(intersect(nonzero_names, dat$causal))/length(dat$causal)
 length(nonzero_names)
 res$penfam.fit$sigma2
 
-correct_sparsity(causal = dat$causal, not_causal = dat$not_causal, active = nonzero_names, p = ncol(dat$x))
+correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
+                 active = nonzero_names, p = ncol(dat$x))
 
+l2norm(dat$x %*% res$penfam.fit$coef[colnames(dat$x),res$lambda.min.name,drop = F] -
+         dat$x %*% matrix(dat$beta))
+l2norm(res$penfam.fit$coef[colnames(dat$x),res$lambda.min.name,drop = F] -
+         matrix(dat$beta))
+plot(res$penfam.fit$coef[colnames(dat$x),res$lambda.min.name,drop = F])
+sum(res$penfam.fit$coef[dat$causal,res$lambda.min.name,drop = F] > 0) / sum(dat$beta>0)
+plot(res$penfam.fit$coef[dat$causal,res$lambda.min.name,drop = F])
 ###########$%$%#$%^#$%# Make sure that the first lambda sets everything to 0. its not
 # curently doing this
 # now fixed (june 14,2018)
@@ -123,8 +133,13 @@ length(nonzlasso)
 
 correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
                  active = nonzlasso, p = ncol(dat$x))
+l2norm(dat$x %*% coef(fitglmnet2, s = "lambda.min")[colnames(dat$x),,drop = F] -
+         dat$x %*% matrix(dat$beta))
 
-
+l2norm(coef(fitglmnet2, s = "lambda.min")[colnames(dat$x),,drop = F] -
+         matrix(dat$beta))
+plot(coef(fitglmnet2, s = "lambda.min")[colnames(dat$x),,drop = F])
+plot(coef(fitglmnet2, s = "lambda.min")[dat$causal,,drop = F])
 # two-step ----------------------------------------------------------------
 
 #for karim data
@@ -153,9 +168,12 @@ length(nonz2step)
 
 correct_sparsity(causal = dat$causal, not_causal = dat$not_causal,
                  active = nonz2step, p = ncol(dat$x))
-
-
-
+l2norm(dat$x %*% coef(fitglmnet, s = "lambda.min")[colnames(dat$x),,drop = F] -
+         dat$x %*% matrix(dat$beta))
+l2norm(coef(fitglmnet, s = "lambda.min")[colnames(dat$x),,drop = F] -
+         matrix(dat$beta))
+plot(coef(fitglmnet, s = "lambda.min")[colnames(dat$x),,drop = F])
+plot(coef(fitglmnet, s = "lambda.min")[dat$causal,,drop = F])
 
 
 
