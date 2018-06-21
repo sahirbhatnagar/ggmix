@@ -5,9 +5,9 @@
 \alias{random.effects}
 \alias{random.effects.default}
 \alias{ranef.default}
-\alias{ranef.gic.penfam}
-\alias{ranef.penfam}
-\alias{random.effects.gic.penfam}
+\alias{ranef.gic.ggmix}
+\alias{ranef.ggmix}
+\alias{random.effects.gic.ggmix}
 \title{Extract Random Effects}
 \usage{
 ranef(object, ...)
@@ -18,16 +18,16 @@ random.effects(object, ...)
 
 \method{ranef}{default}(object)
 
-\method{ranef}{gic.penfam}(object, s = "lambda.min", ...)
+\method{ranef}{gic.ggmix}(object, s = "lambda.min", ...)
 
-\method{ranef}{penfam}(object, new.x, new.u, new.d, s = NULL,
+\method{ranef}{ggmix}(object, new.x, new.u, new.d, s = NULL,
   type = c("fitted", "predicted"))
 
-\method{random.effects}{gic.penfam}(object, s = "lambda.min")
+\method{random.effects}{gic.ggmix}(object, s = "lambda.min")
 }
 \arguments{
 \item{object}{any fitted model object from which random effects estimates can be
-extracted. Currently supports "gic.penfam" object}
+extracted. Currently supports "gic.ggmix" object}
 
 \item{...}{some methods for this generic function require additional
 arguments.}
@@ -47,14 +47,14 @@ Generic function for extracting the random effects. This is the same generic
 (and same name) defined in the nlme package.
 }
 \details{
-For objects of class "gic.penfam", this function returns the
+For objects of class "gic.ggmix", this function returns the
   subject-specific random effect value for the model which minimizes the GIC
   using the maximum a posteriori principle
 
-For objects of class "penfam", this function returns the
+For objects of class "ggmix", this function returns the
   subject-specific random effect value for the model which minimizes the GIC
   using the maximum a posteriori principle
 }
 \seealso{
-\code{\link{gic.penfam}}
+\code{\link{gic.ggmix}}
 }

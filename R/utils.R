@@ -116,6 +116,9 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
   beta <- rep(0, length = p)
   beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
+  causal_positive <- colnames(Xtest)[which(beta > 0)]
+  causal_negative <- colnames(Xtest)[which(beta < 0)]
+
   mu <- as.numeric(Xtest %*% beta)
 
   P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
@@ -123,6 +126,10 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   y <- b0 + mu + P + E
 
   return(list(y = y, x = Xtest, causal = causal, beta = beta, kin = kin,
-              not_causal = not_causal,
+              not_causal = not_causal, causal_positive = causal_positive,
+              causal_negative = causal_negative,
               x_lasso = x_lasso))
 }
+
+
+l2norm <- function(x) sqrt(sum(x^2))

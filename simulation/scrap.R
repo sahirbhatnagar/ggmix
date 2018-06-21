@@ -10,8 +10,8 @@ pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd')
 pacman::p_load(MASS)
 devtools::load_all()
+data("admixed")
 data("karim")
-
 karim$b %>% plot
 Phi <- 2 * karim$kin1
 P <- mvrnorm(1, rep(0,600), karim$s.g * Phi)
@@ -56,7 +56,7 @@ dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k =
                                          eta = 0.10, sigma2 = 4)
 dat <- make_ADmixed_model_not_simulator(n = 1000,
                                         p_test = 2000,
-                                        p_kinship = 1e4,
+                                        p_kinship = 5000,
                                         geography = "circ",
                                         percent_causal = 0.01,
                                         percent_overlap = "100",
@@ -68,6 +68,8 @@ dat$kin[1:5,1:5]
 popkin::plotPopkin(dat$kin)
 U_kinship <- phi_eigen$vectors
 Lambda <- phi_eigen$values
+length(Lambda) # length n
+dim(U_kinship) # n x n
 any(Lambda < 1e-5)
 which(Lambda < 1e-5)
 Lambda[which(Lambda < 1e-5)] <- 1e-05
@@ -561,6 +563,42 @@ print(jj.3)
 emulator::quad.form
 cprod()
 
+
+# checking lowrank --------------------------------------------------------
+
+pacman::p_load(gaston)
+pacman::p_load(glmnet)
+pacman::p_load(magrittr)
+pacman::p_load(snpStats)
+pacman::p_load_gh('StoreyLab/popkin')
+pacman::p_load_gh('StoreyLab/bnpsd')
+pacman::p_load(MASS)
+pacman::p_load(irlba)
+devtools::load_all()
+k=5;n=10000;p_kinship=3000;s = 0.5; Fst = 0.1;
+FF <- 1:k # subpopulation FST vector, up to a scalar
+obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
+Q <- obj$Q
+FF <- obj$F
+out <- bnpsd::rbnpsd(Q, FF, p_kinship)
+Xall <- t(out$X) # genotypes are columns, rows are subjects
+dim(Xall)
+
+ir <- irlba::irlba(Xall)
+svdX <- svd(Xall,nu = 5)
+svdX$u %>% dim
+svdX$d %>% length()
+svdX$v %>% dim
+U <- svdX$u
+dim(U)
+U1 <- U[,1:40]
+U2 <- U[,41:100]
+
+set.seed(1)
+A <- matrix(rnorm(5000*5000), 5000)
+t1 <- proc.time()
+L <- irlba(A, 5)
+print(proc.time() - t1)
 
 # checking lower rank approx ----------------------------------------------
 

@@ -7,7 +7,7 @@
 #' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
 #'   selection with a diverging number of parameters.J. R. Statist. Soc. B, 71,
 #'   671–683.
-penfam <- function(x, y, phi, lambda = NULL,
+ggmix <- function(x, y, phi, lambda = NULL,
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                    nlambda = 100,
                    eta_init = 0.5,
@@ -15,16 +15,16 @@ penfam <- function(x, y, phi, lambda = NULL,
                    fdev = 1e-4,
                    alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                    thresh_glmnet = 1e-10, # this is for glmnet
-                   epsilon = 1e-5, # this is for penfam
+                   epsilon = 1e-5, # this is for ggmix
                    an = log(log(n)) * log(n),
                    tol.kkt = 1e-9) {
 
   # rm(list=ls())
-  # source("~/git_repositories/penfam/R/fitting.R")
-  # source("~/git_repositories/penfam/R/functions.R")
-  # source("~/git_repositories/penfam/R/methods.R")
-  # source("~/git_repositories/penfam/R/plot.R")
-  # source("~/git_repositories/penfam/R/sim-data.R")
+  # source("~/git_repositories/ggmix/R/fitting.R")
+  # source("~/git_repositories/ggmix/R/functions.R")
+  # source("~/git_repositories/ggmix/R/methods.R")
+  # source("~/git_repositories/ggmix/R/plot.R")
+  # source("~/git_repositories/ggmix/R/sim-data.R")
   # x <- X
   # y <- Y
   # phi <- Phi
@@ -319,7 +319,7 @@ print(df)
   # df = nonzeroCoef(coef(beta_next_fit)),
   # active = coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F])
   out$call <- this.call
-  class(out) <- "penfam"
+  class(out) <- "ggmix"
   return(out)
 
 }
@@ -413,7 +413,7 @@ lowrank <- function(x, y, d, u,
                     standardize = FALSE,
                     alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                     thresh_glmnet = 1e-8, # this is for glmnet
-                    epsilon = 1e-4 # this is for penfam
+                    epsilon = 1e-4 # this is for ggmix
                     # tol.kkt = 1e-9
                     ) {
 
@@ -422,12 +422,12 @@ lowrank <- function(x, y, d, u,
   # pacman::p_load(glmnet)
   # pacman::p_load(magrittr)
   # pacman::p_load(snpStats)
-  # source("~/git_repositories/penfam/R/fitting.R")
-  # source("~/git_repositories/penfam/R/functions.R")
-  # source("~/git_repositories/penfam/R/methods.R")
-  # source("~/git_repositories/penfam/R/plot.R")
-  # # source("~/git_repositories/penfam/R/sim-data.R")
-  # source("~/git_repositories/penfam/simulation/model_functions.R")
+  # source("~/git_repositories/ggmix/R/fitting.R")
+  # source("~/git_repositories/ggmix/R/functions.R")
+  # source("~/git_repositories/ggmix/R/methods.R")
+  # source("~/git_repositories/ggmix/R/plot.R")
+  # # source("~/git_repositories/ggmix/R/sim-data.R")
+  # source("~/git_repositories/ggmix/simulation/model_functions.R")
   # dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.3, sigma2 = 2, type = "causal_400", related = TRUE)
   #
   # x <- dat$x
@@ -779,7 +779,7 @@ lowrank <- function(x, y, d, u,
   # df = nonzeroCoef(coef(beta_next_fit)),
   # active = coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F])
   out$call <- this.call
-  class(out) <- "penfam"
+  class(out) <- "ggmix"
   return(out)
 
 }

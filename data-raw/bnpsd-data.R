@@ -13,7 +13,7 @@ pacman::p_load(MASS)
 devtools::load_all()
 
 set.seed(2345)
-simdata <- gen_structured_model(n = 500,
+admixed <- gen_structured_model(n = 500,
                                 p_test = 200,
                                 p_kinship = 1e4,
                                 geography = "1d",
@@ -23,7 +23,7 @@ simdata <- gen_structured_model(n = 500,
                                 b0 = 0, beta_mean = 1,
                                 eta = 0.1, sigma2 = 1)
 
-usethis::use_data(simdata, overwrite = TRUE)
+usethis::use_data(admixed, overwrite = TRUE)
 
 # phi_eigen <- eigen(dat$kin)
 # U_kinship <- phi_eigen$vectors

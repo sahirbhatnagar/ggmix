@@ -5,9 +5,9 @@
 #'
 #' @return a numeric vector of length n of subject-specific random effects
 #'
-#' @seealso \code{\link{gic.penfam}}
+#' @seealso \code{\link{gic.ggmix}}
 #' @param object any fitted model object from which random effects estimates can be
-#'   extracted. Currently supports "gic.penfam" object
+#'   extracted. Currently supports "gic.ggmix" object
 #' @param ... some methods for this generic function require additional
 #'   arguments.
 #' @export

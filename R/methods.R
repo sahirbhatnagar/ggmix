@@ -1,9 +1,9 @@
-#' Print Method for penfam function
+#' Print Method for ggmix function
 #'
-#' @description print method for penfam function
+#' @description print method for ggmix function
 #' @export
 
-print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
+print.ggmix <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nCall: ", deparse(x$call), "\n\n")
   print(cbind(Df = x$result[,"Df"],
               `%Dev` = signif(x$result[,"%Dev"], digits),
@@ -12,23 +12,23 @@ print.penfam <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 
 
 
-#' Get coefficients from a "penfam" object
+#' Get coefficients from a "ggmix" object
 #'
-#' @param object object of class penfam
+#' @param object object of class ggmix
 #' @param s lambda value
 #' @param which a character of either "beta", "eta", or "sigma2" if the user wants only th
 #' @param ... additional arguments to pass to predict function
 #'
-#' @rdname predict.penfam
+#' @rdname predict.ggmix
 #' @export
 
-coef.penfam <- function(object, s = NULL, which = NULL, ...) {
+coef.ggmix <- function(object, s = NULL, which = NULL, ...) {
   if(is.null(which)) predict(object, s = s, type = "coefficients", ...) else
     predict(object, s = s, type = which, ...)
 }
 
-#' @rdname predict.penfam
-coef.gic.penfam <- function (object, s = "lambda.min", ...) {
+#' @rdname predict.ggmix
+coef.gic.ggmix <- function (object, s = "lambda.min", ...) {
   if (is.numeric(s))
     lambda = s
   else if (is.character(s)) {
@@ -36,7 +36,7 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
     lambda = object[[s]]
   }
   else stop("Invalid form for s")
-  coef(object$penfam.fit, s = lambda, ...)
+  coef(object$ggmix.fit, s = lambda, ...)
 }
 
 
@@ -45,7 +45,7 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 
 
 
-#' Make predictions from a penfam object
+#' Make predictions from a ggmix object
 #'
 #' @description this function only works for tuning parameter values defined by
 #'   the shim_multiple_faster function. The interpolation feature is not working
@@ -53,7 +53,7 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 #' @param s index of tuning parameter. Must be a character and an element of
 #'   "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 #'   parameters. Default is \code{NULL}
-#' @param object Fitted penfam model object
+#' @param object Fitted ggmix model object
 #' @param type Type of prediction required. Type "link" gives the fitted values
 #'   given by \deqn{X\beta + b} where b is a subject-specific random effect. For
 #'   "gaussian" type "response" is equivalent to type "link". Type
@@ -62,11 +62,11 @@ coef.gic.penfam <- function (object, s = "lambda.min", ...) {
 #'   for each value of s.
 #' @export
 
-predict.penfam <- function(object, new.x, new.u, new.d, s = NULL,
+predict.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
                            type = c("link", "response", "coefficients","ranef",
                                     "nonzero", "beta", "eta", "sigma2")) {
 
-  # object = res$penfam.fit
+  # object = res$ggmix.fit
   # s = c(0.1,0.2,0.3)
   # s=NULL
   # type = "link"
@@ -121,7 +121,7 @@ predict.penfam <- function(object, new.x, new.u, new.d, s = NULL,
   if (type == "link") {
 
     nfit = as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
-    ranef.penfam(object)
+    ranef.ggmix(object)
     return(nfit)
   }
 
@@ -176,36 +176,36 @@ predict.penfam <- function(object, new.x, new.u, new.d, s = NULL,
 }
 
 
-#' Make predictions from a "gic.penfam" object.
+#' Make predictions from a "gic.ggmix" object.
 #'
-#' @param object a fitted \code{\link{gic.penfam}} object
+#' @param object a fitted \code{\link{gic.ggmix}} object
 #' @param newx matrix of new values for x at which predictions are to be made
 #' @param s value(s) of the penalty parameter lambda at which predictions are
 #'   required. Default is the value s="lambda.min" stored on the
-#'   \code{\link{gic.penfam}} object. If s is numeric, it is taken as the
+#'   \code{\link{gic.ggmix}} object. If s is numeric, it is taken as the
 #'   value(s) of lambda to be used.
 #' @param ... not used. Other arguments to predict
 #'
-#' @description This function makes predictions from a penfam model with GIC,
-#'   using the stored "penfam.fit" object, and the optimal value chosen for lambda
+#' @description This function makes predictions from a ggmix model with GIC,
+#'   using the stored "ggmix.fit" object, and the optimal value chosen for lambda
 #'   based on the minimum GIC.
 #' @details This function makes it easier to use the results of cross-validation
 #'   to make a prediction
-#' @method predict gic.penfam
+#' @method predict gic.ggmix
 #' @export
-predict.gic.penfam <- function(object, newx, s = c("lambda.1se",
+predict.gic.ggmix <- function(object, newx, s = c("lambda.1se",
                                                    "lambda.min"), ...) {
   if (is.numeric(s))
     lambda <- s else if (is.character(s)) {
       s <- match.arg(s)
       lambda <- object[[s]]
     } else stop("Invalid form for s")
-  predict(object$penfam.fit, newx, s = lambda, ...)
+  predict(object$ggmix.fit, newx, s = lambda, ...)
 }
 
 
 
-plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted", "Tukey-Anscombe"),
+plot.ggmix <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted", "Tukey-Anscombe"),
                         xvar=c("norm","lambda","dev"), s = x$lambda_min,
                         label=FALSE, sign.lambda = 1, ...){
   xvar <- match.arg(xvar)
@@ -252,18 +252,18 @@ plot.penfam <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicte
 
 }
 
-#' Plot the Generalised Information Criteria curve produced by gic.penfam
+#' Plot the Generalised Information Criteria curve produced by gic.ggmix
 #'
-#' @param x fitted "gic.penfam" object
+#' @param x fitted "gic.ggmix" object
 #' @param sign.lambda Either plot against log(lambda) (default) or its negative
 #'   if sign.lambda=-1
 #' @param ... Other graphical parameters to plot
 #' @details A plot is produced, and nothing is returned.
-#' @seealso \code{\link{penfam}} and \code{\link{gic.penfam}}
+#' @seealso \code{\link{ggmix}} and \code{\link{gic.ggmix}}
 #' @description Plots the Generalised Information Criteria curve, as a function
 #'   of the lambda values used
 #' @export
-plot.gic.penfam <- function(x, sign.lambda = 1, ...) {
+plot.gic.ggmix <- function(x, sign.lambda = 1, ...) {
 
   bicobj <- x
   xlab <- "log(Lambda)"
@@ -290,21 +290,21 @@ plot.gic.penfam <- function(x, sign.lambda = 1, ...) {
 #' @param s lamda at which to predict the random effects. current option is only
 #'   "lambda.min"
 #'
-#' @details For objects of class "gic.penfam", this function returns the
+#' @details For objects of class "gic.ggmix", this function returns the
 #'   subject-specific random effect value for the model which minimizes the GIC
 #'   using the maximum a posteriori principle
 #'
-#' @method ranef gic.penfam
+#' @method ranef gic.ggmix
 #' @rdname ranef
 #' @export
-ranef.gic.penfam <- function(object, s = "lambda.min", ...) {
+ranef.gic.ggmix <- function(object, s = "lambda.min", ...) {
 
   # object = res
   # s = "lambda.min"
   #==================
 
   if (s == "lambda.min") {
-  ranef(object = object$penfam.fit, s = object$lambda.min, ...)
+  ranef(object = object$ggmix.fit, s = object$lambda.min, ...)
   } else if(is.numeric(s)) {
 
   }
@@ -316,17 +316,17 @@ ranef.gic.penfam <- function(object, s = "lambda.min", ...) {
 #' @param s index of tuning parameter. Must be a character and an element of
 #'   "s1","s2",...."s100", where "s100" is the index of the last pair of tuning
 #'   parameters. Default is \code{NULL}
-#' @details For objects of class "penfam", this function returns the
+#' @details For objects of class "ggmix", this function returns the
 #'   subject-specific random effect value for the model which minimizes the GIC
 #'   using the maximum a posteriori principle
 #'
-#' @method ranef penfam
+#' @method ranef ggmix
 #' @rdname ranef
 #' @export
-ranef.penfam <- function(object, new.x, new.u, new.d, s = NULL,
+ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
                          type = c("fitted", "predicted")) {
 
-  # object = res$penfam.fit
+  # object = res$ggmix.fit
   # s = c(0.5, 0.3, 0.1)
   # type = "link"
   # new.x = dat$x[,1:500]
@@ -398,24 +398,24 @@ bi <- function(eta, beta, eigenvalues, eigenvectors, x, y){
 
 
 
-#' @method random.effects gic.penfam
+#' @method random.effects gic.ggmix
 #' @rdname ranef
 #' @export
-random.effects.gic.penfam <- function(object, s = "lambda.min") {
+random.effects.gic.ggmix <- function(object, s = "lambda.min") {
 
   # object = res
   # s = "lambda.min"
   #==================
 
-  U <- object$penfam.fit[["u"]]
+  U <- object$ggmix.fit[["u"]]
   estimates <- coef(object, s = s)
   eta_next <- estimates["eta",]
-  beta_next <- estimates[c("(Intercept)",object$penfam.fit$cov_names[-1]),,drop=F]
-  eigenvalues <- object$penfam.fit$eigenvalues
+  beta_next <- estimates[c("(Intercept)",object$ggmix.fit$cov_names[-1]),,drop=F]
+  eigenvalues <- object$ggmix.fit$eigenvalues
 
   di <- 1 + eta_next * (eigenvalues - 1)
   D_tilde_inv <- diag(1 / di)
-  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$penfam.fit$uty - object$penfam.fit$utx %*% beta_next))
+  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$ggmix.fit$uty - object$ggmix.fit$utx %*% beta_next))
   bi
 
 }

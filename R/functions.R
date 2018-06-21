@@ -255,11 +255,11 @@ lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
                             nlambda = 100, scale_x = F, center_y = F) {
 
   # rm(list=ls())
-  # source("~/git_repositories/penfam/R/fitting.R")
-  # source("~/git_repositories/penfam/R/functions.R")
-  # source("~/git_repositories/penfam/R/methods.R")
-  # source("~/git_repositories/penfam/R/plot.R")
-  # source("~/git_repositories/penfam/R/sim-data.R")
+  # source("~/git_repositories/ggmix/R/fitting.R")
+  # source("~/git_repositories/ggmix/R/functions.R")
+  # source("~/git_repositories/ggmix/R/methods.R")
+  # source("~/git_repositories/ggmix/R/plot.R")
+  # source("~/git_repositories/ggmix/R/sim-data.R")
   # x <- X
   # y <- drop(Y)
   # phi <- Phi
@@ -435,7 +435,7 @@ sigma2 <- function(n, x, y, beta, eta, eigenvalues){
 #' @param an numeric, the penalty per parameter to be used; the default is an =
 #'   log(log(n))*log(p) where n is the number of subjects and p is the number of
 #'   parameters
-#' @param ... other arguments that can be passed to penfam
+#' @param ... other arguments that can be passed to ggmix
 #' @details the generalised information criterion used for gaussian response is
 #'   given by \deqn{-2 * loglikelihood(\hat{\Theta}) + an * df} where
 #'   df is the number of non-zero estimated parameters
@@ -446,33 +446,32 @@ sigma2 <- function(n, x, y, beta, eta, eigenvalues){
 #'   Nishii R. Asymptotic properties of criteria for selection of variables in
 #'   multiple regression. The Annals of Statistics. 1984;12(2):758-65.
 #' @export
-gic.penfam <- function(x, y, d, u,
+gic.ggmix <- function(x, y, d, u,
                        an = log(log(n)) * log(p),
                        lambda = NULL, ...) {
 
-  penfam.object <- lowrank(x = x, y = y, d = d, u = u, lambda = lambda, ...)
+  ggmix.object <- lowrank(x = x, y = y, d = d, u = u, lambda = lambda, ...)
 
-  n <- nrow(penfam.object$x)
-  p <- ncol(penfam.object$x) - 1
+  n <- nrow(ggmix.object$x)
+  p <- ncol(ggmix.object$x) - 1
 
-  df <- penfam.object$result[,"Df"]
-  model_loglik <- penfam.object$result[,"model_loglik"]
+  df <- ggmix.object$result[,"Df"]
+  model_loglik <- ggmix.object$result[,"model_loglik"]
 
   model_bic <- -2 * model_loglik + an * df
 
-  out = list(lambda = penfam.object$result[,"Lambda"],
+  out = list(lambda = ggmix.object$result[,"Lambda"],
              nzero = df,
              bic = model_bic,
              lambda.min.name = names(which.min(model_bic)),
-             lambda.min = penfam.object$result[names(which.min(model_bic)),"Lambda"],
-             penfam.fit = penfam.object)
+             lambda.min = ggmix.object$result[names(which.min(model_bic)),"Lambda"],
+             ggmix.fit = ggmix.object)
   obj <- c(out)
-  class(obj) <- "gic.penfam"
+  class(obj) <- "gic.ggmix"
   obj
 }
 
 
-l2norm <- function(x) sqrt(sum(x^2))
 
 #' An alternative to \code{summaryRprof()}
 #'
