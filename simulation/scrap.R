@@ -573,7 +573,7 @@ pacman::p_load(snpStats)
 pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd')
 pacman::p_load(MASS)
-pacman::p_load(irlba)
+pacman::p_load(RSpectra)
 devtools::load_all()
 k=5;n=10000;p_kinship=3000;s = 0.5; Fst = 0.1;
 FF <- 1:k # subpopulation FST vector, up to a scalar
@@ -584,7 +584,16 @@ out <- bnpsd::rbnpsd(Q, FF, p_kinship)
 Xall <- t(out$X) # genotypes are columns, rows are subjects
 dim(Xall)
 
-ir <- irlba::irlba(Xall)
+# On the WTCCC data, use of fewer than 200 eigenvectors yielded univariate
+# P values comparable to those obtained from many thousands of eigenvectors. (Lippert et al. 2009)
+
+ir <- RSpectra::svds(Xall, k = 200)
+ir$d %>% hist
+summary(ir$d)
+dim(ir$u)
+PC <- sweep(ir$u, 2, STATS = ir$d, FUN = "*")
+dim(PC)
+plot(PC[,1],PC[,2], pch=19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = n/k))
 svdX <- svd(Xall,nu = 5)
 svdX$u %>% dim
 svdX$d %>% length()
