@@ -1,4 +1,4 @@
 library(testthat)
-library(penfam)
+library(ggmix)
 
-test_check("penfam")
+test_check("ggmix")

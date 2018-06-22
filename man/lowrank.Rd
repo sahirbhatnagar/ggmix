@@ -5,9 +5,9 @@
 \title{Fit a linear mixed model with lasso or elasticnet regularization}
 \usage{
 lowrank(x, y, d, u, lambda = NULL, lambda_min_ratio = ifelse(n < p, 0.01,
-  0.0001), nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 0.00001,
-  standardize = FALSE, alpha = 1, thresh_glmnet = 0.00000001,
-  epsilon = 0.0001)
+  1e-04), nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-05,
+  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
+  epsilon = 1e-04)
 }
 \description{
 By the time the user gets to this point in the function they

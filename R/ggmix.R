@@ -6,15 +6,31 @@
 #' @param x input matrix, of dimension n x p; where n is the number of
 #'   observations and p are the number of predictors.
 #' @param y response variable. must be a quantitative variable
-#' @param D eigenvalues
-#' @param U left singular vectors corresponding to the eigenvalues provided in
-#'   the \code{D} argument
+#' @param D non-zero eigenvalues. This option is provided to the user should
+#'   they decide or need to calculate the eigen decomposition of the kinship
+#'   matrix or the singular value decomposition of the matrix of SNPs used to
+#'   calculate the kinship outside of this function. This may occur, if for
+#'   example, it is easier (because of memory issues to calculate this in
+#'   plink). This should correspond to the non-zero eigenvalues only. Note that
+#'   if you are doing an \code{svd} on the matrix of SNPs used to calculate the
+#'   kinship matrix, then you must provide the square of the singular values so
+#'   that they correspond to the eigenvalues of the kinship matrix.
+#' @param U left singular vectors corresponding to the non-zero eigenvalues
+#'   provided in the \code{D} argument.
 #' @param kinship positive definite kinship matrix
 #' @param K the matrix of SNPs used to determine the kinship matrix
 #' @param n_nonzero_eigenvalues the number of nonzero eigenvalues. This argument
 #'   is only used when \code{estimation="low"} and either \code{kinship} or
 #'   \code{K} is provided. This argument will limit the function to finding the
 #'   \code{n_nonzero_eigenvalues} largest eigenvalues.
+#' @param n_zero_eigenvalues the number of zero eigenvalues. This argument must
+#'   be specified when \code{U} and \code{D} are specified and
+#'   \code{estimation="low"}. In general this would be the rank of the matrix
+#'   used to calculate the eigen or singular value decomposition. When
+#'   \code{kinship} is provided and \code{estimation="low"} the default value
+#'   will be \code{ncol(kinship) - n_nonzero_eigenvalues}. When \code{K} is
+#'   provided and \code{estimation="low"}, the default value is \code{rank(K) -
+#'   n_nonzero_eigenvalues}
 #' @param estimation type of estimation
 #' @param penalty type of regularization penalty. if \code{penalty="gglasso"}
 #'   then the \code{group} argument must also be specified
@@ -67,6 +83,7 @@ ggmix <- function(x, y,
                   kinship,
                   K,
                   n_nonzero_eigenvalues,
+                  n_zero_eigenvalues,
                   estimation = c("full", "low"),
                   penalty = c("lasso", "gglasso"),
                   group,
@@ -114,8 +131,9 @@ ggmix <- function(x, y,
   if ((!missing(U) & missing(D)) | (!missing(D) & missing(U)))
     stop("both U and D must be specified.")
 
-  if (estimation == "low" & missing(rank))
-    stop("the rank argument must be specified with low rank estimation")
+  if (estimation == "low" & missing(n_nonzero_eigenvalues))
+    stop("the n_nonzero_eigenvalues argument must be specified with
+         low rank estimation")
 
   if (penalty == "gglasso" & missing(group))
     stop(strwrap("group cannot be missing when using the group lasso
@@ -193,6 +211,11 @@ ggmix <- function(x, y,
   if (is_UD) {
     if (!is.matrix(U))
       stop("U has to be a matrix")
+    if (missing(n_zero_eigenvalues) & estimation == "low")
+      stop(strwrap("n_zero_eigenvalues must be specified when U and D have
+                   been provided and estimation=\"low\". In general this would
+                   be the rank of the matrix used to calculate the eigen or
+                   singular value decomposition."))
     np_U <- dim(U)
     n_U <- np_U[[1]]
     p_U <- np_U[[2]]
@@ -253,7 +276,7 @@ ggmix <- function(x, y,
     ggmix_data_object <- switch(corr_type,
                                 kinship = new_lowrank_kinship(kinship = kinship,
                                   n_nonzero_eigenvalues = n_nonzero_eigenvalues,
-                                  n_zero_eigenvalues = n_zero_eigenvalues),
+                                  n_zero_eigenvalues = nrow(kinship) - n_zero_eigenvalues),
                                 K = new_lowrank_K(K = K,
                                   n_nonzero_eigenvalues = n_nonzero_eigenvalues,
                                   n_zero_eigenvalues = n_zero_eigenvalues),
@@ -264,7 +287,7 @@ ggmix <- function(x, y,
   }
 
   browser()
-
+  ggmix_data_object
 
 
 

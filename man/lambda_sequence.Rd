@@ -5,8 +5,8 @@
 \title{Calculate Sequence of Tuning Parameters}
 \usage{
 lambda_sequence(x, y, eigenvalues, weights = NULL, lambda_min_ratio,
-  epsilon = 0.00000000000001, tol.kkt = 0.000000001, eta_init = 0.5,
-  nlambda = 100, scale_x = F, center_y = F)
+  epsilon = 1e-14, tol.kkt = 1e-09, eta_init = 0.5, nlambda = 100,
+  scale_x = F, center_y = F)
 }
 \arguments{
 \item{weights}{Separate penalty factors can be applied to each coefficient.

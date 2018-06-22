@@ -7,7 +7,7 @@
 #' @references Wang, H., Li, B. and Leng, C. (2009) Shrinkage tuning parameter
 #'   selection with a diverging number of parameters.J. R. Statist. Soc. B, 71,
 #'   671–683.
-ggmix <- function(x, y, phi, lambda = NULL,
+ggmix_old <- function(x, y, phi, lambda = NULL,
                    lambda_min_ratio  = ifelse(n < p, 0.01, 0.001),
                    nlambda = 100,
                    eta_init = 0.5,

@@ -126,6 +126,7 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   y <- b0 + mu + P + E
 
   return(list(y = y, x = Xtest, causal = causal, beta = beta, kin = kin,
+              Xkinship = Xkinship,
               not_causal = not_causal, causal_positive = causal_positive,
               causal_negative = causal_negative,
               x_lasso = x_lasso))
