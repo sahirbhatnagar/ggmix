@@ -7,26 +7,9 @@
 gic.ggmix(x, y, d, u, an = log(log(n)) * log(p), lambda = NULL, ...)
 }
 \arguments{
-\item{x}{input matrix, of dimension n x p; where n is the number of
-observations and p are the number of predictors.}
-
-\item{y}{response variable. must be a quantitative variable}
-
-\item{d}{non-zero eigenvalues}
-
-\item{u}{left singular vectors corresponding to the non-zero eigenvalues}
-
 \item{an}{numeric, the penalty per parameter to be used; the default is an =
 log(log(n))*log(p) where n is the number of subjects and p is the number of
 parameters}
-
-\item{lambda}{A user supplied lambda sequence (this is the tuning parameter).
-Typical usage is to have the program compute its own lambda sequence based
-on nlambda and lambda.min.ratio. Supplying a value of lambda overrides
-this. WARNING: use with care. Do not supply a single value for lambda (for
-predictions after CV use predict() instead). Supply instead a decreasing
-sequence of lambda values. glmnet relies on its warms starts for speed, and
-its often faster to fit a whole path than compute a single fit.}
 
 \item{...}{other arguments that can be passed to ggmix}
 }

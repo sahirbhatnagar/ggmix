@@ -1,8 +1,66 @@
-#' @title Fit Linear Mixed Model with Lasso or Group Lasso Penalty
+#' @title Fit Linear Mixed Model with Lasso or Group Lasso Regularization
 #' @description Main function to fit the linear mixed model with lasso or group
 #'   lasso penalty for a sequence of tuning parameters. This is a penalized
 #'   regression method that accounts for population structure using either the
 #'   kinship matrix or the factored realized relationship matrix
+#' @param x input matrix, of dimension n x p; where n is the number of
+#'   observations and p are the number of predictors.
+#' @param y response variable. must be a quantitative variable
+#' @param D eigenvalues
+#' @param U left singular vectors corresponding to the eigenvalues provided in
+#'   the \code{D} argument
+#' @param kinship positive definite kinship matrix
+#' @param K the matrix of SNPs used to determine the kinship matrix
+#' @param n_nonzero_eigenvalues the number of nonzero eigenvalues. This argument
+#'   is only used when \code{estimation="low"} and either \code{kinship} or
+#'   \code{K} is provided. This argument will limit the function to finding the
+#'   \code{n_nonzero_eigenvalues} largest eigenvalues.
+#' @param estimation type of estimation
+#' @param penalty type of regularization penalty. if \code{penalty="gglasso"}
+#'   then the \code{group} argument must also be specified
+#' @param group a vector of consecutive integers describing the grouping of the
+#'   coefficients
+#' @param penalty.factor Separate penalty factors can be applied to each
+#'   coefficient. This is a number that multiplies lambda to allow differential
+#'   shrinkage. Can be 0 for some variables, which implies no shrinkage, and
+#'   that variable is always included in the model. Default is 1 for all
+#'   variables
+#' @param lambda A user supplied lambda sequence (this is the tuning parameter).
+#'   Typical usage is to have the program compute its own lambda sequence based
+#'   on nlambda and lambda.min.ratio. Supplying a value of lambda overrides
+#'   this. WARNING: use with care. Do not supply a single value for lambda (for
+#'   predictions after CV use predict() instead). Supply instead a decreasing
+#'   sequence of lambda values. glmnet relies on its warms starts for speed, and
+#'   its often faster to fit a whole path than compute a single fit.
+#' @param lambda_min_ratio Smallest value for lambda, as a fraction of
+#'   lambda.max, the (data derived) entry value (i.e. the smallest value for
+#'   which all coefficients are zero). The default depends on the sample size
+#'   nobs relative to the number of variables nvars. If nobs > nvars, the
+#'   default is 0.0001, close to zero. If nobs < nvars, the default is 0.01. A
+#'   very small value of lambda.min.ratio will lead to a saturated fit in the
+#'   nobs < nvars case.
+#' @param nlambda the number of lambda values - default is 100.
+#' @param eta_init initial value for the eta parameter, with \eqn{0 < \eta < 1}
+#'   used in determining lambda.max and starting value for fitting algorithm.
+#' @param maxit Maximum number of passes over the data for all lambda values;
+#'   default is 10^2.
+#' @param fdev Fractional deviance change theshold. If change in deviance
+#'   between adjacent lambdas is less than fdev, the solution path stops early.
+#'   factory default = 1.0e-5
+#' @param alpha The elasticnet mixing parameter, with \eqn{0 \leq \alpha \leq
+#'   1}. alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' @param thresh_glmnet Convergence threshold for coordinate descent for
+#'   updating beta parameters. Each inner coordinate-descent loop continues
+#'   until the maximum change in the objective after any coefficient update is
+#'   less than thresh times the null deviance. Defaults value is 1E-7
+#' @param standardize Logical flag for x variable standardization, prior to
+#'   fitting the model sequence. The coefficients are always returned on the
+#'   original scale. Default is standardize=FALSE. If variables are in the same
+#'   units already, you might not wish to standardize.
+#' @param epsilon Convergence threshold for block relaxation of the entire
+#'   parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
+#'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
+#'   Defaults value is 1E-7
 #' @export
 ggmix <- function(x, y,
                   U, D,
@@ -129,7 +187,7 @@ ggmix <- function(x, y,
       stop(strwrap("number of rows in K matrix must equal the
                    number of rows in x matrix"))
 
-    corr_type <- "Kmat"
+    corr_type <- "K"
   }
 
   if (is_UD) {
@@ -170,7 +228,7 @@ ggmix <- function(x, y,
   if (estimation == "full") {
     ggmix_data_object <- switch(corr_type,
                            kinship = new_fullrank_kinship(kinship = kinship),
-                           Kmat = new_fullrank_Kmat(Kmat = K),
+                           Kmat = new_fullrank_K(K = K),
                            UD = new_fullrank_UD(U = U, D = D)
     )
   }
@@ -194,17 +252,18 @@ ggmix <- function(x, y,
 
     ggmix_data_object <- switch(corr_type,
                                 kinship = new_lowrank_kinship(kinship = kinship,
-                                                              nnzeigen = n_nonzero_eigenvalues,
-                                                              nzeigen = n_zero_eigenvalues),
-                                Kmat = new_lowrank_Kmat(K = K,
-                                                        nnzeigen = n_nonzero_eigenvalues,
-                                                        nzeigen = n_zero_eigenvalues),
+                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+                                  n_zero_eigenvalues = n_zero_eigenvalues),
+                                K = new_lowrank_K(K = K,
+                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+                                  n_zero_eigenvalues = n_zero_eigenvalues),
                                 UD = new_lowrank_UD(U = U, D = D,
-                                                    nnzeigen = n_nonzero_eigenvalues,
-                                                    nzeigen = n_zero_eigenvalues)
+                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+                                  n_zero_eigenvalues = n_zero_eigenvalues)
     )
   }
 
+  browser()
 
 
 

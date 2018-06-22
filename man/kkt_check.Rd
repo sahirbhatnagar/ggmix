@@ -4,7 +4,8 @@
 \alias{kkt_check}
 \title{Check of KKT for a given value of Lambda}
 \usage{
-kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda, tol.kkt = 1e-09)
+kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda,
+  tol.kkt = 0.000000001)
 }
 \arguments{
 \item{beta}{should include intercept as well. A 1 column matrix of dimension

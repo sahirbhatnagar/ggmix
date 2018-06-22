@@ -4,7 +4,7 @@
 \alias{plot.gic.ggmix}
 \title{Plot the Generalised Information Criteria curve produced by gic.ggmix}
 \usage{
-plot.gic.ggmix(x, sign.lambda = 1, ...)
+\method{plot}{gic.ggmix}(x, sign.lambda = 1, ...)
 }
 \arguments{
 \item{x}{fitted "gic.ggmix" object}

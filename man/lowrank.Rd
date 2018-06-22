@@ -5,65 +5,9 @@
 \title{Fit a linear mixed model with lasso or elasticnet regularization}
 \usage{
 lowrank(x, y, d, u, lambda = NULL, lambda_min_ratio = ifelse(n < p, 0.01,
-  1e-04), nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-05,
-  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
-  epsilon = 1e-04)
-}
-\arguments{
-\item{x}{input matrix, of dimension n x p; where n is the number of
-observations and p are the number of predictors.}
-
-\item{y}{response variable. must be a quantitative variable}
-
-\item{d}{non-zero eigenvalues}
-
-\item{u}{left singular vectors corresponding to the non-zero eigenvalues}
-
-\item{lambda}{A user supplied lambda sequence (this is the tuning parameter).
-Typical usage is to have the program compute its own lambda sequence based
-on nlambda and lambda.min.ratio. Supplying a value of lambda overrides
-this. WARNING: use with care. Do not supply a single value for lambda (for
-predictions after CV use predict() instead). Supply instead a decreasing
-sequence of lambda values. glmnet relies on its warms starts for speed, and
-its often faster to fit a whole path than compute a single fit.}
-
-\item{lambda_min_ratio}{Smallest value for lambda, as a fraction of
-lambda.max, the (data derived) entry value (i.e. the smallest value for
-which all coefficients are zero). The default depends on the sample size
-nobs relative to the number of variables nvars. If nobs > nvars, the
-default is 0.0001, close to zero. If nobs < nvars, the default is 0.01. A
-very small value of lambda.min.ratio will lead to a saturated fit in the
-nobs < nvars case.}
-
-\item{nlambda}{he number of lambda values - default is 100.}
-
-\item{eta_init}{initial value for the eta parameter. used in determining
-lambda.max}
-
-\item{maxit}{Maximum number of passes over the data for all lambda values;
-default is 10^2.}
-
-\item{fdev}{Fractional deviance change theshold. If change in deviance
-between adjacent lambdas is less than fdev, the solution path stops early.
-factory default = 1.0e-5}
-
-\item{standardize}{Logical flag for x variable standardization, prior to
-fitting the model sequence. The coefficients are always returned on the
-original scale. Default is standardize=FALSE. If variables are in the same
-units already, you might not wish to standardize.}
-
-\item{alpha}{The elasticnet mixing parameter, with \eqn{0 \leq \alpha \leq
-1}. alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.}
-
-\item{thresh_glmnet}{Convergence threshold for coordinate descent for
-updating beta parameters. Each inner coordinate-descent loop continues
-until the maximum change in the objective after any coefficient update is
-less than thresh times the null deviance. Defaults value is 1E-7}
-
-\item{epsilon}{Convergence threshold for block relaxation of the entire
-parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
-converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
-Defaults value is 1E-7}
+  0.0001), nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 0.00001,
+  standardize = FALSE, alpha = 1, thresh_glmnet = 0.00000001,
+  epsilon = 0.0001)
 }
 \description{
 By the time the user gets to this point in the function they
