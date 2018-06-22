@@ -618,19 +618,27 @@ X <- matrix(rnorm(n=100*40), ncol = 100)
 dim(X)
 Y <- rnorm(100)
 Y <- rnorm(40)
+xtx <- tcrossprod(scale(X))
 xtx <- tcrossprod(X)
+dim(xtx)
 eigX <- eigen(xtx)
 
 U <- eigX$vectors
 eigX$values %>% length()
-
+dim(U)
 crossprod(U)[1:5,1:5]
 tcrossprod(U)[1:5,1:5]
 
-svdX <- svd(X, nv = 100)
+svdX <- svd(X)
 dim(X)
 svdX$u %>% dim
 svdX$d %>% length()
+
+plot(svdX$d^2,eigX$values)
+all.equal(svdX$d^2,eigX$values)
+abline(a=0,b=1)
+plot(U[,1],svdX$u[,1])
+
 svdX$v %>% dim
 U <- svdX$u
 dim(U)
