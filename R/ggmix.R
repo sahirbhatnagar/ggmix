@@ -99,7 +99,7 @@ ggmix <- function(x, y,
                   group,
                   penalty.factor,
                   lambda = NULL,
-                  lambda_min_ratio  = ifelse(n < p, 0.01, 0.0001),
+                  lambda_min_ratio  = ifelse(n_design < p_design, 0.01, 0.0001),
                   nlambda = 100,
                   eta_init = 0.5,
                   maxit = 100,
@@ -333,10 +333,24 @@ ggmix <- function(x, y,
     )
   }
 
+
+  # fit linear mixed model --------------------------------------------------
+
   # browser()
-  # ggmix_data_object
-
-
-
+  fit <- lmmlasso(ggmix_data_object,
+                  penalty.factor = penalty.factor,
+                  lambda = lambda,
+                  lambda_min_ratio = lambda_min_ratio,
+                  nlambda = nlambda,
+                  n_design = n_design,
+                  p_design = p_design,
+                  eta_init = eta_init,
+                  maxit = maxit,
+                  fdev = fdev,
+                  standardize = standardize,
+                  alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
+                  thresh_glmnet = thresh_glmnet, # this is for glmnet
+                  epsilon = epsilon)
+  return(fit)
 
   }

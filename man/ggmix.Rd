@@ -4,11 +4,11 @@
 \alias{ggmix}
 \title{Fit Linear Mixed Model with Lasso or Group Lasso Regularization}
 \usage{
-ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, estimation = c("full",
-  "low"), penalty = c("lasso", "gglasso"), group, penalty.factor,
-  lambda = NULL, lambda_min_ratio = ifelse(n < p, 0.01, 1e-04),
-  nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-05,
-  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
+ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
+  estimation = c("full", "low"), penalty = c("lasso", "gglasso"), group,
+  penalty.factor, lambda = NULL, lambda_min_ratio = ifelse(n_design <
+  p_design, 0.01, 1e-04), nlambda = 100, eta_init = 0.5, maxit = 100,
+  fdev = 1e-05, standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
   epsilon = 1e-04)
 }
 \arguments{
@@ -17,10 +17,24 @@ observations and p are the number of predictors.}
 
 \item{y}{response variable. must be a quantitative variable}
 
-\item{U}{left singular vectors corresponding to the eigenvalues provided in
-the \code{D} argument}
+\item{U}{left singular vectors corresponding to the non-zero eigenvalues
+provided in the \code{D} argument.}
 
-\item{D}{eigenvalues}
+\item{D}{non-zero eigenvalues. This option is provided to the user should
+they decide or need to calculate the eigen decomposition of the kinship
+matrix or the singular value decomposition of the matrix of SNPs used to
+calculate the kinship outside of this function. This may occur, if for
+example, it is easier (e.g. because of memory issues, it's easier to
+calculate in plink). This should correspond to the non-zero eigenvalues
+only. Note that if you are doing an \code{svd} on the matrix of SNPs used
+to calculate the kinship matrix, then you must provide the square of the
+singular values so that they correspond to the eigenvalues of the kinship
+matrix. If you want to use the low rank estimation algorithm, you must
+provide the truncated eigenvalues and eigenvectors to the \code{D} and
+\code{U} arguments, respectively. If you want \code{ggmix} to truncate the
+eigenvectors and eigenvalues for low rank estimation, then provide either
+\code{K} or \code{kinship} instead and specify
+\code{n_nonzero_eigenvalues}.}
 
 \item{kinship}{positive definite kinship matrix}
 
@@ -29,7 +43,20 @@ the \code{D} argument}
 \item{n_nonzero_eigenvalues}{the number of nonzero eigenvalues. This argument
 is only used when \code{estimation="low"} and either \code{kinship} or
 \code{K} is provided. This argument will limit the function to finding the
-\code{n_nonzero_eigenvalues} largest eigenvalues.}
+\code{n_nonzero_eigenvalues} largest eigenvalues. If \code{U} and \code{D}
+have been provided, then \code{n_nonzero_eigenvalues} defaults to the
+length of \code{D}.}
+
+\item{n_zero_eigenvalues}{the number of zero eigenvalues. This argument must
+be specified when \code{U} and \code{D} are specified and
+\code{estimation="low"}. This is required for low rank estimation because
+the number of zero eigenvalues and their corresponding eigenvalues appears
+in the likelihood. In general this would be the rank of the matrix used to
+calculate the eigen or singular value decomposition. When \code{kinship} is
+provided and \code{estimation="low"} the default value will be
+\code{nrow(kinship) - n_nonzero_eigenvalues}. When \code{K} is provided and
+\code{estimation="low"}, the default value is \code{rank(K) -
+n_nonzero_eigenvalues}}
 
 \item{estimation}{type of estimation}
 

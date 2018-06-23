@@ -10,32 +10,53 @@
 \alias{new_lowrank_UD}
 \title{Constructor functions for the different ggmix objects}
 \usage{
-new_fullrank_kinship(kinship)
+new_fullrank_kinship(x, y, kinship)
 
-new_fullrank_K(K)
+new_fullrank_K(x, y, K)
 
-new_fullrank_UD(U, D)
+new_fullrank_UD(x, y, U, D)
 
-new_lowrank_kinship(kinship, n_nonzero_eigenvalues, n_zero_eigenvalues)
+new_lowrank_kinship(x, y, kinship, n_nonzero_eigenvalues, n_zero_eigenvalues)
 
-new_lowrank_K(K, n_nonzero_eigenvalues, n_zero_eigenvalues)
+new_lowrank_K(x, y, K, n_nonzero_eigenvalues, n_zero_eigenvalues)
 
-new_lowrank_UD(U, D, n_nonzero_eigenvalues, n_zero_eigenvalues)
+new_lowrank_UD(x, y, U, D, n_nonzero_eigenvalues, n_zero_eigenvalues)
 }
 \arguments{
+\item{x}{input matrix, of dimension n x p; where n is the number of
+observations and p are the number of predictors.}
+
+\item{y}{response variable. must be a quantitative variable}
+
 \item{kinship}{positive definite kinship matrix}
 
 \item{K}{the matrix of SNPs used to determine the kinship matrix}
 
-\item{U}{left singular vectors corresponding to the eigenvalues provided in
-the \code{D} argument}
+\item{U}{left singular vectors corresponding to the non-zero eigenvalues
+provided in the \code{D} argument.}
 
-\item{D}{eigenvalues}
+\item{D}{non-zero eigenvalues. This option is provided to the user should
+they decide or need to calculate the eigen decomposition of the kinship
+matrix or the singular value decomposition of the matrix of SNPs used to
+calculate the kinship outside of this function. This may occur, if for
+example, it is easier (e.g. because of memory issues, it's easier to
+calculate in plink). This should correspond to the non-zero eigenvalues
+only. Note that if you are doing an \code{svd} on the matrix of SNPs used
+to calculate the kinship matrix, then you must provide the square of the
+singular values so that they correspond to the eigenvalues of the kinship
+matrix. If you want to use the low rank estimation algorithm, you must
+provide the truncated eigenvalues and eigenvectors to the \code{D} and
+\code{U} arguments, respectively. If you want \code{ggmix} to truncate the
+eigenvectors and eigenvalues for low rank estimation, then provide either
+\code{K} or \code{kinship} instead and specify
+\code{n_nonzero_eigenvalues}.}
 
 \item{n_nonzero_eigenvalues}{the number of nonzero eigenvalues. This argument
 is only used when \code{estimation="low"} and either \code{kinship} or
 \code{K} is provided. This argument will limit the function to finding the
-\code{n_nonzero_eigenvalues} largest eigenvalues.}
+\code{n_nonzero_eigenvalues} largest eigenvalues. If \code{U} and \code{D}
+have been provided, then \code{n_nonzero_eigenvalues} defaults to the
+length of \code{D}.}
 
 \item{n_zero_eigenvalues}{the number of desired or specifed zero eigenvalues.
 This is only needed when \code{estimation="lowrank"}, and is calculated
