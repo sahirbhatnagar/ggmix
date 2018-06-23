@@ -333,8 +333,8 @@ ggmix <- function(x, y,
     )
   }
 
-  browser()
-  ggmix_data_object
+  # browser()
+  # ggmix_data_object
 
 
 

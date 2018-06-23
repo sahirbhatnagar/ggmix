@@ -12,3 +12,4 @@
 ^datahydra_related/$
 ^reports$
 ^data-raw$
+^codecov\.yml$

@@ -93,6 +93,8 @@ devtools::load_all()
 res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              n_nonzero_eigenvalues = 10, estimation = "low")
+res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+             estimation = "low")
 
 # for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
 res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(length(dat$y)))
