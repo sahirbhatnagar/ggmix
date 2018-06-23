@@ -10,11 +10,17 @@
 #'   they decide or need to calculate the eigen decomposition of the kinship
 #'   matrix or the singular value decomposition of the matrix of SNPs used to
 #'   calculate the kinship outside of this function. This may occur, if for
-#'   example, it is easier (because of memory issues to calculate this in
-#'   plink). This should correspond to the non-zero eigenvalues only. Note that
-#'   if you are doing an \code{svd} on the matrix of SNPs used to calculate the
-#'   kinship matrix, then you must provide the square of the singular values so
-#'   that they correspond to the eigenvalues of the kinship matrix.
+#'   example, it is easier (e.g. because of memory issues, it's easier to
+#'   calculate in plink). This should correspond to the non-zero eigenvalues
+#'   only. Note that if you are doing an \code{svd} on the matrix of SNPs used
+#'   to calculate the kinship matrix, then you must provide the square of the
+#'   singular values so that they correspond to the eigenvalues of the kinship
+#'   matrix. If you want to use the low rank estimation algorithm, you must
+#'   provide the truncated eigenvalues and eigenvectors to the \code{D} and
+#'   \code{U} arguments, respectively. If you want \code{ggmix} to truncate the
+#'   eigenvectors and eigenvalues for low rank estimation, then provide either
+#'   \code{K} or \code{kinship} instead and specify
+#'   \code{n_nonzero_eigenvalues}.
 #' @param U left singular vectors corresponding to the non-zero eigenvalues
 #'   provided in the \code{D} argument.
 #' @param kinship positive definite kinship matrix
@@ -22,14 +28,18 @@
 #' @param n_nonzero_eigenvalues the number of nonzero eigenvalues. This argument
 #'   is only used when \code{estimation="low"} and either \code{kinship} or
 #'   \code{K} is provided. This argument will limit the function to finding the
-#'   \code{n_nonzero_eigenvalues} largest eigenvalues.
+#'   \code{n_nonzero_eigenvalues} largest eigenvalues. If \code{U} and \code{D}
+#'   have been provided, then \code{n_nonzero_eigenvalues} defaults to the
+#'   length of \code{D}.
 #' @param n_zero_eigenvalues the number of zero eigenvalues. This argument must
 #'   be specified when \code{U} and \code{D} are specified and
-#'   \code{estimation="low"}. In general this would be the rank of the matrix
-#'   used to calculate the eigen or singular value decomposition. When
-#'   \code{kinship} is provided and \code{estimation="low"} the default value
-#'   will be \code{ncol(kinship) - n_nonzero_eigenvalues}. When \code{K} is
-#'   provided and \code{estimation="low"}, the default value is \code{rank(K) -
+#'   \code{estimation="low"}. This is required for low rank estimation because
+#'   the number of zero eigenvalues and their corresponding eigenvalues appears
+#'   in the likelihood. In general this would be the rank of the matrix used to
+#'   calculate the eigen or singular value decomposition. When \code{kinship} is
+#'   provided and \code{estimation="low"} the default value will be
+#'   \code{nrow(kinship) - n_nonzero_eigenvalues}. When \code{K} is provided and
+#'   \code{estimation="low"}, the default value is \code{rank(K) -
 #'   n_nonzero_eigenvalues}
 #' @param estimation type of estimation
 #' @param penalty type of regularization penalty. if \code{penalty="gglasso"}
@@ -131,10 +141,6 @@ ggmix <- function(x, y,
   if ((!missing(U) & missing(D)) | (!missing(D) & missing(U)))
     stop("both U and D must be specified.")
 
-  if (estimation == "low" & missing(n_nonzero_eigenvalues))
-    stop("the n_nonzero_eigenvalues argument must be specified with
-         low rank estimation")
-
   if (penalty == "gglasso" & missing(group))
     stop(strwrap("group cannot be missing when using the group lasso
                  penalty"))
@@ -177,6 +183,15 @@ ggmix <- function(x, y,
     }
   }
 
+  if (!missing(n_nonzero_eigenvalues))
+    n_nonzero_eigenvalues <- as.double(n_nonzero_eigenvalues)
+
+  if (!missing(n_zero_eigenvalues))
+    n_zero_eigenvalues <- as.double(n_zero_eigenvalues)
+
+
+  # check kinship input -----------------------------------------------------
+
   if (is_kinship) {
 
     if (!is.matrix(kinship))
@@ -191,8 +206,23 @@ ggmix <- function(x, y,
       stop(strwrap("number of rows in kinship matrix must equal the
                    number of rows in x matrix"))
 
+    if (estimation == "low") {
+      if (missing(n_nonzero_eigenvalues))
+        stop(strwrap("when kinship is specified and estimation=\"low\",
+                     n_nonzero_eigenvalues must be specified."))
+    }
+
+    if (missing(n_zero_eigenvalues) & estimation == "low") {
+      n_zero_eigenvalues <- nrow(kinship) - n_nonzero_eigenvalues
+      warning(sprintf("n_zero_eigenvalues missing. setting to %g",
+                      n_zero_eigenvalues))
+    }
+
     corr_type <- "kinship"
   }
+
+
+  # check K matrix input ----------------------------------------------------
 
   if (is_K) {
     if (!is.matrix(K))
@@ -205,8 +235,23 @@ ggmix <- function(x, y,
       stop(strwrap("number of rows in K matrix must equal the
                    number of rows in x matrix"))
 
+    if (estimation == "low") {
+      if (missing(n_nonzero_eigenvalues))
+        stop(strwrap("when K is specified and estimation=\"low\",
+                     n_nonzero_eigenvalues must be specified."))
+    }
+
+    if (missing(n_zero_eigenvalues) & estimation == "low") {
+      n_zero_eigenvalues <- min(n_K, p_K) - n_nonzero_eigenvalues
+      warning(sprintf("n_zero_eigenvalues missing. setting to %g",
+                      n_zero_eigenvalues))
+    }
+
     corr_type <- "K"
   }
+
+
+  # check U and D input -----------------------------------------------------
 
   if (is_UD) {
     if (!is.matrix(U))
@@ -230,6 +275,9 @@ ggmix <- function(x, y,
     if (p_U != p_D)
       stop(strwrap("Length of D should equal the number of columns of U."))
 
+    if (missing(n_nonzero_eigenvalues))
+      n_nonzero_eigenvalues <- p_D
+
     corr_type <- "UD"
   }
 
@@ -250,9 +298,9 @@ ggmix <- function(x, y,
 
   if (estimation == "full") {
     ggmix_data_object <- switch(corr_type,
-                           kinship = new_fullrank_kinship(kinship = kinship),
-                           Kmat = new_fullrank_K(K = K),
-                           UD = new_fullrank_UD(U = U, D = D)
+                           kinship = new_fullrank_kinship(x = x, y = y, kinship = kinship),
+                           Kmat = new_fullrank_K(x = x, y = y, K = K),
+                           UD = new_fullrank_UD(x = x, y = y, U = U, D = D)
     )
   }
 
@@ -271,16 +319,15 @@ ggmix <- function(x, y,
       )
     }
 
-    n_zero_eigenvalues <- n_design - n_nonzero_eigenvalues
-
     ggmix_data_object <- switch(corr_type,
-                                kinship = new_lowrank_kinship(kinship = kinship,
-                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
-                                  n_zero_eigenvalues = nrow(kinship) - n_zero_eigenvalues),
-                                K = new_lowrank_K(K = K,
+                                kinship = new_lowrank_kinship(x = x, y = y,
+                                                              kinship = kinship,
                                   n_nonzero_eigenvalues = n_nonzero_eigenvalues,
                                   n_zero_eigenvalues = n_zero_eigenvalues),
-                                UD = new_lowrank_UD(U = U, D = D,
+                                K = new_lowrank_K(x = x, y = y, K = K,
+                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+                                  n_zero_eigenvalues = n_zero_eigenvalues),
+                                UD = new_lowrank_UD(x = x, y = y, U = U, D = D,
                                   n_nonzero_eigenvalues = n_nonzero_eigenvalues,
                                   n_zero_eigenvalues = n_zero_eigenvalues)
     )
