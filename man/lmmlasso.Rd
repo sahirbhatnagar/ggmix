@@ -10,7 +10,7 @@ lmmlasso(ggmix_object, ...)
 
 \method{lmmlasso}{default}(ggmix_object, ...)
 
-\method{lmmlasso}{fullrank}(ggmix_object, penalty.factor, lambda,
+\method{lmmlasso}{fullrank}(ggmix_object, ..., penalty.factor, lambda,
   lambda_min_ratio, nlambda, n_design, p_design, eta_init, maxit, fdev,
   standardize, alpha, thresh_glmnet, epsilon)
 }
@@ -18,18 +18,62 @@ lmmlasso(ggmix_object, ...)
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or
 \code{fullrank}}
 
-\item{...}{Extra parameters.}
+\item{...}{Extra parameters. Currently ignored.}
 
-\item{shrink}{Should we use a shrinkage estimate of the residual variance?}
+\item{penalty.factor}{Separate penalty factors can be applied to each
+coefficient. This is a number that multiplies lambda to allow differential
+shrinkage. Can be 0 for some variables, which implies no shrinkage, and
+that variable is always included in the model. Default is 1 for all
+variables}
 
-\item{index}{If \code{pcevObj} is of class \code{PcevBlock}, \code{index} is
-a vector describing the block to which individual response variables
-correspond.}
+\item{lambda}{A user supplied lambda sequence (this is the tuning parameter).
+Typical usage is to have the program compute its own lambda sequence based
+on nlambda and lambda.min.ratio. Supplying a value of lambda overrides
+this. WARNING: use with care. Do not supply a single value for lambda (for
+predictions after CV use predict() instead). Supply instead a decreasing
+sequence of lambda values. glmnet relies on its warms starts for speed, and
+its often faster to fit a whole path than compute a single fit.}
+
+\item{lambda_min_ratio}{Smallest value for lambda, as a fraction of
+lambda.max, the (data derived) entry value (i.e. the smallest value for
+which all coefficients are zero). The default depends on the sample size
+nobs relative to the number of variables nvars. If nobs > nvars, the
+default is 0.0001, close to zero. If nobs < nvars, the default is 0.01. A
+very small value of lambda.min.ratio will lead to a saturated fit in the
+nobs < nvars case.}
+
+\item{nlambda}{the number of lambda values - default is 100.}
+
+\item{eta_init}{initial value for the eta parameter, with \eqn{0 < \eta < 1}
+used in determining lambda.max and starting value for fitting algorithm.}
+
+\item{maxit}{Maximum number of passes over the data for all lambda values;
+default is 10^2.}
+
+\item{fdev}{Fractional deviance change theshold. If change in deviance
+between adjacent lambdas is less than fdev, the solution path stops early.
+factory default = 1.0e-5}
+
+\item{standardize}{Logical flag for x variable standardization, prior to
+fitting the model sequence. The coefficients are always returned on the
+original scale. Default is standardize=FALSE. If variables are in the same
+units already, you might not wish to standardize.}
+
+\item{alpha}{The elasticnet mixing parameter, with \eqn{0 \leq \alpha \leq
+1}. alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.}
+
+\item{thresh_glmnet}{Convergence threshold for coordinate descent for
+updating beta parameters. Each inner coordinate-descent loop continues
+until the maximum change in the objective after any coefficient update is
+less than thresh times the null deviance. Defaults value is 1E-7}
+
+\item{epsilon}{Convergence threshold for block relaxation of the entire
+parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
+converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
+Defaults value is 1E-7}
 }
 \value{
-A list containing the variance components, the first PCEV, the
-  eigenvalues of \eqn{V_R^{-1}V_M} and the estimate of the shrinkage
-  parameter \eqn{\rho}
+A object of class \code{ggmix}
 }
 \description{
 \code{lmmlasso} estimates the linear mixed model with lasso

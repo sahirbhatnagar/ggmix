@@ -163,7 +163,7 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 }
 
 
-#' Calculate Sequence of Tuning Parameters
+#' Calculate Sequence of Tuning Parameters For
 #'
 #' @description Function to calculate the sequence of tuning parameters based on
 #'   the design matrix \code{x} and the response variable {y}. This is used in
@@ -204,88 +204,14 @@ log_lik <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 #'   This formula is taken from section 2.5 of the \code{glmnet} paper in the
 #'   Journal of Statistical Software (see references for details)
 #'
-#' @author
-#' Sahir Bhatnagar
-#'
-#' Maintainer: Sahir Bhatnagar \email{sahir.bhatnagar@@mail.mcgill.ca}
-#'
-#' @references Friedman, J., Hastie, T. and Tibshirani, R. (2008)
-#'   \emph{Regularization Paths for Generalized Linear Models via Coordinate
-#'   Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
-#'   \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
-#'   \url{http://www.jstatsoft.org/v33/i01/}
-#'
-#'   Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
-#'   group-lasso penalize learning problems. \emph{Statistics and Computing},
-#'   25(6), 1129-1141.
-#'   \url{http://www.math.mcgill.ca/yyang/resources/papers/gglasso.pdf}
-#'
-#'
-#' @examples
-#' # number of observations
-#' n <- 100
-#'
-#' # number of predictors
-#' p <- 5
-#'
-#' # environment variable
-#' e <- sample(c(0,1), n, replace = T)
-#'
-#' # main effects
-#' x <- cbind(matrix(rnorm(n*p), ncol = p), e)
-#'
-#' # need to label columns
-#' dimnames(x)[[2]] <- c(paste0("x",1:p), "e")
-#'
-#' # design matrix without intercept
-#' X <- model.matrix(~(x1+x2+x3+x4+x5)*e-1, data = as.data.frame(x))
-#'
-#' # response
-#' Y <- X %*% rbinom(ncol(X), 1, 0.2) + 3*rnorm(n)
-#'
-#' lambda_sequence(X,Y)
 #' @export
 
 lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
-                            # lambda_min_ratio = ifelse(n < p, 0.01, 0.001),
                             lambda_min_ratio,
                             epsilon = 1e-14,
                             tol.kkt = 1e-9,
                             eta_init = 0.5,
                             nlambda = 100, scale_x = F, center_y = F) {
-
-  # rm(list=ls())
-  # source("~/git_repositories/ggmix/R/fitting.R")
-  # source("~/git_repositories/ggmix/R/functions.R")
-  # source("~/git_repositories/ggmix/R/methods.R")
-  # source("~/git_repositories/ggmix/R/plot.R")
-  # source("~/git_repositories/ggmix/R/sim-data.R")
-  # x <- X
-  # y <- drop(Y)
-  # phi <- Phi
-  # eta_init <- .5
-  # nlambda = 100
-  # lambda_min_ratio = 0.001
-  # # column of 1s for intercept
-  # x <- cbind(1, x)
-  # dim(x); x[1:5,1:5]
-  # phi_eigen <- eigen(phi)
-  # U <- phi_eigen$vectors
-  # dim(U)
-  # Lambda <- phi_eigen$values
-  #
-  # # utx0 <- crossprod(U, x0)
-  # # to be consistent with the paper and all other functions
-  # # lets keep the intercept column in utx, and then define
-  # # utx0 as the first column of utx, instead of keeping them separate
-  # x <- crossprod(U, x)
-  # y <- crossprod(U, y)
-  # eigenvalues <- Lambda
-  # # utx0 <- utx[, 1, drop = F]
-  #convergence criterion
-  # epsilon <- 1e-7
-
-  #======================================
 
   np <- dim(x)
   n <- np[[1]]

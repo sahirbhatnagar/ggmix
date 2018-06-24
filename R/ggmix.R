@@ -87,6 +87,16 @@
 #'   parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 #'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 #'   Defaults value is 1E-7
+#' @references Friedman, J., Hastie, T. and Tibshirani, R. (2008)
+#'   \emph{Regularization Paths for Generalized Linear Models via Coordinate
+#'   Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
+#'   \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
+#'   \url{http://www.jstatsoft.org/v33/i01/}
+#'
+#'   Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
+#'   group-lasso penalize learning problems. \emph{Statistics and Computing},
+#'   25(6), 1129-1141.
+#'   \url{http://www.math.mcgill.ca/yyang/resources/papers/gglasso.pdf}
 #' @export
 ggmix <- function(x, y,
                   U, D,
@@ -337,6 +347,7 @@ ggmix <- function(x, y,
   # fit linear mixed model --------------------------------------------------
 
   # browser()
+  if (penalty == "lasso") {
   fit <- lmmlasso(ggmix_data_object,
                   penalty.factor = penalty.factor,
                   lambda = lambda,
@@ -351,6 +362,11 @@ ggmix <- function(x, y,
                   alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = thresh_glmnet, # this is for glmnet
                   epsilon = epsilon)
+  } else if (penalty == "gglasso") {
+# not yet implemented
+  }
+
   return(fit)
 
-  }
+
+}

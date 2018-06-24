@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{lambda_sequence}
 \alias{lambda_sequence}
-\title{Calculate Sequence of Tuning Parameters}
+\title{Calculate Sequence of Tuning Parameters For}
 \usage{
 lambda_sequence(x, y, eigenvalues, weights = NULL, lambda_min_ratio,
   epsilon = 1e-14, tol.kkt = 1e-09, eta_init = 0.5, nlambda = 100,
@@ -56,45 +56,4 @@ The maximum lambda is calculated using the following inequality:
 
   This formula is taken from section 2.5 of the \code{glmnet} paper in the
   Journal of Statistical Software (see references for details)
-}
-\examples{
-# number of observations
-n <- 100
-
-# number of predictors
-p <- 5
-
-# environment variable
-e <- sample(c(0,1), n, replace = T)
-
-# main effects
-x <- cbind(matrix(rnorm(n*p), ncol = p), e)
-
-# need to label columns
-dimnames(x)[[2]] <- c(paste0("x",1:p), "e")
-
-# design matrix without intercept
-X <- model.matrix(~(x1+x2+x3+x4+x5)*e-1, data = as.data.frame(x))
-
-# response
-Y <- X \%*\% rbinom(ncol(X), 1, 0.2) + 3*rnorm(n)
-
-lambda_sequence(X,Y)
-}
-\references{
-Friedman, J., Hastie, T. and Tibshirani, R. (2008)
-  \emph{Regularization Paths for Generalized Linear Models via Coordinate
-  Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
-  \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
-  \url{http://www.jstatsoft.org/v33/i01/}
-
-  Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
-  group-lasso penalize learning problems. \emph{Statistics and Computing},
-  25(6), 1129-1141.
-  \url{http://www.math.mcgill.ca/yyang/resources/papers/gglasso.pdf}
-}
-\author{
-Sahir Bhatnagar
-
-Maintainer: Sahir Bhatnagar \email{sahir.bhatnagar@mail.mcgill.ca}
 }

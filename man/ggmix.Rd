@@ -124,3 +124,15 @@ Main function to fit the linear mixed model with lasso or group
   regression method that accounts for population structure using either the
   kinship matrix or the factored realized relationship matrix
 }
+\references{
+Friedman, J., Hastie, T. and Tibshirani, R. (2008)
+  \emph{Regularization Paths for Generalized Linear Models via Coordinate
+  Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
+  \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
+  \url{http://www.jstatsoft.org/v33/i01/}
+
+  Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
+  group-lasso penalize learning problems. \emph{Statistics and Computing},
+  25(6), 1129-1141.
+  \url{http://www.math.mcgill.ca/yyang/resources/papers/gglasso.pdf}
+}
