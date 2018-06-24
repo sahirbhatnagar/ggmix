@@ -137,8 +137,8 @@ lambdalasso.fullrank <- function(ggmix_object,
   # we divide by sum(wi) here and not in glmnet because the sequence is determined
   # on the log scale
   # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * utx[,-1]) * drop(uty - utx %*% beta_next)))))
-
-  lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * utx[,-1]) * drop(uty - utx %*% beta_next)))))
+browser()
+  lambda.max <- max( (1 / penalty.factor) * abs(colSums(((1 / sum(wi)) * (wi * utx[,-1]) * drop(uty - utx %*% beta_next)))))
 
   # lambda.max <- lambda.max * sum(wi)
   # (utx[,-1, drop = F]) %>% dim

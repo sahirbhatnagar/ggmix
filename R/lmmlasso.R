@@ -37,6 +37,13 @@ lmmlasso.fullrank <- function(ggmix_object,
                               epsilon # this is for ggmix
                               ) {
 
+  lamb <- lambdalasso(ggmix_object,
+                      penalty.factor = penalty.factor,
+                      nlambda = nlambda,
+                      lambda_min_ratio = lambda_min_ratio,
+                      eta_init = eta_init,
+                      epsilon = epsilon)
+
   # get sequence of tuning parameters
   lamb <- lambda_sequence(x = ggmix_object[["x"]],
                           y = ggmix_object[["y"]],

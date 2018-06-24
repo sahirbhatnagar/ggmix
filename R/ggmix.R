@@ -107,7 +107,7 @@ ggmix <- function(x, y,
                   estimation = c("full", "low"),
                   penalty = c("lasso", "gglasso"),
                   group,
-                  penalty.factor,
+                  penalty.factor = rep(1, p_design),
                   lambda = NULL,
                   lambda_min_ratio  = ifelse(n_design < p_design, 0.01, 0.0001),
                   nlambda = 100,
@@ -159,6 +159,8 @@ ggmix <- function(x, y,
   if (is.null(np_design) | (np_design[2] <= 1))
     stop("x should be a matrix with 2 or more columns")
 
+  # note that p_design doesn't contain the intercept
+  # whereas the x in the ggmix_object will have the intercept
   n_design <- np_design[[1]]
   p_design <- np_design[[2]]
 
@@ -298,6 +300,7 @@ ggmix <- function(x, y,
   }
 
   if (!missing(penalty.factor)) {
+    penalty.factor <- as.double(penalty.factor)
     if (length(penalty.factor) != p_design)
       stop(strwrap("length of penalty.factor should be equal to number
                    of columns in x."))
