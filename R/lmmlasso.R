@@ -45,15 +45,16 @@ lmmlasso.fullrank <- function(ggmix_object,
                       epsilon = epsilon)
 
   # get sequence of tuning parameters
-  lamb <- lambda_sequence(x = ggmix_object[["x"]],
-                          y = ggmix_object[["y"]],
-                          eigenvalues = ggmix_object[["D"]],
-                          nlambda = nlambda,
-                          lambda_min_ratio = lambda_min_ratio,
-                          eta_init = eta_init,
-                          epsilon = epsilon)
+  # lamb <- lambda_sequence(x = ggmix_object[["x"]],
+  #                         y = ggmix_object[["y"]],
+  #                         eigenvalues = ggmix_object[["D"]],
+  #                         nlambda = nlambda,
+  #                         lambda_min_ratio = lambda_min_ratio,
+  #                         eta_init = eta_init,
+  #                         epsilon = epsilon)
 
   lambda_max <- lamb$sequence[[1]]
+  print(lambda_max)
 
   lamb$sequence[[1]] <- .Machine$double.xmax
 
@@ -122,7 +123,7 @@ lmmlasso.fullrank <- function(ggmix_object,
                                       family = "gaussian",
                                       weights = wi,
                                       alpha = alpha,
-                                      penalty.factor = c(0, rep(1, p_design)),
+                                      penalty.factor = c(0, penalty.factor),
                                       standardize = FALSE,
                                       intercept = FALSE,
                                       lambda = c(.Machine$double.xmax, lambda),

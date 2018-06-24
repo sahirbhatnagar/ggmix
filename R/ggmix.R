@@ -113,7 +113,7 @@ ggmix <- function(x, y,
                   nlambda = 100,
                   eta_init = 0.5,
                   maxit = 100,
-                  fdev = 1e-5,
+                  fdev = 1e-20,
                   standardize = FALSE,
                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = 1e-8, # this is for glmnet

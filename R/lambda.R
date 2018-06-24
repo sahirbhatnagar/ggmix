@@ -137,21 +137,29 @@ lambdalasso.fullrank <- function(ggmix_object,
   # we divide by sum(wi) here and not in glmnet because the sequence is determined
   # on the log scale
   # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * utx[,-1]) * drop(uty - utx %*% beta_next)))))
-browser()
-  lambda.max <- max( (1 / penalty.factor) * abs(colSums(((1 / sum(wi)) * (wi * utx[,-1]) * drop(uty - utx %*% beta_next)))))
-
+# browser()
+  lambdas <- (1 / penalty.factor) *
+                       abs(colSums(((1 / sum(wi)) * (wi * utx[,-1]) *
+                                      drop(uty - utx %*% beta_next))))
+  # need to check for Inf, in case some penalty factors are 0
+  lambda.max <- max(lambdas[lambdas != Inf])
   # lambda.max <- lambda.max * sum(wi)
   # (utx[,-1, drop = F]) %>% dim
   # a <- colSums(utx[,-1, drop = F]^2 * wi)
   # b <- colSums(sweep(utx[,-1, drop = F]^2, MARGIN = 1, wi, '*'))
   # all(a == b)
 
-
-  kkt <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                   eigenvalues = eigenvalues, x = utx, y = uty, nt = n,
-                   lambda = lambda.max, tol.kkt = tol.kkt)
+  # kkt <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+  #                  eigenvalues = eigenvalues, x = utx, y = uty, nt = n,
+  #                  lambda = lambda.max, tol.kkt = tol.kkt)
   # message(kkt)
-  out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
-              eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next, kkt = kkt)
+  out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max),
+                                     log(lambda.max),
+                                     length.out = nlambda))),
+              eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next)
 
+  return(out)
 }
+
+
+# still need to create lambdalasso.lowrank, lambdagglasso.fullrank, lambdagglasso.lowrank
