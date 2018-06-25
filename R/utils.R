@@ -134,3 +134,6 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
 
 l2norm <- function(x) sqrt(sum(x^2))
+
+
+"%ni%" <- Negate("%in%")

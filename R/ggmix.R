@@ -87,6 +87,9 @@
 #'   parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 #'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 #'   Defaults value is 1E-7
+#' @param verbose display progress. Can be either 0,1 or 2. 0 will not display
+#'   any progress, 2 will display very detailed progress and 1 is somewhere in
+#'   between. Default: 0.
 #' @references Friedman, J., Hastie, T. and Tibshirani, R. (2008)
 #'   \emph{Regularization Paths for Generalized Linear Models via Coordinate
 #'   Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
@@ -117,8 +120,8 @@ ggmix <- function(x, y,
                   standardize = FALSE,
                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = 1e-8, # this is for glmnet
-                  epsilon = 1e-4 # this is for ggmix
-                  ) {
+                  epsilon = 1e-4, # this is for ggmix
+                  verbose = 1) {
 
   this.call <- match.call()
 
@@ -364,7 +367,8 @@ ggmix <- function(x, y,
                   standardize = standardize,
                   alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = thresh_glmnet, # this is for glmnet
-                  epsilon = epsilon)
+                  epsilon = epsilon,
+                  verbose = verbose)
   } else if (penalty == "gglasso") {
 # not yet implemented
   }

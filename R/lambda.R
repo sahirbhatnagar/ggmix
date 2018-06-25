@@ -10,6 +10,7 @@
 #' @param scale_x should the columns of x be scaled - default is FALSE
 #' @param center_y should y be mean centered - default is FALSE.
 #' @param ... Extra parameters. Currently ignored.
+#' @note This funciton isn't meant to be called directly by the user.
 #' @return A descreasing sequence of tuning parameters
 #' @export
 lambdalasso <- function(ggmix_object, ...) UseMethod("lambdalasso")

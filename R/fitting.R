@@ -335,7 +335,6 @@ print(df)
 #'
 #' @seealso \code{\link[glmnet]{glmnet}}
 #'
-#' @export
 # w_svd <- svd(w)
 
 # this is a N_T x N_T matrix

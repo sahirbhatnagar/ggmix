@@ -94,7 +94,7 @@ res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              n_nonzero_eigenvalues = 10, estimation = "low")
 p.fac <- rep(1, ncol(admixed$x))
-p.fac[sample(1:ncol(admixed$x),100)] <- 0.95
+p.fac[sample(1:ncol(admixed$x),10)] <- 0.0
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              estimation = "full", penalty.factor = p.fac)
 admixed$x %>% dim

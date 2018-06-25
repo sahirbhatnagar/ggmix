@@ -1,10 +1,10 @@
-Package: penfam
+Package: ggmix
 Type: Package
 Title: A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations
 Version: 0.1.0
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
-  role = c("aut", "cre"), comment = "http://sahirbhatnagar.com/"),
+  role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
   person("Yi", "Yang", email = "yi.yang6@mcgill.ca",
   role = c("aut"), comment = "http://www.math.mcgill.ca/yyang/"),
   person("Karim", "Oualkacha", email = "oualkacha.karim@uqam.ca",
