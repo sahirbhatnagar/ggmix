@@ -93,12 +93,21 @@ devtools::load_all()
 res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              n_nonzero_eigenvalues = 10, estimation = "low")
+res
+
+devtools::load_all()
 p.fac <- rep(1, ncol(admixed$x))
-p.fac[sample(1:ncol(admixed$x),10)] <- 0.0
+p.fac[sample(1:ncol(admixed$x),20)] <- 1
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              estimation = "full", penalty.factor = p.fac)
 admixed$x %>% dim
 res
+class(res)
+
+gicres <- gic(res, an = log(nrow(admixed$x)))
+class(gicres)
+plot(gicres, ylab = "jkj")
+help(gic)
 plot(res)
 # for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
 res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(length(dat$y)))

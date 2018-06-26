@@ -55,6 +55,9 @@ A descreasing sequence of tuning parameters
 \code{lambdalasso} estimates a decreasing sequence of tuning
   parameters
 }
+\note{
+This funciton isn't meant to be called directly by the user.
+}
 \seealso{
 \code{\link{ggmix}}
 }

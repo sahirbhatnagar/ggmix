@@ -12,7 +12,7 @@ lmmlasso(ggmix_object, ...)
 
 \method{lmmlasso}{fullrank}(ggmix_object, ..., penalty.factor, lambda,
   lambda_min_ratio, nlambda, n_design, p_design, eta_init, maxit, fdev,
-  standardize, alpha, thresh_glmnet, epsilon)
+  standardize, alpha, thresh_glmnet, epsilon, verbose)
 }
 \arguments{
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or
@@ -71,6 +71,10 @@ less than thresh times the null deviance. Defaults value is 1E-7}
 parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 Defaults value is 1E-7}
+
+\item{verbose}{display progress. Can be either 0,1 or 2. 0 will not display
+any progress, 2 will display very detailed progress and 1 is somewhere in
+between. Default: 0.}
 }
 \value{
 A object of class \code{ggmix}

@@ -6,10 +6,11 @@
 \usage{
 ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
   estimation = c("full", "low"), penalty = c("lasso", "gglasso"), group,
-  penalty.factor, lambda = NULL, lambda_min_ratio = ifelse(n_design <
-  p_design, 0.01, 1e-04), nlambda = 100, eta_init = 0.5, maxit = 100,
-  fdev = 1e-05, standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
-  epsilon = 1e-04)
+  penalty.factor = rep(1, p_design), lambda = NULL,
+  lambda_min_ratio = ifelse(n_design < p_design, 0.01, 1e-04),
+  nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-20,
+  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
+  epsilon = 1e-04, verbose = 1)
 }
 \arguments{
 \item{x}{input matrix, of dimension n x p; where n is the number of
@@ -117,6 +118,10 @@ less than thresh times the null deviance. Defaults value is 1E-7}
 parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 Defaults value is 1E-7}
+
+\item{verbose}{display progress. Can be either 0,1 or 2. 0 will not display
+any progress, 2 will display very detailed progress and 1 is somewhere in
+between. Default: 0.}
 }
 \description{
 Main function to fit the linear mixed model with lasso or group

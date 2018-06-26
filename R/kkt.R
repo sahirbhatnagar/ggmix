@@ -1,12 +1,16 @@
 #' Check of KKT for a given value of Lambda
-#' @param x should be U^T X, where U is the matrix of eigenvectors and X
-#'   contains the first column of ones for the intercept. x should be a mtrix of
-#'   dimension n x (p+1)
-#' @param beta should include intercept as well. A 1 column matrix of dimension
-#'   (p+1) x 1.
+#' @param x rotated x. Should be U^T X, where U is the matrix of eigenvectors
+#'   and X contains the first column of ones for the intercept. x should be a
+#'   mtrix of dimension n x (p+1). These are outputted by the constructor
+#'   functions. See \code{\link{ggmix_data_object}} for details
+#' @param y rotated y. Should be U^T Y, where U is the matrix of eigenvectors
+#'   and Y is the response.
+#' @inheritParams ggmix
+#' @inheritParams logliklasso
 #' @param tol.kkt Tolerance for determining if an entry of the subgradient is
 #'   zero
-#' @export
+#' @note \code{grr_sigma2} and \code{grr_beta0} are functions for the gradient
+#'   of sigma2 and beta0, respectively
 kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
                       lambda, tol.kkt = 1e-9){
 
@@ -35,9 +39,9 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
                          eigenvalues = eigenvalues, x = x, y = y, nt = nt)
 
   # KKT for eta
-  # grr_eta(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)
-  # kkt_eta <- grr_eta(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
-  kkt_eta <- grr_eta(eta = eta, sigma2 = sigma2, beta = beta,
+  # gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)
+  # kkt_eta <- gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
+  kkt_eta <- gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta,
                      eigenvalues = eigenvalues, x = x, y = y, nt = nt)
 
   # KKT for sigma2
@@ -84,8 +88,6 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
 
 }
 
-
-#' Gradient of sigma2 (used for KKT check)
 #' @rdname kkt_check
 grr_sigma2 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
@@ -95,7 +97,6 @@ grr_sigma2 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
 }
 
-#' Gradient of beta0 (used for KKT check)
 #' @rdname kkt_check
 grr_beta0 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 

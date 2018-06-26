@@ -12,7 +12,6 @@
 #' @param ... Extra parameters. Currently ignored.
 #' @note This funciton isn't meant to be called directly by the user.
 #' @return A descreasing sequence of tuning parameters
-#' @export
 lambdalasso <- function(ggmix_object, ...) UseMethod("lambdalasso")
 
 #' @rdname lambdalasso
@@ -78,8 +77,8 @@ lambdalasso.fullrank <- function(ggmix_object,
 
     # fit eta
     eta_next <- optim(par = eta_init,
-                      fn = fr_eta,
-                      gr = grr_eta,
+                      fn = fn_eta_lasso_fullrank,
+                      gr = gr_eta_lasso_fullrank,
                       method = "L-BFGS-B",
                       control = list(fnscale = 1),
                       lower = .01,
@@ -108,11 +107,11 @@ lambdalasso.fullrank <- function(ggmix_object,
 
     converged <- crossprod(Theta_next - Theta_init) < epsilon
 
-    message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
-                    crossprod(Theta_next - Theta_init),
-                    log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                            eigenvalues = eigenvalues,
-                            x = utx, y = uty, nt = n)))
+    # message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
+    #                 crossprod(Theta_next - Theta_init),
+    #                 log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+    #                         eigenvalues = eigenvalues,
+    #                         x = utx, y = uty, nt = n)))
 
     beta0_init <- beta0_next
     beta_init <- beta_next

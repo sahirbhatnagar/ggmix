@@ -39,194 +39,144 @@
 #'   This formula is taken from section 2.5 of the \code{glmnet} paper in the
 #'   Journal of Statistical Software (see references for details)
 #'
-lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
-                            lambda_min_ratio,
-                            epsilon = 1e-14,
-                            tol.kkt = 1e-9,
-                            eta_init = 0.5,
-                            nlambda = 100, scale_x = F, center_y = F) {
+# lambda_sequence <- function(x, y, eigenvalues, weights = NULL,
+#                             lambda_min_ratio,
+#                             epsilon = 1e-14,
+#                             tol.kkt = 1e-9,
+#                             eta_init = 0.5,
+#                             nlambda = 100, scale_x = F, center_y = F) {
+#
+#   np <- dim(x)
+#   n <- np[[1]]
+#
+#   # assuming the first column is the intercept, so we subtract 1
+#   p <- np[[2]] - 1
+#
+#   # weights
+#   di <- 1 + eta_init * (eigenvalues - 1)
+#   # di_inverse <- diag(1 / di)
+#
+#   # initial value for beta0
+#   beta0_init <- (sum(x[, 1] * y / di)) / (sum(x[,1] ^ 2 / di))
+#
+#   # this includes all other betas which are 0 by definition
+#   beta_init <- as.matrix(c(beta0_init, rep(0,p)))
+#   # sum is faster
+#   # microbenchmark::microbenchmark(
+#   #   mat = drop((t(utx0) %*% di_inverse %*% uty) / (t(utx0) %*% di_inverse %*% utx0)),
+#   #     sum = (sum(utx0 * uty / di)) / (sum(utx0 ^ 2 / di)), times = 1000
+#   # )
+#
+#   # closed form for sigma^2
+#   sigma2_init <- (1 / n) * sum((y - x %*% beta_init) ^ 2 / di)
+#
+#   # sum version is faster
+#   # mb <- microbenchmark(
+#   #   mat = (1 / n) * t(uty - beta0_init * utx0) %*% di_inverse %*% (uty - beta0_init * utx0),
+#   #   sum = (1 / n) * sum ((uty - beta0_init * utx0)^2 / (1 + eta_init * (eigenvalues - 1))),
+#   #   times = 1000)
+#   # ggplot2::autoplot(mb)
+#
+#   #iteration counter
+#   k <- 0
+#
+#   # to enter while loop
+#   converged <- FALSE
+#
+#   while (!converged) {
+#
+#     Theta_init <- c(beta_init, eta_init, sigma2_init)
+#
+#     # fit eta
+#     eta_next <- optim(par = eta_init,
+#                       fn = fr_eta,
+#                       gr = grr_eta,
+#                       method = "L-BFGS-B",
+#                       control = list(fnscale = 1),
+#                       lower = .01,
+#                       upper = .99,
+#                       sigma2 = sigma2_init,
+#                       beta = beta_init,
+#                       eigenvalues = eigenvalues,
+#                       x = x,
+#                       y = y,
+#                       nt = n)$par
+#
+#     # weights
+#     di <- 1 + eta_next * (eigenvalues - 1)
+#
+#     # di_inverse <- diag(1 / di)
+#
+#     # next value for beta0
+#     beta0_next <- (sum(x[,1] * y / di)) / (sum(x[,1] ^ 2 / di))
+#
+#     beta_next <- as.matrix(c(beta0_next, rep(0, p)))
+#
+#     # closed form for sigma^2
+#     sigma2_next <- (1 / n) * sum((y - x %*% beta_next) ^ 2 / di)
+#
+#     k <- k + 1
+#
+#     Theta_next <- c(beta_next, eta_next, sigma2_next)
+#
+#     converged <- crossprod(Theta_next - Theta_init) < epsilon
+#     # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) < epsilon
+#
+#     message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
+#                     crossprod(Theta_next - Theta_init),
+#                     log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+#                             eigenvalues = eigenvalues,
+#                             x = x, y = y, nt = n)))
+#
+#     beta0_init <- beta0_next
+#     beta_init <- beta_next
+#     eta_init <- eta_next
+#     sigma2_init <- sigma2_next
+#
+#   }
+#
+#   # eta_next
+#   # sigma2_next
+#   di <- 1 + eta_next * (eigenvalues - 1)
+#   wi <- (1 / sigma2_next) * (1 / di)
+#   if (any(wi < 0)) stop("weights are negative")
+#
+#   # scale the weights to sum to nvars
+#   # wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
+#
+#   # wi_scaled <- as.vector(wi) * n
+#
+#   # lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
+#
+#   # this gives the same answer (see paper for details)
+#   # we divide by sum(wi) here and not in glmnet because the sequence is determined
+#   # on the log scale
+#   # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
+#
+#   lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * x[,-1]) * drop(y - x %*% beta_next)))))
+#
+#   # lambda.max <- lambda.max * sum(wi)
+#   # (x[,-1, drop = F]) %>% dim
+#   # a <- colSums(x[,-1, drop = F]^2 * wi)
+#   # b <- colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi, '*'))
+#   # all(a == b)
+#
+#
+#   kkt <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
+#                    eigenvalues = eigenvalues, x = x, y = y, nt = n,
+#                    lambda = lambda.max, tol.kkt = tol.kkt)
+#   # message(kkt)
+#   out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
+#               eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next, kkt = kkt)
+#
+# }
 
-  np <- dim(x)
-  n <- np[[1]]
-
-  # assuming the first column is the intercept, so we subtract 1
-  p <- np[[2]] - 1
-
-  # weights
-  di <- 1 + eta_init * (eigenvalues - 1)
-  # di_inverse <- diag(1 / di)
-
-  # initial value for beta0
-  beta0_init <- (sum(x[, 1] * y / di)) / (sum(x[,1] ^ 2 / di))
-
-  # this includes all other betas which are 0 by definition
-  beta_init <- as.matrix(c(beta0_init, rep(0,p)))
-  # sum is faster
-  # microbenchmark::microbenchmark(
-  #   mat = drop((t(utx0) %*% di_inverse %*% uty) / (t(utx0) %*% di_inverse %*% utx0)),
-  #     sum = (sum(utx0 * uty / di)) / (sum(utx0 ^ 2 / di)), times = 1000
-  # )
-
-  # closed form for sigma^2
-  sigma2_init <- (1 / n) * sum((y - x %*% beta_init) ^ 2 / di)
-
-  # sum version is faster
-  # mb <- microbenchmark(
-  #   mat = (1 / n) * t(uty - beta0_init * utx0) %*% di_inverse %*% (uty - beta0_init * utx0),
-  #   sum = (1 / n) * sum ((uty - beta0_init * utx0)^2 / (1 + eta_init * (eigenvalues - 1))),
-  #   times = 1000)
-  # ggplot2::autoplot(mb)
-
-  #iteration counter
-  k <- 0
-
-  # to enter while loop
-  converged <- FALSE
-
-  while (!converged) {
-
-    Theta_init <- c(beta_init, eta_init, sigma2_init)
-
-    # fit eta
-    eta_next <- optim(par = eta_init,
-                      fn = fr_eta,
-                      gr = grr_eta,
-                      method = "L-BFGS-B",
-                      control = list(fnscale = 1),
-                      lower = .01,
-                      upper = .99,
-                      sigma2 = sigma2_init,
-                      beta = beta_init,
-                      eigenvalues = eigenvalues,
-                      x = x,
-                      y = y,
-                      nt = n)$par
-
-    # weights
-    di <- 1 + eta_next * (eigenvalues - 1)
-
-    # di_inverse <- diag(1 / di)
-
-    # next value for beta0
-    beta0_next <- (sum(x[,1] * y / di)) / (sum(x[,1] ^ 2 / di))
-
-    beta_next <- as.matrix(c(beta0_next, rep(0, p)))
-
-    # closed form for sigma^2
-    sigma2_next <- (1 / n) * sum((y - x %*% beta_next) ^ 2 / di)
-
-    k <- k + 1
-
-    Theta_next <- c(beta_next, eta_next, sigma2_next)
-
-    converged <- crossprod(Theta_next - Theta_init) < epsilon
-    # converged <- max(abs(Theta_next - Theta_init) / (1 + abs(Theta_next))) < epsilon
-
-    message(sprintf("l2 norm squared of Theta_k+1 - Theta_k: %f \n log-lik: %f",
-                    crossprod(Theta_next - Theta_init),
-                    log_lik(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                            eigenvalues = eigenvalues,
-                            x = x, y = y, nt = n)))
-
-    beta0_init <- beta0_next
-    beta_init <- beta_next
-    eta_init <- eta_next
-    sigma2_init <- sigma2_next
-
-  }
-
-  # eta_next
-  # sigma2_next
-  di <- 1 + eta_next * (eigenvalues - 1)
-  wi <- (1 / sigma2_next) * (1 / di)
-  if (any(wi < 0)) stop("weights are negative")
-
-  # scale the weights to sum to nvars
-  # wi_scaled <- as.vector(wi) / sum(as.vector(wi)) * n
-
-  # wi_scaled <- as.vector(wi) * n
-
-  # lambda.max <- max(abs(colSums((wi * x[,-1]) * drop(y - x %*% beta_next))))
-
-  # this gives the same answer (see paper for details)
-  # we divide by sum(wi) here and not in glmnet because the sequence is determined
-  # on the log scale
-  # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * x[,-1]) * drop(y - x %*% beta_next)))))
-
-  lambda.max <- max(abs(colSums(((1 / sum(wi)) * (wi * x[,-1]) * drop(y - x %*% beta_next)))))
-
-  # lambda.max <- lambda.max * sum(wi)
-  # (x[,-1, drop = F]) %>% dim
-  # a <- colSums(x[,-1, drop = F]^2 * wi)
-  # b <- colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi, '*'))
-  # all(a == b)
-
-
-  kkt <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-                   eigenvalues = eigenvalues, x = x, y = y, nt = n,
-                   lambda = lambda.max, tol.kkt = tol.kkt)
-  # message(kkt)
-  out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max), log(lambda.max), length.out = nlambda))),
-              eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next, kkt = kkt)
-
-}
-
-bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
-
-  -2 * log_lik(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) + c * df_lambda
-
-}
-
-
-
-
-
-
-#' Generalised Information Criterion
-#'
-#' Calculates the generalised information criterion for each value of the tuning
-#' parameter lambda
-#'
-#' @inheritParams lowrank
-#' @param an numeric, the penalty per parameter to be used; the default is an =
-#'   log(log(n))*log(p) where n is the number of subjects and p is the number of
-#'   parameters
-#' @param ... other arguments that can be passed to ggmix
-#' @details the generalised information criterion used for gaussian response is
-#'   given by \deqn{-2 * loglikelihood(\hat{\Theta}) + an * df} where
-#'   df is the number of non-zero estimated parameters
-#' @references Fan Y, Tang CY. Tuning parameter selection in high dimensional
-#'   penalized likelihood. Journal of the Royal Statistical Society: Series B
-#'   (Statistical Methodology). 2013 Jun 1;75(3):531-52.
-#'
-#'   Nishii R. Asymptotic properties of criteria for selection of variables in
-#'   multiple regression. The Annals of Statistics. 1984;12(2):758-65.
-#' @export
-gic.ggmix <- function(x, y, d, u,
-                       an = log(log(n)) * log(p),
-                       lambda = NULL, ...) {
-
-  ggmix.object <- lowrank(x = x, y = y, d = d, u = u, lambda = lambda, ...)
-
-  n <- nrow(ggmix.object$x)
-  p <- ncol(ggmix.object$x) - 1
-
-  df <- ggmix.object$result[,"Df"]
-  model_loglik <- ggmix.object$result[,"model_loglik"]
-
-  model_bic <- -2 * model_loglik + an * df
-
-  out = list(lambda = ggmix.object$result[,"Lambda"],
-             nzero = df,
-             bic = model_bic,
-             lambda.min.name = names(which.min(model_bic)),
-             lambda.min = ggmix.object$result[names(which.min(model_bic)),"Lambda"],
-             ggmix.fit = ggmix.object)
-  obj <- c(out)
-  class(obj) <- "gic.ggmix"
-  obj
-}
-
+# bic <- function(eta, sigma2, beta, eigenvalues, x, y, nt, c, df_lambda) {
+#
+#   -2 * log_lik(eta = eta, sigma2 = sigma2, beta = beta,
+#                eigenvalues = eigenvalues, x = x, y = y, nt = nt) + c * df_lambda
+#
+# }
 
 
 #' An alternative to \code{summaryRprof()}
@@ -247,44 +197,44 @@ gic.ggmix <- function(x, y, d, u,
 #' @param file A profiling file generated by \code{Rprof()}
 #' @param lines The number of lines (call stacks) you want returned. Lines are
 #' printed from most time-intensive to least.
-proftable <- function(file, lines = 10) {
-  profdata <- readLines(file)
-  interval <- as.numeric(strsplit(profdata[1L], "=")[[1L]][2L]) / 1e+06
-  filelines <- grep("#File", profdata)
-  files <- profdata[filelines]
-  profdata <- profdata[-c(1, filelines)]
-  total.time <- interval * length(profdata)
-  ncalls <- length(profdata)
-  profdata <- gsub("\\\"| $", "", profdata)
-  calls <- lapply(profdata, function(x) rev(unlist(strsplit(x, " "))))
-  stacktable <- as.data.frame(table(sapply(calls, function(x) paste(x, collapse = " > "))) / ncalls * 100, stringsAsFactors = FALSE)
-  stacktable <- stacktable[order(stacktable$Freq[], decreasing = TRUE), 2:1]
-  colnames(stacktable) <- c("PctTime", "Call")
-  stacktable <- head(stacktable, lines)
-  shortcalls = strsplit(stacktable$Call, " > ")
-  shortcalls.len <- range(sapply(shortcalls, length))
-  parent.call <- unlist(lapply(seq(shortcalls.len[1]), function(i) Reduce(intersect, lapply(shortcalls,"[[", i))))
-  shortcalls <- lapply(shortcalls, function(x) setdiff(x, parent.call))
-  stacktable$Call = sapply(shortcalls, function(x) paste(x, collapse = " > "))
-  if (length(parent.call) > 0) {
-    parent.call <- paste(paste(parent.call, collapse = " > "), "> ...")
-  } else {
-    parent.call <- "None"
-  }
-  frac <- sum(stacktable$PctTime)
-  attr(stacktable, "total.time") <- total.time
-  attr(stacktable, "parent.call") <- parent.call
-  attr(stacktable, "files") <- files
-  attr(stacktable, "total.pct.time") <- frac
-  print(stacktable, row.names=FALSE, right=FALSE, digits=3)
-  if(length(files) > 0) {
-    cat("\n")
-    cat(paste(files, collapse="\n"))
-    cat("\n")
-  }
-  cat(paste("\nParent Call:", parent.call))
-  cat(paste("\n\nTotal Time:", total.time, "seconds\n"))
-  cat(paste0("Percent of run time represented: ", format(frac, digits=3)), "%")
-
-  invisible(stacktable)
-}
+# proftable <- function(file, lines = 10) {
+#   profdata <- readLines(file)
+#   interval <- as.numeric(strsplit(profdata[1L], "=")[[1L]][2L]) / 1e+06
+#   filelines <- grep("#File", profdata)
+#   files <- profdata[filelines]
+#   profdata <- profdata[-c(1, filelines)]
+#   total.time <- interval * length(profdata)
+#   ncalls <- length(profdata)
+#   profdata <- gsub("\\\"| $", "", profdata)
+#   calls <- lapply(profdata, function(x) rev(unlist(strsplit(x, " "))))
+#   stacktable <- as.data.frame(table(sapply(calls, function(x) paste(x, collapse = " > "))) / ncalls * 100, stringsAsFactors = FALSE)
+#   stacktable <- stacktable[order(stacktable$Freq[], decreasing = TRUE), 2:1]
+#   colnames(stacktable) <- c("PctTime", "Call")
+#   stacktable <- head(stacktable, lines)
+#   shortcalls = strsplit(stacktable$Call, " > ")
+#   shortcalls.len <- range(sapply(shortcalls, length))
+#   parent.call <- unlist(lapply(seq(shortcalls.len[1]), function(i) Reduce(intersect, lapply(shortcalls,"[[", i))))
+#   shortcalls <- lapply(shortcalls, function(x) setdiff(x, parent.call))
+#   stacktable$Call = sapply(shortcalls, function(x) paste(x, collapse = " > "))
+#   if (length(parent.call) > 0) {
+#     parent.call <- paste(paste(parent.call, collapse = " > "), "> ...")
+#   } else {
+#     parent.call <- "None"
+#   }
+#   frac <- sum(stacktable$PctTime)
+#   attr(stacktable, "total.time") <- total.time
+#   attr(stacktable, "parent.call") <- parent.call
+#   attr(stacktable, "files") <- files
+#   attr(stacktable, "total.pct.time") <- frac
+#   print(stacktable, row.names=FALSE, right=FALSE, digits=3)
+#   if(length(files) > 0) {
+#     cat("\n")
+#     cat(paste(files, collapse="\n"))
+#     cat("\n")
+#   }
+#   cat(paste("\nParent Call:", parent.call))
+#   cat(paste("\n\nTotal Time:", total.time, "seconds\n"))
+#   cat(paste0("Percent of run time represented: ", format(frac, digits=3)), "%")
+#
+#   invisible(stacktable)
+# }

@@ -373,7 +373,8 @@ ggmix <- function(x, y,
 # not yet implemented
   }
 
-  return(fit)
+  fit$call <- this.call
 
+  return(fit)
 
 }

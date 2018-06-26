@@ -14,7 +14,6 @@
 #' @return A descreasing sequence of tuning parameters
 #' @note There is a closed form solution for sigma^2, given beta and eta. This
 #'   funciton isn't meant to be called directly by the user.
-#' @export
 sigma2lasso <- function(ggmix_object, ...) UseMethod("sigma2lasso")
 
 #' @rdname sigma2lasso

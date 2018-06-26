@@ -1,32 +1,19 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#' Print Method for ggmix function
+#' Print Method for Objects of Class \code{ggmix_fit}
 #'
-#' @description print method for ggmix function
+#' @description print method for objects of class \code{ggmix_fit}
+#' @param x an object of class objects of class \code{ggmix_fit}
+#' @param digits significant digits in printout. Default: \code{max(3,
+#'   getOption("digits") - 3)}
+#' @param ... other arguments passed to \code{print}
+#' @seealso \code{\link{ggmix}}
+#' @return The call that produced the object \code{x} is printed, followed by a
+#'   three-column matrix with columns \code{Df}, \code{\%Dev}, and and
+#'   \code{Lambda}. The \code{Df} columns correspond to the number of nonzero
+#'   coefficients including variance components. \code{\%dev} is the percent
+#'   deviance explained (relative to the null deviance). \code{Lambda} is the
+#'   sequence of converged tuning parameters.
 #' @export
-
-print.ggmix <- function (x, digits = max(3, getOption("digits") - 3), ...) {
+print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
   cat("\nCall: ", deparse(x$call), "\n\n")
   print(cbind(Df = x$result[,"Df"],
               `%Dev` = signif(x$result[,"%Dev"], digits),
@@ -39,19 +26,19 @@ print.ggmix <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 #'
 #' @param object object of class ggmix
 #' @param s lambda value
-#' @param which a character of either "beta", "eta", or "sigma2" if the user wants only th
+#' @param which a character of either "beta", "eta", or "sigma2" if the user
+#'   wants only th
 #' @param ... additional arguments to pass to predict function
 #'
 #' @rdname predict.ggmix
 #' @export
-
 coef.ggmix <- function(object, s = NULL, which = NULL, ...) {
-  if(is.null(which)) predict(object, s = s, type = "coefficients", ...) else
+  if (is.null(which)) predict(object, s = s, type = "coefficients", ...) else
     predict(object, s = s, type = which, ...)
 }
 
 #' @rdname predict.ggmix
-coef.gic.ggmix <- function (object, s = "lambda.min", ...) {
+coef.gic.ggmix <- function(object, s = "lambda.min", ...) {
   if (is.numeric(s))
     lambda = s
   else if (is.character(s)) {
@@ -61,11 +48,6 @@ coef.gic.ggmix <- function (object, s = "lambda.min", ...) {
   else stop("Invalid form for s")
   coef(object$ggmix.fit, s = lambda, ...)
 }
-
-
-
-
-
 
 
 #' Make predictions from a ggmix object
@@ -84,10 +66,9 @@ coef.gic.ggmix <- function (object, s = "lambda.min", ...) {
 #'   Type "nonzero" returns a list of the indices of the nonzero coefficients
 #'   for each value of s.
 #' @export
-
-predict.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
-                           type = c("link", "response", "coefficients","ranef",
-                                    "nonzero", "beta", "eta", "sigma2")) {
+predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
+                              type = c("link", "response", "coefficients","ranef",
+                                       "nonzero", "beta", "eta", "sigma2")) {
 
   # object = res$ggmix.fit
   # s = c(0.1,0.2,0.3)
@@ -228,9 +209,10 @@ predict.gic.ggmix <- function(object, newx, s = c("lambda.1se",
 
 
 
-plot.ggmix <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted", "Tukey-Anscombe"),
-                        xvar=c("norm","lambda","dev"), s = x$lambda_min,
-                        label=FALSE, sign.lambda = 1, ...){
+plot.ggmix_fit <- function(x,
+                           type = c("coef","QQranef","QQresid", "predicted", "Tukey-Anscombe"),
+                           xvar=c("norm","lambda","dev"), s = x$lambda_min,
+                           label=FALSE, sign.lambda = 1, ...){
   xvar <- match.arg(xvar)
   type <- match.arg(type, several.ok = TRUE)
 
@@ -239,11 +221,6 @@ plot.ggmix <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted
              df=drop(x$result[,"Df"]), dev=drop(x$result[,"Deviance"]),
              label=label, xvar=xvar,...)
   }
-
-  if (any(type == "BIC")){
-    plotBIC(object = x$result, sign.lambda=sign.lambda, lambda.min = x$lambda_min, ...)
-  }
-
 
   if (any(type == "QQranef")){
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
@@ -275,39 +252,7 @@ plot.ggmix <- function(x, type = c("coef","BIC", "QQranef","QQresid", "predicted
 
 }
 
-#' Plot the Generalised Information Criteria curve produced by gic.ggmix
-#'
-#' @param x fitted "gic.ggmix" object
-#' @param sign.lambda Either plot against log(lambda) (default) or its negative
-#'   if sign.lambda=-1
-#' @param ... Other graphical parameters to plot
-#' @details A plot is produced, and nothing is returned.
-#' @seealso \code{\link{ggmix}} and \code{\link{gic.ggmix}}
-#' @description Plots the Generalised Information Criteria curve, as a function
-#'   of the lambda values used
-#' @export
-plot.gic.ggmix <- function(x, sign.lambda = 1, ...) {
 
-  bicobj <- x
-  xlab <- "log(Lambda)"
-  if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
-  plot.args <- list(x = sign.lambda*log(bicobj$lambda),
-                 y = bicobj$bic,
-                 ylim = range(bicobj$bic),
-                 xlab = xlab,
-                 ylab = "BIC", type = "n")
-  new.args = list(...)
-  if (length(new.args)) plot.args[names(new.args)] = new.args
-  do.call("plot", plot.args)
-  points(sign.lambda*log(bicobj$lambda),
-         bicobj$bic, pch = 20, col = "red")
-  axis(side = 3, at = sign.lambda*log(bicobj$lambda),
-       labels = paste(bicobj$nzero), tick = FALSE, line = 0)
-  abline(v = sign.lambda*log(bicobj$lambda.min), lty = 3)
-  # abline(v=sign.lambda*log(.1605),lty=3)
-  # abline(v=sign.lambda*log(cvobj$lambda.1se),lty=3)
-  # invisible()
-}
 
 
 #' @param s lamda at which to predict the random effects. current option is only
@@ -416,7 +361,8 @@ ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
 bi <- function(eta, beta, eigenvalues, eigenvectors, x, y){
   di <- 1 + eta * (eigenvalues - 1)
   D_tilde_inv <- diag(1 / di)
-  as.vector(eigenvectors %*% diag(1 / (1/di + 1/(eta * eigenvalues))) %*% t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
+  as.vector(eigenvectors %*% diag(1 / (1/di + 1/(eta * eigenvalues))) %*%
+              t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
 }
 
 
@@ -438,7 +384,9 @@ random.effects.gic.ggmix <- function(object, s = "lambda.min") {
 
   di <- 1 + eta_next * (eigenvalues - 1)
   D_tilde_inv <- diag(1 / di)
-  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*% U %*% D_tilde_inv %*% (object$ggmix.fit$uty - object$ggmix.fit$utx %*% beta_next))
+  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*%
+                    U %*% D_tilde_inv %*% (object$ggmix.fit$uty - object$ggmix.fit$utx %*%
+                                             beta_next))
   bi
 
 }

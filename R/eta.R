@@ -1,12 +1,11 @@
-#' Gradient of eta parameter
+#' Functions related to eta parameter used in optim and kkt checks
 #'
-#' @description Used for gradient of eta. Currently being passed to optim and
-#'   used in \code{kkt_check}
-#' @param x should be U^T X, where U is the matrix of eigenvectors and X
-#'   contains the first column of ones for the intercept.
+#' @description Used for gradient of eta. Currently being passed to optim in
+#'   \code{\link{lmmlasso}} and used in \code{\link{kkt_check}}
+#' @seealso \code{\link{logliklasso}}, \code{\link{kkt_check}}, \code{\link{lmmlasso}}
 #' @inheritParams logliklasso
-#' @rdname kkt_check
-grr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
+#' @inheritParams kkt_check
+gr_eta_lasso_fullrank <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
   di <- 1 + eta * (eigenvalues - 1)
 
@@ -15,9 +14,8 @@ grr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
 
 
-#' Function used to optimize eta
-#' @rdname kkt_check
-fr_eta <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
+#' @rdname gr_eta_lasso_fullrank
+fn_eta_lasso_fullrank <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
 
   # this is based on the negative log-lik
 

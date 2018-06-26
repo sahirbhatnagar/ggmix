@@ -15,7 +15,7 @@
 #' @param ... Extra parameters. Currently ignored.
 #' @return A descreasing sequence of tuning parameters
 #' @note This funciton isn't meant to be called directly by the user.
-#' @export
+#' @seealso \code{\link{ggmix_data_object}}
 logliklasso <- function(ggmix_object, ...) UseMethod("logliklasso")
 
 #' @rdname logliklasso
@@ -24,16 +24,23 @@ logliklasso.default <- function(ggmix_object, ...) {
                lowrank or fullrank"))
 }
 
-#' Log likelihood used to calculate BIC for lmm
 #' @rdname logliklasso
 logliklasso.fullrank <- function(ggmix_object,
                                  ...,
-                                 eta, sigma2, beta, nt) {
+                                 eta, sigma2, beta, nt, x, y) {
 
   # this returns the log-likelihood
 
-  x <- ggmix_object[["x"]]
-  y <- ggmix_object[["y"]]
+  # this allows the user to input the x and y if they want else
+  # the default is from the ggmix_object
+  # this flexibility is used to calculate the saturated and intercept loglik
+  # in the lmmlasso function
+  if (missing(x))
+    x <- ggmix_object[["x"]]
+
+  if (missing(y))
+    y <- ggmix_object[["y"]]
+
   eigenvalues <- ggmix_object[["D"]]
 
   kernel <- 1 + eta * (eigenvalues - 1)

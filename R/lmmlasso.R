@@ -65,14 +65,14 @@ lmmlasso.fullrank <- function(ggmix_object,
                                               "eta","sigma2"),
                                             lambda_names))
 
-  out_print <- matrix(NA, nrow = nlambda, ncol = 3,
+  out_print <- matrix(NA, nrow = nlambda, ncol = 4,
                       dimnames = list(lambda_names,
                                       c("Df",
                                         "%Dev",
                                         # "Deviance",
-                                        "Lambda"#,
+                                        "Lambda",
                                         # "saturated_loglik",
-                                        # "model_loglik",
+                                        "loglik"
                                         # "intercept_loglik",
                                         # "converged"
                                         )))
@@ -103,7 +103,7 @@ lmmlasso.fullrank <- function(ggmix_object,
 
     if (verbose >= 1) {
       message(sprintf("Index: %g, lambda: %0.4f",
-                      lambda_index, if (lambda_index == 1) lambda_max else LAMBDA))
+                      lambda_index, if (lambda_index == 1) lambda_max else lambda))
     }
 
     #iteration counter
@@ -137,8 +137,8 @@ lmmlasso.fullrank <- function(ggmix_object,
 
       # fit eta ---------------------------------------------------------------
       eta_next <- stats::optim(par = eta_init,
-                               fn = fr_eta,
-                               gr = grr_eta,
+                               fn = fn_eta_lasso_fullrank,
+                               gr = gr_eta_lasso_fullrank,
                                method = "L-BFGS-B",
                                control = list(fnscale = 1),
                                lower = 0.01,
@@ -174,26 +174,25 @@ lmmlasso.fullrank <- function(ggmix_object,
 
     }
 
-    if (!converged) message(sprintf("algorithm did not converge for %s", LAMBDA))
-
-    # converged observation weights
-    # di <- 1 + eta_next * (ggmix_object[["D"]] - 1)
-    # wi <- (1 / sigma2_next) * (1 / di)
+    if (!converged) message(sprintf("algorithm did not converge for lambda %s",
+                                    LAMBDA))
 
     # a parameter for each observation
     saturated_loglik <- logliklasso(ggmix_object,
                                     eta = eta_next,
                                     sigma2 = sigma2_next,
                                     beta = 1,
-                                    nt = n_design)
-    # print(saturated_loglik)
+                                    nt = n_design,
+                                    x =  ggmix_object[["y"]])
+
     # intercept only model
     intercept_loglik <- logliklasso(ggmix_object,
                                     eta = eta_next,
                                     sigma2 = sigma2_next,
                                     beta = beta_next[1, , drop = FALSE],
-                                    nt = n_design)
-    # print(intercept_loglik)
+                                    nt = n_design,
+                                    x = ggmix_object[["x"]][ , 1, drop = FALSE])
+
     # model log lik
     model_loglik <- logliklasso(ggmix_object,
                                 eta = eta_next,
@@ -274,12 +273,6 @@ lmmlasso.fullrank <- function(ggmix_object,
     if (length(deviance_change) > 0) {
       if (deviance_change < fdev ) break
     }
-
-    # pb$tick()
-
-    # setTxtProgressBar(pb,lambda_index)
-
-
   }
 
   # if there is early stopping due to fdev, remove NAs
@@ -288,12 +281,16 @@ lmmlasso.fullrank <- function(ggmix_object,
   # get names of lambdas for which a solution was obtained
   lambdas_fit <- rownames(out_print)
   out_print[1,"Lambda"] <- lambda_max
-  out <- list(result = out_print,
+
+  out <- list(result = out_print, # used by gic function
               ggmix_object = ggmix_object,
-              lambda = out_print[,"Lambda"],
+              n_design = n_design, # used by gic function
+              p_design = p_design, # used by gic function
+              lambda = out_print[,"Lambda"], # used by gic function
               coef = coefficient_mat[,lambdas_fit, drop = F],
               b0 = coefficient_mat["beta0", lambdas_fit],
-              beta = as(coefficient_mat[colnames(ggmix_object[["x"]])[-1], lambdas_fit, drop = FALSE],"dgCMatrix"),
+              beta = as(coefficient_mat[colnames(ggmix_object[["x"]])[-1],
+                                        lambdas_fit, drop = FALSE],"dgCMatrix"),
               df = out_print[lambdas_fit, "Df"],
               eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
               sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
@@ -306,13 +303,8 @@ lmmlasso.fullrank <- function(ggmix_object,
               # lambda_min = id_min,
               # lambda_min_value = lambda_min
   )
-  # beta = beta_next,
-  # eta = eta_next,
-  # sigma2 = sigma2_next,
-  # df = nonzeroCoef(coef(beta_next_fit)),
-  # active = coef(beta_next_fit)[nonzeroCoef(coef(beta_next_fit)),, drop = F])
-  # out$call <- this.call
-  class(out) <- "ggmix"
+
+  class(out) <- c(paste0("lasso", attr(ggmix_object, "class")), "ggmix_fit")
   return(out)
 
 }

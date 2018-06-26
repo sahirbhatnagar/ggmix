@@ -1,6 +1,57 @@
+#' Plot the Generalised Information Criteria curve produced by \code{gic}
+#'
+#' @description Plots the Generalised Information Criteria curve, as a function
+#'   of the lambda values used
+#' @param x fitted linear mixed model object of class \code{ggmix_gic} from the
+#'   \code{\link{gic}} function
+#' @param sign.lambda Either plot against log(lambda) (default) or its negative
+#'   if sign.lambda=-1
+#' @param ... Other graphical parameters to plot
+#' @details A plot is produced, and nothing is returned.
+#' @seealso \code{\link{ggmix}} and \code{\link{gic}}
+#' @export
+plot.ggmix_gic <- function(x, sign.lambda = 1, ...) {
+
+  plotGIC(object = x,
+          sign.lambda = sign.lambda,
+          lambda.min = x$lambda.min, ...)
+
+}
+
+#' @rdname plot.ggmix_gic
+plotGIC <- function(object, sign.lambda, lambda.min, ...) {
+
+  xlab <- "log(Lambda)"
+
+  if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
+
+  plot.args <- list(x = sign.lambda * log(drop(object[["lambda"]])),
+                    y = drop(object[["gic"]]),
+                    ylim = range(drop(object[["gic"]])),
+                    xlab = xlab,
+                    ylab = "GIC", type = "n")
+
+  new.args <- list(...)
+
+  if (length(new.args)) plot.args[names(new.args)] <- new.args
+
+  do.call("plot", plot.args)
+
+  points(sign.lambda * log(drop(object[["lambda"]])),
+         drop(object[["gic"]]), pch = 20, col = "red")
+
+  axis(side = 3, at = sign.lambda*log(drop(object[["lambda"]])),
+       labels = paste(drop(object[["nzero"]])), tick = FALSE, line = 0)
+
+  abline(v = sign.lambda*log(lambda.min), lty = 3)
+}
+
+
+
+
 plotCoef <- function(beta,norm,lambda,df,dev,label=FALSE,
                      xvar=c("norm","lambda","dev"),
-                     xlab=iname, ylab="Coefficients", ...){
+                     xlab = iname, ylab="Coefficients", ...){
   # as(x,"CsparseMatrix")
   # beta = as(res$beta,"sparseMatrix")
   # beta = res$beta
@@ -65,33 +116,4 @@ plotCoef <- function(beta,norm,lambda,df,dev,label=FALSE,
     text(xpos,ypos,paste(which),cex=.5,pos=pos)
   }
 
-}
-
-
-plotBIC <- function(object, sign.lambda, lambda.min, ...) {
-  
-  # object = res$x
-  # sign.lambda = 1
-  # lambda.min = res$lambda_min
-  # ===============
-  
-  xlab="log(Lambda)"
-  lambda_min <- drop(object[lambda.min,"Lambda"])
-  if(sign.lambda<0) xlab=paste("-",xlab,sep="")
-  plot.args=list(x=sign.lambda*log(drop(object[,"Lambda"])),
-                 y=drop(object[,"BIC"]),
-                 ylim=range(drop(object[,"BIC"])),
-                 xlab=xlab,
-                 ylab="BIC", type="n")
-  new.args=list(...)
-  if (length(new.args)) plot.args[names(new.args)]=new.args
-  do.call("plot",plot.args)
-  points(sign.lambda*log(drop(object[,"Lambda"])),
-         drop(object[,"BIC"]),pch=20,col="red")
-  axis(side=3,at=sign.lambda*log(drop(object[,"Lambda"])),
-       labels=paste(drop(object[,"Df"])), tick=FALSE, line=0)
-  abline(v=sign.lambda*log(lambda_min),lty=3)
-  # abline(v=sign.lambda*log(.1605),lty=3)
-  # abline(v=sign.lambda*log(cvobj$lambda.1se),lty=3)
-  # invisible()
 }
