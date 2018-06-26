@@ -1,7 +1,7 @@
 Package: ggmix
 Type: Package
 Title: A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations
-Version: 0.1.0
+Version: 0.0.0.9000
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
   role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
@@ -12,13 +12,29 @@ Authors@R: c(
   person("Celia", "Greenwood", email = "celia.greenwood@mcgill.ca",
   role = c("aut"), comment = "http://www.mcgill.ca/statisticalgenetics/")
   )
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Fit penalized multivariable linear mixed models with a single 
+    random effect to control for population structure in genetic association 
+    studies. This is a flexible framework which allows for both lasso and group 
+    lasso penalties. A lowrank estimation procedure is implemented when the 
+    matrix of SNPs used to estimate the kinship matrix is not full rank. 
+    Can also handle prior annotation information, for example, rare variants, 
+    in the form of weights.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 3.4.0)
+Imports:
+    glmnet, 
+    methods,
+    stats,
+    MASS
 Suggests: 
+    RSpectra,
+    popkin,
+    bnpsd,
     testthat,
-    covr
+    covr,
+    vdiffr,
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1

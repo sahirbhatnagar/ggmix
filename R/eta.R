@@ -6,10 +6,9 @@
 #' @inheritParams logliklasso
 #' @inheritParams kkt_check
 gr_eta_lasso_fullrank <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
-
   di <- 1 + eta * (eigenvalues - 1)
 
-  (1 / 2) * sum(((eigenvalues - 1) / di) * (1 - (((y - x %*% beta) ^ 2) / (sigma2 * di))))
+  (1 / 2) * sum(((eigenvalues - 1) / di) * (1 - (((y - x %*% beta)^2) / (sigma2 * di))))
 }
 
 
@@ -24,6 +23,5 @@ fn_eta_lasso_fullrank <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
   (nt / 2) * log(2 * pi) +
     (nt / 2) * log(sigma2) +
     0.5 * sum(log(di)) +
-    (1 / (2 * sigma2)) * sum((y - x %*% beta) ^ 2 / di)
-
+    (1 / (2 * sigma2)) * sum((y - x %*% beta)^2 / di)
 }

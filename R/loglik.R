@@ -35,25 +35,25 @@ logliklasso.fullrank <- function(ggmix_object,
   # the default is from the ggmix_object
   # this flexibility is used to calculate the saturated and intercept loglik
   # in the lmmlasso function
-  if (missing(x))
+  if (missing(x)) {
     x <- ggmix_object[["x"]]
+  }
 
-  if (missing(y))
+  if (missing(y)) {
     y <- ggmix_object[["y"]]
+  }
 
   eigenvalues <- ggmix_object[["D"]]
 
   kernel <- 1 + eta * (eigenvalues - 1)
 
-  - 1 * (
+  -1 * (
     (nt / 2) * log(2 * pi) +
       (nt / 2) * log(sigma2) +
       0.5 * sum(log(kernel)) +
-      (1 / (2 * sigma2)) * sum((y - x %*% beta) ^ 2 / kernel)
+      (1 / (2 * sigma2)) * sum((y - x %*% beta)^2 / kernel)
   )
-
 }
 
 
 # still need to create logliklasso.lowrank, loglikgglasso.fullrank, loglikgglasso.lowrank
-

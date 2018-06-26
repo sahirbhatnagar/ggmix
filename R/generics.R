@@ -33,6 +33,3 @@ random.effects.default <- function(object) {
 ranef.default <- function(object) {
   "Unknown class"
 }
-
-
-

@@ -3,7 +3,8 @@
 # Simulated data with admixture population using bnpsd package
 # Author: Sahir Bhatnagar
 # Created: June 20, 2018
-# Updated:
+# Updated: June 26, 2018
+# Notes: gen_structured_model is defined in R/utils.R
 #####################################
 
 

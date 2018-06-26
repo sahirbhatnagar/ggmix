@@ -12,7 +12,7 @@
 #' @note \code{grr_sigma2} and \code{grr_beta0} are functions for the gradient
 #'   of sigma2 and beta0, respectively
 kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
-                      lambda, tol.kkt = 1e-9){
+                      lambda, tol.kkt = 1e-9) {
 
   # eta = eta_next; sigma2 = sigma2_next;
   # beta = beta_next;
@@ -35,27 +35,33 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
   # grr_beta0(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)
   # kkt_beta0 <- abs(grr_beta0(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)) < tol.kkt
 
-  kkt_beta0 <- grr_beta0(eta = eta, sigma2 = sigma2, beta = beta,
-                         eigenvalues = eigenvalues, x = x, y = y, nt = nt)
+  kkt_beta0 <- grr_beta0(
+    eta = eta, sigma2 = sigma2, beta = beta,
+    eigenvalues = eigenvalues, x = x, y = y, nt = nt
+  )
 
   # KKT for eta
   # gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)
   # kkt_eta <- gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
-  kkt_eta <- gr_eta_lasso_fullrank(eta = eta, sigma2 = sigma2, beta = beta,
-                     eigenvalues = eigenvalues, x = x, y = y, nt = nt)
+  kkt_eta <- gr_eta_lasso_fullrank(
+    eta = eta, sigma2 = sigma2, beta = beta,
+    eigenvalues = eigenvalues, x = x, y = y, nt = nt
+  )
 
   # KKT for sigma2
   # grr_sigma2(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt)
   # kkt_sigma2 <- grr_sigma2(eta = eta, sigma2 = sigma2, beta = beta, eigenvalues = eigenvalues, x = x, y = y, nt = nt) < tol.kkt
-  kkt_sigma2 <- grr_sigma2(eta = eta, sigma2 = sigma2, beta = beta,
-                           eigenvalues = eigenvalues, x = x, y = y, nt = nt)
+  kkt_sigma2 <- grr_sigma2(
+    eta = eta, sigma2 = sigma2, beta = beta,
+    eigenvalues = eigenvalues, x = x, y = y, nt = nt
+  )
 
   # KKT for beta
   # g0 <- (1 / nt) * crossprod(x[,-1, drop = F], wi) %*% (y - x %*% beta) / (colSums(sweep(x[,-1, drop = F]^2, MARGIN = 1, wi_vec, '*')))
 
   # KKT for beta
   # g0 <- (1 / sum(wi_scaled)) * crossprod(x[,-1, drop = F] * wi_scaled, (y - x %*% beta ))
-  g0 <- (1 / sum(wi)) * crossprod(x[,-1, drop = F] * wi, (y - x %*% beta ))
+  g0 <- (1 / sum(wi)) * crossprod(x[, -1, drop = F] * wi, (y - x %*% beta))
 
   # this gives same result as g0
   # g1 <- colSums((1 / nt) * sweep(sweep(x[,-1], MARGIN = 1, wi_vec, '*'), MARGIN = 1, drop((y - x %*% beta)),'*'))
@@ -79,31 +85,26 @@ kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
   kkt_beta_subgr <- sum(abs(gg[!oo]) > 1)
   # if (sum(abs(g[oo]) > tol.kkt) > 0) plot(abs(g[oo]))
 
-  return(c(kkt_beta0 = kkt_beta0,
-           kkt_eta = kkt_eta,
-           kkt_sigma2 = kkt_sigma2,
-           kkt_beta_nonzero = kkt_beta_nonzero,
-           kkt_beta_subgr = kkt_beta_subgr))
-
-
+  return(c(
+    kkt_beta0 = kkt_beta0,
+    kkt_eta = kkt_eta,
+    kkt_sigma2 = kkt_sigma2,
+    kkt_beta_nonzero = kkt_beta_nonzero,
+    kkt_beta_subgr = kkt_beta_subgr
+  ))
 }
 
 #' @rdname kkt_check
 grr_sigma2 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
-
   di <- 1 + eta * (eigenvalues - 1)
 
-  sigma2 - (1 / nt) * sum((((y - x %*% beta) ^ 2) / di))
-
+  sigma2 - (1 / nt) * sum((((y - x %*% beta)^2) / di))
 }
 
 #' @rdname kkt_check
 grr_beta0 <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
-
   di <- 1 + eta * (eigenvalues - 1)
   wi <- (1 / sigma2) * diag(1 / di)
 
-  as.numeric(crossprod(x[,1, drop = FALSE], wi) %*% (y - x %*% beta))
-
+  as.numeric(crossprod(x[, 1, drop = FALSE], wi) %*% (y - x %*% beta))
 }
-

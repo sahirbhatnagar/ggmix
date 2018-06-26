@@ -29,7 +29,6 @@ lambdalasso.fullrank <- function(ggmix_object,
                                  tol.kkt = 1e-9,
                                  eta_init = 0.5,
                                  nlambda = 100, scale_x = F, center_y = F) {
-
   utx <- ggmix_object[["x"]]
   uty <- ggmix_object[["y"]]
   eigenvalues <- ggmix_object[["D"]]
@@ -44,10 +43,10 @@ lambdalasso.fullrank <- function(ggmix_object,
   di <- 1 + eta_init * (eigenvalues - 1)
 
   # initial value for beta0
-  beta0_init <- (sum(utx[, 1] * uty / di)) / (sum(utx[,1] ^ 2 / di))
+  beta0_init <- (sum(utx[, 1] * uty / di)) / (sum(utx[, 1]^2 / di))
 
   # this includes all other betas which are 0 by definition
-  beta_init <- as.matrix(c(beta0_init, rep(0,p)))
+  beta_init <- as.matrix(c(beta0_init, rep(0, p)))
 
   # sum is faster
   # microbenchmark::microbenchmark(
@@ -56,7 +55,7 @@ lambdalasso.fullrank <- function(ggmix_object,
   # )
 
   # closed form for sigma^2
-  sigma2_init <- (1 / n) * sum((uty - utx %*% beta_init) ^ 2 / di)
+  sigma2_init <- (1 / n) * sum((uty - utx %*% beta_init)^2 / di)
 
   # sum version is faster
   # mb <- microbenchmark(
@@ -65,41 +64,42 @@ lambdalasso.fullrank <- function(ggmix_object,
   #   times = 1000)
   # ggplot2::autoplot(mb)
 
-  #iteration counter
+  # iteration counter
   k <- 0
 
   # to enter while loop
   converged <- FALSE
 
   while (!converged) {
-
     Theta_init <- c(beta_init, eta_init, sigma2_init)
 
     # fit eta
-    eta_next <- optim(par = eta_init,
-                      fn = fn_eta_lasso_fullrank,
-                      gr = gr_eta_lasso_fullrank,
-                      method = "L-BFGS-B",
-                      control = list(fnscale = 1),
-                      lower = .01,
-                      upper = .99,
-                      sigma2 = sigma2_init,
-                      beta = beta_init,
-                      eigenvalues = eigenvalues,
-                      x = utx,
-                      y = uty,
-                      nt = n)$par
+    eta_next <- optim(
+      par = eta_init,
+      fn = fn_eta_lasso_fullrank,
+      gr = gr_eta_lasso_fullrank,
+      method = "L-BFGS-B",
+      control = list(fnscale = 1),
+      lower = .01,
+      upper = .99,
+      sigma2 = sigma2_init,
+      beta = beta_init,
+      eigenvalues = eigenvalues,
+      x = utx,
+      y = uty,
+      nt = n
+    )$par
 
     # weights
     di <- 1 + eta_next * (eigenvalues - 1)
 
     # next value for beta0
-    beta0_next <- (sum(utx[,1] * uty / di)) / (sum(utx[,1] ^ 2 / di))
+    beta0_next <- (sum(utx[, 1] * uty / di)) / (sum(utx[, 1]^2 / di))
 
     beta_next <- as.matrix(c(beta0_next, rep(0, p)))
 
     # closed form for sigma^2
-    sigma2_next <- (1 / n) * sum((uty - utx %*% beta_next) ^ 2 / di)
+    sigma2_next <- (1 / n) * sum((uty - utx %*% beta_next)^2 / di)
 
     k <- k + 1
 
@@ -117,7 +117,6 @@ lambdalasso.fullrank <- function(ggmix_object,
     beta_init <- beta_next
     eta_init <- eta_next
     sigma2_init <- sigma2_next
-
   }
 
   # eta_next
@@ -137,10 +136,10 @@ lambdalasso.fullrank <- function(ggmix_object,
   # we divide by sum(wi) here and not in glmnet because the sequence is determined
   # on the log scale
   # lambda.max <- max(abs(colSums(((1 / sum(wi_scaled)) * (wi_scaled * utx[,-1]) * drop(uty - utx %*% beta_next)))))
-# browser()
+  # browser()
   lambdas <- (1 / penalty.factor) *
-                       abs(colSums(((1 / sum(wi)) * (wi * utx[,-1]) *
-                                      drop(uty - utx %*% beta_next))))
+    abs(colSums(((1 / sum(wi)) * (wi * utx[, -1]) *
+      drop(uty - utx %*% beta_next))))
   # need to check for Inf, in case some penalty factors are 0
   lambda.max <- max(lambdas[lambdas != Inf])
   # lambda.max <- lambda.max * sum(wi)
@@ -153,10 +152,13 @@ lambdalasso.fullrank <- function(ggmix_object,
   #                  eigenvalues = eigenvalues, x = utx, y = uty, nt = n,
   #                  lambda = lambda.max, tol.kkt = tol.kkt)
   # message(kkt)
-  out <- list(sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max),
-                                     log(lambda.max),
-                                     length.out = nlambda))),
-              eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next)
+  out <- list(
+    sequence = rev(exp(seq(log(lambda_min_ratio * lambda.max),
+      log(lambda.max),
+      length.out = nlambda
+    ))),
+    eta = eta_next, sigma2 = sigma2_next, beta0 = beta0_next
+  )
 
   return(out)
 }

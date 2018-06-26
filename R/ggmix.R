@@ -112,7 +112,7 @@ ggmix <- function(x, y,
                   group,
                   penalty.factor = rep(1, p_design),
                   lambda = NULL,
-                  lambda_min_ratio  = ifelse(n_design < p_design, 0.01, 0.0001),
+                  lambda_min_ratio = ifelse(n_design < p_design, 0.01, 0.0001),
                   nlambda = 100,
                   eta_init = 0.5,
                   maxit = 100,
@@ -122,45 +122,55 @@ ggmix <- function(x, y,
                   thresh_glmnet = 1e-8, # this is for glmnet
                   epsilon = 1e-4, # this is for ggmix
                   verbose = 1) {
-
   this.call <- match.call()
 
   # Check input -------------------------------------------------------------
 
   estimation <- tryCatch(match.arg(estimation),
-                         error = function(c) {
-                           stop(strwrap("Estimation method should be
+    error = function(c) {
+      stop(strwrap("Estimation method should be
                                         \"full_rank\" or \"low_rank\""),
-                                call. = FALSE)
-                         })
+        call. = FALSE
+      )
+    }
+  )
 
   penalty <- tryCatch(match.arg(penalty),
-                        error = function(c) {
-                          stop(strwrap("Inference method should be \"lasso\" or
+    error = function(c) {
+      stop(strwrap("Inference method should be \"lasso\" or
                                        \"group_lasso\""),
-                               call. = FALSE)
-                        })
+        call. = FALSE
+      )
+    }
+  )
 
-  if (!is.matrix(x))
+  if (!is.matrix(x)) {
     stop("x has to be a matrix")
-  if (any(is.na(x)))
+  }
+  if (any(is.na(x))) {
     stop("Missing values in x not allowed.")
-  if (any(is.na(y)))
+  }
+  if (any(is.na(y))) {
     stop("Missing values in y not allowed.")
+  }
   y <- drop(y)
-  if (!is.numeric(y))
+  if (!is.numeric(y)) {
     stop("y must be numeric. Factors are not allowed.")
+  }
 
-  if ((!missing(U) & missing(D)) | (!missing(D) & missing(U)))
+  if ((!missing(U) & missing(D)) | (!missing(D) & missing(U))) {
     stop("both U and D must be specified.")
+  }
 
-  if (penalty == "gglasso" & missing(group))
+  if (penalty == "gglasso" & missing(group)) {
     stop(strwrap("group cannot be missing when using the group lasso
                  penalty"))
+  }
 
   np_design <- dim(x)
-  if (is.null(np_design) | (np_design[2] <= 1))
+  if (is.null(np_design) | (np_design[2] <= 1)) {
     stop("x should be a matrix with 2 or more columns")
+  }
 
   # note that p_design doesn't contain the intercept
   # whereas the x in the ggmix_object will have the intercept
@@ -198,39 +208,46 @@ ggmix <- function(x, y,
     }
   }
 
-  if (!missing(n_nonzero_eigenvalues))
+  if (!missing(n_nonzero_eigenvalues)) {
     n_nonzero_eigenvalues <- as.double(n_nonzero_eigenvalues)
+  }
 
-  if (!missing(n_zero_eigenvalues))
+  if (!missing(n_zero_eigenvalues)) {
     n_zero_eigenvalues <- as.double(n_zero_eigenvalues)
+  }
 
 
   # check kinship input -----------------------------------------------------
 
   if (is_kinship) {
-
-    if (!is.matrix(kinship))
+    if (!is.matrix(kinship)) {
       stop("kinship has to be a matrix")
+    }
     np_kinship <- dim(kinship)
     n_kinship <- np_kinship[[1]]
     p_kinship <- np_kinship[[2]]
 
-    if (n_kinship != p_kinship)
+    if (n_kinship != p_kinship) {
       stop("kinship should be a square matrix")
-    if (n_kinship != n_design)
+    }
+    if (n_kinship != n_design) {
       stop(strwrap("number of rows in kinship matrix must equal the
                    number of rows in x matrix"))
+    }
 
     if (estimation == "low") {
-      if (missing(n_nonzero_eigenvalues))
+      if (missing(n_nonzero_eigenvalues)) {
         stop(strwrap("when kinship is specified and estimation=\"low\",
                      n_nonzero_eigenvalues must be specified."))
+      }
     }
 
     if (missing(n_zero_eigenvalues) & estimation == "low") {
       n_zero_eigenvalues <- nrow(kinship) - n_nonzero_eigenvalues
-      warning(sprintf("n_zero_eigenvalues missing. setting to %g",
-                      n_zero_eigenvalues))
+      warning(sprintf(
+        "n_zero_eigenvalues missing. setting to %g",
+        n_zero_eigenvalues
+      ))
     }
 
     corr_type <- "kinship"
@@ -240,26 +257,31 @@ ggmix <- function(x, y,
   # check K matrix input ----------------------------------------------------
 
   if (is_K) {
-    if (!is.matrix(K))
+    if (!is.matrix(K)) {
       stop("K has to be a matrix")
+    }
     np_K <- dim(K)
     n_K <- np_K[[1]]
     p_K <- np_K[[2]]
 
-    if (n_K != n_design)
+    if (n_K != n_design) {
       stop(strwrap("number of rows in K matrix must equal the
                    number of rows in x matrix"))
+    }
 
     if (estimation == "low") {
-      if (missing(n_nonzero_eigenvalues))
+      if (missing(n_nonzero_eigenvalues)) {
         stop(strwrap("when K is specified and estimation=\"low\",
                      n_nonzero_eigenvalues must be specified."))
+      }
     }
 
     if (missing(n_zero_eigenvalues) & estimation == "low") {
       n_zero_eigenvalues <- min(n_K, p_K) - n_nonzero_eigenvalues
-      warning(sprintf("n_zero_eigenvalues missing. setting to %g",
-                      n_zero_eigenvalues))
+      warning(sprintf(
+        "n_zero_eigenvalues missing. setting to %g",
+        n_zero_eigenvalues
+      ))
     }
 
     corr_type <- "K"
@@ -269,13 +291,15 @@ ggmix <- function(x, y,
   # check U and D input -----------------------------------------------------
 
   if (is_UD) {
-    if (!is.matrix(U))
+    if (!is.matrix(U)) {
       stop("U has to be a matrix")
-    if (missing(n_zero_eigenvalues) & estimation == "low")
+    }
+    if (missing(n_zero_eigenvalues) & estimation == "low") {
       stop(strwrap("n_zero_eigenvalues must be specified when U and D have
                    been provided and estimation=\"low\". In general this would
                    be the rank of the matrix used to calculate the eigen or
                    singular value decomposition."))
+    }
     np_U <- dim(U)
     n_U <- np_U[[1]]
     p_U <- np_U[[2]]
@@ -284,14 +308,17 @@ ggmix <- function(x, y,
     if (!is.numeric(D)) stop(strwrap("D must be numeric"))
     p_D <- length(D)
 
-    if (n_U != n_design)
+    if (n_U != n_design) {
       stop(strwrap("number of rows in U matrix must equal the
                    number of rows in x matrix"))
-    if (p_U != p_D)
+    }
+    if (p_U != p_D) {
       stop(strwrap("Length of D should equal the number of columns of U."))
+    }
 
-    if (missing(n_nonzero_eigenvalues))
+    if (missing(n_nonzero_eigenvalues)) {
       n_nonzero_eigenvalues <- p_D
+    }
 
     corr_type <- "UD"
   }
@@ -304,9 +331,10 @@ ggmix <- function(x, y,
 
   if (!missing(penalty.factor)) {
     penalty.factor <- as.double(penalty.factor)
-    if (length(penalty.factor) != p_design)
+    if (length(penalty.factor) != p_design) {
       stop(strwrap("length of penalty.factor should be equal to number
                    of columns in x."))
+    }
   }
 
 
@@ -314,38 +342,44 @@ ggmix <- function(x, y,
 
   if (estimation == "full") {
     ggmix_data_object <- switch(corr_type,
-                           kinship = new_fullrank_kinship(x = x, y = y, kinship = kinship),
-                           Kmat = new_fullrank_K(x = x, y = y, K = K),
-                           UD = new_fullrank_UD(x = x, y = y, U = U, D = D)
+      kinship = new_fullrank_kinship(x = x, y = y, kinship = kinship),
+      Kmat = new_fullrank_K(x = x, y = y, K = K),
+      UD = new_fullrank_UD(x = x, y = y, U = U, D = D)
     )
   }
 
   if (estimation == "low") {
-
-    if (missing(n_nonzero_eigenvalues) | n_nonzero_eigenvalues <= 0)
+    if (missing(n_nonzero_eigenvalues) | n_nonzero_eigenvalues <= 0) {
       stop(strwrap("n_nonzero_eigenvalues can't be missing, equal to 0 or negative
                  when low rank estimation is specified (estimation=\"low\").
                  Use estimation=\"full\" if you want all eigenvalues to be
                  computed."))
+    }
 
     if (!requireNamespace("RSpectra", quietly = TRUE)) {
       stop(strwrap("Package \"RSpectra\" needed when low rank estimation is
                    specified (estimation=\"low\"). Please install it."),
-           call. = FALSE
+        call. = FALSE
       )
     }
 
     ggmix_data_object <- switch(corr_type,
-                                kinship = new_lowrank_kinship(x = x, y = y,
-                                                              kinship = kinship,
-                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
-                                  n_zero_eigenvalues = n_zero_eigenvalues),
-                                K = new_lowrank_K(x = x, y = y, K = K,
-                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
-                                  n_zero_eigenvalues = n_zero_eigenvalues),
-                                UD = new_lowrank_UD(x = x, y = y, U = U, D = D,
-                                  n_nonzero_eigenvalues = n_nonzero_eigenvalues,
-                                  n_zero_eigenvalues = n_zero_eigenvalues)
+      kinship = new_lowrank_kinship(
+        x = x, y = y,
+        kinship = kinship,
+        n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+        n_zero_eigenvalues = n_zero_eigenvalues
+      ),
+      K = new_lowrank_K(
+        x = x, y = y, K = K,
+        n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+        n_zero_eigenvalues = n_zero_eigenvalues
+      ),
+      UD = new_lowrank_UD(
+        x = x, y = y, U = U, D = D,
+        n_nonzero_eigenvalues = n_nonzero_eigenvalues,
+        n_zero_eigenvalues = n_zero_eigenvalues
+      )
     )
   }
 
@@ -354,27 +388,27 @@ ggmix <- function(x, y,
 
   # browser()
   if (penalty == "lasso") {
-  fit <- lmmlasso(ggmix_data_object,
-                  penalty.factor = penalty.factor,
-                  lambda = lambda,
-                  lambda_min_ratio = lambda_min_ratio,
-                  nlambda = nlambda,
-                  n_design = n_design,
-                  p_design = p_design,
-                  eta_init = eta_init,
-                  maxit = maxit,
-                  fdev = fdev,
-                  standardize = standardize,
-                  alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
-                  thresh_glmnet = thresh_glmnet, # this is for glmnet
-                  epsilon = epsilon,
-                  verbose = verbose)
+    fit <- lmmlasso(ggmix_data_object,
+      penalty.factor = penalty.factor,
+      lambda = lambda,
+      lambda_min_ratio = lambda_min_ratio,
+      nlambda = nlambda,
+      n_design = n_design,
+      p_design = p_design,
+      eta_init = eta_init,
+      maxit = maxit,
+      fdev = fdev,
+      standardize = standardize,
+      alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
+      thresh_glmnet = thresh_glmnet, # this is for glmnet
+      epsilon = epsilon,
+      verbose = verbose
+    )
   } else if (penalty == "gglasso") {
-# not yet implemented
+    # not yet implemented
   }
 
   fit$call <- this.call
 
   return(fit)
-
 }

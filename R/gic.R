@@ -43,19 +43,20 @@ gic.default <- function(ggmix_fit, ...) {
 gic.ggmix_fit <- function(ggmix_fit,
                           ...,
                           an = log(log(n)) * log(p)) {
-
   n <- ggmix_fit[["n_design"]]
   p <- ggmix_fit[["p_design"]]
-  df <- ggmix_fit$result[,"Df"]
-  model_loglik <- ggmix_fit$result[,"loglik"]
+  df <- ggmix_fit$result[, "Df"]
+  model_loglik <- ggmix_fit$result[, "loglik"]
 
   model_gic <- -2 * model_loglik + an * df
 
-  out = list(lambda = ggmix_fit[["lambda"]],
-             nzero = df,
-             gic = model_gic,
-             lambda.min.name = names(which.min(model_gic)),
-             lambda.min = ggmix_fit$result[names(which.min(model_gic)),"Lambda"])
+  out <- list(
+    lambda = ggmix_fit[["lambda"]],
+    nzero = df,
+    gic = model_gic,
+    lambda.min.name = names(which.min(model_gic)),
+    lambda.min = ggmix_fit$result[names(which.min(model_gic)), "Lambda"]
+  )
   obj <- c(out)
   class(obj) <- c("ggmix_gic", attr(ggmix_fit, "class"))
   return(obj)

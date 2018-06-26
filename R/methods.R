@@ -15,9 +15,11 @@
 #' @export
 print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
   cat("\nCall: ", deparse(x$call), "\n\n")
-  print(cbind(Df = x$result[,"Df"],
-              `%Dev` = signif(x$result[,"%Dev"], digits),
-              Lambda = signif(x$result[,"Lambda"], digits)))
+  print(cbind(
+    Df = x$result[, "Df"],
+    `%Dev` = signif(x$result[, "%Dev"], digits),
+    Lambda = signif(x$result[, "Lambda"], digits)
+  ))
 }
 
 
@@ -33,19 +35,24 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #' @rdname predict.ggmix
 #' @export
 coef.ggmix <- function(object, s = NULL, which = NULL, ...) {
-  if (is.null(which)) predict(object, s = s, type = "coefficients", ...) else
+  if (is.null(which)) {
+    predict(object, s = s, type = "coefficients", ...)
+  } else {
     predict(object, s = s, type = which, ...)
+  }
 }
 
 #' @rdname predict.ggmix
 coef.gic.ggmix <- function(object, s = "lambda.min", ...) {
-  if (is.numeric(s))
-    lambda = s
-  else if (is.character(s)) {
-    s = match.arg(s)
-    lambda = object[[s]]
+  if (is.numeric(s)) {
+    lambda <- s
+  } else if (is.character(s)) {
+    s <- match.arg(s)
+    lambda <- object[[s]]
   }
-  else stop("Invalid form for s")
+  else {
+    stop("Invalid form for s")
+  }
   coef(object$ggmix.fit, s = lambda, ...)
 }
 
@@ -67,8 +74,10 @@ coef.gic.ggmix <- function(object, s = "lambda.min", ...) {
 #'   for each value of s.
 #' @export
 predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
-                              type = c("link", "response", "coefficients","ranef",
-                                       "nonzero", "beta", "eta", "sigma2")) {
+                              type = c(
+                                "link", "response", "coefficients", "ranef",
+                                "nonzero", "beta", "eta", "sigma2"
+                              )) {
 
   # object = res$ggmix.fit
   # s = c(0.1,0.2,0.3)
@@ -83,16 +92,17 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
   # need to think about how to project newx... cant use eigenvectors of training sample beacuse thats for a sample i
   # probably need to recalculate eigenvectors for newx. will not re-calculate. just use original x
 
-  type = match.arg(type)
+  type <- match.arg(type)
 
   if (any(missing(new.x), missing(new.u), missing(new.d))) {
-    if (!match(type, c("coefficients", "nonzero"), FALSE))
+    if (!match(type, c("coefficients", "nonzero"), FALSE)) {
       stop("You need to supply a value for 'new.x', 'new.u' and 'new.d'")
+    }
   }
 
-  a0 = t(as.matrix(object$b0))
-  rownames(a0) = "(Intercept)"
-  nbeta = rbind2(a0, object$beta)
+  a0 <- t(as.matrix(object$b0))
+  rownames(a0) <- "(Intercept)"
+  nbeta <- rbind2(a0, object$beta)
 
 
   if (!is.null(s)) {
@@ -101,30 +111,32 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
     lambda <- object$lambda
     lamlist <- glmnet::lambda.interp(lambda, s)
     if (length(s) == 1) {
-      nbeta = nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
+      nbeta <- nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
         nbeta[, lamlist$right, drop = FALSE] * (1 -
-                                                  lamlist$frac)
+          lamlist$frac)
     } else {
-      nbeta = nbeta[, lamlist$left, drop = FALSE] %*%
+      nbeta <- nbeta[, lamlist$left, drop = FALSE] %*%
         diag(lamlist$frac) + nbeta[, lamlist$right,
-                                   drop = FALSE] %*% diag(1 - lamlist$frac)
+          drop = FALSE
+        ] %*% diag(1 - lamlist$frac)
     }
     dimnames(nbeta) <- list(vnames, paste(seq(along = s)))
   }
 
 
-  if (type == "nonzero")
+  if (type == "nonzero") {
     return(glmnet::nonzeroCoef(nbeta[-1, , drop = FALSE], bystep = TRUE))
+  }
 
-  if (inherits(newx, "sparseMatrix"))
-    newx = as(newx, "dgCMatrix")
+  if (inherits(newx, "sparseMatrix")) {
+    newx <- as(newx, "dgCMatrix")
+  }
 
 
   # this is used by the cv_lspath function to calculate predicted values
   # which will subsequently be used for calculating MSE for each fold
   if (type == "link") {
-
-    nfit = as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
+    nfit <- as.matrix(cbind2(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
     ranef.ggmix(object)
     return(nfit)
   }
@@ -137,7 +149,7 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
   }
 
   if (type == "coefficients" && !is.null(s)) {
-    return(nbeta[ , s, drop = F])
+    return(nbeta[, s, drop = F])
   }
 
   if (type == "beta" && is.null(s)) {
@@ -145,12 +157,12 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
   }
 
   if (type == "beta" && !is.null(s)) {
-    return(object$beta[ , s, drop = F])
+    return(object$beta[, s, drop = F])
   }
 
 
   if (type == "varparams" && !is.null(s)) {
-    return(object$beta[ , s, drop = F])
+    return(object$beta[, s, drop = F])
   }
 
 
@@ -169,14 +181,12 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
 
   if (type == "nonzero" && !is.null(s)) {
     if (length(s) > 1) stop("type=nonzero is only valid for a single value for s")
-    return(nbeta[glmnet::nonzeroCoef(nbeta[, s , drop = FALSE], bystep = TRUE)[[1]], s, drop = F])
+    return(nbeta[glmnet::nonzeroCoef(nbeta[, s, drop = FALSE], bystep = TRUE)[[1]], s, drop = F])
   }
 
   if (inherits(newx, "sparseMatrix")) {
-    newx = as(newx, "dgCMatrix")
+    newx <- as(newx, "dgCMatrix")
   }
-
-
 }
 
 
@@ -197,59 +207,68 @@ predict.ggmix_fit <- function(object, new.x, new.u, new.d, s = NULL,
 #'   to make a prediction
 #' @method predict gic.ggmix
 #' @export
-predict.gic.ggmix <- function(object, newx, s = c("lambda.1se",
-                                                   "lambda.min"), ...) {
-  if (is.numeric(s))
-    lambda <- s else if (is.character(s)) {
-      s <- match.arg(s)
-      lambda <- object[[s]]
-    } else stop("Invalid form for s")
+predict.gic.ggmix <- function(object, newx, s = c(
+                                "lambda.1se",
+                                "lambda.min"
+                              ), ...) {
+  if (is.numeric(s)) {
+    lambda <- s
+  } else if (is.character(s)) {
+    s <- match.arg(s)
+    lambda <- object[[s]]
+  } else {
+    stop("Invalid form for s")
+  }
   predict(object$ggmix.fit, newx, s = lambda, ...)
 }
 
 
 
 plot.ggmix_fit <- function(x,
-                           type = c("coef","QQranef","QQresid", "predicted", "Tukey-Anscombe"),
-                           xvar=c("norm","lambda","dev"), s = x$lambda_min,
-                           label=FALSE, sign.lambda = 1, ...){
+                           type = c("coef", "QQranef", "QQresid", "predicted", "Tukey-Anscombe"),
+                           xvar = c("norm", "lambda", "dev"), s = x$lambda_min,
+                           label = FALSE, sign.lambda = 1, ...) {
   xvar <- match.arg(xvar)
   type <- match.arg(type, several.ok = TRUE)
 
   if (any(type == "coef")) {
-    plotCoef(x$beta, lambda=drop(x$result[,"Lambda"]),
-             df=drop(x$result[,"Df"]), dev=drop(x$result[,"Deviance"]),
-             label=label, xvar=xvar,...)
+    plotCoef(x$beta,
+      lambda = drop(x$result[, "Lambda"]),
+      df = drop(x$result[, "Df"]), dev = drop(x$result[, "Deviance"]),
+      label = label, xvar = xvar, ...
+    )
   }
 
-  if (any(type == "QQranef")){
+  if (any(type == "QQranef")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s,"Lambda"]))
+    qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s, "Lambda"]))
     qqline(x$randomeff[, s], col = "red")
   }
 
-  if (any(type == "QQresid")){
+  if (any(type == "QQresid")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s,"Lambda"]))
+    qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s, "Lambda"]))
     qqline(x$residuals[, s], col = "red")
   }
 
-  if (any(type == "predicted")){
+  if (any(type == "predicted")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    plot(x$predicted[, s], drop(x$y), xlab = "predicted response (XB + b)", ylab = "observed response",
-         main = sprintf("Observed vs. Predicted response
-                        R2 = %g", cor(x$predicted[, s], drop(x$y))))
+    plot(x$predicted[, s], drop(x$y),
+      xlab = "predicted response (XB + b)", ylab = "observed response",
+      main = sprintf("Observed vs. Predicted response
+                        R2 = %g", cor(x$predicted[, s], drop(x$y)))
+    )
     abline(a = 0, b = 1, col = "red")
   }
 
 
-  if (any(type == "Tukey-Anscombe")){
-    plot(x$fitted[, s], x$residuals[, s], main = "Tukey-Anscombe Plot",
-         xlab = "fitted values (XB)", ylab = "residuals")
+  if (any(type == "Tukey-Anscombe")) {
+    plot(x$fitted[, s], x$residuals[, s],
+      main = "Tukey-Anscombe Plot",
+      xlab = "fitted values (XB)", ylab = "residuals"
+    )
     abline(h = 0, col = "red")
   }
-
-
 }
 
 
@@ -269,14 +288,13 @@ ranef.gic.ggmix <- function(object, s = "lambda.min", ...) {
 
   # object = res
   # s = "lambda.min"
-  #==================
+  # ==================
 
   if (s == "lambda.min") {
-  ranef(object = object$ggmix.fit, s = object$lambda.min, ...)
-  } else if(is.numeric(s)) {
+    ranef(object = object$ggmix.fit, s = object$lambda.min, ...)
+  } else if (is.numeric(s)) {
 
   }
-
 }
 
 
@@ -292,7 +310,7 @@ ranef.gic.ggmix <- function(object, s = "lambda.min", ...) {
 #' @rdname ranef
 #' @export
 ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
-                         type = c("fitted", "predicted")) {
+                        type = c("fitted", "predicted")) {
 
   # object = res$ggmix.fit
   # s = c(0.5, 0.3, 0.1)
@@ -302,13 +320,14 @@ ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
   # new.d = Lambda
   # type = "fitted"
   # s = "lambda.min"
-  #==================
+  # ==================
 
-  type = match.arg(type)
+  type <- match.arg(type)
 
   if (any(missing(new.x), missing(new.u), missing(new.d))) {
-    if (!match(type, c("fitted"), FALSE))
+    if (!match(type, c("fitted"), FALSE)) {
       stop("You need to supply a value for 'new.x', 'new.u' and 'new.d'")
+    }
   }
 
   a0 <- t(as.matrix(object$b0))
@@ -317,7 +336,7 @@ ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
   rownames(a0) <- "(Intercept)"
   rownames(eta) <- "eta"
   rownames(sigma2) <- "sigma2"
-  nbeta = rbind(a0, object$beta, eta, sigma2)
+  nbeta <- rbind(a0, object$beta, eta, sigma2)
 
   if (!is.null(s)) {
     vnames <- dimnames(nbeta)[[1]]
@@ -325,44 +344,43 @@ ranef.ggmix <- function(object, new.x, new.u, new.d, s = NULL,
     lambda <- object$lambda
     lamlist <- glmnet::lambda.interp(lambda, s)
     if (length(s) == 1) {
-      nbeta = nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
+      nbeta <- nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
         nbeta[, lamlist$right, drop = FALSE] * (1 -
-                                                  lamlist$frac)
+          lamlist$frac)
     } else {
-      nbeta = nbeta[, lamlist$left, drop = FALSE] %*%
+      nbeta <- nbeta[, lamlist$left, drop = FALSE] %*%
         diag(lamlist$frac) + nbeta[, lamlist$right,
-                                   drop = FALSE] %*% diag(1 - lamlist$frac)
+          drop = FALSE
+        ] %*% diag(1 - lamlist$frac)
     }
     dimnames(nbeta) <- list(vnames, paste(seq(along = s)))
   }
 
   if (type == "fitted") {
-
     bis <- lapply(seq_along(s), function(i) {
-      eta_next <- nbeta["eta",i]
-      beta_next <- nbeta[c("(Intercept)", object$cov_names[-1]),i,drop=F]
-      bi(eta = eta_next, beta = beta_next, eigenvalues = object$eigenvalues,
-         eigenvectors = object$u, x = object$utx, y = object$uty)
+      eta_next <- nbeta["eta", i]
+      beta_next <- nbeta[c("(Intercept)", object$cov_names[-1]), i, drop = F]
+      bi(
+        eta = eta_next, beta = beta_next, eigenvalues = object$eigenvalues,
+        eigenvectors = object$u, x = object$utx, y = object$uty
+      )
     })
 
     bisall <- do.call(cbind, bis)
     dim(bisall)
     dimnames(bisall) <- list(rownames(object$x), paste(seq(along = s)))
     return(bisall)
-
   }
-
-
 }
 
 
 
 
-bi <- function(eta, beta, eigenvalues, eigenvectors, x, y){
+bi <- function(eta, beta, eigenvalues, eigenvectors, x, y) {
   di <- 1 + eta * (eigenvalues - 1)
   D_tilde_inv <- diag(1 / di)
-  as.vector(eigenvectors %*% diag(1 / (1/di + 1/(eta * eigenvalues))) %*%
-              t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
+  as.vector(eigenvectors %*% diag(1 / (1 / di + 1 / (eta * eigenvalues))) %*%
+    t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
 }
 
 
@@ -374,19 +392,18 @@ random.effects.gic.ggmix <- function(object, s = "lambda.min") {
 
   # object = res
   # s = "lambda.min"
-  #==================
+  # ==================
 
   U <- object$ggmix.fit[["u"]]
   estimates <- coef(object, s = s)
-  eta_next <- estimates["eta",]
-  beta_next <- estimates[c("(Intercept)",object$ggmix.fit$cov_names[-1]),,drop=F]
+  eta_next <- estimates["eta", ]
+  beta_next <- estimates[c("(Intercept)", object$ggmix.fit$cov_names[-1]), , drop = F]
   eigenvalues <- object$ggmix.fit$eigenvalues
 
   di <- 1 + eta_next * (eigenvalues - 1)
   D_tilde_inv <- diag(1 / di)
-  bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*eigenvalues))) %*% t(U) %*%
-                    U %*% D_tilde_inv %*% (object$ggmix.fit$uty - object$ggmix.fit$utx %*%
-                                             beta_next))
+  bi <- as.vector(U %*% diag(1 / (1 / di + 1 / (eta_next * eigenvalues))) %*% t(U) %*%
+    U %*% D_tilde_inv %*% (object$ggmix.fit$uty - object$ggmix.fit$utx %*%
+      beta_next))
   bi
-
 }

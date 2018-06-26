@@ -25,12 +25,12 @@ sigma2lasso.default <- function(ggmix_object, ...) {
 #' @rdname sigma2lasso
 sigma2lasso.fullrank <- function(ggmix_object,
                                  ...,
-                                 n, beta, eta){
+                                 n, beta, eta) {
   x <- ggmix_object[["x"]]
   y <- ggmix_object[["y"]]
   eigenvalues <- ggmix_object[["D"]]
 
-  (1 / n) * sum(((y - x %*% beta) ^ 2) / (1 + eta * (eigenvalues - 1)))
+  (1 / n) * sum(((y - x %*% beta)^2) / (1 + eta * (eigenvalues - 1)))
 }
 
 
