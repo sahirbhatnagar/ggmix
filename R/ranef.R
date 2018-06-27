@@ -61,7 +61,7 @@ ranef.ggmix_gic <- function(object, s = "lambda.min", ...) {
 
   if (inherits(object, "lassofullrank")) {
 
-    nall <- coef(object, s = lambda, type = "all")
+    nall <- stats::coef(object, s = lambda, type = "all")
 
     if (length(lambda) == 1) {
       # browser()
@@ -78,7 +78,7 @@ ranef.ggmix_gic <- function(object, s = "lambda.min", ...) {
       )
     } else {
 
-      nall <- coef(object, s = lambda, type = "all")
+      nall <- stats::coef(object, s = lambda, type = "all")
       bis <- lapply(seq_along(s), function(i) {
         eta <- nall["eta", i]
         beta <- nall[object[["ggmix_fit"]][["cov_names"]], i, drop = FALSE]

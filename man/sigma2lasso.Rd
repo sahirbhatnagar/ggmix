@@ -18,6 +18,8 @@ sigma2lasso(ggmix_object, ...)
 
 \item{...}{Extra parameters. Currently ignored.}
 
+\item{n}{number of observations}
+
 \item{beta}{current estimate of the beta parameter including the intercept.
 this should be of length p+1, where p is the number of variables.}
 

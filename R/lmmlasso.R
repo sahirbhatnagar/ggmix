@@ -304,7 +304,7 @@ lmmlasso.fullrank <- function(ggmix_object,
   }
 
   # if there is early stopping due to fdev, remove NAs
-  out_print <- out_print[complete.cases(out_print), ]
+  out_print <- out_print[stats::complete.cases(out_print), ]
 
   # get names of lambdas for which a solution was obtained
   lambdas_fit <- rownames(out_print)
@@ -316,9 +316,9 @@ lmmlasso.fullrank <- function(ggmix_object,
     n_design = n_design, # used by gic function
     p_design = p_design, # used by gic function
     lambda = out_print[, "Lambda"], # used by gic, predict functions
-    coef = as(coefficient_mat[, lambdas_fit, drop = F], "dgCMatrix"), #first row is intercept, last two rows are eta and sigma2
+    coef = methods::as(coefficient_mat[, lambdas_fit, drop = F], "dgCMatrix"), #first row is intercept, last two rows are eta and sigma2
     b0 = coefficient_mat["(Intercept)", lambdas_fit], # used by predict function
-    beta = as(coefficient_mat[colnames(ggmix_object[["x"]])[-1],
+    beta = methods::as(coefficient_mat[colnames(ggmix_object[["x"]])[-1],
       lambdas_fit,
       drop = FALSE
     ], "dgCMatrix"), # used by predict function

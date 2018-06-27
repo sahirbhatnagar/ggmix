@@ -45,8 +45,8 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   Type \code{"nonzero"} returns a list of the the nonzero coefficients for
 #'   each value of \code{s} (does not include the variance components eta and
 #'   sigma2). Default: "link"
-#' @param ... currently ignored
 #' @return The object returned depends on type.
+#' @method predict ggmix_fit
 #' @details \code{s} is the new vector at which predictions are requested. If
 #'   \code{s} is not in the lambda sequence used for fitting the model, the
 #'   predict function will use linear interpolation to make predictions. The new
@@ -57,7 +57,7 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 predict.ggmix_fit <- function(object, newx, s = NULL,
                               type = c(
                                 "link", "response", "coefficients",
-                                "all", "nonzero")) {
+                                "all", "nonzero"), ...) {
 
   type <- match.arg(type)
 

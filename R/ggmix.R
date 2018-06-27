@@ -325,7 +325,7 @@ ggmix <- function(x, y,
 
   vnames <- colnames(x)
   if (is.null(vnames)) {
-    vnames <- paste("V", seq(p), sep = "")
+    vnames <- paste("V", seq(p_design), sep = "")
     colnames(x) <- vnames
   }
 

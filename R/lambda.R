@@ -75,7 +75,7 @@ lambdalasso.fullrank <- function(ggmix_object,
     Theta_init <- c(beta_init, eta_init, sigma2_init)
 
     # fit eta
-    eta_next <- optim(
+    eta_next <- stats::optim(
       par = eta_init,
       fn = fn_eta_lasso_fullrank,
       gr = gr_eta_lasso_fullrank,

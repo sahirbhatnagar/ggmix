@@ -10,6 +10,7 @@
 #' @param beta current estimate of the beta parameter including the intercept.
 #'   this should be of length p+1, where p is the number of variables.
 #' @param eta current estimate of the eta parameter
+#' @param n number of observations
 #' @param ... Extra parameters. Currently ignored.
 #' @return A descreasing sequence of tuning parameters
 #' @note There is a closed form solution for sigma^2, given beta and eta. This

@@ -6,7 +6,7 @@
 \title{Make predictions from a \code{ggmix_fit} object}
 \usage{
 \method{predict}{ggmix_fit}(object, newx, s = NULL, type = c("link",
-  "response", "coefficients", "all", "nonzero"))
+  "response", "coefficients", "all", "nonzero"), ...)
 
 \method{coef}{ggmix_fit}(object, s = NULL, type, ...)
 }
@@ -32,8 +32,6 @@ coefficients and variance components at the requested value of \code{s}.
 Type \code{"nonzero"} returns a list of the the nonzero coefficients for
 each value of \code{s} (does not include the variance components eta and
 sigma2). Default: "link"}
-
-\item{...}{currently ignored}
 
 \item{...}{additional arguments to pass to predict function}
 }

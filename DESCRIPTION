@@ -12,10 +12,10 @@ Authors@R: c(
   person("Celia", "Greenwood", email = "celia.greenwood@mcgill.ca",
   role = c("aut"), comment = "http://www.mcgill.ca/statisticalgenetics/")
   )
-Description: Fit penalized multivariable linear mixed models with a single 
+Description: Fit penalized multi variable linear mixed models with a single 
     random effect to control for population structure in genetic association 
     studies. This is a flexible framework which allows for both lasso and group 
-    lasso penalties. A lowrank estimation procedure is implemented when the 
+    lasso penalties. A low rank estimation procedure is implemented when the 
     matrix of SNPs used to estimate the kinship matrix is not full rank. 
     Can also handle prior annotation information, for example, rare variants, 
     in the form of weights.

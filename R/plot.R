@@ -74,33 +74,33 @@ plot.ggmix_fit <- function(x,
 
   if (any(type == "QQranef")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s, "Lambda"]))
-    qqline(x$randomeff[, s], col = "red")
+    stats::qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s, "Lambda"]))
+    stats::qqline(x$randomeff[, s], col = "red")
   }
 
   if (any(type == "QQresid")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s, "Lambda"]))
-    qqline(x$residuals[, s], col = "red")
+    stats::qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s, "Lambda"]))
+    stats::qqline(x$residuals[, s], col = "red")
   }
 
   if (any(type == "predicted")) {
     if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    plot(x$predicted[, s], drop(x$y),
+    graphics::plot(x$predicted[, s], drop(x$y),
          xlab = "predicted response (XB + b)", ylab = "observed response",
          main = sprintf("Observed vs. Predicted response
-                        R2 = %g", cor(x$predicted[, s], drop(x$y)))
+                        R2 = %g", stats::cor(x$predicted[, s], drop(x$y)))
     )
-    abline(a = 0, b = 1, col = "red")
+    graphics::abline(a = 0, b = 1, col = "red")
   }
 
 
   if (any(type == "Tukey-Anscombe")) {
-    plot(x$fitted[, s], x$residuals[, s],
+    graphics::plot(x$fitted[, s], x$residuals[, s],
          main = "Tukey-Anscombe Plot",
          xlab = "fitted values (XB)", ylab = "residuals"
     )
-    abline(h = 0, col = "red")
+    graphics::abline(h = 0, col = "red")
   }
 }
 
@@ -152,7 +152,7 @@ plotCoef <- function(beta, norm, lambda, df, dev, label = FALSE,
   dotlist <- list(...)
   type <- dotlist$type
   if (is.null(type)) {
-    matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, type = "l", ...)
+    graphics::matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, type = "l", ...)
   } else {
     graphics::matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, ...)
   }
