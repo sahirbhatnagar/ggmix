@@ -10,7 +10,6 @@ pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd')
 pacman::p_load(MASS)
 devtools::load_all()
-data("admixed")
 data("karim")
 karim$b %>% plot
 Phi <- 2 * karim$kin1
@@ -96,6 +95,7 @@ res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
 res
 
 devtools::load_all()
+data("admixed")
 p.fac <- rep(1, ncol(admixed$x))
 p.fac[sample(1:ncol(admixed$x),20)] <- 1
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
@@ -110,6 +110,7 @@ coef(res, s = c(0.1,0.02), type = "all")
 predict(res, s = 0.05, newx = admixed$x)
 predict(res, s = c(0.22,0.05), newx = admixed$x)
 coef(res) %>% tail
+ranef(res)
 
 res
 res$coef %>% dim
@@ -119,6 +120,10 @@ res$cov_names
 
 gicres <- gic(res)
 class(gicres)
+ranef(gicres, s = c(0.1,0.2))
+
+str(gicres)
+
 plot(gicres, ylab = "jkj")
 coef(gicres, type = "non")
 help(gic)

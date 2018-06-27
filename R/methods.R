@@ -293,12 +293,7 @@ coef.ggmix_gic <- function(object, s = c("lambda.min"), type, ...) {
 
 
 
-# bi <- function(eta, beta, eigenvalues, eigenvectors, x, y) {
-#   di <- 1 + eta * (eigenvalues - 1)
-#   D_tilde_inv <- diag(1 / di)
-#   as.vector(eigenvectors %*% diag(1 / (1 / di + 1 / (eta * eigenvalues))) %*%
-#     t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
-# }
+
 
 
 
