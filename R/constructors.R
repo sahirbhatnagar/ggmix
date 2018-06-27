@@ -28,7 +28,7 @@ new_fullrank_kinship <- function(x, y, kinship) {
     Lambda[which(Lambda < 1e-5)] <- 1e-05
   }
 
-  x <- cbind(beta0 = 1, x)
+  x <- cbind("(Intercept)" = 1, x)
   utx <- crossprod(U_kinship, x)
   uty <- crossprod(U_kinship, y)
 
@@ -52,7 +52,7 @@ new_fullrank_K <- function(x, y, K) {
     Lambda[which(Lambda < 1e-5)] <- 1e-05
   }
 
-  x <- cbind(beta0 = 1, x)
+  x <- cbind("(Intercept)" = 1, x)
   utx <- crossprod(U_K, x)
   uty <- crossprod(U_K, y)
 
@@ -69,7 +69,7 @@ new_fullrank_K <- function(x, y, K) {
 #' @rdname ggmix_data_object
 #' @export
 new_fullrank_UD <- function(x, y, U, D) {
-  x <- cbind(beta0 = 1, x)
+  x <- cbind("(Intercept)" = 1, x)
   utx <- crossprod(U, x)
   uty <- crossprod(U, y)
 

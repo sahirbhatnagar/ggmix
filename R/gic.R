@@ -19,13 +19,14 @@
 #' @return an object with S3 class \code{"ggmix_gic"}, \code{"ggmix_fit"},
 #'   \code{"*"} and \code{"**"} where \code{"*"} is "lasso" or "gglasso" and
 #'   \code{"**"} is fullrank or lowrank. Results are provided for converged
-#'   values of lambda only. \describe{\item{lambda}{the sequence of converged
-#'   tuning parameters} \item{nzero}{the number of non-zero estimated
-#'   coefficients including the 2 variance parameters which are not penalized
-#'   and therefore always included}\item{gic}{gic value. a numeric vector with
-#'   length equal to \code{length(lambda)}} \item{lambda.min.name}{a character
-#'   corresponding to the name of the tuning parameter lambda which minimizes
-#'   the gic}\item{lambda.min}{the value of lambda which minimizes the gic}}
+#'   values of lambda only. \describe{\item{ggmix_fit}{the ggmix_fit
+#'   object}\item{lambda}{the sequence of converged tuning parameters}
+#'   \item{nzero}{the number of non-zero estimated coefficients including the 2
+#'   variance parameters which are not penalized and therefore always
+#'   included}\item{gic}{gic value. a numeric vector with length equal to
+#'   \code{length(lambda)}} \item{lambda.min.name}{a character corresponding to
+#'   the name of the tuning parameter lambda which minimizes the
+#'   gic}\item{lambda.min}{the value of lambda which minimizes the gic}}
 #' @export
 gic <- function(ggmix_fit, ...) UseMethod("gic")
 
@@ -51,6 +52,7 @@ gic.ggmix_fit <- function(ggmix_fit,
   model_gic <- -2 * model_loglik + an * df
 
   out <- list(
+    ggmix_fit = ggmix_fit, # used in predict.ggmix_gic function
     lambda = ggmix_fit[["lambda"]],
     nzero = df,
     gic = model_gic,

@@ -44,6 +44,11 @@ nobs < nvars case.}
 
 \item{nlambda}{the number of lambda values - default is 100.}
 
+\item{n_design}{total number of observations}
+
+\item{p_design}{number of variables in the design matrix, excluding the
+intercept column}
+
 \item{eta_init}{initial value for the eta parameter, with \eqn{0 < \eta < 1}
 used in determining lambda.max and starting value for fitting algorithm.}
 

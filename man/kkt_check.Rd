@@ -20,6 +20,9 @@ grr_beta0(eta, sigma2, beta, eigenvalues, x, y, nt)
 \item{beta}{current estimate of the beta parameter including the intercept.
 this should be of length p+1, where p is the number of variables.}
 
+\item{eigenvalues}{non-zero eigenvalues of the kinship matrix, or the square
+of the singular values of the matrix used to construct the kinship matrix}
+
 \item{x}{rotated x. Should be U^T X, where U is the matrix of eigenvectors
 and X contains the first column of ones for the intercept. x should be a
 mtrix of dimension n x (p+1). These are outputted by the constructor

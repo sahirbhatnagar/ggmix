@@ -7,6 +7,9 @@
 #' @param ggmix_object A ggmix_object object of class \code{lowrank} or
 #'   \code{fullrank}
 #' @inheritParams ggmix
+#' @param n_design total number of observations
+#' @param p_design number of variables in the design matrix, excluding the
+#'   intercept column
 #' @param ... Extra parameters. Currently ignored.
 #' @return A object of class \code{ggmix}
 #' @export
@@ -312,13 +315,13 @@ lmmlasso.fullrank <- function(ggmix_object,
     ggmix_object = ggmix_object,
     n_design = n_design, # used by gic function
     p_design = p_design, # used by gic function
-    lambda = out_print[, "Lambda"], # used by gic function
-    coef = coefficient_mat[, lambdas_fit, drop = F],
-    b0 = coefficient_mat["beta0", lambdas_fit],
+    lambda = out_print[, "Lambda"], # used by gic, predict functions
+    coef = as(coefficient_mat[, lambdas_fit, drop = F], "dgCMatrix"), #first row is intercept, last two rows are eta and sigma2
+    b0 = coefficient_mat["(Intercept)", lambdas_fit], # used by predict function
     beta = as(coefficient_mat[colnames(ggmix_object[["x"]])[-1],
       lambdas_fit,
       drop = FALSE
-    ], "dgCMatrix"),
+    ], "dgCMatrix"), # used by predict function
     df = out_print[lambdas_fit, "Df"],
     eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
     sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
@@ -327,7 +330,7 @@ lmmlasso.fullrank <- function(ggmix_object,
     # fitted = fitted_mat[, lambdas_fit, drop = FALSE],
     # predicted = predicted_mat[, lambdas_fit, drop = FALSE],
     # residuals = resid_mat[, lambdas_fit, drop = FALSE],
-    cov_names = colnames(ggmix_object[["x"]]) # ,
+    cov_names = colnames(ggmix_object[["x"]]) # , used in predict function, this includes intercept
     # lambda_min = id_min,
     # lambda_min_value = lambda_min
   )

@@ -39,6 +39,8 @@ parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 Defaults value is 1E-7}
 
+\item{tol.kkt}{KKT tolerance. Currently ignored}
+
 \item{eta_init}{initial value for the eta parameter, with \eqn{0 < \eta < 1}
 used in determining lambda.max and starting value for fitting algorithm.}
 

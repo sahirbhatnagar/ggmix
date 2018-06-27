@@ -5,6 +5,8 @@
 #'   functions. See \code{\link{ggmix_data_object}} for details
 #' @param y rotated y. Should be U^T Y, where U is the matrix of eigenvectors
 #'   and Y is the response.
+#' @param eigenvalues non-zero eigenvalues of the kinship matrix, or the square
+#'   of the singular values of the matrix used to construct the kinship matrix
 #' @inheritParams ggmix
 #' @inheritParams logliklasso
 #' @param tol.kkt Tolerance for determining if an entry of the subgradient is

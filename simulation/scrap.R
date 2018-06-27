@@ -100,13 +100,27 @@ p.fac <- rep(1, ncol(admixed$x))
 p.fac[sample(1:ncol(admixed$x),20)] <- 1
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              estimation = "full", penalty.factor = p.fac)
+
 admixed$x %>% dim
 res
 class(res)
+coef(res, s = 0.02, type = "all")
+coef(res, s = c(0.1,0.02), type = "nonzero")
+coef(res, s = c(0.1,0.02), type = "all")
+predict(res, s = 0.05, newx = admixed$x)
+predict(res, s = c(0.22,0.05), newx = admixed$x)
+coef(res) %>% tail
 
-gicres <- gic(res, an = log(nrow(admixed$x)))
+res
+res$coef %>% dim
+res$coef %>% head
+res$coef %>% tail
+res$cov_names
+
+gicres <- gic(res)
 class(gicres)
 plot(gicres, ylab = "jkj")
+coef(gicres, type = "non")
 help(gic)
 plot(res)
 # for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data

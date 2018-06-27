@@ -1,14 +1,61 @@
-gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
+#' Simulation Scenarion from Bhatnagar et al. (2018+) ggmix paper
+#'
+#' @description Function that generates data of the different simulation studies
+#'   presented in the accompanying paper. This function requires the
+#'   \code{popkin} and \code{bnpsd} package to be installed.
+#' @param n number of observations to simulate
+#' @param p_test number of variables in X_test, i.e., the design matrix
+#' @param p_kinship number of variable in X_kinship, i.e., matrix used to
+#'   calculate kinship
+#' @param k number of intermediate subpopulations.
+#' @param s the desired bias coefficient, which specifies sigma indirectly.
+#'   Required if sigma is missing
+#' @param Fst The desired final FST of the admixed individuals. Required if
+#'   sigma is missing
+#' @param b0 the true intercept parameter
+#' @param eta the true eta parameter, which has to be \code{0 < eta < 1}
+#' @param sigma2 the true sigma2 parameter
+#' @param nPC number of principal components to include in the design matrix
+#'   used for regression adjustment for population structure via principal
+#'   components. This matrix is used as the input in a standard lasso regression
+#'   routine, where there are no random effects.
+#' @param geography the type of geography for simulation the kinship matrix.
+#'   "ind" is independent populations where every individuals is actually
+#'   unadmixed, "1d" is a 1D geography and "circ" is circular geography.
+#'   Default: "ind". See the functions in the \code{bnpsd} for details on how
+#'   this data is actually generated.
+#' @param percent_causal percentage of \code{p_test} that is causal. must be
+#'   \eqn{0 \leq percent_causal \leq 1}. The true regression coefficients are
+#'   generated from a standard normal distribution.
+#' @param percent_overlap this represents the percentage of causal SNPs that
+#'   will also be included in the calculation of the kinship matrix
+#' @details The kinship is estimated using the \code{popkin} function from the
+#'   \code{popkin} package. This function will multiple that kinship matrix by 2
+#'   to give the expected covariance matrix which is subsequently used in the
+#'   linear mixed models
+#' @return A list with the following elements \describe{\item{y}{simulated
+#'   response vector} \item{x}{simulated design matrix} \item{causal}{character
+#'   vector of the names of the causal SNPs} \item{beta}{the vector of true
+#'   regression coefficients} \item{kin}{2 times the estimated kinship}
+#'   \item{Xkinship}{the matrix of SNPs used to estimate the kinship matrix}
+#'   \item{not_causal}{character vector of the non-causal SNPs}
+#'   \item{causal_positive}{character vector of the causal SNPs with positive
+#'   regression coefficient} \item{causal_negative}{character vector of the
+#'   causal SNPs with negative regression coefficient}\item{x_lasso}{the design
+#'   matrix which also includes \code{nPC} principal components} }
+#' @seealso \code{\link[bnpsd]{q1d}},\code{\link[bnpsd]{qis}},
+#'   \code{\link[bnpsd]{q1dc}}, \code{\link[bnpsd]{rbnpsd}}
+gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, nPC,
                                  eta, sigma2, geography = c("ind", "1d", "circ"),
                                  percent_causal, percent_overlap) {
 
-  # p_test: number of variables in X_test, i.e., the design matrix
-  # p_kinship: number of variable in X_kinship, i.e., matrix used to calculate kinship
-  # k:	Number of intermediate subpopulations
-  # s: The desired bias coefficient, which specifies σ indirectly. Required if sigma is missing
+  # p_test:
+  # p_kinship:
+  # k:	N
+  # s:
   # F: The length-k vector of inbreeding coefficients (or FST's) of the intermediate subpopulations,
   # up to a scaling factor (which cancels out in calculations). Required if sigma is missing
-  # Fst: The desired final FST of the admixed individuals. Required if sigma is missing
+  # Fst: T
   # browser()
   # define population structure
 
@@ -129,7 +176,7 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   x_lasso <- cbind(Xtest, PC[, 1:10])
 
   beta <- rep(0, length = p)
-  beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
+  beta[which(colnames(Xtest) %in% causal)] <- stats::rnorm(n = length(causal))
   causal_positive <- colnames(Xtest)[which(beta > 0)]
   causal_negative <- colnames(Xtest)[which(beta < 0)]
 

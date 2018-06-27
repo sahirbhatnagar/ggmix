@@ -6,20 +6,22 @@
 #'   \code{\link{gic}} function
 #' @param sign.lambda Either plot against log(lambda) (default) or its negative
 #'   if sign.lambda=-1
+#' @param lambda.min the value of lambda which minimizes the gic
 #' @param ... Other graphical parameters to plot
 #' @details A plot is produced, and nothing is returned.
 #' @seealso \code{\link{ggmix}} and \code{\link{gic}}
 #' @export
 plot.ggmix_gic <- function(x, sign.lambda = 1, ...) {
   plotGIC(
-    object = x,
+    x = x,
     sign.lambda = sign.lambda,
     lambda.min = x$lambda.min, ...
   )
 }
 
 #' @rdname plot.ggmix_gic
-plotGIC <- function(object, sign.lambda, lambda.min, ...) {
+plotGIC <- function(x, sign.lambda, lambda.min, ...) {
+  object <- x
   xlab <- "log(Lambda)"
 
   if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
@@ -38,19 +40,69 @@ plotGIC <- function(object, sign.lambda, lambda.min, ...) {
 
   do.call("plot", plot.args)
 
-  points(sign.lambda * log(drop(object[["lambda"]])),
+  graphics::points(sign.lambda * log(drop(object[["lambda"]])),
     drop(object[["gic"]]),
     pch = 20, col = "red"
   )
 
-  axis(
+  graphics::axis(
     side = 3, at = sign.lambda * log(drop(object[["lambda"]])),
     labels = paste(drop(object[["nzero"]])), tick = FALSE, line = 0
   )
 
-  abline(v = sign.lambda * log(lambda.min), lty = 3)
+  graphics::abline(v = sign.lambda * log(lambda.min), lty = 3)
 }
 
+
+
+
+
+plot.ggmix_fit <- function(x,
+                           type = c("coef", "QQranef", "QQresid", "predicted", "Tukey-Anscombe"),
+                           xvar = c("norm", "lambda", "dev"), s = x$lambda_min,
+                           label = FALSE, sign.lambda = 1, ...) {
+  xvar <- match.arg(xvar)
+  type <- match.arg(type, several.ok = TRUE)
+
+  if (any(type == "coef")) {
+    plotCoef(x$beta,
+             lambda = drop(x$result[, "Lambda"]),
+             df = drop(x$result[, "Df"]), dev = drop(x$result[, "Deviance"]),
+             label = label, xvar = xvar, ...
+    )
+  }
+
+  if (any(type == "QQranef")) {
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s, "Lambda"]))
+    qqline(x$randomeff[, s], col = "red")
+  }
+
+  if (any(type == "QQresid")) {
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s, "Lambda"]))
+    qqline(x$residuals[, s], col = "red")
+  }
+
+  if (any(type == "predicted")) {
+    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
+    plot(x$predicted[, s], drop(x$y),
+         xlab = "predicted response (XB + b)", ylab = "observed response",
+         main = sprintf("Observed vs. Predicted response
+                        R2 = %g", cor(x$predicted[, s], drop(x$y)))
+    )
+    abline(a = 0, b = 1, col = "red")
+  }
+
+
+  if (any(type == "Tukey-Anscombe")) {
+    plot(x$fitted[, s], x$residuals[, s],
+         main = "Tukey-Anscombe Plot",
+         xlab = "fitted values (XB)", ylab = "residuals"
+    )
+    abline(h = 0, col = "red")
+  }
+}
 
 
 
@@ -102,14 +154,14 @@ plotCoef <- function(beta, norm, lambda, df, dev, label = FALSE,
   if (is.null(type)) {
     matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, type = "l", ...)
   } else {
-    matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, ...)
+    graphics::matplot(index, t(beta), lty = 1, xlab = xlab, ylab = ylab, ...)
   }
   atdf <- pretty(index)
   ### compute df by interpolating to df at next smaller lambda
   ### thanks to Yunyang Qian
-  prettydf <- approx(x = index, y = df, xout = atdf, rule = 2, method = "constant", f = approx.f)$y
+  prettydf <- stats::approx(x = index, y = df, xout = atdf, rule = 2, method = "constant", f = approx.f)$y
   # prettydf=ceiling(approx(x=index,y=df,xout=atdf,rule=2)$y)
-  axis(3, at = atdf, labels = prettydf, tcl = NA)
+  graphics::axis(3, at = atdf, labels = prettydf, tcl = NA)
   if (label) {
     nnz <- length(which)
     xpos <- max(index)
@@ -120,6 +172,6 @@ plotCoef <- function(beta, norm, lambda, df, dev, label = FALSE,
     }
     xpos <- rep(xpos, nnz)
     ypos <- beta[, ncol(beta)]
-    text(xpos, ypos, paste(which), cex = .5, pos = pos)
+    graphics::text(xpos, ypos, paste(which), cex = .5, pos = pos)
   }
 }

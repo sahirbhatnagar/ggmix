@@ -17,6 +17,9 @@ fn_eta_lasso_fullrank(eta, sigma2, beta, eigenvalues, x, y, nt)
 \item{beta}{current estimate of the beta parameter including the intercept.
 this should be of length p+1, where p is the number of variables.}
 
+\item{eigenvalues}{non-zero eigenvalues of the kinship matrix, or the square
+of the singular values of the matrix used to construct the kinship matrix}
+
 \item{x}{input matrix, of dimension n x p; where n is the number of
 observations and p are the number of predictors.}
 

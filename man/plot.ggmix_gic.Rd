@@ -7,7 +7,7 @@
 \usage{
 plot.ggmix_gic(x, sign.lambda = 1, ...)
 
-plotGIC(object, sign.lambda, lambda.min, ...)
+plotGIC(x, sign.lambda, lambda.min, ...)
 }
 \arguments{
 \item{x}{fitted linear mixed model object of class \code{ggmix_gic} from the
@@ -17,6 +17,8 @@ plotGIC(object, sign.lambda, lambda.min, ...)
 if sign.lambda=-1}
 
 \item{...}{Other graphical parameters to plot}
+
+\item{lambda.min}{the value of lambda which minimizes the gic}
 }
 \description{
 Plots the Generalised Information Criteria curve, as a function
