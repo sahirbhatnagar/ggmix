@@ -1,0 +1,98 @@
+url: https://sahirbhatnagar.com/ggmix
+
+template:
+  params:
+    bootswatch: cosmo
+    docsearch:
+      api_key: f8a14d62b00c65f3af4a90aa62a286b8
+      index_name: ggmix
+
+authors:
+  Sahir Bhatnagar:
+    href: https://sahirbhatnagar.com
+  Karim Oualkacha:
+    href: https://karimoualkacha.uqam.ca/
+  Yi Yang:
+    href: http://www.math.mcgill.ca/yyang/
+  Celia Greenwood:
+    href: https://www.mcgill.ca/statisticalgenetics/
+
+development:
+  mode: auto
+
+reference:
+  - title: Model Fitting
+    desc: >
+      Main functions for fitting the ggmix model
+    contents:
+    - ggmix
+    - gic
+
+  - title: Methods for objects of class ggmix_fit and ggmix_gic
+    desc: >
+      Method functions to extract relevant information from fitted objects
+    contents:
+    - predict.ggmix_fit
+    - predict.ggmix_gic
+    - print.ggmix_fit
+    - coef.ggmix_fit
+    - coef.ggmix_gic
+    - plot.ggmix_fit
+    - plot.ggmix_gic
+    - ranef
+
+
+  - title: Datasets
+    desc: >
+      Two datasets that ship with the package to illustrate usage
+    contents:
+    - karim
+    - admixed
+
+
+  - title: Diagnostic Plots
+    desc: >
+      Plots for assessing model fit
+    contents:
+    - plot.ggmix_gic
+
+
+  - title: Simulate Data
+    desc: >
+      Simulate data with different geographies
+    contents:
+    - gen_structured_model
+
+  - title: Internal Utility Functions
+    desc: >
+      Functions not really meant for the user
+    contents:
+    - logliklasso
+    - lmmlasso
+    - kkt_check
+    - lambdalasso
+    - sigma2lasso
+    - gr_eta_lasso_fullrank
+    - fn_eta_lasso_fullrank
+    - ggmix_data_object
+
+navbar:
+  type: default
+  left:
+    - text: Home
+      href: index.html
+    - text: Vignettes
+      menu:
+      - text: Introduction to ggmix
+        href: articles/introduction-to-ggmix.html
+      - text: Prior annotation weights
+        href: articles/prior-annotation-weights.html
+      - text: Alternative input for population structure
+        href: articles/alternative-kinship-input.html
+    - text: Functions and data
+      href: reference/index.html
+    - text: News
+      href: news/index.html
+  twitter:
+     icon: fa-lg fa-twitter
+     href: http://twitter.com/syfi_24

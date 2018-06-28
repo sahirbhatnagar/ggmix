@@ -13,3 +13,5 @@
 ^reports$
 ^data-raw$
 ^codecov\.yml$
+^_pkgdown\.yml$
+^docs$

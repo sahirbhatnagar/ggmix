@@ -5,10 +5,10 @@ Version: 0.0.0.9000
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
   role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
-  person("Yi", "Yang", email = "yi.yang6@mcgill.ca",
-  role = c("aut"), comment = "http://www.math.mcgill.ca/yyang/"),
   person("Karim", "Oualkacha", email = "oualkacha.karim@uqam.ca",
   role = c("aut"), comment = "http://karimoualkacha.uqam.ca/"),
+  person("Yi", "Yang", email = "yi.yang6@mcgill.ca",
+  role = c("aut"), comment = "http://www.math.mcgill.ca/yyang/"),
   person("Celia", "Greenwood", email = "celia.greenwood@mcgill.ca",
   role = c("aut"), comment = "http://www.mcgill.ca/statisticalgenetics/")
   )
@@ -37,5 +37,7 @@ Suggests:
     vdiffr,
     knitr,
     rmarkdown
+BugReports: https://github.com/sahirbhatnagar/ggmix/issues
+URL: https://github.com/sahirbhatnagar/ggmix
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
