@@ -14,11 +14,11 @@
 \item{object}{Fitted \code{ggmix_fit} model object from the
 \code{\link{ggmix}} function}
 
-\item{newx}{matrix of new values for \code{x} at which predictions are to be
-made. Do not include the intercept (this function takes care of that). Must
-be a matrix. This argument is not used for \code{type =
-c("coefficients","nonzero")}. This matrix must have the same number of
-columns originally supplied to the \code{\link{ggmix}} fitting function.}
+\item{newx}{matrix of values for \code{x} at which predictions are to be
+made. Do not include the intercept. Must be a matrix. This
+argument is not used for \code{type = c("coefficients","nonzero","all")}.
+This matrix must have the same number of columns originally supplied to the
+\code{\link{ggmix}} fitting function.}
 
 \item{s}{Value(s) of the penalty parameter \code{lambda} at which predictions
 are required. Default is the entire sequence used to create the model.}
@@ -29,9 +29,10 @@ values \eqn{X \beta}. Type \code{"response"} is equivalent to type
 requested values for \code{s} and returns the regression coefficients only,
 including the intercept. Type \code{"all"} returns both the regression
 coefficients and variance components at the requested value of \code{s}.
-Type \code{"nonzero"} returns a list of the the nonzero coefficients for
-each value of \code{s} (does not include the variance components eta and
-sigma2). Default: "link"}
+Type \code{"nonzero"} returns a 1 column matrix of the the nonzero fixed
+effects, as well as variance components for each value of \code{s}. If more
+than one \code{s} is provided, then \code{"nonzero"} will return a list of
+1 column matrices. Default: "link"}
 
 \item{...}{additional arguments to pass to predict function}
 }

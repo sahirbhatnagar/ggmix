@@ -10,7 +10,7 @@ ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
   lambda_min_ratio = ifelse(n_design < p_design, 0.01, 1e-04),
   nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-20,
   standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
-  epsilon = 1e-04, verbose = 1)
+  epsilon = 1e-04, verbose = 0)
 }
 \arguments{
 \item{x}{input matrix, of dimension n x p; where n is the number of
@@ -128,6 +128,17 @@ Main function to fit the linear mixed model with lasso or group
   lasso penalty for a sequence of tuning parameters. This is a penalized
   regression method that accounts for population structure using either the
   kinship matrix or the factored realized relationship matrix
+}
+\examples{
+data(admixed)
+fitlmm <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+            estimation = "full")
+gicfit <- gic(fitlmm)
+coef(gicfit, type = "nonzero")
+predict(gicfit, newx = admixed$x)[1:5,,drop=FALSE]
+plot(gicfit)
+plot(fitlmm)
+
 }
 \references{
 Friedman, J., Hastie, T. and Tibshirani, R. (2008)

@@ -4,8 +4,8 @@
 \alias{gen_structured_model}
 \title{Simulation Scenarion from Bhatnagar et al. (2018+) ggmix paper}
 \usage{
-gen_structured_model(n, p_test, p_kinship, k, s, Fst, b0, nPC, eta, sigma2,
-  geography = c("ind", "1d", "circ"), percent_causal, percent_overlap)
+gen_structured_model(n, p_test, p_kinship, k, s, Fst, b0, nPC = 10, eta,
+  sigma2, geography = c("ind", "1d", "circ"), percent_causal, percent_overlap)
 }
 \arguments{
 \item{n}{number of observations to simulate}

@@ -4,9 +4,9 @@
 \alias{kkt_check}
 \alias{grr_sigma2}
 \alias{grr_beta0}
-\title{Check of KKT for a given value of Lambda}
+\title{Check of KKT Conditions for Linear Mixed Model}
 \usage{
-kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda, tol.kkt = 1e-09)
+kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda, tol.kkt = 0.001)
 
 grr_sigma2(eta, sigma2, beta, eigenvalues, x, y, nt)
 
@@ -45,7 +45,7 @@ its often faster to fit a whole path than compute a single fit.}
 zero}
 }
 \description{
-Check of KKT for a given value of Lambda
+This function checks the KKT conditions
 }
 \note{
 \code{grr_sigma2} and \code{grr_beta0} are functions for the gradient

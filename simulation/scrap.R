@@ -100,7 +100,7 @@ p.fac <- rep(1, ncol(admixed$x))
 p.fac[sample(1:ncol(admixed$x),20)] <- 1
 res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
              estimation = "full", penalty.factor = p.fac)
-
+plot(res)
 admixed$x %>% dim
 res
 class(res)
@@ -112,7 +112,7 @@ predict(res, s = c(0.22,0.05), newx = admixed$x)
 coef(res) %>% tail
 ranef(res)
 
-res
+res %>% str
 res$coef %>% dim
 res$coef %>% head
 res$coef %>% tail
@@ -125,6 +125,8 @@ ranef(gicres, s = c(0.1,0.2))
 str(gicres)
 
 plot(gicres, ylab = "jkj")
+plot(gicres, type = "QQranef")
+plot(gicres, type = "QQresid", newy = admixed$y, newx = admixed$x)
 coef(gicres, type = "non")
 help(gic)
 plot(res)

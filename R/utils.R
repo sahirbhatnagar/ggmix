@@ -45,7 +45,7 @@
 #'   matrix which also includes \code{nPC} principal components} }
 #' @seealso \code{\link[bnpsd]{q1d}},\code{\link[bnpsd]{qis}},
 #'   \code{\link[bnpsd]{q1dc}}, \code{\link[bnpsd]{rbnpsd}}
-gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, nPC,
+gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, nPC = 10,
                                  eta, sigma2, geography = c("ind", "1d", "circ"),
                                  percent_causal, percent_overlap) {
 

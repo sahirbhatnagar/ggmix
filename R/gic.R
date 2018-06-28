@@ -31,6 +31,7 @@
 gic <- function(ggmix_fit, ...) UseMethod("gic")
 
 #' @rdname gic
+#' @export
 gic.default <- function(ggmix_fit, ...) {
   stop(strwrap("This function should be used with an object of class
                ggmix_fit"))
@@ -41,6 +42,7 @@ gic.default <- function(ggmix_fit, ...) {
 #'   log(log(n))*log(p) where n is the number of subjects and p is the number of
 #'   parameters
 #' @rdname gic
+#' @export
 gic.ggmix_fit <- function(ggmix_fit,
                           ...,
                           an = log(log(n)) * log(p)) {

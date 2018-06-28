@@ -21,7 +21,7 @@ admixed <- gen_structured_model(n = 500,
                                 percent_causal = 0.05,
                                 percent_overlap = "100",
                                 k = 5, s = 0.5, Fst = 0.1,
-                                b0 = 0, beta_mean = 1,
+                                b0 = 0, nPC = 10,
                                 eta = 0.1, sigma2 = 1)
 
 usethis::use_data(admixed, overwrite = TRUE)

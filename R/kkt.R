@@ -1,4 +1,6 @@
-#' Check of KKT for a given value of Lambda
+#' Check of KKT Conditions for Linear Mixed Model
+#'
+#' @description This function checks the KKT conditions
 #' @param x rotated x. Should be U^T X, where U is the matrix of eigenvectors
 #'   and X contains the first column of ones for the intercept. x should be a
 #'   mtrix of dimension n x (p+1). These are outputted by the constructor
@@ -11,10 +13,12 @@
 #' @inheritParams logliklasso
 #' @param tol.kkt Tolerance for determining if an entry of the subgradient is
 #'   zero
+#' @rdname kkt_check
 #' @note \code{grr_sigma2} and \code{grr_beta0} are functions for the gradient
 #'   of sigma2 and beta0, respectively
+#' @export
 kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
-                      lambda, tol.kkt = 1e-9) {
+                                    lambda, tol.kkt = 1e-3) {
 
   # eta = eta_next; sigma2 = sigma2_next;
   # beta = beta_next;

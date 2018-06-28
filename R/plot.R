@@ -7,16 +7,108 @@
 #' @param sign.lambda Either plot against log(lambda) (default) or its negative
 #'   if sign.lambda=-1
 #' @param lambda.min the value of lambda which minimizes the gic
+#' @param type \code{gic} returns a plot of the GIC vs. log(lambda).
+#'   \code{QQranef} return a qqplot of the random effects. \code{QQresid}
+#'   returns a qqplot of the residuals which is \eqn{y - X\beta - b_i} where b_i
+#'   is the subject specific random effect. \code{predicted} returns a plot of
+#'   the predicted response (\eqn{X \beta} + b_i) vs. the observed response,
+#'   where b_i is the subject specific random effect. \code{Tukey-Anscombe}
+#'   returns a plot of the residuals vs. fitted values (\eqn{X \beta})
+#' @param s Value of the penalty parameter \code{lambda} at which predictions
+#'   are required. Default is the value \code{s="lambda.min"}. If \code{s} is
+#'   numeric, it is taken as the value of \code{lambda} to be used. Must be a
+#'   single value of the penalty parameter \code{lambda} at which coefficients
+#'   will be extracted via the \code{coef} method for objects of class
+#'   \code{ggmix_gic}. If more than one is supplied, only the first one will be
+#'   used.
+#' @param newy the response variable that was provided to \code{ggmix}. this is
+#'   only required for \code{type="QQresis"}, \code{type="Tukey-Anscombe"} and
+#'   \code{type="predicted"}
+#' @param newx matrix of values for \code{x} at which predictions are to be
+#'   made. Do not include the intercept. this is only required for
+#'   \code{type="QQresis"}, \code{type="Tukey-Anscombe"} and
+#'   \code{type="predicted"}
 #' @param ... Other graphical parameters to plot
+#' @return plot depends on the type selected
 #' @details A plot is produced, and nothing is returned.
-#' @seealso \code{\link{ggmix}} and \code{\link{gic}}
+#' @seealso \code{\link{gic}}
 #' @export
-plot.ggmix_gic <- function(x, sign.lambda = 1, ...) {
+plot.ggmix_gic <- function(x, ..., sign.lambda = 1,
+                           type = c("gic", "QQranef", "QQresid", "predicted", "Tukey-Anscombe"),
+                           s = "lambda.min", newy, newx) {
+
+  type <- match.arg(type, several.ok = FALSE)
+
+  if (length(s) > 1) {
+    s <- s[[1]]
+    warning("More than 1 s value provided. Only first element will be used for the estimated coefficients.")
+  }
+
+  if (is.numeric(s)) {
+    lambda <- s
+  } else
+    if (is.character(s)) {
+      s <- match.arg(s)
+      lambda <- x[[s]]
+    }
+  else {
+    stop("Invalid form for s")
+  }
+
+  if (type == "gic") {
   plotGIC(
     x = x,
     sign.lambda = sign.lambda,
-    lambda.min = x$lambda.min, ...
+    lambda.min = lambda, ...
   )
+  }
+
+  if (type == "QQranef") {
+    stats::qqnorm(ranef(x, s = lambda), main = sprintf("QQ-Plot of the random effects at lambda = %.2f", lambda))
+    stats::qqline(ranef(x, s = lambda), col = "red")
+  }
+
+  if (type == "QQresid") {
+    if (missing(newy) | missing(newx))
+      stop("newy and newx must be provided when type='QQresid'")
+
+    resids <- newy -
+      stats::predict(x, s = lambda, newx = newx) -
+      ranef(x, s = lambda)
+
+    stats::qqnorm(resids, main = sprintf("QQ-Plot of the residuals at lambda = %.2f", lambda))
+    stats::qqline(resids, col = "red")
+  }
+
+  if (type == "predicted") {
+    if (missing(newy) | missing(newx))
+      stop("newy and newx must be provided when type='QQresid'")
+
+    preds <- stats::predict(x, s = lambda, newx = newx) +
+      ranef(x, s = lambda)
+
+    graphics::plot(preds, drop(newy),
+                   xlab = "predicted response (XB + b_i)", ylab = "observed response",
+                   main = strwrap(sprintf("Observed vs. Predicted response\n
+                                          corr(observed,predicted)^2 = %g", stats::cor(preds, drop(newy))^2))
+    )
+    graphics::abline(a = 0, b = 1, col = "red")
+  }
+
+  if (type == "Tukey-Anscombe") {
+    if (missing(newy) | missing(newx))
+      stop("newy and newx must be provided when type='QQresid'")
+
+    resids <- newy -
+      stats::predict(x, s = lambda, newx = newx) -
+      ranef(x, s = lambda)
+    fitted <- stats::predict(x, s = lambda, newx = newx)
+    graphics::plot(fitted, resids,
+                   main = "Tukey-Anscombe Plot",
+                   xlab = "fitted values (XB)", ylab = "residuals"
+    )
+    graphics::abline(h = 0, col = "red")
+  }
 }
 
 #' @rdname plot.ggmix_gic
@@ -57,66 +149,48 @@ plotGIC <- function(x, sign.lambda, lambda.min, ...) {
 
 
 
-plot.ggmix_fit <- function(x,
-                           type = c("coef", "QQranef", "QQresid", "predicted", "Tukey-Anscombe"),
-                           xvar = c("norm", "lambda", "dev"), s = x$lambda_min,
-                           label = FALSE, sign.lambda = 1, ...) {
+
+
+#' @title Plot Method for \code{ggmix_fit} object
+#' @description Produces a coefficient profile plot of the coefficient paths for
+#'   a fitted \code{ggmix_fit} object.
+#' @param x a \code{ggmix_fit} object
+#' @param xvar What is on the X-axis. "norm" plots against the L1-norm of the
+#'   coefficients, "lambda" against the log-lambda sequence, and "dev" against
+#'   the percent deviance explained.
+#' @param label If TRUE, label the curves with variable sequence numbers.
+#' @param sign.lambda Either plot against log(lambda) (default) or its negative
+#'   if sign.lambda=-1
+#' @param ... other graphical paramters passed to \code{plot}
+#' @param beta fixed effects estimates
+#' @param norm l1 norm of fixed effect estimates. if missing, (default) this
+#'   function will calculate it
+#' @param lambda sequence of tuning parameters
+#' @param df number of non-zero fixed + random effects
+#' @param dev percent deviance
+#' @param xlab x-axis label
+#' @param ylab y-axis label
+#' @details A coefficient profile plot is produced
+#' @return A plot is produced and nothing is returned
+#' @export
+plot.ggmix_fit <- function(x,...,
+                           xvar = c("norm", "lambda", "dev"),
+                           label = FALSE, sign.lambda = 1) {
   xvar <- match.arg(xvar)
-  type <- match.arg(type, several.ok = TRUE)
 
-  if (any(type == "coef")) {
-    plotCoef(x$beta,
-             lambda = drop(x$result[, "Lambda"]),
-             df = drop(x$result[, "Df"]), dev = drop(x$result[, "Deviance"]),
-             label = label, xvar = xvar, ...
-    )
-  }
-
-  if (any(type == "QQranef")) {
-    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    stats::qqnorm(x$randomeff[, s], main = sprintf("QQ-Plot of the random effects at lambda = %.2f", x$result[s, "Lambda"]))
-    stats::qqline(x$randomeff[, s], col = "red")
-  }
-
-  if (any(type == "QQresid")) {
-    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    stats::qqnorm(x$residuals[, s], main = sprintf("QQ-Plot of the residuals at lambda = %.2f", x$result[s, "Lambda"]))
-    stats::qqline(x$residuals[, s], col = "red")
-  }
-
-  if (any(type == "predicted")) {
-    if (s %ni% rownames(x$result)) stop("value for s not in lambda sequence")
-    graphics::plot(x$predicted[, s], drop(x$y),
-         xlab = "predicted response (XB + b)", ylab = "observed response",
-         main = sprintf("Observed vs. Predicted response
-                        R2 = %g", stats::cor(x$predicted[, s], drop(x$y)))
-    )
-    graphics::abline(a = 0, b = 1, col = "red")
-  }
-
-
-  if (any(type == "Tukey-Anscombe")) {
-    graphics::plot(x$fitted[, s], x$residuals[, s],
-         main = "Tukey-Anscombe Plot",
-         xlab = "fitted values (XB)", ylab = "residuals"
-    )
-    graphics::abline(h = 0, col = "red")
-  }
+  plotCoef(x[["beta"]],
+           lambda = drop(x[["result"]][, "Lambda"]),
+           df = drop(x[["result"]][,"Df"]), dev = drop(x[["result"]][,"%Dev"]),
+           label = label, xvar = xvar, ...)
 }
 
 
 
+#' @rdname plot.ggmix_fit
 plotCoef <- function(beta, norm, lambda, df, dev, label = FALSE,
                      xvar = c("norm", "lambda", "dev"),
                      xlab = iname, ylab = "Coefficients", ...) {
-  # as(x,"CsparseMatrix")
-  # beta = as(res$beta,"sparseMatrix")
-  # beta = res$beta
-  # lambda = drop(res$x[,"Lambda"])
-  # df = drop(res$x[,"Df"])
-  # dev = drop(res$x[,"%Dev"])
-  # xvar = "norm"
-  # ===========================
+
   ## beta should be in "dgCMatrix" format
   ### bystep = FALSE means which variables were ever nonzero
   ### bystep = TRUE means which variables are nonzero for each step
@@ -175,3 +249,6 @@ plotCoef <- function(beta, norm, lambda, df, dev, label = FALSE,
     graphics::text(xpos, ypos, paste(which), cex = .5, pos = pos)
   }
 }
+
+
+

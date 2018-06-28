@@ -90,6 +90,17 @@
 #' @param verbose display progress. Can be either 0,1 or 2. 0 will not display
 #'   any progress, 2 will display very detailed progress and 1 is somewhere in
 #'   between. Default: 0.
+#'
+#' @examples
+#' data(admixed)
+#' fitlmm <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+#'             estimation = "full")
+#' gicfit <- gic(fitlmm)
+#' coef(gicfit, type = "nonzero")
+#' predict(gicfit, newx = admixed$x)[1:5,,drop=FALSE]
+#' plot(gicfit)
+#' plot(fitlmm)
+#'
 #' @references Friedman, J., Hastie, T. and Tibshirani, R. (2008)
 #'   \emph{Regularization Paths for Generalized Linear Models via Coordinate
 #'   Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
@@ -121,7 +132,7 @@ ggmix <- function(x, y,
                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = 1e-8, # this is for glmnet
                   epsilon = 1e-4, # this is for ggmix
-                  verbose = 1) {
+                  verbose = 0) {
   this.call <- match.call()
 
   # Check input -------------------------------------------------------------
@@ -343,7 +354,7 @@ ggmix <- function(x, y,
   if (estimation == "full") {
     ggmix_data_object <- switch(corr_type,
       kinship = new_fullrank_kinship(x = x, y = y, kinship = kinship),
-      Kmat = new_fullrank_K(x = x, y = y, K = K),
+      K = new_fullrank_K(x = x, y = y, K = K),
       UD = new_fullrank_UD(x = x, y = y, U = U, D = D)
     )
   }

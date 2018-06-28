@@ -29,11 +29,11 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   values, coefficients and more from a fitted \code{ggmix_fit} object.
 #' @param object Fitted \code{ggmix_fit} model object from the
 #'   \code{\link{ggmix}} function
-#' @param newx matrix of new values for \code{x} at which predictions are to be
-#'   made. Do not include the intercept (this function takes care of that). Must
-#'   be a matrix. This argument is not used for \code{type =
-#'   c("coefficients","nonzero")}. This matrix must have the same number of
-#'   columns originally supplied to the \code{\link{ggmix}} fitting function.
+#' @param newx matrix of values for \code{x} at which predictions are to be
+#'   made. Do not include the intercept. Must be a matrix. This
+#'   argument is not used for \code{type = c("coefficients","nonzero","all")}.
+#'   This matrix must have the same number of columns originally supplied to the
+#'   \code{\link{ggmix}} fitting function.
 #' @param s Value(s) of the penalty parameter \code{lambda} at which predictions
 #'   are required. Default is the entire sequence used to create the model.
 #' @param type Type of prediction required. Type \code{"link"} gives the fitted
@@ -42,9 +42,10 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   requested values for \code{s} and returns the regression coefficients only,
 #'   including the intercept. Type \code{"all"} returns both the regression
 #'   coefficients and variance components at the requested value of \code{s}.
-#'   Type \code{"nonzero"} returns a list of the the nonzero coefficients for
-#'   each value of \code{s} (does not include the variance components eta and
-#'   sigma2). Default: "link"
+#'   Type \code{"nonzero"} returns a 1 column matrix of the the nonzero fixed
+#'   effects, as well as variance components for each value of \code{s}. If more
+#'   than one \code{s} is provided, then \code{"nonzero"} will return a list of
+#'   1 column matrices. Default: "link"
 #' @return The object returned depends on type.
 #' @method predict ggmix_fit
 #' @details \code{s} is the new vector at which predictions are requested. If
@@ -97,17 +98,21 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
   if (type == "coefficients") return(nbeta)
 
   if (type == "nonzero") {
-    nbeta.mat <- as.matrix(nbeta)
+    nall.mat <- as.matrix(nall)
     if (length(s) == 1) {
-      return(nbeta.mat[glmnet::nonzeroCoef(nbeta.mat, bystep = TRUE)[[1]], , drop = FALSE])
+      return(nall.mat[glmnet::nonzeroCoef(nall.mat, bystep = TRUE)[[1]], , drop = FALSE])
     } else {
-      nzs <- glmnet::nonzeroCoef(nbeta.mat, bystep = TRUE)
-      return(lapply(seq_along(nzs), function(i) nbeta.mat[nzs[[i]], i, drop = FALSE]))
+      nzs <- glmnet::nonzeroCoef(nall.mat, bystep = TRUE)
+      return(lapply(seq_along(nzs), function(i) nall.mat[nzs[[i]], i, drop = FALSE]))
     }
   }
 
   if (type == "link" | type == "response") {
     nfit <- as.matrix(cbind(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
+    # The user must not input the first column as a intercept
+    # once the rotation is done on the Xs and Y, we use them for fitting the function
+    # but after that we dont use the rotated Xs or Y anymore. We use the original Xs and Ys for
+    # prediction, residuals, ect.
     return(nfit)
   }
 

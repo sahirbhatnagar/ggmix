@@ -5,7 +5,8 @@
 \alias{plotGIC}
 \title{Plot the Generalised Information Criteria curve produced by \code{gic}}
 \usage{
-\method{plot}{ggmix_gic}(x, sign.lambda = 1, ...)
+\method{plot}{ggmix_gic}(x, ..., sign.lambda = 1, type = c("gic", "QQranef",
+  "QQresid", "predicted", "Tukey-Anscombe"), s = "lambda.min", newy, newx)
 
 plotGIC(x, sign.lambda, lambda.min, ...)
 }
@@ -13,12 +14,40 @@ plotGIC(x, sign.lambda, lambda.min, ...)
 \item{x}{fitted linear mixed model object of class \code{ggmix_gic} from the
 \code{\link{gic}} function}
 
+\item{...}{Other graphical parameters to plot}
+
 \item{sign.lambda}{Either plot against log(lambda) (default) or its negative
 if sign.lambda=-1}
 
-\item{...}{Other graphical parameters to plot}
+\item{type}{\code{gic} returns a plot of the GIC vs. log(lambda).
+\code{QQranef} return a qqplot of the random effects. \code{QQresid}
+returns a qqplot of the residuals which is \eqn{y - X\beta - b_i} where b_i
+is the subject specific random effect. \code{predicted} returns a plot of
+the predicted response (\eqn{X \beta} + b_i) vs. the observed response,
+where b_i is the subject specific random effect. \code{Tukey-Anscombe}
+returns a plot of the residuals vs. fitted values (\eqn{X \beta})}
+
+\item{s}{Value of the penalty parameter \code{lambda} at which predictions
+are required. Default is the value \code{s="lambda.min"}. If \code{s} is
+numeric, it is taken as the value of \code{lambda} to be used. Must be a
+single value of the penalty parameter \code{lambda} at which coefficients
+will be extracted via the \code{coef} method for objects of class
+\code{ggmix_gic}. If more than one is supplied, only the first one will be
+used.}
+
+\item{newy}{the response variable that was provided to \code{ggmix}. this is
+only required for \code{type="QQresis"}, \code{type="Tukey-Anscombe"} and
+\code{type="predicted"}}
+
+\item{newx}{matrix of values for \code{x} at which predictions are to be
+made. Do not include the intercept. this is only required for
+\code{type="QQresis"}, \code{type="Tukey-Anscombe"} and
+\code{type="predicted"}}
 
 \item{lambda.min}{the value of lambda which minimizes the gic}
+}
+\value{
+plot depends on the type selected
 }
 \description{
 Plots the Generalised Information Criteria curve, as a function
@@ -28,5 +57,5 @@ Plots the Generalised Information Criteria curve, as a function
 A plot is produced, and nothing is returned.
 }
 \seealso{
-\code{\link{ggmix}} and \code{\link{gic}}
+\code{\link{gic}}
 }
