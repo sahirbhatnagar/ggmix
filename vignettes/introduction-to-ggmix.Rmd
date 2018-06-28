@@ -100,7 +100,7 @@ We can visualize the kinship matrix in the `admixed` data using the `popkin` pac
 popkin::plotPopkin(admixed$kin)
 ```
 
-### Fit the linear mixed model with Lasso Penalty
+## Fit the linear mixed model with Lasso Penalty
 
 We will use the most basic call to the main function of this package `ggmix`. This function by default will fit a $L_1$ penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter $\lambda$. It will choose its own sequence:  
 
@@ -130,7 +130,7 @@ head(predict(fit, s = 0.01, newx = admixed$x))
 ```
 
 
-### Find the Optimal Value of the Tuning Parameter
+## Find the Optimal Value of the Tuning Parameter
 
 We use the Generalized Information Criterion (GIC) to select the optimal value for $\lambda$. The GIC takes the form  
 
@@ -168,7 +168,7 @@ bicfit[["lambda.min"]]
 ```
 
 
-### Get Coefficients Corresponding to Optimal Model
+## Get Coefficients Corresponding to Optimal Model
 
 We can use the object outputted by the `gic` function to extract the coefficients using the `coef` method for objects of class `ggmix_gic`:  
 

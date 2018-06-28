@@ -165,9 +165,10 @@ pacman<span class="op">::</span><span class="kw"><a href="http://www.rdocumentat
 <span class="co"># pacman::p_load_gh('StoreyLab/popkin')</span>
 popkin<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/popkin/topics/plotPopkin">plotPopkin</a></span>(admixed<span class="op">$</span>kin)</code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<div id="fit-the-linear-mixed-model-with-lasso-penalty" class="section level3">
-<h3 class="hasAnchor">
-<a href="#fit-the-linear-mixed-model-with-lasso-penalty" class="anchor"></a>Fit the linear mixed model with Lasso Penalty</h3>
+</div>
+<div id="fit-the-linear-mixed-model-with-lasso-penalty" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fit-the-linear-mixed-model-with-lasso-penalty" class="anchor"></a>Fit the linear mixed model with Lasso Penalty</h2>
 <p>We will use the most basic call to the main function of this package <code>ggmix</code>. This function by default will fit a <span class="math inline">\(L_1\)</span> penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter <span class="math inline">\(\lambda\)</span>. It will choose its own sequence:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>x, <span class="dt">y =</span> admixed<span class="op">$</span>y, <span class="dt">kinship =</span> admixed<span class="op">$</span>kin)
 <span class="kw">names</span>(fit)
@@ -396,9 +397,9 @@ popkin<span class="op">::</span><span class="kw"><a href="http://www.rdocumentat
 <span class="co">#&gt; id5 -2.2151251</span>
 <span class="co">#&gt; id6  0.2051633</span></code></pre></div>
 </div>
-<div id="find-the-optimal-value-of-the-tuning-parameter" class="section level3">
-<h3 class="hasAnchor">
-<a href="#find-the-optimal-value-of-the-tuning-parameter" class="anchor"></a>Find the Optimal Value of the Tuning Parameter</h3>
+<div id="find-the-optimal-value-of-the-tuning-parameter" class="section level2">
+<h2 class="hasAnchor">
+<a href="#find-the-optimal-value-of-the-tuning-parameter" class="anchor"></a>Find the Optimal Value of the Tuning Parameter</h2>
 <p>We use the Generalized Information Criterion (GIC) to select the optimal value for <span class="math inline">\(\lambda\)</span>. The GIC takes the form</p>
 <p><span class="math display">\[GIC_{\lambda} = -2 \ell(\widehat{\boldsymbol{\beta}}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda}\]</span></p>
 <p>where <span class="math inline">\(\ell(\cdot)\)</span> is the log-likelihood evaluated at the converged values of the parameters, <span class="math inline">\(\widehat{df}_{\lambda}\)</span> is the number of non-zero elements in <span class="math inline">\(\widehat{\boldsymbol{\beta}}_{\lambda}\)</span> plus two (representing the variance parameters <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\sigma^2\)</span>), and <span class="math inline">\(a_n\)</span> is a non-negative penalty parameter. The BIC has <span class="math inline">\(a_n = \log(n)\)</span>, and AIC has <span class="math inline">\(a_n = 2\)</span>. The user can specify the value of <span class="math inline">\(a_n\)</span> that they want. The default is <span class="math inline">\(a_n = log(log(n)) * log(p)\)</span> which corresponds to a high-dimensional BIC (HDBIC):</p>
@@ -421,9 +422,9 @@ bicfit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bicfit[[<span class="st">"lambda.min"</span>]]
 <span class="co">#&gt; [1] 0.05596623</span></code></pre></div>
 </div>
-<div id="get-coefficients-corresponding-to-optimal-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#get-coefficients-corresponding-to-optimal-model" class="anchor"></a>Get Coefficients Corresponding to Optimal Model</h3>
+<div id="get-coefficients-corresponding-to-optimal-model" class="section level2">
+<h2 class="hasAnchor">
+<a href="#get-coefficients-corresponding-to-optimal-model" class="anchor"></a>Get Coefficients Corresponding to Optimal Model</h2>
 <p>We can use the object outputted by the <code>gic</code> function to extract the coefficients using the <code>coef</code> method for objects of class <code>ggmix_gic</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(hdbic)
 <span class="co">#&gt; 201 x 1 sparse Matrix of class "dgCMatrix"</span>
@@ -1146,7 +1147,6 @@ bicfit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.
 <span class="co">#&gt; id499 -0.366154311</span>
 <span class="co">#&gt; id500 -0.947734099</span></code></pre></div>
 </div>
-</div>
 <div id="diagnostic-plots" class="section level2">
 <h2 class="hasAnchor">
 <a href="#diagnostic-plots" class="anchor"></a>Diagnostic Plots</h2>
@@ -1182,6 +1182,9 @@ bicfit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.
 <li><a href="#model">Model</a></li>
       <li><a href="#installation">Installation</a></li>
       <li><a href="#quick-start">Quick Start</a></li>
+      <li><a href="#fit-the-linear-mixed-model-with-lasso-penalty">Fit the linear mixed model with Lasso Penalty</a></li>
+      <li><a href="#find-the-optimal-value-of-the-tuning-parameter">Find the Optimal Value of the Tuning Parameter</a></li>
+      <li><a href="#get-coefficients-corresponding-to-optimal-model">Get Coefficients Corresponding to Optimal Model</a></li>
       <li><a href="#diagnostic-plots">Diagnostic Plots</a></li>
       </ul>
 </div>
