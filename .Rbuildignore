@@ -7,8 +7,11 @@
 ^\.travis\.yml$
 ^CONDUCT\.md$
 ^cran-comments\.md$
-^simulation/$
-^datahydra/$
-^datahydra_related/$
+^simulation$
+^datahydra$
+^datahydra_related$
 ^reports$
 ^data-raw$
+^codecov\.yml$
+^_pkgdown\.yml$
+^docs$

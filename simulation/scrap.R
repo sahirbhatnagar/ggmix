@@ -10,7 +10,6 @@ pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd')
 pacman::p_load(MASS)
 devtools::load_all()
-data("admixed")
 data("karim")
 karim$b %>% plot
 Phi <- 2 * karim$kin1
@@ -91,6 +90,46 @@ devtools::load_all()
 # res <- lowrank(x = X, y = y,  d = Lambda, u = U_kinship)
 # this is for karim data
 res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
+res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+             n_nonzero_eigenvalues = 10, estimation = "low")
+res
+
+devtools::load_all()
+data("admixed")
+p.fac <- rep(1, ncol(admixed$x))
+p.fac[sample(1:ncol(admixed$x),20)] <- 1
+res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+             estimation = "full", penalty.factor = p.fac)
+plot(res)
+admixed$x %>% dim
+res
+class(res)
+coef(res, s = 0.02, type = "all")
+coef(res, s = c(0.1,0.02), type = "nonzero")
+coef(res, s = c(0.1,0.02), type = "all")
+predict(res, s = 0.05, newx = admixed$x)
+predict(res, s = c(0.22,0.05), newx = admixed$x)
+coef(res) %>% tail
+ranef(res)
+
+res %>% str
+res$coef %>% dim
+res$coef %>% head
+res$coef %>% tail
+res$cov_names
+
+gicres <- gic(res)
+class(gicres)
+ranef(gicres, s = c(0.1,0.2))
+
+str(gicres)
+
+plot(gicres, ylab = "jkj")
+plot(gicres, type = "QQranef")
+plot(gicres, type = "QQresid", newy = admixed$y, newx = admixed$x)
+coef(gicres, type = "non")
+help(gic)
+plot(res)
 # for make_INDmixed_model_not_simulator data and make_ADmixed_model_not_simulator data
 res <- gic.penfam(x = dat$x, y = dat$y,  d = Lambda, u = U_kinship, an = log(length(dat$y)))
 dev.off()
@@ -618,19 +657,27 @@ X <- matrix(rnorm(n=100*40), ncol = 100)
 dim(X)
 Y <- rnorm(100)
 Y <- rnorm(40)
+xtx <- tcrossprod(scale(X))
 xtx <- tcrossprod(X)
+dim(xtx)
 eigX <- eigen(xtx)
 
 U <- eigX$vectors
 eigX$values %>% length()
-
+dim(U)
 crossprod(U)[1:5,1:5]
 tcrossprod(U)[1:5,1:5]
 
-svdX <- svd(X, nv = 100)
+svdX <- svd(X)
 dim(X)
 svdX$u %>% dim
 svdX$d %>% length()
+
+plot(svdX$d^2,eigX$values)
+all.equal(svdX$d^2,eigX$values)
+abline(a=0,b=1)
+plot(U[,1],svdX$u[,1])
+
 svdX$v %>% dim
 U <- svdX$u
 dim(U)
