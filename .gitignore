@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-*.html
 report.html
 datahydra/*
 datahydra
@@ -12,3 +11,4 @@ datahydra_related
 ggmix.Rproj
 files
 inst/doc
+reports/*
