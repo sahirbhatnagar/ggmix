@@ -1,6 +1,6 @@
 pandoc: 1.19.2.1
-pkgdown: 0.1.0.9000
-pkgdown_sha: a7aa75eeb866e0e0c891785d8d7bc0c0d2294c36
+pkgdown: 1.1.0.9000
+pkgdown_sha: 88eacb1caeeb9bfa4e929681917576579e06bd7f
 articles:
   alternative-kinship-input: alternative-kinship-input.html
   introduction-to-ggmix: introduction-to-ggmix.html
