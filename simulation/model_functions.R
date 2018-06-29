@@ -171,10 +171,12 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                             percent_causal, percent_overlap, eta, sigma2, geography,
                             p_test, p_kinship),
             params = list(n = n, p_test = p_test, p_kinship = p_kinship,
-                          k = k, eta = eta, sigma2 = sigma2, geography = geography,
+                          k = k, s = s, Fst = Fst, b0 = b0,
+                           eta = eta, sigma2 = sigma2, geography = geography,
                           percent_causal = percent_causal,
                           percent_overlap = percent_overlap),
-            simulate = function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
+            simulate = function(n, p_test, p_kinship,
+                                k, s, Fst, b0,
                                 eta, sigma2, geography,
                                 percent_causal, percent_overlap, nsim) {
 
@@ -297,12 +299,13 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                 # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
                 y <- b0 + mu + P + E
 
-                models[[i]] <- list(y = y, x = Xtest, causal = causal,
+                models[[i]] <- list(y = y, Xtest = Xtest, causal = causal,
                                     beta = beta, kin = kin,
                                     mu = mu,
                                     not_causal = not_causal,
                                     x_lasso = x_lasso)
               }
+              return(models)
             })
 
 }

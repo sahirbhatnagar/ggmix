@@ -2,46 +2,72 @@
 rm(list = ls())
 # setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
-# source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
-# source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
-# source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
 
 ## @knitr init
 
-name_of_simulation <- "thesis-2018-ggmix"
+name_of_simulation <- "thesis-ggmix-june29"
 
 ## @knitr main
 
 # nsim needs to be at least 2
 
-sim <- new_simulation(name_of_simulation, "Thesis 2018", dir = "simulation/") %>%
-  generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = list(2, 4),
-                 eta = list(0.1, 0.5), 
-                 percent_causal = 1, 
-                 beta_mean = list(0.2, 0.6, 1),
+# sim <- new_simulation(name_of_simulation, "Thesis 2018", dir = "simulation/") %>%
+#   generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = list(2, 4),
+#                  eta = list(0.1, 0.5),
+#                  percent_causal = 1,
+#                  beta_mean = list(0.2, 0.6, 1),
+#                  percent_overlap = list("0","100"),
+#                  vary_along = c("sigma2","eta","beta_mean","percent_overlap")) %>%
+#   simulate_from_model(nsim = 4, index = 1:50) %>%
+#   run_method(list(lasso, ggmix, twostep),
+#              parallel = list(socket_names = 35,
+#                              libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
+#
+# sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
+# save_simulation(sim)
+
+
+sim <- new_simulation(name_of_simulation, "thesis-june-29", dir = "simulation/") %>%
+  generate_model(make_ADmixed_model, b0 = 0, sigma2 = 1,
+                 eta = 0.1,
+                 n = 1000,
+                 p_test = 5000,
+                 p_kinship = 10000,
+                 geography = list("ind", "1d","circ"),
+                 percent_causal = 0.01,
                  percent_overlap = list("0","100"),
-                 vary_along = c("sigma2","eta","beta_mean","percent_overlap")) %>%
-  simulate_from_model(nsim = 4, index = 1:50) %>% 
+                 k = 3, s = 0.5, Fst = 0.1,
+                 vary_along = c("percent_overlap")) %>%
+  simulate_from_model(nsim = 6, index = 1:35) %>%
   run_method(list(lasso, ggmix, twostep),
              parallel = list(socket_names = 35,
-                             libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
+                             libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin")))
 
-sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
+sim <- sim %>% evaluate(list(modelerror,prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity))
+as.data.frame(evals(sim))
+
 save_simulation(sim)
-
-# we added an extra simulation scenario here. 
+sim %>%
+  subset_simulation(methods = c("lasso")) %>%
+  evaluate(correct_sparsity) %>%
+  plot_eval(metric_name = "correctsparsity")
+simulator::draws(sim)
+# we added an extra simulation scenario here.
 # sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
-# 
+#
 # mref <-  generate_model(make_model = make_mixed_model_SSC, b0 = 0, sigma2 = 4,
-#                         eta = 0.10, 
-#                         percent_causal = 1, 
+#                         eta = 0.10,
+#                         percent_causal = 1,
 #                         percent_overlap = list("0","100"),
 #                         vary_along = "percent_overlap")
-# 
+#
 # dref <- simulate_from_model(mref, nsim = 4, index = 1:50)
 # sim <- simulator::add(sim, mref)
 # sim <- simulator::add(sim, dref)
@@ -51,8 +77,8 @@ save_simulation(sim)
 # sim <- simulator::add(sim, oref)
 # simulator::save_simulation(sim)
 # sim
-# 
-# 
+#
+#
 
 ## @knitr load-results
 
@@ -172,16 +198,16 @@ tabulate_eval(sim, "me", output_type = "markdown",
 # plot_eval(sim, metric_name = "fpr") + panel_border() #+ ylim(c(0,1))
 # plot_eval(sim, metric_name = "tpr") + panel_border() #+ ylim(c(0,1))
 # plot_eval(sim, metric_name = "r2") + panel_border() #+ ylim(c(0,1))
-# 
-# 
-# 
-# 
+#
+#
+#
+#
 # sim %>% evaluate(list(tpr,fpr))
 # df <- as.data.frame(evals(sim))
 # dfn <- df
 # dfn$Method <- as.character(dfn$Method)
 # dfn[dfn$Method=="penfam","Method"] <- "ggmix"
-# 
+#
 # pdf("~/Dropbox/jobs/hec/talk/tpr_fpr.pdf")#, width = 11, height = 8)
 # ggplot(data = dfn[dfn$Method!="twostep",], aes(x=fpr, y=tpr, color = Method)) + geom_point(size=4) +
 #   theme(legend.position = "bottom", axis.text=element_text(size=16), axis.title=element_text(size=18,face="bold"),
@@ -189,7 +215,7 @@ tabulate_eval(sim, "me", output_type = "markdown",
 #   xlab("False positive rate") + ylab("True positive rate") + xlim(c(0.002,0.062)) +
 #   ylim(c(0,0.25))
 # dev.off()
-# 
+#
 # pdf("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.pdf")#, width = 11, height = 8)
 # p1 <- ggplot(data = dfn, aes(x=fpr, y=tpr, color = Method)) + geom_point(size=4) +
 #   theme(legend.position = "bottom", axis.text=element_text(size=16), axis.title=element_text(size=18,face="bold"),
@@ -197,50 +223,50 @@ tabulate_eval(sim, "me", output_type = "markdown",
 #   xlab("False positive rate") + ylab("True positive rate") + xlim(c(0.002,0.062)) +
 #   ylim(c(0,0.25))
 # dev.off()
-# 
-# 
+#
+#
 # pacman::p_load(gridExtra)
 # df <- data.frame(ggmix = "26.7 (1.06)", lasso = "32.8 (0.87)", twostep = "4784.1 (0.19)")
 # rownames(df) <- "mean RMSE (sd)"
 # t1 <- grid.table(df)
 # t1 <- tableGrob(df)
 # dev.off()
-# 
+#
 # pdf("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.pdf")#, width = 11, height = 8)
 # plot_grid(p1,t1, ncol = 1, rel_heights =  c(1,0.2))
 # dev.off()
-# 
-# 
+#
+#
 # png("~/Dropbox/jobs/hec/talk/tpr_fpr_all_causal400.png", width = 11, height = 8, units = "in", res = 150)
 # plot_grid(p1,t1, ncol = 1, rel_heights =  c(1,0.2))
 # dev.off()
-# 
-# 
-# 
+#
+#
+#
 # theme(axis.text=element_text(size=12),
 #       axis.title=element_text(size=14,face="bold"))
-# 
+#
 # ggsave(filename = "/home/sahir/Dropbox/PhD/Year4/IGES/poster/tpr_fpr.png")
 # ggsave(filename = "/home/sahir/Dropbox/jobs/hec/talk/tpr_fpr.png")
-# 
-# 
+#
+#
 # sim %>% evaluate(list(rmse))
 # plot_eval(sim, metric_name = "rmse") + panel_border()
-# 
+#
 # df <- melt(as.data.frame(evals(sim)@evals))
 # df
-# 
-# 
+#
+#
 # sim %>%
 #   tabulate_eval(metric_name = "rmse",
 #                 format_args = list(nsmall = 3, digits = 0),
 #                 output_type = "latex")
-# 
-# 
+#
+#
 # #
 # #
 # # head(df)
-# 
+#
 # #
 # #
 # #
@@ -283,9 +309,9 @@ tabulate_eval(sim, "me", output_type = "markdown",
 # # # draws@draws$r1.2
 # # #
 # dat <- make_mixed_model_not_simulator(b0 = 1, eta = 0.5, sigma2 = 4, percent_causal = 1, percent_overlap = "100")
-dat <- make_ADmixed_model_not_simulator(n = 200, p = 5000, ncausal = 20, k = 3, s = 0.5, Fst = 0.1, b0 = 0, beta_mean = 1, 
+dat <- make_ADmixed_model_not_simulator(n = 200, p = 5000, ncausal = 20, k = 3, s = 0.5, Fst = 0.1, b0 = 0, beta_mean = 1,
                                         eta = 0.5, sigma2 = 4)
-dat <- make_INDmixed_model_not_simulator(n = 200, p = 5000, ncausal = 10, k = 3, s = 0.5, Fst = 0.1, b0 = 0, 
+dat <- make_INDmixed_model_not_simulator(n = 200, p = 5000, ncausal = 10, k = 3, s = 0.5, Fst = 0.1, b0 = 0,
                                          beta_mean = 1, eta = 0.5, sigma2 = 4)
 # dat$kin[1:25,1:25]
 # pheno_dat <- data.frame(Y = dat$y, id = rownames(dat$kin))
@@ -367,54 +393,54 @@ length(intersect(nonzero_names, dat$causal))/length(dat$causal)
 length(nonzero_names)
 
 l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$x)+1),,drop=F])
-# 
-# 
-# 
+#
+#
+#
 # # dat <- make_mixed_model_not_simulator(2,.6, 1, percent_causal = 2.5, percent_overlap = "0")
 # dat$kin %>% colnames
 # dat$kin %>% rownames
 # dat$file_paths
 # kins <- snpStats::read.plink(dat$file_paths$X_Phi)
 # kins
-# 
+#
 # x <- gaston::read.bed.matrix(dat$file_paths$X_Phi)
 # slotNames(x)
 # x@snps$chr %>% table
 # x@sigma
-# 
+#
 # plot(x@p, x@sigma, xlim=c(0,1))
 # t <- seq(0,1,length=101);
 # lines(t, sqrt(2*t*(1-t)), col="red")
 # plot(2*x@p, x@mu)
 # abline(a=0,b=1, col = "red")
-# 
+#
 # as.matrix(x)[1:5,1:5]
 # standardize(x) <- "p"
 # x@standardize_mu_sigma
 # as.matrix(x)[1:5,1:5]
 # X <- as.matrix(x)
 # # any(is.na(X[,2,drop=F]))
-# 
+#
 # kin <- gaston::GRM(x, autosome.only = FALSE)
 # kin[1:5,1:5]
 # all(complete.cases(kin))
 # eiK <- eigen(kin)
-# 
+#
 # # deal with a small negative eigen value
 # eiK$values[ eiK$values < 0 ] <- 0
-# any(eiK$values < 0) 
+# any(eiK$values < 0)
 # PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
 # dim(PC)
 # plot(PC[,1], PC[,2])
 # PC[,1:10]
-# 
+#
 # rownames(kin)
 # head(pheno_dat)
 # hist(dat$y)
 # dat$kin[1:5,1:5]
-# 
+#
 # # fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = xxmat)
-# 
+#
 # pacman::p_load(snpStats)
 # xxmat <- snpStats::xxt(kins$genotypes, correct.for.missing = TRUE)
 # evv <- eigen(xxmat, symmetric=TRUE)
@@ -427,15 +453,15 @@ l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$
 # dimnames(kinPD)[[1]] <- dat$file_paths$Phi_names
 # dimnames(kinPD)[[2]] <- kin_names$V1
 # kin <- kinPD
-# 
+#
 # dat$kin[1:5,1:5]
 # all(eigen(dat$kin)$values > 0)
 # all(evv$values > 0)
 # # pheno_dat <- data.frame(Y = dat$y, id = rownames(dat$kin))
-# 
+#
 # pheno_dat <- data.frame(Y = dat$y, id = rownames(xxmat))
 # head(pheno_dat)
-# 
+#
 # # fitting with no intercept, i.e., 0 + (1|id) returns error
 # fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = dat$kin)
 # fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = xxmat)
@@ -458,10 +484,10 @@ l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$
 # nonz <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F]),c("(Intercept)"))
 # length(intersect(nonz, dat$causal))/length(dat$causal)
 # coef(fitglmnet, s = "lambda.min")[1:3,]
-# 
+#
 # as.numeric(sqrt(crossprod(dat$y - (yhat+coef(fit_lme)$fixed+coef(fit_lme)$random$id))))
 # as.numeric(sqrt(crossprod(dat$y - (yhat+coef(fit_lme)$fixed))))
-# 
+#
 # fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
 #                                 penalty.factor = c(rep(1, 4000), rep(0, 10)))
 # plot(fitglmnet2)
@@ -469,11 +495,11 @@ l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$
 # as.numeric(sqrt(crossprod(dat$y - yhat2)))
 # nonz2 <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]),c("(Intercept)"))
 # length(intersect(nonz2, dat$causal))/length(dat$causal)
-# 
-# 
+#
+#
 # fitglmnetwithint <- glmnet::cv.glmnet(x = dat$x, y = newy, standardize = T, alpha = 1)
 # plot(fitglmnetwithint)
-# 
+#
 # fit <- penfam(x = dat$x,
 #               y = dat$y,
 #               phi = dat$kin,
@@ -489,24 +515,24 @@ l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$
 #               lambda_min_ratio  = 0.05,
 #               eta_init = 0.5,
 #               maxit = 100)
-# 
+#
 # nonzero = predict(fit, type = "nonzero", s = fit$lambda_min)
 # nonzero_names = setdiff(rownames(predict(fit, type = "nonzero", s = fit$lambda_min)), c("(Intercept)","eta","sigma2"))
 # plot(fit)
-# 
+#
 # require(snpStats)
 # data(for.exercise)
 # controls <- rownames(subject.support)[subject.support$cc==0]
 # use <- seq(1, ncol(snps.10), 10)
 # ctl.10 <- snps.10[controls,use]
-# 
-# 
+#
+#
 # ###################################################
 # ### code chunk number 2: xxt-matrix
 # ###################################################
 # xxmat <- xxt(ctl.10, correct.for.missing=FALSE)
 # xxmat[1:5,1:5]
-# 
+#
 # ###################################################
 # ### code chunk number 3: eigen
 # ###################################################
@@ -514,9 +540,9 @@ l2norm(dat$x %*% dat$beta - dat$x %*% coef(fit, s = fit$lambda_min)[2:(ncol(dat$
 # pcs <- evv$vectors[,1:5]
 # evals <- evv$values[1:5]
 # evals
-# 
-# 
-# 
+#
+#
+#
 # # dat$causal
 # # dat$x %>% dim
 # # dat$y %>% hist
