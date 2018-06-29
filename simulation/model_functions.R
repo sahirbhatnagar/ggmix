@@ -163,135 +163,148 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   # s <- 0.5 # desired bias coefficient
   # Fst <- 0.1 # desired FST for the admixed individuals
   geography <- match.arg(geography)
-  if (geography == "1d") {
-    obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
-    Q <- obj$Q
-    FF <- obj$F
-  } else if (geography == "ind") {
-    n1 <- 200; n2 <- 200; n3 <- 200; n4 <- 200; n5 <- 200
-    # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
-    labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3),
-               rep.int("S4", n4), rep.int("S5", n5))
-    # data dimensions infered from labs:
-    length(labs) # number of individuals "n"
-    # desired admixture matrix ("is" stands for "Independent Subpopulations")
-    Q <- bnpsd::qis(labs)
-    FF <- 1:k # subpopulation FST vector, unnormalized so far
-    FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
-  } else if (geography == "circ") {
-    obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
-    Q <- obj$Q
-    FF <- obj$F
-  }
 
-  ncausal <- p_test * percent_causal
-  # browser()
-  if (percent_overlap == "100") {
 
-    total_snps_to_simulate <- p_test + p_kinship - ncausal
-    # this contains all SNPs (X_{Testing}:X_{kinship})
-    out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
-    Xall <- t(out$X) # genotypes are columns, rows are subjects
-    cnames <- paste0("X", 1:total_snps_to_simulate)
-    colnames(Xall) <- cnames
-    rownames(Xall) <- paste0("id", 1:n)
-    Xall[1:5,1:5]
-    dim(Xall)
-    subpops <- ceiling( (1:n)/n*k )
-    table(subpops) # got k=10 subpops with 100 individuals each
+  new_model(name = "ggmixThesis",
+            label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s,
+                            sigma2 = %s, geography = %s, p_test = %s, p_kinship = %s",
+                            percent_causal, percent_overlap, eta, sigma2, geography,
+                            p_test, p_kinship),
+            params = list(n = n, p_test = p_test, p_kinship = p_kinship,
+                          k = k, eta = eta, sigma2 = sigma2, geography = geography,
+                          percent_causal = percent_causal,
+                          percent_overlap = percent_overlap),
+            simulate = function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
+                                eta, sigma2, geography,
+                                percent_causal, percent_overlap, nsim) {
 
-    # Snps used for kinship
-    snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
-    length(snps_kinships)
+              models <- list()
 
-    # all causal snps are in kinship matrix
-    causal <- sample(snps_kinships, ncausal, replace = FALSE)
+              for (i in seq(nsim)) {
 
-    snps_test <- c(setdiff(cnames, snps_kinships), causal)
-    # length(snps_test)
-    # setdiff(cnames, snps_kinships) %>% length()
-    not_causal <- setdiff(snps_test, causal)
+                if (geography == "1d") {
+                  obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
+                  Q <- obj$Q
+                  FF <- obj$F
+                } else if (geography == "ind") {
+                  n1 <- 200; n2 <- 200; n3 <- 200; n4 <- 200; n5 <- 200
+                  # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
+                  labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3),
+                             rep.int("S4", n4), rep.int("S5", n5))
+                  # data dimensions infered from labs:
+                  length(labs) # number of individuals "n"
+                  # desired admixture matrix ("is" stands for "Independent Subpopulations")
+                  Q <- bnpsd::qis(labs)
+                  FF <- 1:k # subpopulation FST vector, unnormalized so far
+                  FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
+                } else if (geography == "circ") {
+                  obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
+                  Q <- obj$Q
+                  FF <- obj$F
+                }
 
-    Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+                ncausal <- p_test * percent_causal
+                # browser()
+                if (percent_overlap == "100") {
 
-    # now estimate kinship using popkin
-    # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
-    PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
+                  total_snps_to_simulate <- p_test + p_kinship - ncausal
+                  # this contains all SNPs (X_{Testing}:X_{kinship})
+                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  Xall <- t(out$X) # genotypes are columns, rows are subjects
+                  cnames <- paste0("X", 1:total_snps_to_simulate)
+                  colnames(Xall) <- cnames
+                  rownames(Xall) <- paste0("id", 1:n)
+                  Xall[1:5,1:5]
+                  dim(Xall)
+                  subpops <- ceiling( (1:n)/n*k )
+                  table(subpops) # got k=10 subpops with 100 individuals each
 
-  } else if (percent_overlap == "0") {
+                  # Snps used for kinship
+                  snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
+                  length(snps_kinships)
 
-    total_snps_to_simulate <- p_test + p_kinship
-    # this contains all SNPs (X_{Testing}:X_{kinship})
-    out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
-    Xall <- t(out$X) # genotypes are columns, rows are subjects
-    cnames <- paste0("X", 1:total_snps_to_simulate)
-    colnames(Xall) <- cnames
-    rownames(Xall) <- paste0("id", 1:n)
-    Xall[1:5,1:5]
-    dim(Xall)
-    subpops <- ceiling( (1:n)/n*k )
-    table(subpops) # got k=10 subpops with 100 individuals each
+                  # all causal snps are in kinship matrix
+                  causal <- sample(snps_kinships, ncausal, replace = FALSE)
 
-    # Snps used for kinship
-    snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
-    length(snps_kinships)
+                  snps_test <- c(setdiff(cnames, snps_kinships), causal)
+                  # length(snps_test)
+                  # setdiff(cnames, snps_kinships) %>% length()
+                  not_causal <- setdiff(snps_test, causal)
 
-    snps_test <- setdiff(cnames, snps_kinships)
-    # length(snps_test)
-    # setdiff(cnames, snps_kinships) %>% length()
-    causal <- sample(snps_test, ncausal, replace = FALSE)
-    not_causal <- setdiff(snps_test, causal)
+                  Xkinship <- Xall[,snps_kinships]
+                  Xtest <- Xall[,snps_test]
 
-    Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+                  # now estimate kinship using popkin
+                  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
-    # now estimate kinship using popkin
-    # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
-    PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
-  }
+                } else if (percent_overlap == "0") {
 
-  kin <- 2 * PhiHat
-  eiK <- eigen(kin)
-  if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
-  PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
-  plot(eiK$values)
-  plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
+                  total_snps_to_simulate <- p_test + p_kinship
+                  # this contains all SNPs (X_{Testing}:X_{kinship})
+                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  Xall <- t(out$X) # genotypes are columns, rows are subjects
+                  cnames <- paste0("X", 1:total_snps_to_simulate)
+                  colnames(Xall) <- cnames
+                  rownames(Xall) <- paste0("id", 1:n)
+                  Xall[1:5,1:5]
+                  dim(Xall)
+                  subpops <- ceiling( (1:n)/n*k )
+                  table(subpops) # got k=10 subpops with 100 individuals each
 
-  np <- dim(Xtest)
-  n <- np[[1]]
-  p <- np[[2]]
+                  # Snps used for kinship
+                  snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
+                  length(snps_kinships)
 
-  x_lasso <- cbind(Xtest,PC[,1:10])
-  x_lasso[1:5,1:5]
-  # kin <- snpStats::xxt(dat$genotypes)/p
+                  snps_test <- setdiff(cnames, snps_kinships)
+                  # length(snps_test)
+                  # setdiff(cnames, snps_kinships) %>% length()
+                  causal <- sample(snps_test, ncausal, replace = FALSE)
+                  not_causal <- setdiff(snps_test, causal)
 
-  beta <- rep(0, length = p)
-  # beta[which(colnames(Xtest) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
-  beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
-  mu <- as.numeric(Xtest %*% beta)
+                  Xkinship <- Xall[,snps_kinships]
+                  Xtest <- Xall[,snps_test]
 
-  P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
-  E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
-  # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
-  # y <- b0 + mu + t(P) + t(E)
-  # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
-  y <- b0 + mu + P + E
+                  # now estimate kinship using popkin
+                  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
+                }
 
-  return(list(y = y, x = Xtest, causal = causal, beta = beta, kin = kin,
-              not_causal = not_causal,
-              x_lasso = x_lasso))
+                kin <- 2 * PhiHat
+                eiK <- eigen(kin)
+                if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
+                PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+                # plot(eiK$values)
+                # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
 
-  # new_model(name = "penfam", label = sprintf("type = %s, eta = %s", type, eta),
-  #           params = list(mu = mu, n = n, x = x, beta = beta, type = type, not_causal = not_causal,
-  #                         kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal),
-  #           simulate = function(mu, sigma2, eta, kin, n, nsim) {
-  #             P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
-  #             E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
-  #             # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
-  #             y <- b0 + mu + t(P) + t(E)
-  #             return(split(y, col(y))) # make each col its own list element
-  #           })
+                np <- dim(Xtest)
+                n <- np[[1]]
+                p <- np[[2]]
+
+                x_lasso <- cbind(Xtest,PC[,1:10])
+                x_lasso[1:5,1:5]
+                # kin <- snpStats::xxt(dat$genotypes)/p
+
+                beta <- rep(0, length = p)
+                # beta[which(colnames(Xtest) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
+                beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
+                mu <- as.numeric(Xtest %*% beta)
+
+                P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+                E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+                # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
+                # y <- b0 + mu + t(P) + t(E)
+                # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
+                y <- b0 + mu + P + E
+
+                models[[i]] <- list(y = y, x = Xtest, causal = causal,
+                                    beta = beta, kin = kin,
+                                    mu = mu,
+                                    not_causal = not_causal,
+                                    x_lasso = x_lasso)
+              }
+            })
+
 }
 
 ## @knitr models-not-used
