@@ -1,10 +1,10 @@
 ## @knitr methods
 
-# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/packages.R")
-# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/packages.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/functions.R")
 
-source("~/git_repositories/ggmix/simulation/packages.R")
-source("~/git_repositories/ggmix/simulation/functions.R")
+# source("~/git_repositories/ggmix/simulation/packages.R")
+# source("~/git_repositories/ggmix/simulation/functions.R")
 
 # lasso <- new_method("lasso", "Lasso",
 #                     method = function(model, draw) {
@@ -44,7 +44,7 @@ lasso <- new_method("lasso", "lasso",
                         )
                       })
 
-ggmix <- new_method("ggmix", "ggmix",
+ggmixed <- new_method("ggmix", "ggmix",
                      method = function(model, draw) {
                        fit <- ggmix(x = draw[["Xtest"]],
                                     y = draw[["y"]],

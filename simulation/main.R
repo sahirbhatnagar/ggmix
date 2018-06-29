@@ -2,13 +2,13 @@
 rm(list = ls())
 # setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
-source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
-source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
-source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
+# source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 
-# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
-# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
-# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
+source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
 
 ## @knitr init
 
@@ -43,15 +43,15 @@ sim <- new_simulation(name_of_simulation, "thesis-june-29", dir = "simulation/")
                  geography = list("ind", "1d","circ"),
                  percent_causal = 0.01,
                  percent_overlap = list("0","100"),
-                 k = 3, s = 0.5, Fst = 0.1,
-                 vary_along = c("percent_overlap")) %>%
+                 k = 5, s = 0.5, Fst = 0.1,
+                 vary_along = c("geography","percent_overlap")) %>%
   simulate_from_model(nsim = 6, index = 1:35) %>%
-  run_method(list(lasso, ggmix, twostep),
+  run_method(list(lasso, ggmixed, twostep),
              parallel = list(socket_names = 35,
-                             libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin")))
-
-sim <- sim %>% evaluate(list(modelerror,prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity))
+                             libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity))
 as.data.frame(evals(sim))
+ls()
 
 save_simulation(sim)
 sim %>%
