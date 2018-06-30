@@ -188,13 +188,13 @@ ggmix <- function(x, y,
     stop("x should be a matrix with 2 or more columns")
   }
   
-  dfmax <- as.double(dfmax)
-
   # note that p_design doesn't contain the intercept
   # whereas the x in the ggmix_object will have the intercept
   n_design <- np_design[[1]]
   p_design <- np_design[[2]]
-
+  
+  dfmax <- as.double(dfmax)
+  
   is_kinship <- !missing(kinship)
   is_UD <- !missing(U) & !missing(D)
   is_K <- !missing(K)
