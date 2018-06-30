@@ -1,3 +1,21 @@
+######################################
+# R Source code file for simulation of ggmix paper
+# Notes:
+# This is the main simulator file
+# I ran this on tmux by copy pasting into an rsession on hydra.
+# parallel doesnt work in rstudio
+# use this code to save the results. turns out you cant run simulator in parallel "by hand"
+# you need to load the simulator object prior to adding new simulations to the object.
+#
+# Since the simulations take a long time to run, I save the results to a .rds file
+# and then create figures based on that
+# Author: Sahir Bhatnagar
+# Created: 2018
+# Updated: June 30, 2018
+#####################################
+
+
+
 # This is the main simulator file
 rm(list = ls())
 # setwd("/home/sahir/git_repositories/ggmix/simulation/")
@@ -49,16 +67,27 @@ sim <- new_simulation(name_of_simulation, "thesis-june-29", dir = "simulation/")
   run_method(list(lasso, ggmixed, twostep),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
-sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity))
+sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse))
 as.data.frame(evals(sim))
-ls()
-
 save_simulation(sim)
+
+
+
+# save results ------------------------------------------------------------
+
+df <- as.data.frame(evals(sim))
+saveRDS(df, file = "simulation/simulation_results/june_29_2018_results.rds")
+
+
+evals(sim)
+
 sim %>%
-  subset_simulation(methods = c("lasso")) %>%
-  evaluate(correct_sparsity) %>%
-  plot_eval(metric_name = "correctsparsity")
-simulator::draws(sim)
+  plot_eval(metric_name = "correct_sparsity")
+sim %>%
+  plot_eval(metric_name = "prederror")# + ylim(c(0, 10))
+sim %>%
+  plot_eval(metric_name = "me")# + ylim(c(0, 10))
+# simulator::draws(sim)
 # we added an extra simulation scenario here.
 # sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
 #
@@ -88,12 +117,12 @@ sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
 ## @knitr plots
 
 sim %>%
-  subset_simulation(methods = c("penfam")) %>%
+  subset_simulation(methods = c("ggmix")) %>%
   plot_eval(metric_name = "eta") + panel_border() #+
   # ggplot2::geom_hline(yintercept = 0.5)
 
 sim %>%
-  subset_simulation(methods = c("penfam")) %>%
+  subset_simulation(methods = c("ggmix")) %>%
   plot_eval(metric_name = "sigma2") + panel_border()
 
 # appender <- function(string) TeX(paste(string))
@@ -182,6 +211,10 @@ tabulate_eval(sim, "nactive", output_type = "markdown",
 tabulate_eval(sim, "me", output_type = "markdown",
               format_args = list(digits = 3, nsmall=3))
 
+## @knitr pred-error
+
+tabulate_eval(sim, "me", output_type = "markdown",
+              format_args = list(digits = 3, nsmall=3))
 
 ## @knitr not-used
 
