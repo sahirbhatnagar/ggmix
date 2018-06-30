@@ -10,7 +10,7 @@ ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
   lambda_min_ratio = ifelse(n_design < p_design, 0.01, 1e-04),
   nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-20,
   standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
-  epsilon = 1e-04, verbose = 0)
+  epsilon = 1e-04, dfmax = p_design + 2, verbose = 0)
 }
 \arguments{
 \item{x}{input matrix, of dimension n x p; where n is the number of
@@ -118,6 +118,11 @@ less than thresh times the null deviance. Defaults value is 1E-7}
 parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 Defaults value is 1E-7}
+
+\item{dfmax}{limit the maximum number of variables in the model. Useful for
+very large \code{p} (the total number of predictors in the design matrix),
+if a partial path is desired. Default is the number of columns in the
+design matrix + 2 (for the variance components)}
 
 \item{verbose}{display progress. Can be either 0,1 or 2. 0 will not display
 any progress, 2 will display very detailed progress and 1 is somewhere in
