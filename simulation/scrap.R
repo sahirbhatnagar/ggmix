@@ -54,8 +54,8 @@ dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k =
                                          b0 = 1, beta_mean = 1,
                                          eta = 0.10, sigma2 = 4)
 dat <- make_ADmixed_model_not_simulator(n = 1000,
-                                        p_test = 2000,
-                                        p_kinship = 5000,
+                                        p_test = 5000,
+                                        p_kinship = 10000,
                                         geography = "circ",
                                         percent_causal = 0.01,
                                         percent_overlap = "100",
@@ -89,10 +89,19 @@ correct_sparsity <- function(causal, not_causal, active, p){
 devtools::load_all()
 # res <- lowrank(x = X, y = y,  d = Lambda, u = U_kinship)
 # this is for karim data
-res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
-res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
-             n_nonzero_eigenvalues = 10, estimation = "low")
+# res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
+# res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+#              n_nonzero_eigenvalues = 10, estimation = "low")
+system.time(res <- ggmix(x = dat$x, y = dat$y, kinship = dat$kin, estimation = "full", verbose = 2, dfmax = 300))
 res
+
+hdbic <- gic(res, an = log(1000))
+hdbic <- gic(res)
+plot(hdbic)
+nrow(coef(hdbic, type = "non"))
+nonzero_names <- setdiff(rownames(coef(hdbic, type = "non")), c("(Intercept)","eta","sigma2"))
+length(intersect(nonzero_names, dat$causal))/length(dat$causal)
+
 
 devtools::load_all()
 data("admixed")

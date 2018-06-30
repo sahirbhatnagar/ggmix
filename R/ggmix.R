@@ -46,6 +46,9 @@
 #'   then the \code{group} argument must also be specified
 #' @param group a vector of consecutive integers describing the grouping of the
 #'   coefficients
+#' @param dfmax limit the maximum number of variables in the model. Useful for
+#'   very large \code{p} (the total number of predictors in the design matrix),
+#'   if a partial path is desired. If missing, the whole path is computed
 #' @param penalty.factor Separate penalty factors can be applied to each
 #'   coefficient. This is a number that multiplies lambda to allow differential
 #'   shrinkage. Can be 0 for some variables, which implies no shrinkage, and
@@ -132,6 +135,7 @@ ggmix <- function(x, y,
                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = 1e-8, # this is for glmnet
                   epsilon = 1e-4, # this is for ggmix
+                  dfmax,
                   verbose = 0) {
   this.call <- match.call()
 
@@ -182,6 +186,9 @@ ggmix <- function(x, y,
   if (is.null(np_design) | (np_design[2] <= 1)) {
     stop("x should be a matrix with 2 or more columns")
   }
+  
+  if (!missing(dfmax))
+    dfmax <- as.double(dfmax)
 
   # note that p_design doesn't contain the intercept
   # whereas the x in the ggmix_object will have the intercept
@@ -413,6 +420,7 @@ ggmix <- function(x, y,
       alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
       thresh_glmnet = thresh_glmnet, # this is for glmnet
       epsilon = epsilon,
+      dfmax = dfmax,
       verbose = verbose
     )
   } else if (penalty == "gglasso") {
