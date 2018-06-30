@@ -79,7 +79,45 @@ df <- as.data.frame(evals(sim))
 saveRDS(df, file = "simulation/simulation_results/june_29_2018_results.rds")
 
 
-evals(sim)
+
+
+# analyze results ---------------------------------------------------------
+
+source("simulation/packages.R")
+df <- readRDS("simulation/simulation_results/june_29_2018_results.rds")
+df
+df <- df %>% separate(Model, into = c("simnames","b0","eta","Fst","geography","k","n","pkinship","ptest","percentcausal","percentoverlap","s","sigma2"),
+                      sep = "/")
+DT <- as.data.table(df)
+
+trop <- RSkittleBrewer::RSkittleBrewer("trop")
+
+cbbPalette <- c("#8720B6","#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+trop <- RSkittleBrewer::RSkittleBrewer("trop")
+
+gg_sy <- theme(legend.position = "bottom", axis.text = element_text(size = 20),
+               axis.title = element_text(size = 20), legend.text = element_text(size = 20),
+               legend.title = element_text(size = 20),plot.title = element_text(size = 20) )
+
+appender <- function(string) TeX(paste(string))
+
+DT[percentoverlap=="percent_overlap_0", p_overlap := 0]
+DT[percentoverlap=="percent_overlap_100", p_overlap := 100]
+DT[, table(percentoverlap, p_overlap)]
+
+DT[geography=="geography_ind", geo := "block"]
+DT[geography=="geography_circ", geo := "circular"]
+DT[geography=="geography_1d", geo := "1D"]
+DT[, table(geography)]
+
+DT[, scenario:= as.numeric(as.character(stringr::str_extract_all(parameterIndex, "\\d", simplify = T)))]
+DT$scenario %>% table
+DT[, scen:=ifelse(scenario==1,"Strong Hierarchy",ifelse(scenario==2, "Weak Hierarchy", ifelse(scenario==3,"Interactions Only",ifelse(scenario==4, "Strong Hierarchy (Linear)", ifelse(scenario==5, "Main Effects Only", "Linear v2")))))]
+DT$scen %>% table
+DT[, scen:=factor(scen, levels = c("Strong Hierarchy", "Weak Hierarchy","Interactions Only","Strong Hierarchy (Linear)","Linear v2","Main Effects Only"))]
+DT$scen %>% table
+
+
 
 sim %>%
   plot_eval(metric_name = "correct_sparsity")
