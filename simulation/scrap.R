@@ -50,10 +50,10 @@ X_lasso <- cbind(X,PC[,1:10])
 dim(X_lasso)
 
 source("simulation/model_functions.R")
-dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
-                                         b0 = 1, beta_mean = 1,
-                                         eta = 0.10, sigma2 = 4)
-dat <- make_ADmixed_model_not_simulator(n = 1000,
+# dat <- make_INDmixed_model_not_simulator(n = 1000, p = 10000, ncausal = 100, k = 5, s = 0.5, Fst = 0.1,
+#                                          b0 = 1, beta_mean = 1,
+#                                          eta = 0.10, sigma2 = 4)
+dat <- make_ADmixed_model_not_simulator(n = 2000,
                                         p_test = 5000,
                                         p_kinship = 10000,
                                         geography = "circ",
@@ -62,6 +62,27 @@ dat <- make_ADmixed_model_not_simulator(n = 1000,
                                         k = 5, s = 0.5, Fst = 0.1,
                                         b0 = 0, beta_mean = 1,
                                         eta = 0.1, sigma2 = 1)
+
+dat <- make_ADmixed_model_not_simulator_with_validation(n_train = 1000,
+                                                        n_validation = 1000,
+                                                        p_test = 5000,
+                                                        p_kinship = 10000,
+                                                        geography = "circ",
+                                                        percent_causal = 0.01,
+                                                        percent_overlap = "100",
+                                                        k = 5, s = 0.5, Fst = 0.1,
+                                                        b0 = 0, beta_mean = 1,
+                                                        eta = 0.1, sigma2 = 1)
+
+
+popkin::plotPopkin(dat$kin)
+train_ind <- caret::createDataPartition(dat$y)
+Ytrain <- dat$y[train_ind$Resample1]
+Ytest <- dat$y[-train_ind$Resample1]
+Xtrain <- dat$x[train_ind$Resample1,,drop = FALSE]
+Xtest <- dat$x[-train_ind$Resample1,,drop = FALSE]
+popkin::plotPopkin(dat$kin[train_ind$Resample1,])
+
 phi_eigen <- eigen(dat$kin)
 dat$kin[1:5,1:5]
 popkin::plotPopkin(dat$kin)
@@ -84,6 +105,25 @@ correct_sparsity <- function(causal, not_causal, active, p){
   (1 / p) * (correct_nonzeros + correct_zeros)
 }
 
+
+
+m <- 10 # number of loci
+n <- 5 # number of individuals
+k <- 2 # number of intermediate subpops
+pAnc <- rpanc(m) # random vector of ancestral allele frequencies (length= number of loci)
+F <- c(0.1, 0.3) # FST values for k=2 subpops
+B <- rpint(pAnc, F) # matrix of intermediate subpop allele freqs
+sigma <- 1 # dispersion parameter of intermediate subpops
+Q <- q1d(n, k, sigma) # non-trivial admixture proportions
+P <- rpiaf(B,Q)
+rgeno(P)
+
+
+
+
+
+
+
 # ggmix -------------------------------------------------------------------
 
 devtools::load_all()
@@ -92,15 +132,40 @@ devtools::load_all()
 # res <- gic.penfam(x = X, y = y,  d = Lambda, u = U_kinship, an = log(length(y)))
 # res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
 #              n_nonzero_eigenvalues = 10, estimation = "low")
-system.time(res <- ggmix(x = dat$x, y = dat$y, kinship = dat$kin, estimation = "full", verbose = 2, dfmax = 300))
+system.time(res <- ggmix(x = dat$x, y = dat$y, kinship = dat$kin, estimation = "full", verbose = 2, dfmax = 70))
 res
 
 hdbic <- gic(res, an = log(1000))
+hdbic <- gic(res, an = log(log(1000)) * log(1000))
 hdbic <- gic(res)
 plot(hdbic)
 nrow(coef(hdbic, type = "non"))
 nonzero_names <- setdiff(rownames(coef(hdbic, type = "non")), c("(Intercept)","eta","sigma2"))
 length(intersect(nonzero_names, dat$causal))/length(dat$causal)
+
+l2norm(predict(hdbic, newx = dat$x) - dat$y)
+l2norm(predict(hdbic, newx = dat$x_val) - dat$y_val)
+
+
+fitglmnet2 <- glmnet::cv.glmnet(x = dat$x_lasso, y = dat$y, standardize = T, alpha = 1, intercept = T,
+                                penalty.factor = c(rep(1, 5000), rep(0, 10)))
+# l2norm(predict(fitglmnet2, newx = dat$x_lasso) - dat$y)
+# l2norm(predict(fitglmnet2, newx = dat$x_lasso) - dat$y)
+# l2norm(predict(fitglmnet2, newx = dat_test$x_lasso) - dat_test$y)
+nonzero_lasso <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef(coef(fitglmnet2, s = "lambda.min")),,drop=F]), c("","(Intercept)"))
+length(intersect(nonzero_lasso, dat$causal))/length(dat$causal)
+length(nonzero_lasso)
+
+l2norm(cbind(1,dat$x) %*% coef(fitglmnet2, s = "lambda.min")[c("(Intercept)",colnames(dat$x)),,drop = F] - dat$y)
+all(setdiff(rownames(coef(fitglmnet2, s = "lambda.min")), c("")) == c("(Intercept)",colnames(dat$x_val)))
+l2norm(cbind(1,dat$x_val) %*% coef(fitglmnet2, s = "lambda.min")[c("(Intercept)",colnames(dat$x_val)),,drop = F] - dat$y_val)
+
+
+
+
+
+
+
 
 
 devtools::load_all()
