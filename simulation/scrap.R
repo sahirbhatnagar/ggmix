@@ -174,7 +174,12 @@ nonzero_lasso <- setdiff(rownames(coef(fitglmnet2, s = "lambda.min")[nonzeroCoef
 length(intersect(nonzero_lasso, dat$causal))/length(dat$causal)
 length(nonzero_lasso)
 
+
+# these are equivalent
 l2norm(cbind(1,dat$x) %*% coef(fitglmnet2, s = "lambda.min")[c("(Intercept)",colnames(dat$x)),,drop = F] - dat$y)^2 /
+  (length(dat$y) - length(nonzero_lasso))
+
+crossprod(cbind(1,dat$x) %*% coef(fitglmnet2, s = "lambda.min")[c("(Intercept)",colnames(dat$x)),,drop = F] - dat$y) /
   (length(dat$y) - length(nonzero_lasso))
 
 

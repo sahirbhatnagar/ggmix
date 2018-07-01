@@ -23,21 +23,27 @@ lasso <- new_method("lasso", "lasso",
                                     penalty.factor = c(rep(1, ncol(draw[["Xtest"]])),
                                                        rep(0,10)))
 
+                        nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
+
                         model_error <- l2norm(draw[["mu"]] -
                           draw[["Xtest"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["Xtest"]]) + 1),,drop = F])
                         # defined in Bertsimas et al. 2016
                         #Best Subset Selection via a Modern Optimization Lens
                         prediction_error <- model_error^2 / l2norm(draw[["mu"]])^2
 
+                        yhat <- cbind(1, draw[["Xtest"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["Xtest"]])),,drop = F]
+                        error_var <- l2norm(yhat - draw[["y"]])^2 / (length(draw[["y"]]) - length(nz_names))
+
                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
                              model_error = model_error,
                              prediction_error = prediction_error,
                              eta = NA,
                              sigma2 = NA,
-                             yhat = predict(fitglmnet, newx = draw[["x_lasso"]], s = "lambda.min"),
-                             nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F],
-                             nonzero_names = setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)")),
+                             yhat = yhat,
+                             nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F],
+                             nonzero_names = nz_names,
                              y = draw[["y"]],
+                             error_variance = error_var,
                              causal = draw[["causal"]],
                              not_causal = draw[["not_causal"]],
                              p = ncol(draw[["Xtest"]])
@@ -50,11 +56,13 @@ ggmixed <- new_method("ggmix", "ggmix",
                                     y = draw[["y"]],
                                     kinship = draw[["kin"]],
                                     verbose = 1,
-                                    fdev = 1e-7)
+                                    dfmax = 80)
                        hdbic <- gic(fit)
 
                        model_error <- l2norm(draw[["mu"]] -
                                                draw[["Xtest"]] %*% coef(hdbic)[2:(ncol(draw[["Xtest"]]) + 1),,drop = F])
+
+                       # mse_value <- crossprod(predict(hdbic, newx = draw[["Xtest"]]) + ranef(hdbic) - draw[["y"]]) / length(draw[["y"]])
 
                        prediction_error <- model_error^2 / l2norm(draw[["mu"]])^2
 
@@ -63,9 +71,10 @@ ggmixed <- new_method("ggmix", "ggmix",
                             prediction_error = prediction_error,
                             nonzero = coef(hdbic, type = "nonzero"),
                             nonzero_names = setdiff(rownames(coef(hdbic, type = "nonzero")), c("(Intercept)","eta","sigma2")),
-                            yhat = predict(hdbic, newx = draw[["Xtest"]]),
+                            yhat = predict(hdbic, newx = draw[["Xtest"]]) + ranef(hdbic),
                             eta = coef(hdbic, type = "nonzero")["eta",],
                             sigma2 = coef(hdbic, type = "nonzero")["sigma2",],
+                            error_variance = (1 - coef(hdbic, type = "nonzero")["eta",]) * coef(hdbic, type = "nonzero")["sigma2",],
                             y = draw[["y"]],
                             causal = draw[["causal"]],
                             not_causal = draw[["not_causal"]],
@@ -90,20 +99,27 @@ twostep <- new_method("twostep", "two step",
                         fitglmnet <- glmnet::cv.glmnet(x = draw[["Xtest"]], y = gaston_resid,
                                                        standardize = T, alpha = 1, intercept = T)
 
+                        nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
+
                         model_error <- l2norm(draw[["mu"]] -
                           draw[["Xtest"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["Xtest"]]) + 1),,drop = F])
 
                         prediction_error <- model_error^2 / l2norm(draw[["mu"]])^2
 
+                        yhat <- predict(fitglmnet, newx = draw[["Xtest"]], s = "lambda.min")
+                        error_var <- l2norm(yhat - draw[["y"]])^2 / (length(draw[["y"]]) - length(nz_names))
+
+
                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
-                             yhat = predict(fitglmnet, newx = draw[["Xtest"]], s = "lambda.min"),
+                             yhat = yhat,
                              nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F],
-                             nonzero_names = setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)")),
+                             nonzero_names = nz_names,
                              model_error = model_error,
                              prediction_error = prediction_error,
                              eta = NA,
                              sigma2 = NA,
                              y = draw[["y"]],
+                             error_variance = error_var,
                              causal = draw[["causal"]],
                              not_causal = draw[["not_causal"]],
                              p = ncol(draw[["Xtest"]])
