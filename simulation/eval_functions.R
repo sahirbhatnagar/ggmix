@@ -12,6 +12,9 @@ modelerror <- new_metric("me", "model error",
 prederror <- new_metric("prederror", "Prediction error",
                          metric = function(model, out) out$prediction_error)
 
+errorvariance <- new_metric("errorvar", "Error variance",
+                        metric = function(model, out) out$error_variance)
+
 tpr <- new_metric("tpr", "True Positive Rate",
                   metric = function(model, out) {
                     length(intersect(out$nonzero_names, out$causal))/length(out$causal)

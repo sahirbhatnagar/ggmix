@@ -27,7 +27,7 @@ pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd') # load this after popkin
 pacman::p_load('lfa')
 pacman::p_load('RColorBrewer')
-pacman::p_load_gh('sahirbhatnagar/ggmix')
+pacman::p_load_gh('sahirbhatnagar/ggmix@papel')
 
 # source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/fitting.R")
 # source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/functions.R")

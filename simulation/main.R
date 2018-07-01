@@ -30,7 +30,7 @@ source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functio
 
 ## @knitr init
 
-name_of_simulation <- "thesis-ggmix-june29"
+name_of_simulation <- "thesis-ggmix-july1"
 
 ## @knitr main
 
@@ -52,24 +52,31 @@ name_of_simulation <- "thesis-ggmix-june29"
 # save_simulation(sim)
 
 
-sim <- new_simulation(name_of_simulation, "thesis-june-29", dir = "simulation/") %>%
+sim <- new_simulation(name_of_simulation, "thesis-july-1", dir = "simulation/") %>%
   generate_model(make_ADmixed_model, b0 = 0, sigma2 = 1,
                  eta = 0.1,
                  n = 1000,
                  p_test = 5000,
+                 # p_test = 500,
                  p_kinship = 10000,
                  geography = list("ind", "1d","circ"),
+                 # geography = "circ",
                  percent_causal = 0.01,
                  percent_overlap = list("0","100"),
+                 # percent_overlap = "100",
                  k = 5, s = 0.5, Fst = 0.1,
-                 vary_along = c("geography","percent_overlap")) %>%
+                 vary_along = c("geography","percent_overlap")
+                 ) %>%
   simulate_from_model(nsim = 6, index = 1:35) %>%
+  # simulate_from_model(nsim = 2, index = 1) %>%
   run_method(list(lasso, ggmixed, twostep),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
-sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse))
-as.data.frame(evals(sim))
 save_simulation(sim)
+sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
+as.data.frame(evals(sim))
+ls()
+
 
 
 

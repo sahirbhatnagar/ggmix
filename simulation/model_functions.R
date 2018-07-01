@@ -165,7 +165,7 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   geography <- match.arg(geography)
 
 
-  new_model(name = "ggmixThesis",
+  new_model(name = "ggmixThesisv2",
             label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s,
                             sigma2 = %s, geography = %s, p_test = %s, p_kinship = %s",
                             percent_causal, percent_overlap, eta, sigma2, geography,
