@@ -2,9 +2,9 @@
 
 df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/june_29_2018_results.rds")
 df <- df %>% separate(Model,
-                      into = c("simnames","b0","eta","Fst","geography","k","n",
+                      into = c("simnames","b0","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
-                               "percentoverlap","s","sigma2"),
+                               "percentoverlap","s","sigma2_p"),
                       sep = "/")
 DT <- data.table::as.data.table(df, stringsAsFactors = FALSE)
 
@@ -21,16 +21,40 @@ DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
 # DT[, table(Method)]
 appender <- function(string) latex2exp::TeX(paste(string))
 
+theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "bottom",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18))
 
+
+## ---- plot-structure-pc-sim ----
+
+dat <- lapply(list("ind","1d","circ"),
+              function(i)
+                ggmix::gen_structured_model(n = 1000,
+                                            p_test = 5000,
+                                            p_kinship = 10000,
+                                            geography = i,
+                                            percent_causal = 0.01,
+                                            percent_overlap = "100",
+                                            k = 5, s = 0.5, Fst = 0.1,
+                                            b0 = 0,
+                                            eta = 0.1, sigma2 = 1)
+)
+# str(dat)
+# dev.off()
+par(omi = c(0.3,0.3,0.3,0.3))
+popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
+                   titles = c("block", "1D", "circular"),
+                   marPad = 0.05)
+# par()$mar
+# par()$
 ## ---- plot-correct-sparsity-sim ----
 
 p1_cs <- ggplot(DT, aes(Method, correct_sparsity, fill = Method)) +
     ggplot2::geom_boxplot() +
-    # gg_sy +
-    # facet_rep_wrap(~scen, scales = "free", ncol = 2,
-    #                repeat.tick.labels = 'left',
-    #                labeller = as_labeller(appender,
-    #                                       default = label_parsed)) +
     facet_rep_grid(p_overlap ~ structure, scales = "fixed",
                    repeat.tick.labels = 'left',
                    labeller = as_labeller(appender,
@@ -40,15 +64,9 @@ p1_cs <- ggplot(DT, aes(Method, correct_sparsity, fill = Method)) +
          title = "Correct Sparsity",
          subtitle = "Based on 200 simulations",
          caption = "") +
-    # panel_border()+
-    # background_grid()+
-    theme_ipsum_rc() +
-  theme(legend.position = "bottom",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
-        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+  theme_box
 
-# , legend.text=element_text(size=18)
+
 
 p1_cs
 # reposition_legend(p1_mse, 'center', panel='panel-2-3')
@@ -86,23 +104,19 @@ p1_me_nactive <- ggplot(data = df_me_nactive, aes(x = mean.nactive, y = mean.me,
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
-  # scale_color_brewer(palette = "Dark2")+
   scale_color_manual(values = cbbPalette[c(7,3,4)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Model Error",
        title = "Model Error vs. Number of Active Variable (Mean +/- 1 SD)",
        subtitle = "Based on 200 simulations",
        caption = "") +
-  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16) +
-    theme(legend.position = "bottom",title = element_text(size = 20),
-          axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
-          legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-          strip.text = element_text(size = 18))
+  theme_box
 
 p1_me_nactive
 
 
 ## ---- plot-prederror-nactive-sim ----
 
+# not-used
 df_prederror_nactive <- DT[, c("Method", "structure", "p_overlap", "nactive", "prederror")] %>%
   group_by(Method, structure, p_overlap) %>%
   summarise(mean.prederror = mean(prederror, na.rm = TRUE), sd.prederror = sd(prederror, na.rm = TRUE),
@@ -140,11 +154,7 @@ p1_prederror_nactive <- ggplot(data = df_prederror_nactive, aes(x = mean.nactive
        title = "Model Error vs. Number of Active Variable (Mean +/- 1 SD)",
        subtitle = "Based on 200 simulations",
        caption = "") +
-  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16) +
-  theme(legend.position = "bottom",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
-        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+  theme_box
 
 p1_prederror_nactive
 
@@ -204,16 +214,54 @@ p1_nactive <- ggplot(DT, aes(Method, nactive, fill = Method)) +
        title = "Number of Active Variables",
        subtitle = "Based on 200 simulations",
        caption = "") +
-  theme_ipsum_rc() +
-  theme(legend.position = "bottom",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
-        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+  theme_box
 
 p1_nactive
 
 
+## ---- plot-eta-sim ----
 
+p1_eta <- ggplot(DT[Method=="ggmix"], aes(Method, eta, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(4)]) +
+  labs(x = "", y = TeX("$\\hat{\\eta}$"),
+       title = TeX("Estimated $\\eta$ Parameter in the ggmix Model"),
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18))
+
+p1_eta
+
+## ---- plot-sigma2-sim ----
+
+p1_sigma2 <- ggplot(DT[Method=="ggmix"], aes(Method, sigma2, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(4)]) +
+  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
+       title = TeX("Estimated $\\sigma^2$ Parameter in the ggmix Model"),
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18))
+
+p1_sigma2
 
 ## ---- plot-tpr-fpr-sim ----
 
@@ -251,11 +299,7 @@ p1_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
        title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD)",
        subtitle="Based on 200 simulations",
        caption="") +
-  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16) +
-  theme(legend.position = "bottom",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
-        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+theme_box
 
 p1_tpr_fpr
 

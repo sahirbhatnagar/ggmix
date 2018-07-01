@@ -8,8 +8,8 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 devtools::load_all("/home/sahir/git_repositories/ggmix/")
 # devtools::load_all("C:/Users/sahir/Documents/git_repositories/sail")
 pacman::p_load(ggplot2)
-pacman::p_load(doMC)
-doMC::registerDoMC(cores = 8)
+# pacman::p_load(doMC)
+# doMC::registerDoMC(cores = 8)
 pacman::p_load(latex2exp)
 pacman::p_load(truncnorm)
 pacman::p_load(lemon)
@@ -18,7 +18,7 @@ pacman::p_load(simulator)
 pacman::p_load(dplyr)
 pacman::p_load(tidyr)
 pacman::p_load(data.table)
-pacman::p_load(psych)
+# pacman::p_load(psych)
 pacman::p_load(RSkittleBrewer)
 # pacman::p_load(cowplot)
 pacman::p_load_gh("hrbrmstr/hrbrthemes")
@@ -35,3 +35,5 @@ trop <- RSkittleBrewer::RSkittleBrewer("trop")
 gg_sy <- ggplot2::theme(legend.position = "bottom", axis.text = element_text(size = 20),
                         axis.title = element_text(size = 20), legend.text = element_text(size = 20),
                         legend.title = element_text(size = 20))
+
+

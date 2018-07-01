@@ -881,6 +881,11 @@ None of the causal SNPs are included in the calculation of the kinship matrix.
 
 $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
+
+<<plot-structure-pc-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=T>>=
+@
+
+
 \subsection{Results}
 
 <<simulation-results, eval=T, results = 'hide'>>=
@@ -899,7 +904,11 @@ $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 <<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
 @
 
+<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+@
 
+<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+@
 
 
 \newpage
