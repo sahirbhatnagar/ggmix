@@ -12,3 +12,11 @@ ggmix.Rproj
 files
 inst/doc
 reports/*
+*.aux
+*.bbl
+*.blg
+*.brf
+*.log
+*.out
+*.gz
+*.toc
