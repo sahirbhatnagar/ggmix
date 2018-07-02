@@ -81,7 +81,7 @@ ls()
 
 
 # save results ------------------------------------------------------------
-
+sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 df <- as.data.frame(evals(sim))
 saveRDS(df, file = "simulation/simulation_results/june_29_2018_results.rds")
 

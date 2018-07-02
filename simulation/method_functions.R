@@ -106,8 +106,9 @@ twostep <- new_method("twostep", "two step",
 
                         prediction_error <- model_error^2 / l2norm(draw[["mu"]])^2
 
+                        # this should be compared with gaston_resid
                         yhat <- predict(fitglmnet, newx = draw[["Xtest"]], s = "lambda.min")
-                        error_var <- l2norm(yhat - draw[["y"]])^2 / (length(draw[["y"]]) - length(nz_names))
+                        error_var <- l2norm(yhat - gaston_resid)^2 / (length(draw[["y"]]) - length(nz_names))
 
 
                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
@@ -118,7 +119,7 @@ twostep <- new_method("twostep", "two step",
                              prediction_error = prediction_error,
                              eta = NA,
                              sigma2 = NA,
-                             y = draw[["y"]],
+                             y = gaston_resid,
                              error_variance = error_var,
                              causal = draw[["causal"]],
                              not_causal = draw[["not_causal"]],
