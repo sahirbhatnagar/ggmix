@@ -8,7 +8,7 @@
 \usepackage{float} % for H in figures and tables
 \usepackage{amsmath,amsthm,amssymb,bbm,mathrsfs,mathtools,xfrac} %math stuff
 
-\usepackage[round,sort]{natbib}   % bibliography omit 'round' option if you prefer square brackets
+\usepackage[round,sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
 \usepackage{placeins} % for \FloatBarrier
 \usepackage[pagebackref=true,bookmarks]{hyperref}
 \hypersetup{
@@ -184,12 +184,13 @@ knitr::opts_knit$set(eval.after = 'fig.cap') # for captions to be evaluated afte
 
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
+finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
 @
 
-<<packages, eval=T>>=
+<<packages, eval=finalversion>>=
 @
 
-<<globals, eval=T>>=
+<<globals, eval=finalversion>>=
 @
 
 \maketitle
@@ -201,31 +202,41 @@ knitr::read_chunk("../bin/simulation.R")
 \end{abstract}
 
 
+%single nucleotide polymorphisms (SNPs)
+\section{Introduction}
+
+Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}). 
+Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}. 
+One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}. 
+Methods such GWAS, which test each variant independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives. 
+Another major problem is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}. 
+For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry. 
+This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}.
+
+
+To address these two problems, several multivariable regression methods have been proposed that would simultaneously fit many SNPs in a single model while accounting for the population structure~\citep{hoggart2008simultaneous,wang2011identifying,song2015testing,rakitsch2013lasso}.
+There are two main approaches to control for confounding by population structure: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM). 
+The PC adjustment method includes the top PCs of genome-wide single nucleotide polymorphism (SNP) genotypes as fixed effects while the LMM includes a random polygenic effect~\cite{astle2009population}. 
+
+
+then talk about how this doesnt work when p>n. Talk about lasso
 
 
 
-%~
-\begin{comment}
-\ctable[pos=H,doinside=\footnotesize]{lcc}{
-}{
-\FL
-Type      & Method   & Software \ML
-\multicolumn{1}{m{1cm}}{Linear}    & \multicolumn{1}{m{6cm}}{\texttt{CAP}~\citep{zhao2009composite} }        &   \xmark    \\
-& \multicolumn{1}{m{4cm}}{\texttt{SHIM}~\citep{choi2010variable}}        &   \xmark    \\
-& \multicolumn{1}{m{4cm}}{\texttt{hiernet}~\citep{bien2013lasso}}        &   \texttt{hierNet(x, y)}    \\
-& \multicolumn{1}{m{4cm}}{\texttt{GRESH}~\citep{she2014group} }        &  \xmark     \\
-& \multicolumn{1}{m{4cm}}{\texttt{FAMILY}~\citep{haris2016convex}}    &  \texttt{FAMILY(x, z, y)}   \\
-& \multicolumn{1}{m{4cm}}{\texttt{glinternet}~\citep{lim2015learning} }    & \texttt{glinternet(x, y)}  \\
-& \multicolumn{1}{m{4cm}}{\texttt{RAMP}~\citep{hao2018model}}        & \texttt{RAMP(x, y)}  \\
-& \multicolumn{1}{m{4cm}}{\texttt{LassoBacktracking}~\citep{shah2016modelling}   }        & \texttt{LassoBT(x, y)}  \ML
-\multicolumn{1}{m{4cm}}{Non-linear} 	& \multicolumn{1}{m{8cm}}{\texttt{VANISH}~\citep{radchenko2010variable} }        & \xmark  \\
-& \multicolumn{1}{m{4cm}}{\texttt{sail}}        & \texttt{sail(x, y, e)}  \LL
-}
+"Although the exact genetic relationships between individuals in the samples are unknown, we
+ could take advantage of the high-density genotype information to
+ empirically estimate the level of relatedness between reportedly unrelated
+ individuals~\citep{kang2010variance}."
 
-\end{comment}
+SNP genotypes can be coded as dummy variables
+with homozygotes being assigned a 0.0, heterozygotes being a 0.5,
+and opposite homozygotes being a 1.0 under an additive model or,
+for models involving dominance or recessive effects, with heterozygotes
+being assigned a 0.0 or 1.0, respectively. For the analyses
+we describe below, we assumed an additive model. 
 
 
-	\section{Introduction}
+
 
 	see \url{http://dalexander.bol.ucla.edu/preprints/admixture-preprint.pdf} for details about confounding by population structure: ``Cluster analysis directly seeks the ancestral clusters in the data,
 	while principal component analysis (PCA) constructs low-dimensional projections of the
@@ -882,32 +893,32 @@ None of the causal SNPs are included in the calculation of the kinship matrix.
 $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
 
-<<plot-structure-pc-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=T>>=
+<<plot-structure-pc-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
 @
 
 
 \subsection{Results}
 
-<<simulation-results, eval=T, results = 'hide'>>=
+<<simulation-results, eval=finalversion, results = 'hide'>>=
 @
 
-<<plot-correct-sparsity-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+<<plot-correct-sparsity-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-<<plot-me-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results.", eval=T>>=
+<<plot-me-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results.", eval=finalversion>>=
 @
 
 
-<<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+<<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-<<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+<<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=T>>=
+<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
 
@@ -1191,7 +1202,7 @@ many measurements are available for each person).~\citep{eu2014comparison}
 %\bibliographystyle{unsrt}
 %\bibliography{GEbib}
 
-\bibliographystyle{apa}
+\bibliographystyle{unsrt}
 \bibliography{ggmixbib}
 
 \newpage
