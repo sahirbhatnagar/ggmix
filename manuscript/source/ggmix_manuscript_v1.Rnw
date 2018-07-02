@@ -184,7 +184,7 @@ knitr::opts_knit$set(eval.after = 'fig.cap') # for captions to be evaluated afte
 
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
-finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
+finalversion <- TRUE # set to FALSE if still in development and you dont want to run the R code
 @
 
 <<packages, eval=finalversion>>=
@@ -205,22 +205,22 @@ finalversion <- FALSE # set to FALSE if still in development and you dont want t
 %single nucleotide polymorphisms (SNPs)
 \section{Introduction}
 
-Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}). 
-Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}. 
-One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}. 
-Methods such GWAS, which test each variant independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
-Another major problem is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}. 
-For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry. 
+Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
+Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}.
+One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}.
+Methods such GWAS, which test each variant independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}.
+Another major problem is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}.
+For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry.
 This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}.
 
 
 To address these two problems, several multivariable regression methods have been proposed that would simultaneously fit many SNPs in a single model while accounting for the population structure~\citep{hoggart2008simultaneous,wang2011identifying,song2015testing,rakitsch2013lasso}.
-There are two main approaches to control for confounding by population structure: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM). 
-The PC adjustment method includes the top PCs of genome-wide single nucleotide polymorphism (SNP) genotypes as fixed effects while the LMM includes a random polygenic effect~\cite{astle2009population}. 
+There are two main approaches to control for confounding by population structure: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
+The PC adjustment method includes the top PCs of genome-wide single nucleotide polymorphism (SNP) genotypes as fixed effects while the LMM includes a random polygenic effect~\cite{astle2009population}.
 
 
 then talk about how this doesnt work when p>n. Talk about lasso
-motivations include fine mapping, mendel randomization, 
+motivations include fine mapping, mendel randomization,
 
 
 \subsection{Measures of Relatedness}
@@ -238,7 +238,7 @@ with homozygotes being assigned a 0.0, heterozygotes being a 0.5,
 and opposite homozygotes being a 1.0 under an additive model or,
 for models involving dominance or recessive effects, with heterozygotes
 being assigned a 0.0 or 1.0, respectively. For the analyses
-we describe below, we assumed an additive model. 
+we describe below, we assumed an additive model.
 
 
 
@@ -898,7 +898,10 @@ None of the causal SNPs are included in the calculation of the kinship matrix.
 $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
 
-<<plot-structure-pc-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
+<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
+@
+
+<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.", eval=finalversion>>=
 @
 
 
@@ -914,6 +917,10 @@ $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 @
 
 
+<<plot-mse-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results.", eval=finalversion>>=
+@
+
+
 <<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
@@ -925,6 +932,10 @@ $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
 <<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
+
+<<plot-errorvar-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
 
 
 \newpage
