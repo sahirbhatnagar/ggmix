@@ -89,8 +89,9 @@ save_simulation(sim)
 sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
 ls()
 
+sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/july_1_2018_results.rds")
+saveRDS(df, file = "simulation/simulation_results/july_1_2018_results_with_twostepY.rds")
 
 
 
