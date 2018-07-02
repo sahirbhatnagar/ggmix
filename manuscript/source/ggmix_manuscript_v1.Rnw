@@ -208,7 +208,7 @@ finalversion <- FALSE # set to FALSE if still in development and you dont want t
 Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}). 
 Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}. 
 One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}. 
-Methods such GWAS, which test each variant independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives. 
+Methods such GWAS, which test each variant independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
 Another major problem is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}. 
 For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry. 
 This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}.
@@ -220,6 +220,11 @@ The PC adjustment method includes the top PCs of genome-wide single nucleotide p
 
 
 then talk about how this doesnt work when p>n. Talk about lasso
+motivations include fine mapping, mendel randomization, 
+
+
+\subsection{Measures of Relatedness}
+
 
 
 
