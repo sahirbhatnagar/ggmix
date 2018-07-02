@@ -82,8 +82,15 @@ ls()
 
 # save results ------------------------------------------------------------
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
+sim <- sim %>% run_method(list(twostepY),
+                          parallel = list(socket_names = 35,
+                                          libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+save_simulation(sim)
+sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
+ls()
+
 df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/june_29_2018_results.rds")
+saveRDS(df, file = "simulation/simulation_results/july_1_2018_results.rds")
 
 
 
