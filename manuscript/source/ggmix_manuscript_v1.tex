@@ -270,7 +270,7 @@ Another method applied a combination of both the lasso and group lasso penalties
 One potential issue with these methods is that they are performed in two steps. First, the variance components are estimated once from a LMM with a single random effect that uses the estimated covariance matrix from the individuals' genotypes to account for the relatedness but assumes no SNP effects. 
 In the second step, these are treated as known quantities by regressing the SNPs on the residuals from the first step, effectively treating the observations as independent.
 This approach has both computational and practical advantages since existing penalized regression software such as \texttt{glmnet}~\citep{friedman2010regularization} and \texttt{gglasso}~\citep{yang2015fast}, which assume independent observations, can be applied directly to the residuals. 
-However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\citep{yang2014advantages}. 
+However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\citep{oualkacha2013adjusted,yang2014advantages}. 
 Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. These methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
 There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
 
@@ -281,7 +281,14 @@ While this has been developed for the univariate case~\citep{lippert2011fast}, t
 The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
 In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
 All of our algorithms are implemented in the \texttt{ggmix} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/ggmix/}). We provide a brief demonstration of the \texttt{ggmix} package in the Appendix.
-Our method can also be used for fine-mapping a dense set of SNPs. We can also use it for determining instruments in Mendelian Randomization studies. 
+
+While the predominant motivation for these methods has been association testing, we believe that there are other applications in which they can be used as well. 
+For example, in the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal
+relationships between DNA methylation (exposure) within some genes
+and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}. 
+Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV). 
+However, since GAW20 data consisted of families, two step methods were used which could have resulted in a loss of power. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the familial structure of the data. 
+Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the undelying biological mechanisms of disease~\citep{spain2015strategies}.
 
 The rest of the paper is organized as follows. Section 2 describes the \texttt{ggmix} model. 
 Section 3 contains the optimization procedure and the algorithm used to fit the \ggmix model. 
