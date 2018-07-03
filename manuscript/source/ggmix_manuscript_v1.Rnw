@@ -81,6 +81,7 @@
 \newcommand{\bY}{\textbf{Y}}
 \newcommand{\bD}{\textbf{D}}
 \newcommand{\bH}{\textbf{H}}
+\newcommand{\ggmix}{\texttt{ggmix}}
 \newcommand{\trans}{\top}
 \newcommand{\bXtilde}{\widetilde{\bX}}
 \newcommand{\bYtilde}{\widetilde{\bY}}
@@ -233,10 +234,23 @@ One potential issue with these methods is that they are performed in two steps. 
 In the second step, these are treated as known quantities by regressing the SNPs on the residuals from the first step, effectively treating the observations as independent.
 This approach has both computational and practical advantages since existing penalized regression software such as \texttt{glmnet}~\citep{friedman2010regularization} and \texttt{gglasso}~\citep{yang2015fast}, which assume independent observations, can be applied directly to the residuals. 
 However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\citep{yang2014advantages}. 
-Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2p)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time. These methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
+Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. These methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
 There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
 
-In this paper we develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence.
+In this paper we develop a general penalized LMM framework called \texttt{ggmix} that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso~\citep{tibshirani1996regression}, elastic net~\citep{zou2005regularization} and group lasso~\citep{yuan2006model}. \texttt{ggmix} also readily handles prior annotation information in the form of a penalty factor, which can be useful for example when dealing with rare variants. 
+We develop a blockwise coordinate descent algorithm which is highly scalable and has theoretical guarantees of convergence to a stationary point.
+When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. 
+While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this hasn't been explored in the multivariable case. 
+The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
+In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
+All of our algorithms are implemented in the \texttt{ggmix} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/ggmix/}). We provide a brief demonstration of the \texttt{ggmix} package in the Appendix.
+Our method can also be used for fine-mapping a dense set of SNPs. We can also use it for determining instruments in Mendelian Randomization studies. 
+
+The rest of the paper is organized as follows. Section 2 describes the \texttt{ggmix} model. 
+Section 3 contains the optimization procedure and the algorithm used to fit the \ggmix model. 
+In Section 4, we compare the performance of our proposed approach and demonstrate the scenarios where it can be advantageous to use over existing methods through simulation studies. 
+Section 5 contains some real data examples and Section 6 discusses some limitations and future directions.
+
 
 %~\citep{wang2011identifying,rakitsch2013lasso}. In both of these approaches, the lasso penalty~\citep{tibshirani1996regression} is used resulting in simultaneous estimation and selection of SNP effects.  
 
