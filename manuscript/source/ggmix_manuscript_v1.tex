@@ -245,53 +245,74 @@
 Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
 Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}.
 One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}.
-Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. Indeed, the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\citep{hoggart2008simultaneous}.
+Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
 Another major issue to overcome is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}.
 For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry.
 This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}.
 
 
-To address these two problems, several multivariable regression methods have been proposed that would simultaneously fit many SNPs in a single model while accounting for the population structure~\citep{hoggart2008simultaneous,wang2011identifying,song2015testing,rakitsch2013lasso}.
-There are two main approaches to control for confounding by population structure: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
-The PC adjustment method includes the top PCs of genome-wide single nucleotide polymorphism (SNP) genotypes as fixed effects while the LMM includes a random polygenic effect~\cite{astle2009population}.
+To address the first problem, multivariable regression methods have been proposed which simultaneously fit many SNPs in a single model~\citep{hoggart2008simultaneous,li2010bayesian}. Indeed, the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\citep{hoggart2008simultaneous}. 
+
+Confounding by population structure has also received significant attention in the literature~\citep{lippert2011fast,kang2010variance,yu2006unified,eu2014comparison}. 
+There are two main approaches to account for the relatedness between subjects: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
+The PC adjustment method includes the top PCs of genome-wide SNP genotypes as additional covariates in the model~\citep{price2006principal}. 
+The LMM uses an estimated covariance matrix from the individuals' genotypes and includes this information in the form of a random effect~\cite{astle2009population}. 
+
+While these problems have been addressed in isolation, there has been relatively little progress towards addressing them jointly. 
+Region-based tests of association have been developed where a linear combination of $p$ variants is regressed on the response variable in a mixed model framework~\citep{oualkacha2013adjusted}. 
+In case-control data, a stepwise logistic-regression procedure was used to evaluate the relative importance of variants within a small genetic region~\citep{cordell2002unified}. 
+These methods however are not applicable in the high-dimensional setting, i.e., when the number of variables $p$ is much larger than the sample size $n$, as is often the case in genetic studies where millions of variants are measured on thousands of individuals.
+ 
+In light of this, there has been recent interest in penalized linear mixed models which  place a constraint on the magnitude of the effect sizes while controlling for confounding influences such as population structure. 
+For example, the LMM-lasso~\citep{rakitsch2013lasso} places a Laplace prior on all main effects while the adaptive mixed lasso~\citep{wang2011identifying} uses the $L_1$ penalty~\citep{tibshirani1996regression} with adaptively chosen weights~\citep{zou2006adaptive} to allow for differential shrinkage amongst the variables in the model. 
+Another method applied a combination of both the lasso and group lasso penalties in order to select variants within a gene most associated with the response~\citep{ding20142}. 
+One potential issue with these methods is that they are performed in two steps. First, the variance components are estimated once from a LMM with a single random effect that uses the estimated covariance matrix from the individuals' genotypes to account for the relatedness but assumes no SNP effects. 
+In the second step, these are treated as known quantities by regressing the SNPs on the residuals from the first step, effectively treating the observations as independent.
+This approach has both computational and practical advantages since existing penalized regression software such as \texttt{glmnet}~\citep{friedman2010regularization} and \texttt{gglasso}~\citep{yang2015fast}, which assume independent observations, can be applied directly to the residuals. 
+However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\citep{yang2014advantages}. 
+Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2p)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time. These methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
+There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
+
+In this paper we develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence.
+
+%~\citep{wang2011identifying,rakitsch2013lasso}. In both of these approaches, the lasso penalty~\citep{tibshirani1996regression} is used resulting in simultaneous estimation and selection of SNP effects.  
+
+%The multi-locus mixed model Approximate (2-step), stepwise mixed-model regression with forward inclusion and backward elimination.
+
+%These appraoches are done in two steps where the null model, i.e., no snp effects is used to estimate the variance components. The snp effects are then estimated treating the variance estimates as fixed. 
+
+%MLMM~\citep{segura2012efficient} and LMM-Lasso~\citep{rakitsch2013lasso} regress one trait (or phenotype) against multiple predictors (e.g. SNPs) while accounting for the population structure. Neither GCAT~\citep{song2015testing} nor QTCAT~\citep{klasen2016multi} use mixed models. GCAT uses an inverse regression approach coupled with logistic factor analysis. QTCAT doesn't account for population structure, but instead searches for groups of highly correlated markers that are associated with the phenotype. ~\citep{wang2011identifying}
 
 
-then talk about how this doesnt work when p>n. Talk about lasso
-motivations include fine mapping, mendel randomization,
-
-
-\subsection{Measures of Relatedness}
+%while accounting for the population structure~\citep{hoggart2008simultaneous,wang2011identifying,song2015testing,rakitsch2013lasso}.
 
 
 
+%then talk about how this doesnt work when p>n. Talk about lasso In addition to association testing, there are several other motivations for these models. Motivations include fine mapping, mendel randomization,
 
-"Although the exact genetic relationships between individuals in the samples are unknown, we
- could take advantage of the high-density genotype information to
- empirically estimate the level of relatedness between reportedly unrelated
- individuals~\citep{kang2010variance}."
 
-SNP genotypes can be coded as dummy variables
-with homozygotes being assigned a 0.0, heterozygotes being a 0.5,
-and opposite homozygotes being a 1.0 under an additive model or,
-for models involving dominance or recessive effects, with heterozygotes
-being assigned a 0.0 or 1.0, respectively. For the analyses
-we describe below, we assumed an additive model.
+%\subsection{Measures of Relatedness}
 
 
 
 
-	see \url{http://dalexander.bol.ucla.edu/preprints/admixture-preprint.pdf} for details about confounding by population structure: ``Cluster analysis directly seeks the ancestral clusters in the data,
-	while principal component analysis (PCA) constructs low-dimensional projections of the
-	data that explain the gross variation in marker genotypes, which in practice is the variation
-	between populations''
+%"Although the exact genetic relationships between individuals in the samples are unknown, we could take advantage of the high-density genotype information to empirically estimate the level of relatedness between reportedly unrelated individuals~\citep{kang2010variance}."
 
 
-	In Table~\ref{tab:review} we outline existing \emph{multivariate} methods for genetic data containing related samples. MLMM~\citep{segura2012efficient} and LMM-Lasso~\citep{rakitsch2013lasso} regress one trait (or phenotype) against multiple predictors (e.g. SNPs) while accounting for the population structure. Neither GCAT~\citep{song2015testing} nor QTCAT~\citep{klasen2016multi} use mixed models. GCAT uses an inverse regression approach coupled with logistic factor analysis. QTCAT doesn't account for population structure, but instead searches for groups of highly correlated markers that are associated with the phenotype.
 
-	Note that there is confusion in the genetics literature on the meaning of multivariate linear mixed models. For example, GEMMA~\citep{zhou2014efficient} is an association method for multiple traits against a single SNP, but is referred to in their paper as a ``multivariate mixed model''. MTMM~\citep{korte2012mixed} is also an association method for multiple phenotypes against a single SNP but is referred to as a ``multi-trait mixed model''.
 
-	See the review by~\citep{eu2014comparison} for comparison of \emph{single} locus methods accounting for relatedness in GWAS with family data.
 
+
+%see \url{http://dalexander.bol.ucla.edu/preprints/admixture-preprint.pdf} for details about confounding by population structure: ``Cluster analysis directly seeks the ancestral clusters in the data,	while principal component analysis (PCA) constructs low-dimensional projections of the	data that explain the gross variation in marker genotypes, which in practice is the variation between populations''
+
+
+%In Table~\ref{tab:review} we outline existing \emph{multivariate} methods for genetic data containing related samples. MLMM~\citep{segura2012efficient} and LMM-Lasso~\citep{rakitsch2013lasso} regress one trait (or phenotype) against multiple predictors (e.g. SNPs) while accounting for the population structure. Neither GCAT~\citep{song2015testing} nor QTCAT~\citep{klasen2016multi} use mixed models. GCAT uses an inverse regression approach coupled with logistic factor analysis. QTCAT doesn't account for population structure, but instead searches for groups of highly correlated markers that are associated with the phenotype.
+
+%Note that there is confusion in the genetics literature on the meaning of multivariate linear mixed models. For example, GEMMA~\citep{zhou2014efficient} is an association method for multiple traits against a single SNP, but is referred to in their paper as a ``multivariate mixed model''. MTMM~\citep{korte2012mixed} is also an association method for multiple phenotypes against a single SNP but is referred to as a ``multi-trait mixed model''.
+
+%See the review by~\citep{eu2014comparison} for comparison of \emph{single} locus methods accounting for relatedness in GWAS with family data.
+
+\begin{comment}
 	\ctable[caption={Existing multivariate (multi-locus) methods for genetic data containing related samples.},label=tab:review,pos=h!,doinside=\footnotesize]{LLLLL}{
 	}{
 	\FL
@@ -310,6 +331,7 @@ we describe below, we assumed an additive model.
 	QTCAT~\citep{klasen2016multi} &  \href{https://github.com/QTCAT/qtcat/}{R Package on Github} & \multicolumn{1}{m{9cm}}{Quantitative Trait Cluster Association Test. Do not account for population structure but instead search for clusters of highly correlated markers that are significantly associated to the phenotype using a hierarchical testing procedure for correlated covariates~\citep{meinshausen2008hierarchical}}
 	\LL
 }
+\end{comment}
 
 \FloatBarrier
 
@@ -320,6 +342,14 @@ we describe below, we assumed an additive model.
 
 
 \section{Penalized Mixed Models}
+
+SNP genotypes can be coded as dummy variables
+with homozygotes being assigned a 0.0, heterozygotes being a 0.5,
+and opposite homozygotes being a 1.0 under an additive model or,
+for models involving dominance or recessive effects, with heterozygotes
+being assigned a 0.0 or 1.0, respectively. For the analyses
+we describe below, we assumed an additive model.
+
 
 \subsection{Model Set-up}
 

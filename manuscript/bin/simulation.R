@@ -2,6 +2,7 @@
 
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/june_29_2018_results.rds")
 df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_1_2018_results.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_1_2018_results_with_twostepY.rds")
 df <- df %>% separate(Model,
                       into = c("simnames","b0","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -19,6 +20,7 @@ DT[geography == "geography_1d", structure := "1D"]
 # DT[, table(geography, structure)]
 DT[, structure := factor(structure, levels = c("block","1D","circular"))]
 DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
+# DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
 # DT[, table(Method)]
 appender <- function(string) latex2exp::TeX(paste(string))
 
