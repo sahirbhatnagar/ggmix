@@ -714,6 +714,7 @@ $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 <<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.", eval=finalversion>>=
 @
 
+need to add error variance formula for lasso. 
 
 \subsection{Results}
 
