@@ -185,7 +185,8 @@ knitr::opts_knit$set(eval.after = 'fig.cap') # for captions to be evaluated afte
 
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
-finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
+#finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
+finalversion <- TRUE 
 @
 
 <<packages, eval=finalversion>>=
@@ -243,18 +244,10 @@ When the matrix of genotypes used to construct the covariance matrix is low rank
 While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this hasn't been explored in the multivariable case. 
 The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
 In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
-All of our algorithms are implemented in the \texttt{ggmix} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/ggmix/}). We provide a brief demonstration of the \texttt{ggmix} package in the Appendix.
-
-While the predominant motivation for these methods has been association testing, we believe that there are other applications in which they can be used as well. 
-For example, in the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal
-relationships between DNA methylation (exposure) within some genes
-and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}. 
-Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV). 
-However, since GAW20 data consisted of families, two step methods were used which could have resulted in a loss of power. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the familial structure of the data. 
-Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the undelying biological mechanisms of disease~\citep{spain2015strategies}.
+All of our algorithms are implemented in the \texttt{ggmix} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/ggmix/}). We provide a brief demonstration of the \texttt{ggmix} package in Appendix~\ref{ap:showcase}.
 
 The rest of the paper is organized as follows. Section 2 describes the \texttt{ggmix} model. 
-Section 3 contains the optimization procedure and the algorithm used to fit the \ggmix model. 
+Section 3 contains the optimization procedure and the algorithm used to fit the \ggmix~model. 
 In Section 4, we compare the performance of our proposed approach and demonstrate the scenarios where it can be advantageous to use over existing methods through simulation studies. 
 Section 5 contains some real data examples and Section 6 discusses some limitations and future directions.
 
@@ -325,20 +318,14 @@ Section 5 contains some real data examples and Section 6 discusses some limitati
 
 
 
-\section{Penalized Mixed Models}
+\section{Penalized Linear Mixed Models}
 
-SNP genotypes can be coded as dummy variables
-with homozygotes being assigned a 0.0, heterozygotes being a 0.5,
-and opposite homozygotes being a 1.0 under an additive model or,
-for models involving dominance or recessive effects, with heterozygotes
-being assigned a 0.0 or 1.0, respectively. For the analyses
-we describe below, we assumed an additive model.
+%SNP genotypes can be coded as dummy variables with homozygotes being assigned a 0.0, heterozygotes being a 0.5, and opposite homozygotes being a 1.0 under an additive model or, for models involving dominance or recessive effects, with heterozygotes being assigned a 0.0 or 1.0, respectively. For the analyses we describe below, we assumed an additive model.
 
 
 \subsection{Model Set-up}
 
-Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Furthermore, denote the stacked vectors \mbox{$\bY = (\textbf{y}_i, \ldots, \textbf{y}_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ a vector of fixed effects regression coefficients corresponding to $\bX$. Following~\cite{pirinen2013efficient}, we consider the following linear mixed model with a single random effect:
-%\textcolor{red}{should we consider a separate term for other non-genetic fixed effects such as age, sex?   CG:  Yes - I would add in other covariates, say $Z$, as well.  Should be only a fairly trivial increase in complexity.}
+Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses or phenotypes, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors \mbox{$\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following linear mixed model with a single random effect~\citep{pirinen2013efficient}:
 \begin{equation}
 	\bY = \bX \bbeta + \bb + \be
 \end{equation}
@@ -346,24 +333,23 @@ where the random effect $\bb$ and the error variance $\be$ are assigned the dist
 \begin{equation}
 	\bb \sim \mathcal{N}(0, \eta \sigma^2 \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta)\sigma^2 \bI)
 \end{equation}
-Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric kinship matrix, $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. The joint density of $\bY$ is multivariate normal:
+Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric covariance or kinship matrix, $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. Furthermore, $\eta$ is also the narrow-sense heritability ($h^2$), defined as the proportion of phenotypic variance attributable to the additive genetic factors~\citep{manolio2009finding}. The joint density of $\bY$ is multivariate normal:
 \begin{equation}
 	\bY | (\bbeta, \eta, \sigma^2) \sim \mathcal{N}(\bX \bbeta, \eta \sigma^2 \bPhi + (1-\eta)\sigma^2 \bI) \label{eq:prinen}
 \end{equation}
 
-Alternatively we may consider the parameterization in~\cite{lippert2011fast}:
+The LMM-Lasso method~\citep{rakitsch2013lasso} considers an alternative parameterization given by:
 \begin{equation}
 	\bY | (\bbeta, \delta, \sigma_g^2) \sim \mathcal{N}(\bX \bbeta, \sigma_g^2(\bPhi + \delta\bI)) \label{eq:lippert}
 \end{equation}
 
-where $\delta = \sigma^2_e / \sigma^2_g$, $\sigma^2_g$ is the genetic variance and $\sigma^2_e$ is the residual variance. \cite{pirinen2013efficient} consider the parameterization in~\eqref{eq:prinen} since maximization is easier over the compact set $\eta \in [0,1]$ than over the unbounded interval $\delta \in [0, \infty)$ as is done in~\eqref{eq:lippert} by~\cite{lippert2011fast}.
-
-
-Define the complete parameter vector $\bTheta = \left(\bbeta, \eta, \sigma^2 \right)$. The negative log-likelihood for~\eqref{eq:prinen} is given by
+where $\delta = \sigma^2_e / \sigma^2_g$, $\sigma^2_g$ is the genetic variance and $\sigma^2_e$ is the residual variance. We instead consider the parameterization in~\eqref{eq:prinen} since maximization is easier over the compact set $\eta \in [0,1]$ than over the unbounded interval $\delta \in [0, \infty)$~\citep{pirinen2013efficient}. We define the complete parameter vector as $\bTheta \coloneqq \left(\bbeta, \eta, \sigma^2 \right)$. The negative log-likelihood for~\eqref{eq:prinen} is given by
 \begin{align}
 	-\ell(\bTheta) & \propto \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2}\log\left(\det(\bV)\right) + \frac{1}{2\sigma^2} \left(\bY - \bX \bbeta\right)^T \bV^{-1} \left(\bY - \bX \bbeta\right)  \label{eq:LogLike}
 \end{align}
-where $\bV = \eta \bPhi + (1-\eta) \bI$ and $\det(\bV)$ is the determinant of $\bV$. Let $\bPhi = \bU \bD \bU^T$ be the eigen (spectral) decomposition of the kinship matrix $\bPhi$, where $\bU_{N_T \times N_T}$ is an orthonormal matrix of eigenvectors (i.e. $\bU \bU^T = \bI$) and $\bD_{N_T \times N_T}$ is a diagonal matrix of eigenvalues $\Lambda_i$. $\bV$ can then be further simplified~\citep{pirinen2013efficient}
+where $\bV = \eta \bPhi + (1-\eta) \bI$ and $\det(\bV)$ is the determinant of $\bV$. 
+
+Let $\bPhi = \bU \bD \bU^T$ be the eigen (spectral) decomposition of the kinship matrix $\bPhi$, where $\bU_{N_T \times N_T}$ is an orthonormal matrix of eigenvectors (i.e. $\bU \bU^T = \bI$) and $\bD_{N_T \times N_T}$ is a diagonal matrix of eigenvalues $\Lambda_i$. $\bV$ can then be further simplified~\citep{pirinen2013efficient}
 \begin{align}
 	\bV & = \eta \bPhi + (1-\eta) \bI \nonumber \\
 	& = \eta \bU \bD \bU^T + (1-\eta) \bU \bI \bU^T \nonumber \\
@@ -430,26 +416,23 @@ where $\bYtilde = \bU^T \bY$, $\bXtilde = \bU^T \bX$, $\Ytilde_i$ denotes the $i
 
 
 \subsection{Penalized Maximum Likelihood Estimator}
-We define the $p+3$  length vector of parameters $\bTheta \coloneqq \left(\Theta_0, \Theta_1, \ldots, \Theta_{p+1}, \Theta_{p+2}, \Theta_{p+3}\right) =  \left(\bbeta, \eta, \sigma^2 \right)$ where $\bbeta \in \mathbb{R}^{p+1}, \eta \in [0,1], \sigma^2 >0$. In what follows, $p+2$ and $p+3$ are the indices in $\bTheta$ for $\eta$ and $\sigma^2$, respectively. Define the objective function:
+We define the $p+3$  length vector of parameters $\bTheta \coloneqq \left(\Theta_0, \Theta_1, \ldots, \Theta_{p+1}, \Theta_{p+2}, \Theta_{p+3}\right) =  \left(\bbeta, \eta, \sigma^2 \right)$ where $\bbeta \in \mathbb{R}^{p+1}, \eta \in [0,1], \sigma^2 >0$. In what follows, $p+2$ and $p+3$ are the indices in $\bTheta$ for $\eta$ and $\sigma^2$, respectively. In light of our goals to select variables associated with the response in high-dimensional data, we consider placing a constraint on the magnitude of the regression coefficients. This can be achieved by adding a penalty term to the likelihood function~\eqref{eq:LikeFinal}. The penalty term is a necessary constraint because in our applications, the sample size is much smaller than the number of predictors. We define the following objective function:
 \begin{equation}
 	Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda \sum_{j\neq 0} v_j P_j(\beta_j)
 \end{equation}
-where $f(\bTheta)\coloneqq-\ell(\bTheta)$ is defined in~\eqref{eq:LikeFinal}, $P_j(\cdot)$ is a penalty term on the fixed regression coefficients $\beta_1, \ldots, \beta_{p+1}$ (we do not penalize the intercept), controlled by the nonnegative regularization parameter $\lambda$, and $v_j$ is the penalty factor for $j$th covariate. These penalty factors serve as a way of allowing parameters to be penalized differently. Note that we do not penalize $\eta$ or $\sigma^2$. The penalty term is a necessary constraint because in our applications, the sample size is much smaller than the number of predictors. An estimate of the regression parameters $\widehat{\bTheta}_{\lambda}$ is obtained by
+where $f(\bTheta)\coloneqq-\ell(\bTheta)$ is defined in~\eqref{eq:LikeFinal}, $P_j(\cdot)$ is a penalty term on the fixed regression coefficients $\beta_1, \ldots, \beta_{p+1}$ (we do not penalize the intercept) controlled by the nonnegative regularization parameter $\lambda$, and $v_j$ is the penalty factor for $j$th covariate. These penalty factors serve as a way of allowing parameters to be penalized differently. Note that we do not penalize $\eta$ or $\sigma^2$. An estimate of the regression parameters $\widehat{\bTheta}_{\lambda}$ is obtained by
 \begin{equation}
 	\widehat{\bTheta}_{\lambda} = \argmin_{\bTheta} Q_{\lambda}(\bTheta) \label{eq:estimator}
 \end{equation}
+This is the general set-up for our model. In Section~\ref{sec:section3} we provide more specific details on how we solve~\eqref{eq:estimator}. 
 
-%{\color{red} CG:  I would not use $\lambda$ for the regularization parameter as well as for the eigenvalues of the kinship matrix}
+\section{Computational Algorithm} \label{sec:section3}
 
+%To solve for~\eqref{eq:estimator} we use a block relaxation technique~\citep{de1994block} given by Algorithm~\ref{alg:cgd2}
 
+We use a general purpose block coordinate gradient descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:estimator}. At each iteration, we cycle through the coordinates and minimize the objective function with respect to one coordinate only. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)}, Tseng and Yun~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and linear mixed models with an $\ell_1$ penalty~\cite{schelldorfer2011estimation}. In the next section we provide some brief details about Algorithm~\ref{alg:cgd2}. A more thorough treatment of the algorithm is given in Appendix~\ref{ap:cgd}. 
 
-
-
-
-\section{Computational Algorithm version 1}
-To solve for~\eqref{eq:estimator} we use a block relaxation technique~\citep{de1994block} given by Algorithm~\ref{alg:cgd2}
-
-\begin{algorithm}[H]
+\begin{algorithm}[h]
 	\SetAlgoLined
 	%	\KwResult{Write here the result }
 	Set the iteration counter $k \leftarrow 0$, initial values for the parameter vector $\bTheta^{(0)}$ and convergence threshold $\epsilon$\;
@@ -464,11 +447,38 @@ To solve for~\eqref{eq:estimator} we use a block relaxation technique~\citep{de1
 			$k \leftarrow k +1$
 		}
 	}
-	\caption{Block Relaxation Algorithm} \label{alg:cgd2}
+	\caption{Block Coordinate Gradient Descent} \label{alg:cgd2}
 \end{algorithm}
 
-Below we discuss the specifics of Algorithm~\ref{alg:cgd2}
-\newpage
+
+
+
+\subsection{Updates for the $\beta$ parameter}
+Recall that the part of the objective function that depends on $\bbeta$ has the form
+\begin{equation}
+	Q_{\lambda}(\bTheta) = \frac{1}{2} \sum_{i=1}^{N_T}w_i\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:Qlambdalasso2}
+\end{equation}
+where
+\begin{equation}
+	w_i \coloneqq \frac{1}{{\sigma^2}\left(1+\eta(\Lambda_i-1)\right)} \label{eq:weights}
+\end{equation}
+
+Conditional on $\eta^{(k)}$ and ${\sigma^2}^{\,(k)}$, it can be shown that the solution for $\beta_j$, $j=1, \ldots, p$ is given by
+\begin{align}
+	\beta_j^{(k+1)} & \gets \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft}
+\end{align}
+where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
+\begin{equation*}
+	\mathcal{S}_{\lambda}(x) = \tm{sign}(x)(|x| - \lambda)_+
+\end{equation*}
+$\textrm{sign}(x)$ is the signum function \[\textrm{sign}(x) = \begin{cases}
+		-1 & x<0\\
+		0 & x= 0\\
+		1 & x>0
+	\end{cases}
+\] and $(x)_+ = \max(x, 0)$. We provide the full derivation in Appendix~\ref{ap:beta}.
+
+\begin{comment}
 \subsection{Updates for the $\beta$ parameter}
 Recall that the part of the objective function that depends on $\bbeta$ has the form
 \begin{equation}
@@ -500,44 +510,44 @@ In order to make~\eqref{eq:Qlambdalasso2} to be in the form of~\eqref{eq:glmnetb
 	\bbeta^{(k+1)} & \leftarrow \argmin_{\bbeta}  \frac{1}{2  } \sum_{i=1}^{N_T}  w_i^{(k)} \left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \frac{\lambda}{\sum_{i=1}^{N_T} w_i^{(k)}} \sum_{j=1}^{p}  v_j  \abs{\beta_j}  \label{eq:glmnetbeta2}
 \end{align}
 
-\newpage
+
 Conditional on $\eta^{(k)}$ and ${\sigma^2}^{\,(k)}$, it can be shown that the solution for $\bbeta$ is a weighted lasso problem with observation weights given by~\eqref{eq:weights}.
 
 The full derivation is given in Section~\ref{subsec:l1penalty}. Therefore, $\bbeta^{(k+1)}$ can be efficiently solved using the \texttt{glmnet} algorithm~\citep{friedman2010regularization}. Note that the rescaling of the weights to sum to $N_T$ is what is being done in \texttt{glmnet}.
+\end{comment}
 
-%where $\norm{Y - g(\bmu)}^2 = \sum_i (y_i - g(\mu_i))^2$
+
 
 
 \subsection{Updates for the $\eta$ paramter}
+Given $\bbeta^{(k+1)}$ and ${\sigma^2}^{\,(k)}$, solving for $\eta^{(k+1)}$ becomes a univariate optimization problem:
 \begin{equation}
 	\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
 \end{equation}
-
-
-Given $\bbeta^{(k+1)}$ and ${\sigma^2}^{\,(k)}$, solving for $\eta^{(k+1)}$ becomes a univariate optimization problem. We use a bound constrained optimization algorithm~\citep{byrd1995limited} implemented in the \texttt{optim} function in \texttt{R} and set the lower and upper bounds to be 0 and 1, respectively.
-
+We use a bound constrained optimization algorithm~\citep{byrd1995limited} implemented in the \texttt{optim} function in \texttt{R} and set the lower and upper bounds to be 0.01 and 0.99, respectively.
 
 
 
 \subsection{Updates for the $\sigma^2$ parameter}
+
+Conditional on $\bbeta^{(k+1)}$ and $\eta^{(k+1)}$, ${\sigma^2}^{\,(k+1)}$ can be solved for using the following equation:
 \begin{equation}
-	{\sigma^2}^{\,(k+1)} \leftarrow \argmin_{\sigma^2}  \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)}
+	{\sigma^2}^{\,(k+1)} \leftarrow \argmin_{\sigma^2}  \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)} \label{eq:sigma}
 \end{equation}
 
-Conditional on $\bbeta^{(k+1)}$ and $\eta^{(k+1)}$, there exists an analytic solution for ${\sigma^2}^{\,(k+1)}$:
+There exists an analytic solution for~\eqref{eq:sigma} given by:
 \begin{align}
-	\frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} = 0 \nonumber \\
-	{\sigma^2}^{\,(k+1)} & = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} \label{eq:sigmahat2}
+	%\frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} = 0 \nonumber \\
+	{\sigma^2}^{\,(k+1)} & \gets \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} \label{eq:sigmahat2}
 \end{align}
 
 
 \subsection{Regularization path}
-Recall that our objective function has the form
+In this section we describe how determine the sequence of tuning parameters $\lambda$ at which to fit the model. Recall that our objective function has the form
 \begin{equation}
 	Q_{\lambda}(\bTheta) = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2} \sum_{i=1}^{N_T}w_i\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \lambda \sum_{j=1}^{p}  v_j  \abs{\beta_j} \label{eq:Qlambdalasso}
 \end{equation}
 The Karush-Kuhn-Tucker (KKT) optimality conditions for~\eqref{eq:Qlambdalasso} are given by:
-
 \begin{equation}
 	\begin{aligned}
 		\frac{\partial}{\partial \beta_1, \ldots, \beta_p} Q_{\lambda}(\bTheta) &= \mathbf{0}_p   \\
@@ -584,13 +594,10 @@ The equations in~\eqref{eq:kktgrad} are equivalent to
 		{\sigma^2} - \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)} = 0
 	\end{aligned}\label{eq:kktsolved}
 \end{equation}
-where $w_i$ is given by~\eqref{eq:weights}, $\bXtilde^T_{-1}$ is $\bXtilde^T$ with the first column removed, $\bXtilde^T_1$ is the first column of $\bXtilde^T$, and $\boldsymbol{\gamma} \in \mathbb{R}^p$ is the subgradient function of the $\ell_1$ norm evaluated at $(\hat{\beta}_1, \ldots, \hat{\beta}_p)$. Therefore $\widehat{\bTheta}$ is a solution in~\eqref{eq:estimator} if and only if $\widehat{\bTheta}$ satisfies~\eqref{eq:kktsolved} for some $\gamma$.
-
-%The solution path is given by an inductive verification of the KKT conditions~\citep{osborne2000lasso}, i.e., if~\eqref{eq:kktsolved} holds as $\lambda$ decreases, then we know we have a solution.
-we find the solutinon for the other paramters such that the KKT conditions are verified.
-page 17 of sswith learning
-
-Therefore we can determine a decreasing sequence of tuning parameters by starting at a maximal value for $\lambda = \lambda_{max}$ for which $\hat{\beta}_j = 0$ for $j=1, \ldots, p$. In this case, the KKT conditions in~\eqref{eq:kktsolved} are equivalent to
+where $w_i$ is given by~\eqref{eq:weights}, $\bXtilde^T_{-1}$ is $\bXtilde^T$ with the first column removed, $\bXtilde^T_1$ is the first column of $\bXtilde^T$, and $\boldsymbol{\gamma} \in \mathbb{R}^p$ is the subgradient function of the $\ell_1$ norm evaluated at $(\hat{\beta}_1, \ldots, \hat{\beta}_p)$. Therefore $\widehat{\bTheta}$ is a solution in~\eqref{eq:estimator} if and only if $\widehat{\bTheta}$ satisfies~\eqref{eq:kktsolved} for some $\gamma$. %The solution path is given by an inductive verification of the KKT conditions~\citep{osborne2000lasso}, i.e., if~\eqref{eq:kktsolved} holds as $\lambda$ decreases, then we know we have a solution.
+%we find the solutinon for the other paramters such that the KKT conditions are verified.
+%page 17 of sswith learning
+We can determine a decreasing sequence of tuning parameters by starting at a maximal value for $\lambda = \lambda_{max}$ for which $\hat{\beta}_j = 0$ for $j=1, \ldots, p$. In this case, the KKT conditions in~\eqref{eq:kktsolved} are equivalent to
 \begin{equation}
 	\begin{aligned}
 		%\abs{\bXtilde^T_{j}\bW \bYtilde}  \leq \lambda, \quad \forall j=1, \ldots,p  \\
@@ -614,12 +621,12 @@ We can solve the KKT system of equations in~\eqref{eq:kktsolvedmax} (with a nume
 \begin{equation}
 	\lambda_{max} = \max_j \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{N_T}\hat{w_i} \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\hat{\beta}_0 \right)}\right\rbrace , \quad j=1, \ldots, p
 \end{equation}
-Following~\cite{friedman2010regularization}, we choose $\tau\lambda_{max}$ to be the smallest value of tuning parameters $\lambda_{min}$, and construct a
+Following Friedman et al.~\cite{friedman2010regularization}, we choose $\tau\lambda_{max}$ to be the smallest value of tuning parameters $\lambda_{min}$, and construct a
 sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the log scale. The defaults are set to $K = 100$, $\tau = 0.01$ if $n < p $ and $\tau = 0.001$ if $n \geq p $.
 
 
 \subsection{Warm Starts}
-The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to implement warm starts. That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$.
+The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to implement warm starts. That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. This strategy leads to computational speedups and has been implemented in the \texttt{ggmix} R package. 
 
 \subsection{Prediction of the random effects}
 We use an empirical Bayes approach (e.g.~\cite{wakefield2013bayesian}) to predict the random effects $\bb$. Let the maximum a posteriori (MAP) estimate be defined as
@@ -652,13 +659,105 @@ where $\bV^{-1}$ is given by~\eqref{eq:Vinv}, and $(\widehat{\bbeta}, \widehat{\
 %\widehat{\bb} = \widehat{\eta} \bPhi \bU \bDtilde^{-1} \bU^T (\bY - \bX \widehat{\bbeta})
 %\end{equation}
 
-\subsection{Choice of the tuning parameter}
+\subsection{Choice of the optimal tuning parameter}
 
-We use the BIC:
+In order to choose the optimal value of the tuning parameter $\lambda$, we use the generalized information criterion~\citep{nishii1984asymptotic} (GIC):
 \begin{equation}
-	BIC_{\lambda} = -2 \ell(\widehat{\bbeta}, \widehat{\sigma}^2, \widehat{\eta}) + c \cdot \widehat{df}_{\lambda}
+	GIC_{\lambda} = -2 \ell(\widehat{\bbeta}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda}
 \end{equation}
-where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\bbeta}_{\lambda}$~\citep{zou2007degrees} plus two (representing the variance parameters $\eta$ and $\sigma^2$). Several authors have used this criterion for variable selection in mixed models with $c = \log N_T$~\citep{bondell2010joint,schelldorfer2011estimation} and $c=\log N$~\citep{ibrahim2011fixed} (where $N$ is the number of groups). Other authors have proposed $c = \log(\log(N_T)) * \log(N_T)$~\citep{wang2009shrinkage}.
+where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\bbeta}_{\lambda}$~\citep{zou2007degrees} plus two (representing the variance parameters $\eta$ and $\sigma^2$). Several authors have used this criterion for variable selection in mixed models with $a_n = \log N_T$~\citep{bondell2010joint,schelldorfer2011estimation}, which corresponds to the BIC. We instead choose the high-dimensional BIC~\citep{fan2013tuning} given by $a_n = \log(\log(N_T)) * \log(p)$. This is the default choice in our \texttt{ggmix} R package, though the interface is flexible to allow the user to select their choice of $a_n$. 
+
+
+
+\section{Simulation Study}
+
+To assess the performance of penfam we used genotyped data from the UK Biobank cohort to maintain LD structure. We restricted our simulation study to 1st degree relatives defined by the KING estimate for kinship coefficients. We define the following quantities:
+
+\begin{itemize}
+	\item $c$: percentage of causal SNPs
+	\item $\rho$: linkage disequilibrium between two SNPs
+	\item $\bX^{(test)}$: $n \times 1000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. These are the SNPs that will be included as fixed effects in our model.
+	\item $\bX^{(causal)}$: $n \times (c*1000)$ matrix of SNPs out of the SNPs included in the fixed effect model that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(test)}$
+	\item $\bX^{(other)}$: $n \times 4000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. This matrix will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. The maximum LD between any two SNPs in $\bX^{(test)}$ and $\bX^{(other)}$ will be $\rho$.
+	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix.
+	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*1000)$
+	\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
+	\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
+\end{itemize}
+
+We simulate data from \begin{equation}
+	\bY = \bX \bbeta + \bb + \be
+\end{equation}
+where the random effect $\bb$ and the error variance $\be$ are assigned the distributions
+\begin{equation}
+	\bb \sim \mathcal{N}(0, \eta \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta) \bI)
+\end{equation}
+and $\eta=0.1$. $n=1k, p = 5k, X_kiship = 10k$. 1\% of the 5k SNPs are causal.
+
+%We will consider the following simulation scenarios. In each scenario we consider \mbox{$c = \left\lbrace 0.1, 0.5 \right\rbrace$} and \mbox{$\rho = \left\lbrace 0.1, 0.5, 0.9 \right\rbrace$}:
+
+\subsection*{Scenario 1}
+All the causal SNPs are included in the calculation of the kinship matrix.
+
+$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
+
+
+\subsection*{Scenario 2}
+None of the causal SNPs are included in the calculation of the kinship matrix.
+
+$\bX^{(kinship)} = \left[\bX^{(other)} \right]$
+
+
+<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
+@
+
+<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.", eval=finalversion>>=
+@
+
+
+\subsection{Results}
+
+<<simulation-results, eval=finalversion, results = 'hide'>>=
+@
+
+<<plot-correct-sparsity-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-me-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results.", eval=finalversion>>=
+@
+
+
+<<plot-mse-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results.", eval=finalversion>>=
+@
+
+
+<<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-errorvar-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+\section{Discussion}
+
+We develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence. Through simulations, we show that are method has better power over the two-stage approach, particularly for polygenic traits.
+
+While the predominant motivation for these methods has been association testing, we believe that there are other applications in which they can be used as well. 
+For example, in the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal
+relationships between DNA methylation (exposure) within some genes
+and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}. 
+Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV). 
+However, since GAW20 data consisted of families, two step methods were used which could have resulted in a loss of power. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the familial structure of the data. 
+Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the undelying biological mechanisms of disease~\citep{spain2015strategies}.
 
 \begin{comment}
 \subsection{Real Data UKBiobank}
@@ -679,6 +778,457 @@ Use 301 SNPs plus those that are in LD. Make sure that overlap is strong with th
 
 Since we include a column of ones in our design matrix $\bX$, the first column of the rotation $\bXtilde = \bU^T\bX$ corresponds to the intercept. Therefore, when using \texttt{glmnet} to update $\bbeta$ in Algorithm~\ref{alg:cgd2}, we specify \texttt{intercept = FALSE} and a \texttt{penalty.factor = c(0, rep(1, p))} so that the intercept does not get penalized. Furthermore we specify \texttt{standardize = FALSE}.
 \end{comment}
+
+
+
+
+
+
+
+
+
+
+\begin{comment}
+\section{General Notes}
+
+\begin{itemize}
+\item One way in which spurious associations occur in the presence of
+population structure is that SNPs become correlated with each other
+when structure is not taken into account~\citep{song2015testing}
+\item  For the remainder of the manuscript we therefore focus
+on results obtained using the pruned set of SNPs to estimate
+kinships (apart for genome-wide analysis in the program Mendel,
+which by default always uses the entire set of SNPs that has been
+read in)~\citep{eu2014comparison}
+\item Most LMM packages (although not Mendel) allow a separation
+between the 'estimation of kinships' step and the 'association
+testing' step. This is convenient as it allows the user to read in
+theoretical or estimated kinships as desired, and to consider using
+an alternative package for estimating kinships to the one used for
+the actual association testing~\citep{eu2014comparison}
+\item Since many groups (including ourselves)
+use PLINK [27] to perform initial quality control of genome-wide
+association data, we considered programs that could use PLINK
+files directly (or with just a few easily-implemented transformation
+steps) to be the easiest to use, while those programs that required
+more extensive data transformation, creation of additional input
+files and/or external estimation of kinships were considered
+harder~\citep{eu2014comparison}
+\item  investigated a strategy for
+analysing longitudinal traits (repeated measures) in a linear mixed
+model framework simply by treating each measurement as if it
+came from a different individual, and expanding out the genetic
+data set accordingly (resulting in an expanded data set containing
+many apparent twins, triplets, quadruplets etc., depending on how
+many measurements are available for each person).~\citep{eu2014comparison}
+\end{itemize}
+\end{comment}
+
+
+
+
+
+
+\newpage
+
+
+%\bibliographystyle{unsrt}
+%\bibliography{GEbib}
+
+\bibliographystyle{unsrt}
+\bibliography{ggmixbib}
+
+\newpage
+
+\appendix
+%\counterwithin{figure}{section}
+
+\section{Block Coordinate Descent Algorithm} \label{ap:cgd}
+
+We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:estimator}. At each iteration, the algorithm approximates the negative log-likelihood $f(\cdot)$ in $Q_{\lambda}(\cdot)$ by a strictly convex quadratic function and then applies block coordinate decent to generate a decent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)},~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm can thus be run in parallel and therefore suited for large $p$ settings. It has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and~\cite{schelldorfer2011estimation} for mixed models with an $\ell_1$ penalty. Following Tseng and Yun~\cite{tseng2009coordinate}, the CGD algorithm is given by Algorithm~\ref{alg:cgd}.
+
+\begin{algorithm}[htbp]
+	\SetAlgoLined
+	%	\KwResult{Write here the result }
+	Set the iteration counter $k \leftarrow 0$ and choose initial values for the parameter vector $\bTheta^{(0)}$\;
+	\Repeat{convergence criterion is satisfied}{
+		Approximate the Hessian $\nabla^2 f(\bTheta^{(k)})$ by a symmetric matix $H^{(k)}$:
+		\begin{equation}
+			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p+1} \label{eq:Hk}
+		\end{equation}
+		\For{$ j =1, \ldots, p+1$}{
+			
+			Solve the descent direction $d^{(k)} \coloneqq d_{H^{(k)}}(\Theta_{j}^{(k)})$ \;
+			
+			\If{$\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}{
+				\begin{equation}
+					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow \argmin_{d} \left\lbrace \nabla f(\Theta_{j}^{(k)}) d + \frac{1}{2} d^2 H^{(k)}_{j j} + \lambda P(\Theta_{j}^{(k)} + d) \right\rbrace \label{eq:descentdirection}
+				\end{equation}
+			}{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
+				\begin{equation}
+					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
+				\end{equation}
+			}{
+			
+			
+		}
+	}
+	Choose a stepsize\;
+	\begin{equation*}
+		\alpha_j^{(k)} \leftarrow \tm{line search given by the Armijo rule}
+	\end{equation*}
+	Update\;
+	\begin{equation*}
+		\widehat{\Theta}_j^{(k+1)} \leftarrow \widehat{\Theta}_j^{(k)} + \alpha_j^{(k)}d^{(k)}
+	\end{equation*}
+}
+Update\;
+\begin{equation}
+	\widehat\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
+\end{equation}
+Update\;
+\begin{equation}
+	%\widehat{\sigma^2}^{\,\,(k+1)} \leftarrow \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}^{(k+1)}]_i )^2}{1 + \widehat{\eta}^{(k+1)} (\Lambda_i-1)}
+	\widehat{\sigma^2}^{\,\,(k+1)} \gets \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)}
+\end{equation}
+$k \leftarrow k +1$
+}
+\caption{Coordinate Gradient Descent Algorithm to solve~\eqref{eq:estimator}} \label{alg:cgd}
+\end{algorithm}
+
+\begin{comment}
+We note that conditional on $\widehat{\bbeta}$ and $\widehat{\eta}$, there exists an analytic solution for $\widehat{\sigma^2}$:
+\begin{align}
+	\frac{\partial}{\partial \sigma^2} f(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \bbeta]_i )^2}{1 + \eta (\Lambda_i-1)} = 0 \nonumber \\
+	\widehat{\sigma^2} & = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}]_i )^2}{1 + \widehat{\eta} (\Lambda_i-1)} \label{eq:sigmahat}
+\end{align}
+\end{comment}
+
+The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
+\begin{tcolorbox}
+	Choose $\alpha_{init}^{(k)}>0$ and let $\alpha^{(k)}$ be the largest element of $\left\lbrace \alpha_{init}^k \delta^r \right\rbrace_{r = 0,1,2,\ldots} $ satisfying
+	\begin{equation}
+		Q_{\lambda}(\Theta_j^{(k)} + \alpha^{(k)} d^{(k)}) \leq Q_{\lambda} (\Theta_j^{(k)}) + \alpha^{(k)}\varrho \Delta^{(k)}
+	\end{equation}
+	where $0 < \delta <1$, $0 < \varrho <1$, $0 \leq \gamma < 1$ and
+	\begin{equation}
+		\Delta^{(k)} \coloneqq \nabla f(\Theta_j^{(k)})d^{(k)} + \gamma (d^{(k)})^2 H^{(k)}_{jj} + \lambda P(\Theta_j^{(k)} + d^{(k)}) - \lambda P(\Theta^{(k)})
+	\end{equation}
+\end{tcolorbox}
+Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$, $\alpha_{init}^{(k)} = 1$ for all $k$~\citep{schelldorfer2011estimation}.
+
+Below we detail the specifics of Algorithm~\ref{alg:cgd} for the $\ell_1$ penalty.
+
+\subsection{$\ell_1$ penalty}\label{subsec:l1penalty}
+
+The objective function is given by
+\begin{equation}
+	Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda |\bbeta|
+\end{equation}
+
+
+\subsubsection{Descent Direction}
+For simplicity, we remove the iteration counter $(k)$ from the derivation below.\\ For \mbox{$\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}, let
+\begin{equation}
+	d_{H}(\Theta_{j}) = \argmin_{d} G(d)  \label{eq:argminGd}
+\end{equation}
+where
+\[ G(d) =  \nabla f(\Theta_{j}) d + \frac{1}{2} d^2 H_{j j} + \lambda |\Theta_{j} + d| \]
+Since $G(d)$ is not differentiable at $-\Theta_j$, we calculate the subdifferential $\partial G(d)$ and search for $d$ with $0 \in \partial G(d)$:
+\begin{equation}
+	\partial G(d) = \nabla f(\Theta_{j}) + d H_{j j} + \lambda u   \label{eq:subdiff}
+\end{equation}
+where
+\begin{equation}
+	u = \begin{cases}
+		1 & \tm{if\quad}d > -\Theta_j \\
+		-1 & \tm{if\quad} d < -\Theta_j\\
+		[-1,1] & \tm{if\quad} d = \Theta_j
+	\end{cases}
+\end{equation}
+We consider each of the three cases in~\eqref{eq:subdiff} below
+\begin{enumerate}
+	\item $d > -\Theta_j$
+	\begin{align}
+		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} + \lambda = 0 \nonumber \\
+		d & = \frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}}  \nonumber
+	\end{align}
+	Since $\lambda>0$ and $H_{jj}>0$, we have
+	\begin{equation*}
+		\frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}} > \frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} = d \overset{\tm{def}}{>} -\Theta_j
+	\end{equation*}
+	The solution can be written compactly as
+	\begin{equation*}
+		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
+	\end{equation*}
+	where $\tm{mid}\left\lbrace a,b,c \right\rbrace$ denotes the median (mid-point) of $a,b,c$~\citep{tseng2009coordinate}.
+	\item $d < -\Theta_j$
+	\begin{align}
+		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} - \lambda = 0 \nonumber \\
+		d & = \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}  \nonumber
+	\end{align}
+	Since $\lambda>0$ and $H_{jj}>0$, we have
+	\begin{equation*}
+		\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} < \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}} = d \overset{\tm{def}}{<} -\Theta_j
+	\end{equation*}
+	Again, the solution can be written compactly as
+	\begin{equation*}
+		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
+	\end{equation*}
+	
+	\item $d_j = -\Theta_j$\\
+	There exists $u \in [-1,1]$ such that
+	\begin{align*}
+		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} + \lambda u = 0 \nonumber \\
+		d & = \frac{-(\nabla f(\Theta_{j}) + \lambda u)}{H_{j j}}  \nonumber
+	\end{align*}
+	For $-1 \leq u \leq 1$, $\lambda>0$ and $H_{jj}>0$ we have
+	\begin{equation*}
+		\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \leq  d \overset{\tm{def}}{=} -\Theta_j \leq \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}
+	\end{equation*}
+	The solution can again be written compactly as
+	\begin{equation*}
+		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
+	\end{equation*}
+	
+\end{enumerate}
+We see all three cases lead to the same solution for~\eqref{eq:argminGd}. Therefore the descent direction for $\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$ for the $\ell_1$ penalty is given by
+\begin{equation}
+	d = \tm{mid}\left\lbrace \frac{-(\nabla f(\beta_{j}) - \lambda)}{H_{j j}}, -\beta_j ,\frac{-(\nabla f(\beta_{j}) + \lambda)}{H_{j j}} \right\rbrace  \label{eq:d}
+\end{equation}
+
+\subsubsection{Solution for the $\beta$ parameter} \label{ap:beta}
+If the Hessian $\nabla^2f(\bTheta^{(k)}) >0$ then $H^{(k)}$ defined in~\eqref{eq:Hk} is equal to $\nabla^2f(\bTheta^{(k)})$. Using $\alpha_{init} = 1$, the largest element of $\left\lbrace \alpha_{init}^{(k)} \delta^r \right\rbrace_{r = 0, 1, 2, \ldots}$ satisfying the Armijo Rule inequality is reached for $\alpha^{(k)} = \alpha_{init}^{(k)}\delta^0 = 1$. The Armijo rule update for the $\bbeta$ parameter is then given by
+\begin{equation}
+	\beta_j^{(k+1)} \leftarrow \beta_j^{(k)} + d^{(k)}, \qquad j=1, \ldots, p \label{eq:betaupdate}
+\end{equation}
+Substituting the descent direction given by~\eqref{eq:d} into~\eqref{eq:betaupdate} we get
+\begin{equation}
+	\beta_j^{(k+1)} = \tm{mid}\left\lbrace \beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) - \lambda)}{H_{j j}}, 0,\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) + \lambda)}{H_{j j}}  \right\rbrace \label{eq:betaMidpoint}
+\end{equation}
+We can further simplify this expression. Let %Let $\bXtilde_{-j}$ and $\bbeta^{(k)}_{-j}$ correspond to $\bXtilde$ and $\bbeta^{(k)}$ without the $j^{\tm{th}}$ variable, respectively. Furthermore, let
+
+\begin{equation}
+	w_i \coloneqq \frac{1}{\sigma^2\left(1+\eta(\Lambda_i-1)\right)}
+\end{equation}.
+
+
+Re-write the part depending on $\bbeta$ of the negative log-likelihood in~\eqref{eq:LikeFinal} as
+\begin{align}
+	%\frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=1}^{p}\Xtilde_{ij}\beta_j^{(k)} \right) ^2}{1 + \eta (\Lambda_i-1)}
+	g(\bbeta^{(k)}) & = \frac{1}{2} \sum_{i=1}^{N_T} w_i\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right) ^2
+\end{align}
+The gradient and Hessian are given by
+\begin{align}
+	\nabla f(\beta_j^{(k)}) \coloneqq \frac{\partial}{\partial \beta_j^{(k)}}g(\bbeta^{(k)}) & = - \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right)  \label{eq:grad}\\
+	H_{jj} \coloneqq \frac{\partial^2}{\partial {\beta_j^{(k)}}^2}g(\bbeta^{(k)}) & = \sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2  \label{eq:hessian}
+\end{align}
+Substituting~\eqref{eq:grad} and~\eqref{eq:hessian} into $\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) - \lambda)}{H_{jj}}$ %~\eqref{eq:betaMidpoint} we get
+\begin{align}
+	& \beta_j^{(k)}+ \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right)  + \lambda }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \nonumber \\
+	& = \beta_j^{(k)}+ \frac{ \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} - \frac{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2\beta_j^{(k)}  }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \nonumber \\
+	& =  \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:midleft}
+\end{align}
+Similarly, substituting~\eqref{eq:grad} and~\eqref{eq:hessian} in $\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) + \lambda)}{H_{jj}}$ we get
+\begin{align}
+	\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:midright}
+\end{align}
+Finally, substituting~\eqref{eq:midleft} and~\eqref{eq:midright} into~\eqref{eq:betaMidpoint} we get
+\begin{align}
+	\beta_j^{(k+1)} & = \tm{mid}\left\lbrace \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2}, 0,\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \right\rbrace \nonumber \\
+	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft}
+\end{align}
+
+Where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
+\begin{equation*}
+	\mathcal{S}_{\lambda}(x) = \tm{sign}(x)(|x| - \lambda)_+
+\end{equation*}
+$\textrm{sign}(x)$ is the signum function
+\begin{equation*}
+	\textrm{sign}(x) = \begin{cases}
+		-1 & x<0\\
+		0 & x= 0\\
+		1 & x>0
+	\end{cases}
+\end{equation*}
+and $(x)_+ = \max(x, 0)$.
+
+We note that the parameter update for $\beta_j$ given by~\eqref{eq:betaUpdateSoft} takes the same form as the weighted updates of the \texttt{glmnet} algorithm~\citep{friedman2010regularization} (Section 2.4, equation (10)) with $\alpha=1$.
+
+
+\FloatBarrier 
+
+\newpage
+
+\section{\ggmix ~Package Showcase} \label{ap:showcase}
+
+In this section we briefly introduce the freely available and open source \ggmix ~package in \texttt{R}. More comprehensive documentation is available at \url{https://sahirbhatnagar.com/ggmix}. Note that this entire section is reproducible; the code and text are combined in an \texttt{.Rnw}\footnote[1]{scripts available at \url{https://github.com/sahirbhatnagar/ggmix/tree/master/manuscript}} file and compiled using \texttt{knitr}~\citep{xie2015dynamic}. 
+
+\subsection{Installation}
+
+The package can be installed from \href{https://github.com/sahirbhatnagar/ggmix}{GitHub} via
+
+
+<<install-packages, eval=FALSE, echo=T>>=
+install.packages("pacman")
+pacman::p_load_gh('sahirbhatnagar/ggmix')
+@
+
+To showcase the main functions in \ggmix, ~we will use the simulated data which ships with the package and can be loaded via:
+
+<<echo=T, eval=finalversion>>=
+library(ggmix)
+data("admixed")
+names(admixed)
+@
+
+For details on how this data was simulated, see \texttt{help(admixed)}.  
+
+There are three basic inputs that \ggmix ~needs:  
+\begin{enumerate}
+	\item $Y$: a continuous response variable  
+\item $X$: a matrix of covariates of dimension $N \times p$ where $N$ is the sample size and $p$ is the number of covariates  
+\item $\boldsymbol{\Phi}$: a kinship matrix  
+\end{enumerate}
+
+We can visualize the kinship matrix in the \texttt{admixed} data using the \texttt{popkin} package:  
+
+<<echo=T, eval=finalversion>>=
+# need to install the package if you don't have it
+# pacman::p_load_gh('StoreyLab/popkin')
+popkin::plotPopkin(admixed$kin)
+@
+
+\subsection{Fit the linear mixed model with Lasso Penalty}
+
+We will use the most basic call to the main function of this package, which is called \texttt{ggmix}. This function will by default fit a $L_1$ penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter $\lambda$. It will choose its own sequence:  
+
+<<echo=T, eval=finalversion>>=
+fit <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin)
+names(fit)
+class(fit)
+@
+
+We can see the solution path for each variable by calling the \texttt{plot} method for objects of class \texttt{ggmix\_fit}:  
+
+<<echo=T, eval=finalversion>>=
+plot(fit)
+@
+
+We can also get the coefficients for given value(s) of lambda using the \texttt{coef} method for objects of class \texttt{ggmix\_fit}:  
+
+<<echo=T, eval=finalversion>>=
+# only the first 5 coefficients printed here for brevity
+coef(fit, s = c(0.1,0.02))[1:5, ]
+@
+Here, \texttt{s} specifies the value(s) of $\lambda$ at which the extraction is made. The function uses linear interpolation to make predictions for values of \texttt{s} that do not coincide with the lambda sequence used in the fitting algorithm.  
+
+We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{predict} method for objects of class \texttt{ggmix\_fit}:  
+
+<<echo=T, eval=finalversion>>=
+# need to provide x to the predict function
+# predict for the first 5 subjects 
+predict(fit, s = c(0.1,0.02), newx = admixed$x[1:5,])
+@
+
+
+\subsection{Find the Optimal Value of the Tuning Parameter}
+
+We use the Generalized Information Criterion (GIC) to select the optimal value for $\lambda$. The default is $a_n = log(log(n)) * log(p)$ which corresponds to a high-dimensional BIC (HDBIC): 
+
+<<echo=T, eval=finalversion>>=
+# pass the fitted object from ggmix to the gic function:
+hdbic <- gic(fit)
+class(hdbic)
+
+# we can also fit the BIC by specifying the an argument
+bicfit <- gic(fit, an = log(length(admixed$y)))
+@
+
+We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} method for objects of class \texttt{ggmix\_gic}:  
+
+<<echo=T, eval=finalversion>>=
+plot(hdbic)
+@
+
+The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that leads to the minium HDBIC is:
+
+<<echo=T, eval=finalversion>>=
+hdbic[["lambda.min"]]
+@
+
+
+We can also plot the BIC results:
+
+<<echo=T, eval=finalversion>>=
+plot(bicfit, ylab = "BIC")
+bicfit[["lambda.min"]]
+@
+
+
+\subsection{Get Coefficients Corresponding to Optimal Model}
+
+We can use the object outputted by the \texttt{gic} function to extract the coefficients corresponding to the selected model using the \texttt{coef} method for objects of class \texttt{ggmix\_gic}:  
+
+<<echo=T, eval=finalversion>>=
+coef(hdbic)[1:5, , drop = FALSE]
+@
+
+We can also extract just the nonzero coefficients which also provide the estimated variance components $\eta$ and $\sigma^2$:
+
+<<echo=T, eval=finalversion>>=
+coef(hdbic, type = "nonzero")
+@
+
+We can also make predictions from the \texttt{hdbic} object, which by default will use the model corresponding to the optimal tuning parameter:
+
+<<echo=T, eval=finalversion>>=
+predict(hdbic, newx = admixed$x[1:5,])
+@
+
+
+\subsection{Extracting Random Effects}
+
+The user can compute the random effects using the provided \texttt{ranef} method for objects of class \texttt{ggmix\_gic}. This command will compute the estimated random effects for each subject using the parameters of the selected model:
+
+<<echo=T, eval=finalversion>>=
+ranef(hdbic)[1:5]
+@
+
+
+
+\subsection{Diagnostic Plots}
+
+We can also plot some standard diagnotic plots such as the observed vs. predicted response, QQ-plots of the residuals and random effects and the Tukey-Anscombe plot. These can be plotted using the \texttt{plot} method on a \texttt{ggmix\_gic} object as shown below.
+
+
+\subsubsection{Observed vs. Predicted Response}
+
+<<echo=T, eval=finalversion>>=
+plot(hdbic, type = "predicted", newx = admixed$x, newy = admixed$y)
+@
+
+
+\subsubsection{QQ-plots for Residuals and Random Effects}
+
+<<echo=T, eval=finalversion>>=
+plot(hdbic, type = "QQranef", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "QQresid", newx = admixed$x, newy = admixed$y)
+@
+
+
+\subsubsection{Tukey-Anscombe Plot}
+
+<<echo=T, eval=finalversion>>=
+plot(hdbic, type = "Tukey", newx = admixed$x, newy = admixed$y)
+@
+
+
+
+
+
+
+\end{document}
 
 \section{Low rank similarity matrix}
 
@@ -915,375 +1465,3 @@ $N_T > k$  			& gcdnet (or degenerate gglasso)  & gglasso (GMD Algorithm with we
 $N_T < k$              & glmnet (Coordinate descent with observation weights)   & gglasso (GMD Algorithm with observation weights)
 \LL
 }
-
-
-
-
-\section{Simulation Study}
-
-To assess the performance of penfam we used genotyped data from the UK Biobank cohort to maintain LD structure. We restricted our simulation study to 1st degree relatives defined by the KING estimate for kinship coefficients. We define the following quantities:
-
-\begin{itemize}
-	\item $c$: percentage of causal SNPs
-	\item $\rho$: linkage disequilibrium between two SNPs
-	\item $\bX^{(test)}$: $n \times 1000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. These are the SNPs that will be included as fixed effects in our model.
-	\item $\bX^{(causal)}$: $n \times (c*1000)$ matrix of SNPs out of the SNPs included in the fixed effect model that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(test)}$
-	\item $\bX^{(other)}$: $n \times 4000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. This matrix will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. The maximum LD between any two SNPs in $\bX^{(test)}$ and $\bX^{(other)}$ will be $\rho$.
-	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix.
-	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*1000)$
-	\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
-	\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
-\end{itemize}
-
-We will consider the following simulation scenarios. In each scenario we consider \mbox{$c = \left\lbrace 0.1, 0.5 \right\rbrace$} and \mbox{$\rho = \left\lbrace 0.1, 0.5, 0.9 \right\rbrace$}:
-
-\subsection*{Scenario 1}
-All the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
-
-
-\subsection*{Scenario 3}
-None of the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} \right]$
-
-
-<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
-@
-
-<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.", eval=finalversion>>=
-@
-
-
-\subsection{Results}
-
-<<simulation-results, eval=finalversion, results = 'hide'>>=
-@
-
-<<plot-correct-sparsity-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-<<plot-me-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results.", eval=finalversion>>=
-@
-
-
-<<plot-mse-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results.", eval=finalversion>>=
-@
-
-
-<<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-<<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-<<plot-errorvar-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-
-
-\newpage
-\section{Computational Algorithm version 2}
-
-We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:estimator}. At each iteration, the algorithm approximates the negative log-likelihood $f(\cdot)$ in $Q_{\lambda}(\cdot)$ by a strictly convex quadratic function and then applies block coordinate decent to generate a decent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)},~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm can thus be run in parallel and therefore suited for large $p$ settings. It has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and~\cite{schelldorfer2011estimation} for mixed models with an $\ell_1$ penalty.
-
-Following~\cite{tseng2009coordinate}, the CGD algorithm is given in Algorithm~\ref{alg:cgd}.
-
-\begin{algorithm}[H]
-	\SetAlgoLined
-	%	\KwResult{Write here the result }
-	Set the iteration counter $k \leftarrow 0$ and choose initial values for the parameter vector $\bTheta^{(0)}$\;
-	\Repeat{convergence criterion is satisfied}{
-		Approximate the Hessian $\nabla^2 f(\bTheta^{(k)})$ by a symmetric matix $H^{(k)}$:
-		\begin{equation}
-			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p+1} \label{eq:Hk}
-		\end{equation}
-		\For{$ j =1, \ldots, p+1$}{
-
-			Solve the descent direction $d^{(k)} \coloneqq d_{H^{(k)}}(\Theta_{j}^{(k)})$ \;
-
-			\If{$\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}{
-				\begin{equation}
-					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow \argmin_{d} \left\lbrace \nabla f(\Theta_{j}^{(k)}) d + \frac{1}{2} d^2 H^{(k)}_{j j} + \lambda P(\Theta_{j}^{(k)} + d) \right\rbrace \label{eq:descentdirection}
-				\end{equation}
-			}{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
-				\begin{equation}
-					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
-				\end{equation}
-			}{
-
-
-		}
-	}
-	Choose a stepsize\;
-	\begin{equation*}
-		\alpha_j^{(k)} \leftarrow \tm{line search given by the Armijo rule}
-	\end{equation*}
-	Update\;
-	\begin{equation*}
-		\widehat{\Theta}_j^{(k+1)} \leftarrow \widehat{\Theta}_j^{(k)} + \alpha_j^{(k)}d^{(k)}
-	\end{equation*}
-}
-Update\;
-\begin{equation}
-	\widehat{\sigma^2}^{\,\,(k+1)} \leftarrow \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}^{(k+1)}]_i )^2}{1 + \widehat{\eta}^{(k+1)} (\Lambda_i-1)}
-\end{equation}
-$k \leftarrow k +1$
-}
-\caption{Coordinate Gradient Descent Algorithm} \label{alg:cgd}
-\end{algorithm}
-
-We note that conditional on $\widehat{\bbeta}$ and $\widehat{\eta}$, there exists an analytic solution for $\widehat{\sigma^2}$:
-\begin{align}
-	\frac{\partial}{\partial \sigma^2} f(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \bbeta]_i )^2}{1 + \eta (\Lambda_i-1)} = 0 \nonumber \\
-	\widehat{\sigma^2} & = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}]_i )^2}{1 + \widehat{\eta} (\Lambda_i-1)} \label{eq:sigmahat}
-\end{align}
-
-\begin{comment}
-\begin{algorithm}[H]
-\KwData{this text}
-\KwResult{how to write algorithm with \LaTeX2e }
-initialization\;
-\While{not at end of this document}{
-read current\;
-\eIf{understand}{
-go to next section\;
-current section becomes this one\;
-}{
-go back to the beginning of current section\;
-}
-}
-\caption{How to write algorithms}
-\end{algorithm}
-\begin{tcolorbox}
-\begin{enumerate}
-\item Initiate the paramters
-\item sfs $ \bbeta$
-\end{enumerate}
-\end{tcolorbox}
-
-Block coordinate descent algorithm
-\end{comment}
-
-
-The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
-\begin{tcolorbox}
-	Choose $\alpha_{init}^{(k)}>0$ and let $\alpha^{(k)}$ be the largest element of $\left\lbrace \alpha_{init}^k \delta^r \right\rbrace_{r = 0,1,2,\ldots} $ satisfying
-	\begin{equation}
-		Q_{\lambda}(\Theta_j^{(k)} + \alpha^{(k)} d^{(k)}) \leq Q_{\lambda} (\Theta_j^{(k)}) + \alpha^{(k)}\varrho \Delta^{(k)}
-	\end{equation}
-	where $0 < \delta <1$, $0 < \varrho <1$, $0 \leq \gamma < 1$ and
-	\begin{equation}
-		\Delta^{(k)} \coloneqq \nabla f(\Theta_j^{(k)})d^{(k)} + \gamma (d^{(k)})^2 H^{(k)}_{jj} + \lambda P(\Theta_j^{(k)} + d^{(k)}) - \lambda P(\Theta^{(k)})
-	\end{equation}
-\end{tcolorbox}
-Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$, $\alpha_{init}^{(k)} = 1$ for all $k$~\citep{schelldorfer2011estimation}.
-
-Below we detail the specifics of Algorithm~\ref{alg:cgd} for different penalty functions $P(\bbeta)$.
-\subsection{$\ell_1$ penalty}\label{subsec:l1penalty}
-The objective function is given by
-\begin{equation}
-	Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda |\bbeta|
-\end{equation}
-
-
-\subsubsection{Descent Direction}
-For simplicity, we remove the iteration counter $(k)$ from the derivation below.\\ For \mbox{$\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}, let
-\begin{equation}
-	d_{H}(\Theta_{j}) = \argmin_{d} G(d)  \label{eq:argminGd}
-\end{equation}
-where
-\[ G(d) =  \nabla f(\Theta_{j}) d + \frac{1}{2} d^2 H_{j j} + \lambda |\Theta_{j} + d| \]
-Since $G(d)$ is not differentiable at $-\Theta_j$, we calculate the subdifferential $\partial G(d)$ and search for $d$ with $0 \in \partial G(d)$:
-\begin{equation}
-	\partial G(d) = \nabla f(\Theta_{j}) + d H_{j j} + \lambda u   \label{eq:subdiff}
-\end{equation}
-where
-\begin{equation}
-	u = \begin{cases}
-		1 & \tm{if\quad}d > -\Theta_j \\
-		-1 & \tm{if\quad} d < -\Theta_j\\
-		[-1,1] & \tm{if\quad} d = \Theta_j
-	\end{cases}
-\end{equation}
-We consider each of the three cases in~\eqref{eq:subdiff} below
-\begin{enumerate}
-	\item $d > -\Theta_j$
-	\begin{align}
-		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} + \lambda = 0 \nonumber \\
-		d & = \frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}}  \nonumber
-	\end{align}
-	Since $\lambda>0$ and $H_{jj}>0$, we have
-	\begin{equation*}
-		\frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}} > \frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} = d \overset{\tm{def}}{>} -\Theta_j
-	\end{equation*}
-	The solution can be written compactly as
-	\begin{equation*}
-		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
-	\end{equation*}
-	where $\tm{mid}\left\lbrace a,b,c \right\rbrace$ denotes the median (mid-point) of $a,b,c$~\citep{tseng2009coordinate}.
-	\item $d < -\Theta_j$
-	\begin{align}
-		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} - \lambda = 0 \nonumber \\
-		d & = \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}  \nonumber
-	\end{align}
-	Since $\lambda>0$ and $H_{jj}>0$, we have
-	\begin{equation*}
-		\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} < \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}} = d \overset{\tm{def}}{<} -\Theta_j
-	\end{equation*}
-	Again, the solution can be written compactly as
-	\begin{equation*}
-		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
-	\end{equation*}
-
-	\item $d_j = -\Theta_j$\\
-	There exists $u \in [-1,1]$ such that
-	\begin{align*}
-		\partial G(d) & = \nabla f(\Theta_{j}) + d H_{j j} + \lambda u = 0 \nonumber \\
-		d & = \frac{-(\nabla f(\Theta_{j}) + \lambda u)}{H_{j j}}  \nonumber
-	\end{align*}
-	For $-1 \leq u \leq 1$, $\lambda>0$ and $H_{jj}>0$ we have
-	\begin{equation*}
-		\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \leq  d \overset{\tm{def}}{=} -\Theta_j \leq \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}
-	\end{equation*}
-	The solution can again be written compactly as
-	\begin{equation*}
-		d = \tm{mid}\left\lbrace \frac{-(\nabla f(\Theta_{j}) - \lambda)}{H_{j j}}, -\Theta_j ,\frac{-(\nabla f(\Theta_{j}) + \lambda)}{H_{j j}} \right\rbrace
-	\end{equation*}
-
-\end{enumerate}
-We see all three cases lead to the same solution for~\eqref{eq:argminGd}. Therefore the descent direction for $\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$ for the $\ell_1$ penalty is given by
-\begin{equation}
-	d = \tm{mid}\left\lbrace \frac{-(\nabla f(\beta_{j}) - \lambda)}{H_{j j}}, -\beta_j ,\frac{-(\nabla f(\beta_{j}) + \lambda)}{H_{j j}} \right\rbrace  \label{eq:d}
-\end{equation}
-
-\subsubsection{Solution for the $\beta$ parameter}
-If the Hessian $\nabla^2f(\bTheta^{(k)}) >0$ then $H^{(k)}$ defined in~\eqref{eq:Hk} is equal to $\nabla^2f(\bTheta^{(k)})$. Using $\alpha_{init} = 1$, the largest element of $\left\lbrace \alpha_{init}^{(k)} \delta^r \right\rbrace_{r = 0, 1, 2, \ldots}$ satisfying the Armijo Rule inequality is reached for $\alpha^{(k)} = \alpha_{init}^{(k)}\delta^0 = 1$. The Armijo rule update for the $\bbeta$ parameter is then given by
-\begin{equation}
-	\beta_j^{(k+1)} \leftarrow \beta_j^{(k)} + d^{(k)}, \qquad j=1, \ldots, p \label{eq:betaupdate}
-\end{equation}
-Substituting the descent direction given by~\eqref{eq:d} into~\eqref{eq:betaupdate} we get
-\begin{equation}
-	\beta_j^{(k+1)} = \tm{mid}\left\lbrace \beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) - \lambda)}{H_{j j}}, 0,\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) + \lambda)}{H_{j j}}  \right\rbrace \label{eq:betaMidpoint}
-\end{equation}
-We can further simplify this expression. Let %Let $\bXtilde_{-j}$ and $\bbeta^{(k)}_{-j}$ correspond to $\bXtilde$ and $\bbeta^{(k)}$ without the $j^{\tm{th}}$ variable, respectively. Furthermore, let
-
-\begin{equation}
-	w_i \coloneqq \frac{1}{\sigma^2\left(1+\eta(\Lambda_i-1)\right)}
-\end{equation}.
-
-
-Re-write the part depending on $\bbeta$ of the negative log-likelihood in~\eqref{eq:LikeFinal} as
-\begin{align}
-	%\frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=1}^{p}\Xtilde_{ij}\beta_j^{(k)} \right) ^2}{1 + \eta (\Lambda_i-1)}
-	g(\bbeta^{(k)}) & = \frac{1}{2} \sum_{i=1}^{N_T} w_i\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right) ^2
-\end{align}
-The gradient and Hessian are given by
-\begin{align}
-	\nabla f(\beta_j^{(k)}) \coloneqq \frac{\partial}{\partial \beta_j^{(k)}}g(\bbeta^{(k)}) & = - \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right)  \label{eq:grad}\\
-	H_{jj} \coloneqq \frac{\partial^2}{\partial {\beta_j^{(k)}}^2}g(\bbeta^{(k)}) & = \sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2  \label{eq:hessian}
-\end{align}
-Substituting~\eqref{eq:grad} and~\eqref{eq:hessian} into $\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) - \lambda)}{H_{jj}}$ %~\eqref{eq:betaMidpoint} we get
-\begin{align}
-	& \beta_j^{(k)}+ \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} - \Xtilde_{ij}\beta_j^{(k)} \right)  + \lambda }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \nonumber \\
-	& = \beta_j^{(k)}+ \frac{ \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} - \frac{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2\beta_j^{(k)}  }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \nonumber \\
-	& =  \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:midleft}
-\end{align}
-Similarly, substituting~\eqref{eq:grad} and~\eqref{eq:hessian} in $\beta_j^{(k)}+ \frac{-(\nabla f(\beta_j^{(k)}) + \lambda)}{H_{jj}}$ we get
-\begin{align}
-	\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:midright}
-\end{align}
-Finally, substituting~\eqref{eq:midleft} and~\eqref{eq:midright} into~\eqref{eq:betaMidpoint} we get
-\begin{align}
-	\beta_j^{(k+1)} & = \tm{mid}\left\lbrace \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2}, 0,\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \right\rbrace \nonumber \\
-	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft}
-\end{align}
-
-Where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
-\begin{equation*}
-	\mathcal{S}_{\lambda}(x) = \tm{sign}(x)(|x| - \lambda)_+
-\end{equation*}
-$\textrm{sign}(x)$ is the signum function
-\begin{equation*}
-	\textrm{sign}(x) = \begin{cases}
-		-1 & x<0\\
-		0 & x= 0\\
-		1 & x>0
-	\end{cases}
-\end{equation*}
-and $(x)_+ = \max(x, 0)$.
-
-We note that the parameter update for $\beta_j$ given by~\eqref{eq:betaUpdateSoft} takes the same form as the weighted updates of the \texttt{glmnet} algorithm~\citep{friedman2010regularization} (Section 2.4, equation (10)) with $\alpha=1$.
-
-\begin{comment}
-\section{General Notes}
-
-\begin{itemize}
-\item One way in which spurious associations occur in the presence of
-population structure is that SNPs become correlated with each other
-when structure is not taken into account~\citep{song2015testing}
-\item  For the remainder of the manuscript we therefore focus
-on results obtained using the pruned set of SNPs to estimate
-kinships (apart for genome-wide analysis in the program Mendel,
-which by default always uses the entire set of SNPs that has been
-read in)~\citep{eu2014comparison}
-\item Most LMM packages (although not Mendel) allow a separation
-between the 'estimation of kinships' step and the 'association
-testing' step. This is convenient as it allows the user to read in
-theoretical or estimated kinships as desired, and to consider using
-an alternative package for estimating kinships to the one used for
-the actual association testing~\citep{eu2014comparison}
-\item Since many groups (including ourselves)
-use PLINK [27] to perform initial quality control of genome-wide
-association data, we considered programs that could use PLINK
-files directly (or with just a few easily-implemented transformation
-steps) to be the easiest to use, while those programs that required
-more extensive data transformation, creation of additional input
-files and/or external estimation of kinships were considered
-harder~\citep{eu2014comparison}
-\item  investigated a strategy for
-analysing longitudinal traits (repeated measures) in a linear mixed
-model framework simply by treating each measurement as if it
-came from a different individual, and expanding out the genetic
-data set accordingly (resulting in an expanded data set containing
-many apparent twins, triplets, quadruplets etc., depending on how
-many measurements are available for each person).~\citep{eu2014comparison}
-\end{itemize}
-\end{comment}
-
-
-
-
-
-
-\newpage
-
-
-%\bibliographystyle{unsrt}
-%\bibliography{GEbib}
-
-\bibliographystyle{unsrt}
-\bibliography{ggmixbib}
-
-\newpage
-
-\appendix
-%\counterwithin{figure}{section}
-
-\section{Algorithm Details}
-
-In this section we provide more specific details about the algorithms used to solve th~objective function.
-
-\subsection{title}
-
-
-\section{title}
-\end{document}
-
