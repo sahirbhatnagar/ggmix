@@ -30,7 +30,9 @@ source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functio
 
 ## @knitr init
 
-name_of_simulation <- "thesis-ggmix-july1"
+# name_of_simulation <- "thesis-ggmix-july1" this had only one eta value
+# name_of_simulation <- "thesis-ggmix-july3" # this has more than 1 eta value 0.1,0.2,0.3,0.4
+name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, and eta=0.1, 0.5
 
 ## @knitr main
 
@@ -52,34 +54,69 @@ name_of_simulation <- "thesis-ggmix-july1"
 # save_simulation(sim)
 
 
-sim <- new_simulation(name_of_simulation, "thesis-july-1", dir = "simulation/") %>%
+sim <- new_simulation(name_of_simulation, "thesis-july-12", dir = "simulation/") %>%
   generate_model(make_ADmixed_model, b0 = 0, sigma2 = 1,
-                 eta = 0.1,
+                 eta = list(0.1, 0.5), 
                  n = 1000,
                  p_test = 5000,
+                 beta_mean = 0.5,
                  # p_test = 500,
                  p_kinship = 10000,
                  geography = list("ind", "1d","circ"),
                  # geography = "circ",
-                 percent_causal = 0.01,
+                 percent_causal = list(0, 0.01),
                  percent_overlap = list("0","100"),
                  # percent_overlap = "100",
                  k = 5, s = 0.5, Fst = 0.1,
-                 vary_along = c("geography","percent_overlap")
+                 vary_along = c("geography","percent_overlap","percent_causal","eta")
                  ) %>%
   simulate_from_model(nsim = 6, index = 1:35) %>%
   # simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed, twostep),
+  run_method(list(lasso, ggmixed, twostep, twostepY),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 save_simulation(sim)
 sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
+save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
 
 
+sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
+sim <- sim %>% 
+  run_method(list(lasso, ggmixed, twostep, twostepY),
+             parallel = list(socket_names = 35,
+                             libraries = c("glmnet","magrittr","MASS","Matrix",
+                                           "coxme","gaston","ggmix","popkin","bnpsd")))
+save_simulation(sim)
+sim <- sim %>% 
+  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, 
+                correct_sparsity,mse, errorvariance))
+save_simulation(sim)
+as.data.frame(evals(sim))
+ls()
 
+res <- make_ADmixed_model_not_sim(b0 = 0, sigma2 = 1,
+                                  eta = 0.1, 
+                                  n = 1000,
+                                  p_test = 3000,
+                                  beta_mean = 0.5,
+                                  # p_test = 500,
+                                  p_kinship = 5000,
+                                  geography = "ind",
+                                  # geography = "circ",
+                                  percent_causal = 0.0,
+                                  percent_overlap = "0",
+                                  # percent_overlap = "100",
+                                  k = 5, s = 0.5, Fst = 0.1)
 
+res$causal
+res$not_causal %>% length()
+res$Xtest %>% colnames() %>% length
+all(colnames(res$Xtest) == res$not_causal)
+# res$x_lasso
+hist(res$y)
+res$kin %>% dim
 # save results ------------------------------------------------------------
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 sim <- sim %>% run_method(list(twostepY),
@@ -87,12 +124,12 @@ sim <- sim %>% run_method(list(twostepY),
                                           libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 save_simulation(sim)
 sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
+save_simulation(sim)
 ls()
 
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/july_1_2018_results_with_twostepY.rds")
-
+saveRDS(df, file = "simulation/simulation_results/july_3_2018_results_with_several_etas.rds")
 
 
 

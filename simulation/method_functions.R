@@ -55,8 +55,7 @@ ggmixed <- new_method("ggmix", "ggmix",
                        fit <- ggmix(x = draw[["Xtest"]],
                                     y = draw[["y"]],
                                     kinship = draw[["kin"]],
-                                    verbose = 1,
-                                    dfmax = 80)
+                                    verbose = 1, dfmax = 100)
                        hdbic <- gic(fit)
 
                        model_error <- l2norm(draw[["mu"]] -
