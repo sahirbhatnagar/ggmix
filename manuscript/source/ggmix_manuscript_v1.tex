@@ -58,7 +58,7 @@
 \usepackage{float} % for H in figures and tables
 \usepackage{amsmath,amsthm,amssymb,bbm,mathrsfs,mathtools,xfrac} %math stuff
 
-\usepackage[round,sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
+\usepackage[sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
 \usepackage{placeins} % for \FloatBarrier
 \usepackage[pagebackref=true,bookmarks]{hyperref}
 \hypersetup{
@@ -707,179 +707,67 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 
 \section{Simulation Study}
 
-To assess the performance of penfam we used genotyped data from the UK Biobank cohort to maintain LD structure. We restricted our simulation study to 1st degree relatives defined by the KING estimate for kinship coefficients. We define the following quantities:
+To assess the performance of \texttt{ggmix}, we simulated random genotypes from the BN-PSD admixture model using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. We used three different kinship structures with 5 subpopulations each:
+\begin{enumerate}
+	\item \textbf{Block}:
+	\item \textbf{1D}: 
+	\item \textbf{Circular}:
+\end{enumerate}
+We simulated a dataset under each of the three structures and plotted the estimated kinship matrices in the form of a heatmap as shown in Figure~\ref{fig:plot-kinship-sim}. In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores for each of the three kinship matrices colored by subpopulation status. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding. For other parameters in our simulation study, we define the following quantities:
 
 \begin{itemize}
 	\item $c$: percentage of causal SNPs
-	\item $\rho$: linkage disequilibrium between two SNPs
-	\item $\bX^{(test)}$: $n \times 1000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. These are the SNPs that will be included as fixed effects in our model.
-	\item $\bX^{(causal)}$: $n \times (c*1000)$ matrix of SNPs out of the SNPs included in the fixed effect model that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(test)}$
-	\item $\bX^{(other)}$: $n \times 4000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. This matrix will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. The maximum LD between any two SNPs in $\bX^{(test)}$ and $\bX^{(other)}$ will be $\rho$.
+	%\item $\rho$: linkage disequilibrium between two SNPs
+	\item $\bX^{(fixed)}$: $n \times p_{fixed}$ matrix of SNPs that will be included as fixed effects in our model.
+	\item $\bX^{(causal)}$: $n \times (c*p_{fixed})$ matrix of SNPs that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
+	\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. 
 	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix.
-	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*1000)$
-	\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
-	\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
+	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*p_{fixed})$
+	%\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
+	%\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
 \end{itemize}
 
-We simulate data from \begin{equation}
-	\bY = \bX \bbeta + \bb + \be
-\end{equation}
-where the random effect $\bb$ and the error variance $\be$ are assigned the distributions
+We simulate data from the model 
 \begin{equation}
-	\bb \sim \mathcal{N}(0, \eta \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta) \bI)
+	\bY = \bX^{(fixed)} \bbeta + \mathbf{P} + \be
 \end{equation}
-and $\eta=0.1$. $n=1k, p = 5k, X_kiship = 10k$. 1\% of the 5k SNPs are causal.
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.5 \rbrace$, sample size $n=1000$, number of fixed effects $p_{fixed} = 5000$, number of SNPs used to calculate the kinship matrix $k = 10k$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios
 
-%We will consider the following simulation scenarios. In each scenario we consider \mbox{$c = \left\lbrace 0.1, 0.5 \right\rbrace$} and \mbox{$\rho = \left\lbrace 0.1, 0.5, 0.9 \right\rbrace$}:
-
-\subsection*{Scenario 1}
-All the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
+\subsection*{All causal SNPs in kinship matrix}
+All the causal SNPs are included in the calculation of the kinship matrix: $\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
 
 
-\subsection*{Scenario 2}
-None of the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} \right]$
+\subsection*{None of the causal SNPs in the kinship matrix}
+None of the causal SNPs are included in the calculation of the kinship matrix: $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1} 
-
-}
-
-\caption[Empirical kinship matrices used in simulation studies]{Empirical kinship matrices used in simulation studies.}\label{fig:plot-kinship-sim}
-\end{figure}
 
 
-\end{knitrout}
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1} 
-
-}
-
-\caption[First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations]{First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.}\label{fig:plot-pc-sim}
-\end{figure}
 
 
-\end{knitrout}
-
+need to add error variance formula for lasso. 
 
 \subsection{Results}
 
 
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-correct-sparsity-sim-1} 
-
-}
-
-\caption[Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix]{Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-correct-sparsity-sim}
-\end{figure}
 
 
-\end{knitrout}
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-me-nactive-sim-1} 
-
-}
-
-\caption[Model error vs number of active variables results]{Model error vs number of active variables results.}\label{fig:plot-me-nactive-sim}
-\end{figure}
 
 
-\end{knitrout}
 
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-mse-nactive-sim-1} 
-
-}
-
-\caption[Mean squared error vs number of active variables results]{Mean squared error vs number of active variables results.}\label{fig:plot-mse-nactive-sim}
-\end{figure}
 
 
-\end{knitrout}
 
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-nactive-sim-1} 
-
-}
-
-\caption[Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix]{Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-nactive-sim}
-\end{figure}
 
 
-\end{knitrout}
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-tpr-fpr-sim-1} 
-
-}
-
-\caption[Means $\pm 1$ standard deviation of true positive rate vs]{Means $\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-tpr-fpr-sim}
-\end{figure}
 
 
-\end{knitrout}
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-eta-sim-1} 
-
-}
-
-\caption[Boxplot of $\hat{\eta}$ in the \texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix]{Boxplot of $\hat{\eta}$ in the \texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-eta-sim}
-\end{figure}
 
 
-\end{knitrout}
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-sigma2-sim-1} 
-
-}
-
-\caption[Boxplot of $\hat{\eta}$ in the \texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix]{Boxplot of $\hat{\eta}$ in the \texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-sigma2-sim}
-\end{figure}
-
-
-\end{knitrout}
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-errorvar-sim-1} 
-
-}
-
-\caption[Means $\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix]{Means $\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.}\label{fig:plot-errorvar-sim}
-\end{figure}
-
-
-\end{knitrout}
 
 
 \section{Discussion}
@@ -1222,12 +1110,6 @@ To showcase the main functions in \ggmix, ~we will use the simulated data which 
 \hlkwd{data}\hlstd{(}\hlstr{"admixed"}\hlstd{)}
 \hlkwd{names}\hlstd{(admixed)}
 \end{alltt}
-\begin{verbatim}
-##  [1] "y"               "x"               "causal"         
-##  [4] "beta"            "kin"             "Xkinship"       
-##  [7] "not_causal"      "causal_positive" "causal_negative"
-## [10] "x_lasso"
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1250,13 +1132,6 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 \hlstd{popkin}\hlopt{::}\hlkwd{plotPopkin}\hlstd{(admixed}\hlopt{$}\hlstd{kin)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-2-1} 
-
-}
-
-
-
 \end{knitrout}
 
 \subsection{Fit the linear mixed model with Lasso Penalty}
@@ -1268,19 +1143,8 @@ We will use the most basic call to the main function of this package, which is c
 \begin{alltt}
 \hlstd{fit} \hlkwb{<-} \hlkwd{ggmix}\hlstd{(}\hlkwc{x} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{y} \hlstd{= admixed}\hlopt{$}\hlstd{y,} \hlkwc{kinship} \hlstd{= admixed}\hlopt{$}\hlstd{kin)}
 \hlkwd{names}\hlstd{(fit)}
-\end{alltt}
-\begin{verbatim}
-##  [1] "result"       "ggmix_object" "n_design"     "p_design"    
-##  [5] "lambda"       "coef"         "b0"           "beta"        
-##  [9] "df"           "eta"          "sigma2"       "nlambda"     
-## [13] "cov_names"    "call"
-\end{verbatim}
-\begin{alltt}
 \hlkwd{class}\hlstd{(fit)}
 \end{alltt}
-\begin{verbatim}
-## [1] "lassofullrank" "ggmix_fit"
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1292,13 +1156,6 @@ We can see the solution path for each variable by calling the \texttt{plot} meth
 \hlkwd{plot}\hlstd{(fit)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-4-1} 
-
-}
-
-
-
 \end{knitrout}
 
 We can also get the coefficients for given value(s) of lambda using the \texttt{coef} method for objects of class \texttt{ggmix\_fit}:  
@@ -1309,15 +1166,6 @@ We can also get the coefficients for given value(s) of lambda using the \texttt{
 \hlcom{# only the first 5 coefficients printed here for brevity}
 \hlkwd{coef}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{))[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ]}
 \end{alltt}
-\begin{verbatim}
-## 5 x 2 Matrix of class "dgeMatrix"
-##                      1            2
-## (Intercept) -0.3824525 -0.030227753
-## X62          0.0000000  0.000000000
-## X185         0.0000000  0.001444670
-## X371         0.0000000  0.009513604
-## X420         0.0000000  0.000000000
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 Here, \texttt{s} specifies the value(s) of $\lambda$ at which the extraction is made. The function uses linear interpolation to make predictions for values of \texttt{s} that do not coincide with the lambda sequence used in the fitting algorithm.  
@@ -1331,14 +1179,6 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 \hlcom{# predict for the first 5 subjects }
 \hlkwd{predict}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{),} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
-\begin{verbatim}
-##               1          2
-## id1 -1.19165061 -1.3123396
-## id2 -0.02913052  0.3885921
-## id3 -2.00084875 -2.6460045
-## id4 -0.37255277 -0.9542455
-## id5 -1.03967831 -2.1377274
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1353,11 +1193,7 @@ We use the Generalized Information Criterion (GIC) to select the optimal value f
 \hlcom{# pass the fitted object from ggmix to the gic function:}
 \hlstd{hdbic} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit)}
 \hlkwd{class}\hlstd{(hdbic)}
-\end{alltt}
-\begin{verbatim}
-## [1] "ggmix_gic"     "lassofullrank" "ggmix_fit"
-\end{verbatim}
-\begin{alltt}
+
 \hlcom{# we can also fit the BIC by specifying the an argument}
 \hlstd{bicfit} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit,} \hlkwc{an} \hlstd{=} \hlkwd{log}\hlstd{(}\hlkwd{length}\hlstd{(admixed}\hlopt{$}\hlstd{y)))}
 \end{alltt}
@@ -1372,13 +1208,6 @@ We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} met
 \hlkwd{plot}\hlstd{(hdbic)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-8-1} 
-
-}
-
-
-
 \end{knitrout}
 
 The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that leads to the minium HDBIC is:
@@ -1388,9 +1217,6 @@ The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that
 \begin{alltt}
 \hlstd{hdbic[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
-\begin{verbatim}
-## [1] 0.05596623
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1401,20 +1227,8 @@ We can also plot the BIC results:
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(bicfit,} \hlkwc{ylab} \hlstd{=} \hlstr{"BIC"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-10-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
 \hlstd{bicfit[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
-\begin{verbatim}
-## [1] 0.05596623
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1428,15 +1242,6 @@ We can use the object outputted by the \texttt{gic} function to extract the coef
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ,} \hlkwc{drop} \hlstd{=} \hlnum{FALSE}\hlstd{]}
 \end{alltt}
-\begin{verbatim}
-## 5 x 1 sparse Matrix of class "dgCMatrix"
-##                      1
-## (Intercept) -0.2668419
-## X62          .        
-## X185         .        
-## X371         .        
-## X420         .
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1447,19 +1252,6 @@ We can also extract just the nonzero coefficients which also provide the estimat
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"nonzero"}\hlstd{)}
 \end{alltt}
-\begin{verbatim}
-##                       1
-## (Intercept) -0.26684191
-## X336        -0.67986393
-## X7638        0.43403365
-## X1536        0.93994982
-## X1943        0.56600730
-## X2849       -0.58157979
-## X56         -0.08244685
-## X4106       -0.35939830
-## eta          0.26746240
-## sigma2       0.98694300
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1470,14 +1262,6 @@ We can also make predictions from the \texttt{hdbic} object, which by default wi
 \begin{alltt}
 \hlkwd{predict}\hlstd{(hdbic,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
-\begin{verbatim}
-##              1
-## id1 -1.3061041
-## id2  0.2991654
-## id3 -2.3453664
-## id4 -0.4486012
-## id5 -1.3895793
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1491,9 +1275,6 @@ The user can compute the random effects using the provided \texttt{ranef} method
 \begin{alltt}
 \hlkwd{ranef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{]}
 \end{alltt}
-\begin{verbatim}
-## [1] -0.02548691 -0.10011680  0.13020240 -0.30650997  0.16045768
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1512,13 +1293,6 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"predicted"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-15-1} 
-
-}
-
-
-
 \end{knitrout}
 
 
@@ -1528,25 +1302,9 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQranef"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-16-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQresid"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-16-2} 
-
-}
-
-
-
 \end{knitrout}
 
 
@@ -1558,13 +1316,6 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"Tukey"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-17-1} 
-
-}
-
-
-
 \end{knitrout}
 
 

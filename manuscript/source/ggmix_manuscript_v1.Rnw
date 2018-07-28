@@ -8,7 +8,7 @@
 \usepackage{float} % for H in figures and tables
 \usepackage{amsmath,amsthm,amssymb,bbm,mathrsfs,mathtools,xfrac} %math stuff
 
-\usepackage[round,sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
+\usepackage[sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
 \usepackage{placeins} % for \FloatBarrier
 \usepackage[pagebackref=true,bookmarks]{hyperref}
 \hypersetup{
@@ -185,8 +185,8 @@ knitr::opts_knit$set(eval.after = 'fig.cap') # for captions to be evaluated afte
 
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
-#finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
-finalversion <- TRUE 
+finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
+#finalversion <- TRUE 
 @
 
 <<packages, eval=finalversion>>=
@@ -671,41 +671,38 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 
 \section{Simulation Study}
 
-To assess the performance of penfam we used genotyped data from the UK Biobank cohort to maintain LD structure. We restricted our simulation study to 1st degree relatives defined by the KING estimate for kinship coefficients. We define the following quantities:
+To assess the performance of \texttt{ggmix}, we simulated random genotypes from the BN-PSD admixture model using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. We used three different kinship structures with 5 subpopulations each:
+\begin{enumerate}
+	\item \textbf{Block}:
+	\item \textbf{1D}: 
+	\item \textbf{Circular}:
+\end{enumerate}
+We simulated a dataset under each of the three structures and plotted the estimated kinship matrices in the form of a heatmap as shown in Figure~\ref{fig:plot-kinship-sim}. In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores for each of the three kinship matrices colored by subpopulation status. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding. For other parameters in our simulation study, we define the following quantities:
 
 \begin{itemize}
 	\item $c$: percentage of causal SNPs
-	\item $\rho$: linkage disequilibrium between two SNPs
-	\item $\bX^{(test)}$: $n \times 1000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. These are the SNPs that will be included as fixed effects in our model.
-	\item $\bX^{(causal)}$: $n \times (c*1000)$ matrix of SNPs out of the SNPs included in the fixed effect model that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(test)}$
-	\item $\bX^{(other)}$: $n \times 4000$ matrix of SNPs that have been randomly sampled across the genome, with sampling weights proportional to the size of each chromosome. This matrix will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. The maximum LD between any two SNPs in $\bX^{(test)}$ and $\bX^{(other)}$ will be $\rho$.
+	%\item $\rho$: linkage disequilibrium between two SNPs
+	\item $\bX^{(fixed)}$: $n \times p_{fixed}$ matrix of SNPs that will be included as fixed effects in our model.
+	\item $\bX^{(causal)}$: $n \times (c*p_{fixed})$ matrix of SNPs that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
+	\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship. 
 	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix.
-	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*1000)$
-	\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
-	\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
+	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a standard normal distribution for $j = 1, \ldots, (c*p_{fixed})$
+	%\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
+	%\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
 \end{itemize}
 
-We simulate data from \begin{equation}
-	\bY = \bX \bbeta + \bb + \be
-\end{equation}
-where the random effect $\bb$ and the error variance $\be$ are assigned the distributions
+We simulate data from the model 
 \begin{equation}
-	\bb \sim \mathcal{N}(0, \eta \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta) \bI)
+	\bY = \bX^{(fixed)} \bbeta + \mathbf{P} + \be
 \end{equation}
-and $\eta=0.1$. $n=1k, p = 5k, X_kiship = 10k$. 1\% of the 5k SNPs are causal.
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.5 \rbrace$, sample size $n=1000$, number of fixed effects $p_{fixed} = 5000$, number of SNPs used to calculate the kinship matrix $k = 10k$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios
 
-%We will consider the following simulation scenarios. In each scenario we consider \mbox{$c = \left\lbrace 0.1, 0.5 \right\rbrace$} and \mbox{$\rho = \left\lbrace 0.1, 0.5, 0.9 \right\rbrace$}:
-
-\subsection*{Scenario 1}
-All the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
+\subsection*{All causal SNPs in kinship matrix}
+All the causal SNPs are included in the calculation of the kinship matrix: $\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$
 
 
-\subsection*{Scenario 2}
-None of the causal SNPs are included in the calculation of the kinship matrix.
-
-$\bX^{(kinship)} = \left[\bX^{(other)} \right]$
+\subsection*{None of the causal SNPs in the kinship matrix}
+None of the causal SNPs are included in the calculation of the kinship matrix: $\bX^{(kinship)} = \left[\bX^{(other)} \right]$
 
 
 <<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrices used in simulation studies.", eval=finalversion>>=
