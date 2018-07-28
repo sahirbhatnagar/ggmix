@@ -9,7 +9,7 @@
 #                                "percentoverlap","s","sigma2_p"),
 #                       sep = "/")
 
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model.rds")
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -119,7 +119,7 @@ layout.show(nf)
 
 ## ---- plot-correct-sparsity-sim ----
 
-p1_cs <- ggplot(DT[percentcausal=="percent_causal_0"], aes(Method, correct_sparsity, fill = Method)) +
+p1_cs <- ggplot(DT[percentcausal=="percent_causal_0.01"], aes(Method, correct_sparsity, fill = Method)) +
     ggplot2::geom_boxplot() +
     facet_rep_grid(p_overlap ~ structure, scales = "fixed",
                    repeat.tick.labels = 'left',
@@ -332,7 +332,7 @@ p1_nactive
 ## ---- plot-eta-sim ----
 
 DT$eta_p
-p1_eta <- ggplot(DT[Method=="ggmix"][percentcausal=="percent_causal_0"][eta_p=="eta_0.1"],
+p1_eta <- ggplot(DT[Method=="twostep"][percentcausal=="percent_causal_0"][eta_p=="eta_0.5"],
                  aes(Method, eta, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ structure, scales = "fixed",
@@ -355,7 +355,7 @@ p1_eta
 
 ## ---- plot-sigma2-sim ----
 
-p1_sigma2 <- ggplot(DT[Method=="ggmix"][percentcausal=="percent_causal_0"][eta_p=="eta_0.5"],
+p1_sigma2 <- ggplot(DT[Method=="twostep"][percentcausal=="percent_causal_0.01"][eta_p=="eta_0.5"],
                     aes(Method, sigma2, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ structure, scales = "fixed",
