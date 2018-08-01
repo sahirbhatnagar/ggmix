@@ -9,7 +9,8 @@
 #                                "percentoverlap","s","sigma2_p"),
 #                       sep = "/")
 
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -21,16 +22,28 @@ DT <- data.table::as.data.table(df, stringsAsFactors = FALSE)
 # DT[, table(percentoverlap, p_overlap)]
 DT[, p_overlap := case_when(percentoverlap == "percent_overlap_0" ~ "No causal SNPs in Kinship",
                             percentoverlap == "percent_overlap_100" ~ "All causal SNPs in Kinship")]
+DT[, p_causal := case_when(percentcausal == "percent_causal_0" ~ "Null model",
+                            percentcausal == "percent_causal_0.01" ~ "1% of SNPs are causal")]
 
+DT[, p_causal := factor(p_causal, levels = c("Null model","1% of SNPs are causal"))]
 DT[geography == "geography_ind", structure := "block"]
 DT[geography == "geography_circ", structure := "circular"]
 DT[geography == "geography_1d", structure := "1D"]
 # DT[, table(geography, structure)]
 DT[, structure := factor(structure, levels = c("block","1D","circular"))]
-DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
 
+# use twostepY, which compares to the original Y
+# DT[, table(Method)]
+DT <- DT[Method != "twostep"]
+DT[Method == "twostepY", Method := "twostep"]
+# DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
+DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
+# DT[, table(percentcausal,p_causal)]
 # DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
 # DT[, table(Method)]
+
+
+
 appender <- function(string) latex2exp::TeX(paste(string))
 
 theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
@@ -85,6 +98,7 @@ plot(dat[[3]]$x_lasso[,5001],dat[[3]]$x_lasso[,5002],
 
 ## ---- plot-kinship-pc-combined-sim ----
 
+# not used in manuscript
 dev.off()
 m <- rbind(c(1, 2,3), c(4,5,6))
 layout(m)
@@ -117,34 +131,54 @@ layout.show(7)
 nf <- layout(matrix(c(1,1,0,2), 2, 2, byrow = TRUE), respect = TRUE)
 layout.show(nf)
 
-## ---- plot-correct-sparsity-sim ----
+## ---- plot-correct-sparsity-sim-null-model ----
 
-p1_cs <- ggplot(DT[percentcausal=="percent_causal_0.01"], aes(Method, correct_sparsity, fill = Method)) +
-    ggplot2::geom_boxplot() +
-    facet_rep_grid(p_overlap ~ structure, scales = "fixed",
-                   repeat.tick.labels = 'left',
-                   labeller = as_labeller(appender,
-                                          default = label_parsed)) +
-    scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
-    labs(x = "", y = "",
-         title = "Correct Sparsity",
-         subtitle = "Based on 200 simulations",
-         caption = "") +
+p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"][eta_p == "eta_0.1"],
+                aes(Method, correct_sparsity, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", y = "",
+       title = "Correct Sparsity Results for the Null Model",
+       subtitle = "Based on 200 simulations",
+       caption = TeX("$\\eta$ = 10%")) +
   theme_box
-
-
 
 p1_cs
 # reposition_legend(p1_mse, 'center', panel='panel-2-3')
 
-## ---- plot-me-nactive-sim ----
-DT[percentcausal=="percent_causal_0.01"]
-df_me_nactive <- DT[percentcausal=="percent_causal_0.01", c("Method", "structure", "p_overlap", "nactive", "me")] %>%
+## ---- plot-correct-sparsity-sim-1p-causal ----
+
+p1_cs <- ggplot(DT[p_causal != "Null model"][eta_p == "eta_0.1"],
+                aes(Method, correct_sparsity, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", y = "",
+       title = "Correct Sparsity results for the Model with 1% Causal SNPs",
+       subtitle = "Based on 200 simulations",
+       caption = TeX("$\\eta$ = 10%")) +
+  theme_box
+
+
+p1_cs
+
+
+## ---- plot-me-nactive-sim-null ----
+
+df_me_nactive <- DT[p_causal == "Null model", c("Method", "structure", "p_overlap", "nactive", "me")] %>%
   group_by(Method, structure, p_overlap) %>%
   summarise(mean.me = mean(me, na.rm = TRUE), sd.me = sd(me, na.rm = TRUE),
          mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
 
-p1_me_nactive <- ggplot(data = df_me_nactive, aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+p1_me_nactive <- ggplot(data = df_me_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
   geom_point(size = 2.1) +
   geom_text_repel(
     data = subset(df_me_nactive, mean.nactive < 100),
@@ -172,7 +206,7 @@ p1_me_nactive <- ggplot(data = df_me_nactive, aes(x = mean.nactive, y = mean.me,
                                         default = label_parsed)) +
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Model Error",
-       title = "Model Error vs. Number of Active Variable (Mean +/- 1 SD)",
+       title = "Model Error vs. Number of Active Variable (Mean +/- 1 SD) for Null Model",
        subtitle = "Based on 200 simulations",
        caption = "") +
   theme_box
@@ -180,53 +214,54 @@ p1_me_nactive <- ggplot(data = df_me_nactive, aes(x = mean.nactive, y = mean.me,
 p1_me_nactive
 
 
-## ---- plot-mse-nactive-sim ----
+## ---- plot-me-nactive-sim-1p-causal ----
 
-df_mse_nactive <- DT[percentcausal=="percent_causal_0", c("Method", "structure", "p_overlap", "nactive", "mse")] %>%
+df_me_nactive <- DT[p_causal != "Null model", c("Method", "structure", "p_overlap", "nactive", "me")] %>%
   group_by(Method, structure, p_overlap) %>%
-  summarise(mean.mse = mean(mse, na.rm = TRUE), sd.mse = sd(mse, na.rm = TRUE),
+  summarise(mean.me = mean(me, na.rm = TRUE), sd.me = sd(me, na.rm = TRUE),
             mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
 
-p1_mse_nactive <- ggplot(data = as.data.table(df_mse_nactive)[Method!="twostepY"],
-                         aes(x = mean.nactive, y = mean.mse, color = Method, label = Method)) +
+p1_me_nactive <- ggplot(data = df_me_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
   geom_point(size = 2.1) +
-  # geom_text_repel(
-  #   data = subset(df_mse_nactive, mean.nactive < 100),
-  #   nudge_x      = 5,
-  #   nudge_y = 9,
-  #   # size = 8,
-  #   direction    = "y",
-  #   hjust        = 0,
-  #   segment.size = 0.2
-  # ) +
-  # geom_text_repel(
-  #   data = subset(df_mse_nactive, mean.nactive >= 100),
-  #   nudge_x      = 5,
-  #   nudge_y = 9,
-  #   # size = 8,
-  #   direction    = "y",
-  #   hjust        = 0,
-  #   segment.size = 0.2
-  # ) +
-  geom_errorbar(aes(ymin = mean.mse - sd.mse, ymax = mean.mse + sd.mse), size = 1.1) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive < 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive >= 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
   geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
   facet_rep_grid(p_overlap ~ structure, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
-  labs(x = "Number of active variables", y = "Mean Squared Error",
-       title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD)",
+  labs(x = "Number of active variables", y = "Model Error",
+       title = "Model Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
        subtitle = "Based on 200 simulations",
        caption = "") +
   theme_box
 
-p1_mse_nactive
+p1_me_nactive
+
 
 
 ## ---- plot-prederror-nactive-sim ----
 
-# not-used
+# not-used in manuscript
 df_prederror_nactive <- DT[, c("Method", "structure", "p_overlap", "nactive", "prederror")] %>%
   group_by(Method, structure, p_overlap) %>%
   summarise(mean.prederror = mean(prederror, na.rm = TRUE), sd.prederror = sd(prederror, na.rm = TRUE),
@@ -270,7 +305,7 @@ p1_prederror_nactive
 
 
 ## ---- plot-tpr-sim ----
-# not used
+# not used in manuscript
 p1_tpr <- ggplot(DT, aes(method, tpr, fill = method)) +
   ggplot2::geom_boxplot() +
   facet_rep_wrap(~scen, scales = "free", ncol = 2,
@@ -290,7 +325,7 @@ reposition_legend(p1_tpr, 'center', panel='panel-2-3')
 
 
 ## ---- plot-fpr-sim ----
-#not used
+# not used in manuscript
 # DT[, table(time)]
 DT[fpr==1, fpr:=NA] # this is skewing the plots, so we remove them and set to NA
 p1_fpr <- ggplot(DT, aes(method, fpr, fill = method)) +
@@ -311,9 +346,9 @@ p1_fpr <- ggplot(DT, aes(method, fpr, fill = method)) +
 
 reposition_legend(p1_fpr, 'center', panel='panel-2-3')
 
-## ---- plot-nactive-sim ----
+## ---- plot-nactive-sim-null-model ----
 
-p1_nactive <- ggplot(DT, aes(Method, nactive, fill = Method)) +
+p1_nactive <- ggplot(DT[p_causal == "Null model"], aes(Method, nactive, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ structure, scales = "fixed",
                  repeat.tick.labels = 'left',
@@ -321,17 +356,33 @@ p1_nactive <- ggplot(DT, aes(Method, nactive, fill = Method)) +
                                         default = label_parsed)) +
   scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
   labs(x = "", y = "",
-       title = "Number of Active Variables",
+       title = "Number of Active Variables for Null Model",
        subtitle = "Based on 200 simulations",
-       caption = "") +
+       caption = "a variable is active if its estimated coefficient is non-zero") +
   theme_box
 
 p1_nactive
 
 
+## ---- plot-nactive-sim-1p-causal ----
+
+p1_nactive <- ggplot(DT[p_causal != "Null model"], aes(Method, nactive, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = "",
+       title = "Number of Active Variables for Model with 1% Causal SNPs",
+       subtitle = "Based on 200 simulations",
+       caption = "a variable is active if its estimated coefficient is non-zero") +
+  theme_box
+
+p1_nactive
+
 ## ---- plot-eta-sim ----
 
-DT$eta_p
 p1_eta <- ggplot(DT[Method=="twostep"][percentcausal=="percent_causal_0"][eta_p=="eta_0.5"],
                  aes(Method, eta, fill = Method)) +
   ggplot2::geom_boxplot() +
