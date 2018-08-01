@@ -185,8 +185,8 @@ knitr::opts_knit$set(eval.after = 'fig.cap') # for captions to be evaluated afte
 
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
-finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
-#finalversion <- TRUE 
+#finalversion <- FALSE # set to FALSE if still in development and you dont want to run the R code
+finalversion <- TRUE 
 @
 
 <<packages, eval=finalversion>>=
