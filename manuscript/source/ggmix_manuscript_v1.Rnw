@@ -718,31 +718,62 @@ need to add error variance formula for lasso.
 <<simulation-results, eval=finalversion, results = 'hide'>>=
 @
 
-<<plot-correct-sparsity-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+<<plot-correct-sparsity-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by heritability and number of causal SNPs that were included in the calculation of the kinship matrix for the null model.", eval=finalversion>>=
 @
 
-<<plot-me-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results.", eval=finalversion>>=
-@
-
-
-<<plot-mse-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results.", eval=finalversion>>=
+<<plot-correct-sparsity-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the correct sparsity from 200 simulations by heritability and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs", eval=finalversion>>=
 @
 
 
-<<plot-nactive-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+<<plot-me-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
-<<plot-tpr-fpr-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+<<plot-me-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Model error vs number of active variables results for the model with 1\\% causal SNPs.", eval=finalversion>>=
 @
 
-<<plot-eta-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+
+<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
-<<plot-sigma2-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+<<plot-mse-nactive-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
-<<plot-errorvar-sim, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+
+<<plot-mse-nactive-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
+
+
+<<plot-nactive-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the number of active variables from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+<<plot-eta-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+<<plot-eta-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplot of $\\hat{\\eta}$ in the \\texttt{ggmix} model from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+<<plot-errorvar-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-errorvar-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of error variance from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+
+<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+<<plot-tpr-fpr-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+
 
 
 \section{Discussion}
