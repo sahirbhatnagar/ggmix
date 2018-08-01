@@ -9,8 +9,8 @@
 #                                "percentoverlap","s","sigma2_p"),
 #                       sep = "/")
 
-# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
-df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+# df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -31,7 +31,9 @@ DT[geography == "geography_circ", structure := "circular"]
 DT[geography == "geography_1d", structure := "1D"]
 # DT[, table(geography, structure)]
 DT[, structure := factor(structure, levels = c("block","1D","circular"))]
-
+DT[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
+                        eta_p == "eta_0.5" ~ "50% Heritability")]
+# DT[, table(eta_p)]
 # use twostepY, which compares to the original Y
 # DT[, table(Method)]
 DT <- DT[Method != "twostep"]
@@ -42,8 +44,8 @@ DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
 # DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
 # DT[, table(Method)]
 
-
-
+DT[Method == "twostep", errorvar := sigma2]
+# DT[Method == "twostep"]
 appender <- function(string) latex2exp::TeX(paste(string))
 
 theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
@@ -72,8 +74,11 @@ dat <- lapply(list("ind","1d","circ"),
 # dev.off()
 
 par(omi = c(0.3,0.3,0.3,0.3))
-popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
-                   titles = c("block", "1D", "circular"),
+# popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
+#                    titles = c("block", "1D", "circular"),
+#                    marPad = 0.05)
+popkin::plotPopkin(x = list(dat[[1]]$kin),
+                   titles = c("Empirical Kinship Matrix with Block Structure"),
                    marPad = 0.05)
 
 
@@ -82,19 +87,19 @@ popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
 xlabs <- "1st principal component"
 ylabs <- "2nd principal component"
 
-par(mfrow = c(1,3))
+# par(mfrow = c(1,3))
 plot(dat[[1]]$x_lasso[,5001],dat[[1]]$x_lasso[,5002],
      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
      xlab = xlabs, ylab = ylabs,
      main = "Block Structure")
-plot(dat[[2]]$x_lasso[,5001],dat[[2]]$x_lasso[,5002],
-     pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
-     xlab = xlabs, ylab = ylabs,
-     main = "1D Geography")
-plot(dat[[3]]$x_lasso[,5001],dat[[3]]$x_lasso[,5002],
-     pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
-     xlab = xlabs, ylab = ylabs,
-     main = "Circular Geography")
+# plot(dat[[2]]$x_lasso[,5001],dat[[2]]$x_lasso[,5002],
+#      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
+#      xlab = xlabs, ylab = ylabs,
+#      main = "1D Geography")
+# plot(dat[[3]]$x_lasso[,5001],dat[[3]]$x_lasso[,5002],
+#      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
+#      xlab = xlabs, ylab = ylabs,
+#      main = "Circular Geography")
 
 ## ---- plot-kinship-pc-combined-sim ----
 
@@ -133,10 +138,10 @@ layout.show(nf)
 
 ## ---- plot-correct-sparsity-sim-null-model ----
 
-p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"][eta_p == "eta_0.1"],
+p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"][structure == "block"],
                 aes(Method, correct_sparsity, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -152,10 +157,10 @@ p1_cs
 
 ## ---- plot-correct-sparsity-sim-1p-causal ----
 
-p1_cs <- ggplot(DT[p_causal != "Null model"][eta_p == "eta_0.1"],
+p1_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"],
                 aes(Method, correct_sparsity, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -172,9 +177,9 @@ p1_cs
 
 ## ---- plot-me-nactive-sim-null ----
 
-df_me_nactive <- DT[p_causal == "Null model", c("Method", "structure", "p_overlap", "nactive", "me")] %>%
-  group_by(Method, structure, p_overlap) %>%
-  summarise(mean.me = mean(me, na.rm = TRUE), sd.me = sd(me, na.rm = TRUE),
+df_me_nactive <- DT[p_overlap == "No causal SNPs in Kinship"][structure == "block"][p_causal == "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(mse, na.rm = TRUE), sd.me = sd(mse, na.rm = TRUE),
          mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
 
 p1_me_nactive <- ggplot(data = df_me_nactive,
@@ -200,7 +205,7 @@ p1_me_nactive <- ggplot(data = df_me_nactive,
   ) +
   geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
   geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
-  facet_rep_grid(p_overlap ~ structure, scales = "free",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -216,8 +221,8 @@ p1_me_nactive
 
 ## ---- plot-me-nactive-sim-1p-causal ----
 
-df_me_nactive <- DT[p_causal != "Null model", c("Method", "structure", "p_overlap", "nactive", "me")] %>%
-  group_by(Method, structure, p_overlap) %>%
+df_me_nactive <- DT[structure == "block"][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "me")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
   summarise(mean.me = mean(me, na.rm = TRUE), sd.me = sd(me, na.rm = TRUE),
             mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
 
@@ -244,7 +249,7 @@ p1_me_nactive <- ggplot(data = df_me_nactive,
   ) +
   geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
   geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
-  facet_rep_grid(p_overlap ~ structure, scales = "free",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -256,6 +261,140 @@ p1_me_nactive <- ggplot(data = df_me_nactive,
   theme_box
 
 p1_me_nactive
+
+## ---- plot-mse-nactive-sim-null ----
+
+df_mse_nactive <- DT[p_overlap == "No causal SNPs in Kinship"][structure == "block"][p_causal == "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(mse, na.rm = TRUE), sd.me = sd(mse, na.rm = TRUE),
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+
+p1_mse_nactive <- ggplot(data = df_mse_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  geom_text_repel(
+    data = subset(df_mse_nactive, mean.nactive < 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_mse_nactive, mean.nactive >= 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
+  labs(x = "Number of active variables", y = "Mean Squared Error",
+       title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Null Model",
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_box
+
+p1_mse_nactive
+
+
+## ---- plot-mse-nactive-sim-1p-causal ----
+
+df_me_nactive <- DT[structure == "block"][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(mse, na.rm = TRUE), sd.me = sd(mse, na.rm = TRUE),
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+
+p1_me_nactive <- ggplot(data = df_me_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive < 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive >= 100),
+    nudge_x      = 5,
+    nudge_y = 9,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
+  labs(x = "Number of active variables", y = "Mean Squared Error",
+       title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_box
+
+p1_me_nactive
+
+
+## ---- plot-mse-nactive-sim-1p-causal-zoom-in ----
+
+df_me_nactive <- DT[structure == "block"][Method %in% c("lasso","ggmix")][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(mse, na.rm = TRUE), sd.me = sd(mse, na.rm = TRUE),
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+
+p1_me_nactive <- ggplot(data = df_me_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive < 100),
+    nudge_x      = 2,
+    nudge_y = 2,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive >= 100),
+    nudge_x      = 2,
+    nudge_y = 2,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive), size = 1.1) +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(3,4,2)], guide = guide_legend(ncol=3)) +
+  labs(x = "Number of active variables", y = "Mean Squared Error",
+       title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_box
+
+p1_me_nactive
+
+
+
 
 
 
@@ -348,9 +487,9 @@ reposition_legend(p1_fpr, 'center', panel='panel-2-3')
 
 ## ---- plot-nactive-sim-null-model ----
 
-p1_nactive <- ggplot(DT[p_causal == "Null model"], aes(Method, nactive, fill = Method)) +
+p1_nactive <- ggplot(DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"], aes(Method, nactive, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -366,9 +505,9 @@ p1_nactive
 
 ## ---- plot-nactive-sim-1p-causal ----
 
-p1_nactive <- ggplot(DT[p_causal != "Null model"], aes(Method, nactive, fill = Method)) +
+p1_nactive <- ggplot(DT[structure == "block"][p_causal != "Null model"], aes(Method, nactive, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
@@ -381,56 +520,116 @@ p1_nactive <- ggplot(DT[p_causal != "Null model"], aes(Method, nactive, fill = M
 
 p1_nactive
 
-## ---- plot-eta-sim ----
+## ---- plot-eta-sim-null-model ----
 
-p1_eta <- ggplot(DT[Method=="twostep"][percentcausal=="percent_causal_0"][eta_p=="eta_0.5"],
+dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+p1_eta <- ggplot(DT[structure == "block"][p_causal == "Null model"][Method %in% c("twostep","ggmix")][p_overlap == "No causal SNPs in Kinship"],
                  aes(Method, eta, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
-  scale_fill_manual(values = cbbPalette[c(4)]) +
+  scale_fill_manual(values = cbbPalette[c(7,4)]) +
   labs(x = "", y = TeX("$\\hat{\\eta}$"),
-       title = TeX("Estimated $\\eta$ Parameter in the ggmix Model"),
+       title = TeX("Estimated Heritability for the Null Model"),
        subtitle = "Based on 200 simulations",
-       caption = "") +
+       caption = "horizontal dashed line is the true value") +
   theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
   theme(legend.position = "none",title = element_text(size = 20),
         axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
         axis.text.y = element_text(size = 16),
         legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+        strip.text = element_text(size = 18)) +
+  geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
 
 p1_eta
 
-## ---- plot-sigma2-sim ----
+## ---- plot-eta-sim-1p-causal ----
 
-p1_sigma2 <- ggplot(DT[Method=="twostep"][percentcausal=="percent_causal_0.01"][eta_p=="eta_0.5"],
-                    aes(Method, sigma2, fill = Method)) +
+dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+
+p1_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% c("twostep","ggmix")],
+                 aes(Method, eta, fill = Method)) +
   ggplot2::geom_boxplot() +
-  facet_rep_grid(p_overlap ~ structure, scales = "fixed",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
-  scale_fill_manual(values = cbbPalette[c(4)]) +
-  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
-       title = TeX("Estimated $\\sigma^2$ Parameter in the ggmix Model"),
+  scale_fill_manual(values = cbbPalette[c(7,4)]) +
+  labs(x = "", y = TeX("$\\hat{\\eta}$"),
+       title = TeX("Estimated Heritability for the Model with 1% Causal SNPs"),
        subtitle = "Based on 200 simulations",
-       caption = "") +
+       caption = "horizontal dashed line is the true value") +
   theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
   theme(legend.position = "none",title = element_text(size = 20),
         axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
         axis.text.y = element_text(size = 16),
         legend.text = element_text(size = 16), legend.title = element_text(size = 16),
-        strip.text = element_text(size = 18))
+        strip.text = element_text(size = 18)) +
+geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
 
-p1_sigma2
+p1_eta
 
-## ---- plot-tpr-fpr-sim ----
 
-df_tpr_fpr <- DT[, c("Method", "structure", "p_overlap", "tpr", "fpr")] %>%
-  group_by(Method, structure, p_overlap) %>%
+
+## ---- plot-errorvar-sim-null-model ----
+
+dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+
+p1_errorvar <- ggplot(DT[Method %in% c("twostep","ggmix")][structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
+                    aes(Method, errorvar, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,4)]) +
+  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
+       title = TeX("Estimated Error Variance for the Null Model"),
+       subtitle = "Based on 200 simulations",
+       caption = "horizontal dashed line is the true value") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) +
+  geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+p1_errorvar
+
+
+## ---- plot-errorvar-sim-1p-causal ----
+
+dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+p1_errorvar <- ggplot(DT[Method %in% c("twostep","ggmix")][structure == "block"][p_causal != "Null model"],
+                    aes(Method, errorvar, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,4)]) +
+  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
+       title = TeX("Estimated Error Variance for the Model with 1% Causal SNPs"),
+       subtitle = "Based on 200 simulations",
+       caption = "horizontal dashed line is the true value") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) +
+  geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+p1_errorvar
+
+
+## ---- plot-tpr-fpr-sim-null-model ----
+
+df_tpr_fpr <- DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"][, c("Method", "eta_p", "p_overlap", "tpr", "fpr")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
   summarise(mean.tpr = mean(tpr, na.rm = TRUE), sd.tpr = sd(tpr, na.rm = TRUE),
             mean.fpr = mean(fpr, na.rm = TRUE), sd.fpr = sd(fpr, na.rm = TRUE))
 
@@ -454,46 +653,61 @@ p1_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
   ) +
   geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr), size = 1.1) +
   geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr), size = 1.1) +
-  facet_rep_grid(p_overlap ~ structure, scales = "free",
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
   scale_color_manual(values = cbbPalette[c(7,3,4)], guide=guide_legend(ncol=3)) +
   labs(x="False positive rate", y="True positive rate",
-       title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD)",
+       title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Null Model",
        subtitle="Based on 200 simulations",
        caption="") +
 theme_box
 
 p1_tpr_fpr
 
-# reposition_legend(p1_tpr_fpr, 'center', panel='panel-2-3')
 
-## ---- plot-errorvar-sim ----
 
-df_errorvar <- DT[, c("Method", "structure", "p_overlap", "errorvar")] %>%
-  group_by(p_overlap, structure, Method) %>%
-  summarise(mean = mean(errorvar, na.rm = TRUE),
-            sd = sd(errorvar, na.rm = TRUE)) #%>%
-  # mutate(value = sprintf("%0.2f (%0.2f)", mean,sd))
+## ---- plot-tpr-fpr-sim-1p-causal ----
 
-p1_errorvar <- ggplot(data = df_errorvar, aes(Method, mean, color = Method, label = Method)) +
+df_tpr_fpr <- DT[structure == "block"][p_causal != "Null model"][, c("Method", "eta_p", "p_overlap", "tpr", "fpr")] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.tpr = mean(tpr, na.rm = TRUE), sd.tpr = sd(tpr, na.rm = TRUE),
+            mean.fpr = mean(fpr, na.rm = TRUE), sd.fpr = sd(fpr, na.rm = TRUE))
+
+p1_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = Method, label = Method)) +
   geom_point(size = 2.1) +
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), size = 1.1, width = 0.51) +
-  geom_hline(yintercept = (1-0.1)*1, linetype = 2, col = "#2f4f4f") +
-  # geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr), size = 1.1) +
-  facet_rep_grid(p_overlap ~ structure, scales = "free",
+  # geom_text_repel() +
+  geom_text_repel(
+    data = subset(df_tpr_fpr, mean.fpr < 0.02),
+    nudge_x      = 0.002,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_tpr_fpr, mean.fpr > 0.02),
+    nudge_x      = 0.005,
+    nudge_y = 0.015,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr), size = 1.1) +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
   scale_color_manual(values = cbbPalette[c(7,3,4)], guide=guide_legend(ncol=3)) +
-  labs(x="", y="Error Variance",
-       title="Error Variance (Mean +/- 1 SD)",
-       subtitle="Based on 200 simulations. Dotted line represents the true error variance of 0.90.",
+  labs(x="False positive rate", y="True positive rate",
+       title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Null Model",
+       subtitle="Based on 200 simulations",
        caption="") +
   theme_box
 
-p1_errorvar
+p1_tpr_fpr
+
 
 
 ## ---- plot-mse-sim ----
