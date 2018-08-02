@@ -149,7 +149,7 @@ p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kin
   labs(x = "", y = "",
        title = "Correct Sparsity Results for the Null Model",
        subtitle = "Based on 200 simulations",
-       caption = TeX("$\\eta$ = 10%")) +
+       caption = "") +
   theme_box
 
 p1_cs
