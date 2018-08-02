@@ -701,7 +701,7 @@ p1_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
                                         default = label_parsed)) +
   scale_color_manual(values = cbbPalette[c(7,3,4)], guide=guide_legend(ncol=3)) +
   labs(x="False positive rate", y="True positive rate",
-       title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Null Model",
+       title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Model with 1% Causal SNPs",
        subtitle="Based on 200 simulations",
        caption="") +
   theme_box

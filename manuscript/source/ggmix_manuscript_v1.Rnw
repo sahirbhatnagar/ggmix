@@ -735,11 +735,11 @@ need to add error variance formula for lasso.
 <<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
-<<plot-mse-nactive-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
+<<plot-mse-nactive-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the model with 1\\% causal SNPs.", eval=finalversion>>=
 @
 
 
-<<plot-mse-nactive-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
+<<plot-mse-nactive-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for 1\\% causal SNPs for ggmix and lasso.", eval=finalversion>>=
 @
 
 
