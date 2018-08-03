@@ -5,8 +5,8 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 # pacman::p_load_gh("sahirbhatnagar/sail", dependencies = FALSE)
-devtools::load_all("/home/sahir/git_repositories/ggmix/")
-# devtools::load_all("C:/Users/sahir/Documents/git_repositories/ggmix")
+# devtools::load_all("/home/sahir/git_repositories/ggmix/")
+devtools::load_all("C:/Users/sahir/Documents/git_repositories/ggmix")
 pacman::p_load(ggplot2)
 # pacman::p_load(doMC)
 # doMC::registerDoMC(cores = 8)

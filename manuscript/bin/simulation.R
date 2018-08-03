@@ -9,8 +9,8 @@
 #                                "percentoverlap","s","sigma2_p"),
 #                       sep = "/")
 
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
-# df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -45,6 +45,10 @@ DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
 # DT[, table(Method)]
 
 DT[Method == "twostep", errorvar := sigma2]
+DT[Method == "twostep", tau := eta]
+DT[Method == "twostep", eta := tau/(tau + sigma2)]
+
+DT[, me2 := (1/1000) * me^2]
 # DT[Method == "twostep"]
 appender <- function(string) latex2exp::TeX(paste(string))
 
@@ -577,15 +581,15 @@ p1_eta
 
 dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
 
-p1_errorvar <- ggplot(DT[Method %in% c("twostep","ggmix")][structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
+p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
                     aes(Method, errorvar, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
-  scale_fill_manual(values = cbbPalette[c(7,4)]) +
-  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = "Error Variance",
        title = TeX("Estimated Error Variance for the Null Model"),
        subtitle = "Based on 200 simulations",
        caption = "horizontal dashed line is the true value") +
@@ -603,15 +607,15 @@ p1_errorvar
 ## ---- plot-errorvar-sim-1p-causal ----
 
 dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
-p1_errorvar <- ggplot(DT[Method %in% c("twostep","ggmix")][structure == "block"][p_causal != "Null model"],
+p1_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"],
                     aes(Method, errorvar, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  repeat.tick.labels = 'left',
                  labeller = as_labeller(appender,
                                         default = label_parsed)) +
-  scale_fill_manual(values = cbbPalette[c(7,4)]) +
-  labs(x = "", y = TeX("$\\hat{\\sigma}^2$"),
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = "Error Variance",
        title = TeX("Estimated Error Variance for the Model with 1% Causal SNPs"),
        subtitle = "Based on 200 simulations",
        caption = "horizontal dashed line is the true value") +
