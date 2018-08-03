@@ -769,7 +769,7 @@ These scenarios are meant to contrast the model behavior when the causal SNPs ar
 
 We compare \ggmix ~to the lasso and the twostep method. For the lasso, we include the first 10 principal components of the estimated kinship as unpenalized predictors in the design matrix. For the twostep method, we first fit an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\citep{gilmour1995average} as implemented in the \texttt{gaston} R package~\citep{gaston}. The residuals from this model are then used as the response in a regular lasso model. Note that in the twostep method, we have removed the kinship effect in the first step and therefore do not need to make any further adjustments when fitting the penalized model. We fit the lasso using the default settings in the \texttt{glmnet} package~\citep{friedman2010regularization} and select the optimal value of the regularization parameter using 10-fold cross-validation.  
 
-Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter selected via cross-validation or $GIC$, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, $S_0 = \left\lbrace j; \beta_j \neq 0 \right\rbrace$ the index of the true active set, $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients, and $|A|$ the cardinality of set $A$. 	
+Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter selected via cross-validation or $GIC$, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set, $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients, and $|A|$ the cardinality of set $A$. 	
 
 We evaluate the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where 
 $$A_j = \begin{cases}
@@ -777,7 +777,7 @@ $$A_j = \begin{cases}
 1 & \tm{if } \hat{\beta_j}\neq 0, \beta_j \neq 0\\
 0 & \tm{if } \tm{else}.
 \end{cases}$$
-We also compare the model error ($\norm{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{\hat{\lambda}}}_2$), true positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \in  S_0|}{|S_0|}$), false positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \notin S_0|}{|j \notin S_0|}$), and the variance components for the random effect and error term. The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
+We also compare the model error $(\norm*{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{\hat{\lambda}}}_2)$, true positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \in  S_0|}{|S_0|}$), false positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \notin S_0|}{|j \notin S_0|}$), and the variance components for the random effect and error term. The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
 \begin{equation}
 \frac{1}{n - \widehat{S}_{\hat{\lambda}}} \norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2
 \end{equation}  
