@@ -236,7 +236,9 @@
 
 
 \begin{abstract}
-	Complex traits are thought to be influenced by a combination of environmental factors and rare and common genetic variants. However, detection of such multivariate associations can be compromised by low statistical power and confounding by population structure. Linear mixed effect models (LMM) can account for correlations due to relatedness but are not applicable in high-dimensional (HD) settings where the number of predictors greatly exceeds the number of samples. False negatives can result from two-stage approaches, where the residuals estimated from a null model adjusted for the subjects' relationship structure are subsequently used as the response in a standard penalized regression model. To overcome these challenges, we develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence. Through simulations, we show that are method has better power over the two-stage approach, particularly for polygenic traits. We apply our method to identify SNPs that predict bone mineral density in the UK Biobank cohort. This approach can also be used to generate genetic risk scores and finding groups of predictors associated with the response, such as variants within a gene or pathway. Our algorithms are available in an R package (https://github.com/sahirbhatnagar/ggmix).
+	Complex traits are known to be influenced by a combination of environmental factors and rare and common genetic variants. However, detection of such multivariate associations can be compromised by low statistical power and confounding by population structure. Linear mixed effect models (LMM) can account for correlations due to relatedness but have not been applicable in high-dimensional (HD) settings where the number of fixed effect predictors greatly exceeds the number of samples. False positives can result from two-stage approaches, where the residuals estimated from a null model adjusted for the subjects' relationship structure are subsequently used as the response in a standard penalized regression model. To overcome these challenges, we develop a general penalized LMM framework called \ggmix ~that simultaneously, in one step, selects variables and estimates their effects, while accounting for between individual correlations. Our method can accommodate several sparsity-inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a blockwise coordinate descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of convergence. Through simulations, we show that \ggmix ~leads to correct Type 1 error control and improved variance component estimation compared to the two-stage approach or principal component adjustment. \ggmix ~is also robust to different kinship structures and heritability proportions. %We apply our method to identify SNPs that predict bone mineral density in the UK Biobank cohort. 
+	%This approach can also be used to generate genetic risk scores and finding groups of predictors associated with the response, such as variants within a gene or pathway. 
+	Our algorithms are available in an R package (\url{https://github.com/greenwoodlab}).
 \end{abstract}
 
 
@@ -244,48 +246,52 @@
 \section{Introduction}
 
 Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
-Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}.
+Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance; this is known as the missing heritability problem~\citep{manolio2009finding}.
 One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}.
-Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
+Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, may miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
 Another major issue to overcome is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}.
 For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry.
-This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}.
+This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}. 
+Studies that separate their sample by ethnicity to address this confounding suffer from a loss in statistical power. 
+%Furthermore, statistical power decreases if the error includes these extra sources of variation.  
 
 
 To address the first problem, multivariable regression methods have been proposed which simultaneously fit many SNPs in a single model~\citep{hoggart2008simultaneous,li2010bayesian}. Indeed, the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\citep{hoggart2008simultaneous}. 
 
-Confounding by population structure has also received significant attention in the literature~\citep{lippert2011fast,kang2010variance,yu2006unified,eu2014comparison}. 
+Solutions for confounding by population structure have also received significant attention in the literature~\citep{lippert2011fast,kang2010variance,yu2006unified,eu2014comparison}. 
 There are two main approaches to account for the relatedness between subjects: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
 The PC adjustment method includes the top PCs of genome-wide SNP genotypes as additional covariates in the model~\citep{price2006principal}. 
 The LMM uses an estimated covariance matrix from the individuals' genotypes and includes this information in the form of a random effect~\cite{astle2009population}. 
 
-While these problems have been addressed in isolation, there has been relatively little progress towards addressing them jointly. 
+While these problems have been addressed in isolation, there has been relatively little progress towards addressing them jointly at a large scale. 
 Region-based tests of association have been developed where a linear combination of $p$ variants is regressed on the response variable in a mixed model framework~\citep{oualkacha2013adjusted}. 
 In case-control data, a stepwise logistic-regression procedure was used to evaluate the relative importance of variants within a small genetic region~\citep{cordell2002unified}. 
 These methods however are not applicable in the high-dimensional setting, i.e., when the number of variables $p$ is much larger than the sample size $n$, as is often the case in genetic studies where millions of variants are measured on thousands of individuals.
  
-In light of this, there has been recent interest in penalized linear mixed models which  place a constraint on the magnitude of the effect sizes while controlling for confounding influences such as population structure. 
+There has been recent interest in using penalized linear mixed models, which place a constraint on the magnitude of the effect sizes while controlling for confounding factors such as population structure. 
 For example, the LMM-lasso~\citep{rakitsch2013lasso} places a Laplace prior on all main effects while the adaptive mixed lasso~\citep{wang2011identifying} uses the $L_1$ penalty~\citep{tibshirani1996regression} with adaptively chosen weights~\citep{zou2006adaptive} to allow for differential shrinkage amongst the variables in the model. 
 Another method applied a combination of both the lasso and group lasso penalties in order to select variants within a gene most associated with the response~\citep{ding20142}. 
-One potential issue with these methods is that they are performed in two steps. First, the variance components are estimated once from a LMM with a single random effect that uses the estimated covariance matrix from the individuals' genotypes to account for the relatedness but assumes no SNP effects. 
-In the second step, these are treated as known quantities by regressing the SNPs on the residuals from the first step, effectively treating the observations as independent.
+However, these methods are normally performed in two steps. First, the variance components are estimated once from a LMM with a single random effect. These LMMs normally use the estimated covariance matrix from the individuals' genotypes to account for the relatedness but assumes no SNP main effects (i.e. a null model). 
+The residuals from this null model with a single random effect can be treated as independent observations because the relatedness has been effectively removed from the original response. 
+In the second step, these residuals are used as the response in any high-dimensional model that assumes uncorrelated errors.  
 This approach has both computational and practical advantages since existing penalized regression software such as \texttt{glmnet}~\citep{friedman2010regularization} and \texttt{gglasso}~\citep{yang2015fast}, which assume independent observations, can be applied directly to the residuals. 
 However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\citep{oualkacha2013adjusted,yang2014advantages}. 
-Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. These methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
-There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
 
-In this paper we develop a general penalized LMM framework called \texttt{ggmix} that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso~\citep{tibshirani1996regression}, elastic net~\citep{zou2005regularization} and group lasso~\citep{yuan2006model}. \texttt{ggmix} also readily handles prior annotation information in the form of a penalty factor, which can be useful for example when dealing with rare variants. 
+In this paper we develop a general penalized LMM framework called \texttt{ggmix} that simultaneously selects variables and estimates their effects, accounting for between-individual correlations. 
+Our method can accommodate several sparsity inducing penalties such as the lasso~\citep{tibshirani1996regression}, elastic net~\citep{zou2005regularization} and group lasso~\citep{yuan2006model}. 
+\texttt{ggmix} also readily handles prior annotation information in the form of a penalty factor, which can be useful, for example, when dealing with rare variants. 
 We develop a blockwise coordinate descent algorithm which is highly scalable and has theoretical guarantees of convergence to a stationary point.
-When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. 
-While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this hasn't been explored in the multivariable case. 
-The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
-In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
+%When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. 
+%While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. 
+%The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
+%In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
 All of our algorithms are implemented in the \texttt{ggmix} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/ggmix/}). We provide a brief demonstration of the \texttt{ggmix} package in Appendix~\ref{ap:showcase}.
 
 The rest of the paper is organized as follows. Section 2 describes the \texttt{ggmix} model. 
 Section 3 contains the optimization procedure and the algorithm used to fit the \ggmix~model. 
 In Section 4, we compare the performance of our proposed approach and demonstrate the scenarios where it can be advantageous to use over existing methods through simulation studies. 
-Section 5 contains some real data examples and Section 6 discusses some limitations and future directions.
+Section 5 discusses some limitations and future directions.
+%Section 5 contains some real data examples and Section 6 discusses some limitations and future directions.
 
 
 %~\citep{wang2011identifying,rakitsch2013lasso}. In both of these approaches, the lasso penalty~\citep{tibshirani1996regression} is used resulting in simultaneous estimation and selection of SNP effects.  
@@ -361,7 +367,7 @@ Section 5 contains some real data examples and Section 6 discusses some limitati
 
 \subsection{Model Set-up}
 
-Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses or phenotypes, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors \mbox{$\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following linear mixed model with a single random effect~\citep{pirinen2013efficient}:
+Let $i = 1, \ldots, N$ be a grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses or phenotypes, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors $\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following linear mixed model with a single random effect~\citep{pirinen2013efficient}:
 \begin{equation}
 	\bY = \bX \bbeta + \bb + \be
 \end{equation}
@@ -369,12 +375,12 @@ where the random effect $\bb$ and the error variance $\be$ are assigned the dist
 \begin{equation}
 	\bb \sim \mathcal{N}(0, \eta \sigma^2 \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta)\sigma^2 \bI)
 \end{equation}
-Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric covariance or kinship matrix, $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. Furthermore, $\eta$ is also the narrow-sense heritability ($h^2$), defined as the proportion of phenotypic variance attributable to the additive genetic factors~\citep{manolio2009finding}. The joint density of $\bY$ is multivariate normal:
+Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric covariance or kinship matrix, $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. Note that $\eta$ is also the narrow-sense heritability ($h^2$), defined as the proportion of phenotypic variance attributable to the additive genetic factors~\citep{manolio2009finding}. The joint density of $\bY$ is therefore multivariate normal:
 \begin{equation}
 	\bY | (\bbeta, \eta, \sigma^2) \sim \mathcal{N}(\bX \bbeta, \eta \sigma^2 \bPhi + (1-\eta)\sigma^2 \bI) \label{eq:prinen}
 \end{equation}
 
-The LMM-Lasso method~\citep{rakitsch2013lasso} considers an alternative parameterization given by:
+The LMM-Lasso method~\citep{rakitsch2013lasso} considers an alternative but equivalent parameterization given by:
 \begin{equation}
 	\bY | (\bbeta, \delta, \sigma_g^2) \sim \mathcal{N}(\bX \bbeta, \sigma_g^2(\bPhi + \delta\bI)) \label{eq:lippert}
 \end{equation}
@@ -452,7 +458,7 @@ where $\bYtilde = \bU^T \bY$, $\bXtilde = \bU^T \bX$, $\Ytilde_i$ denotes the $i
 
 
 \subsection{Penalized Maximum Likelihood Estimator}
-We define the $p+3$  length vector of parameters $\bTheta \coloneqq \left(\Theta_0, \Theta_1, \ldots, \Theta_{p+1}, \Theta_{p+2}, \Theta_{p+3}\right) =  \left(\bbeta, \eta, \sigma^2 \right)$ where $\bbeta \in \mathbb{R}^{p+1}, \eta \in [0,1], \sigma^2 >0$. In what follows, $p+2$ and $p+3$ are the indices in $\bTheta$ for $\eta$ and $\sigma^2$, respectively. In light of our goals to select variables associated with the response in high-dimensional data, we consider placing a constraint on the magnitude of the regression coefficients. This can be achieved by adding a penalty term to the likelihood function~\eqref{eq:LikeFinal}. The penalty term is a necessary constraint because in our applications, the sample size is much smaller than the number of predictors. We define the following objective function:
+We define the $p+3$  length vector of parameters $\bTheta \coloneqq \left(\Theta_0, \Theta_1, \ldots, \Theta_{p+1}, \Theta_{p+2}, \Theta_{p+3}\right) =  \left(\bbeta, \eta, \sigma^2 \right)$ where $\bbeta \in \mathbb{R}^{p+1}, \eta \in [0,1], \sigma^2 >0$. In what follows, $p+2$ and $p+3$ are the indices in $\bTheta$ for $\eta$ and $\sigma^2$, respectively. In light of our goals to select variables associated with the response in high-dimensional data, we propose to place a constraint on the magnitude of the regression coefficients. This can be achieved by adding a penalty term to the likelihood function~\eqref{eq:LikeFinal}. The penalty term is a necessary constraint because in our applications, the sample size is much smaller than the number of predictors. We define the following objective function:
 \begin{equation}
 	Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda \sum_{j\neq 0} v_j P_j(\beta_j)
 \end{equation}
@@ -467,6 +473,10 @@ This is the general set-up for our model. In Section~\ref{sec:section3} we provi
 %To solve for~\eqref{eq:estimator} we use a block relaxation technique~\citep{de1994block} given by Algorithm~\ref{alg:cgd2}
 
 We use a general purpose block coordinate gradient descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:estimator}. At each iteration, we cycle through the coordinates and minimize the objective function with respect to one coordinate only. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)}, Tseng and Yun~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and linear mixed models with an $\ell_1$ penalty~\cite{schelldorfer2011estimation}. In the next section we provide some brief details about Algorithm~\ref{alg:cgd2}. A more thorough treatment of the algorithm is given in Appendix~\ref{ap:cgd}. 
+
+We emphasize here that previously developed methods such as the LMM-lasso~\citep{rakitsch2013lasso} use a two-stage fitting procedure without any convergence details. 
+From a practical point of view, there is currently no implementation that provides a principled way of determining the sequence of tuning parameters to fit, nor a procedure that automatically selects the optimal value of $\lambda$.  
+To our knowledge, we are the first to develop a CGD algorithm in the specific context of fitting a penalized LMM for population structure correction with theoretical guarantees of convergence. Furthermore, we develop a principled method for automatic tuning parameter selection and provide an easy-to-use software implementation in order to promote wider uptake of these more complex methods by applied practitioners.   
 
 \begin{algorithm}[h]
 	\SetAlgoLined
@@ -903,6 +913,17 @@ Overall, we observe that variable selection results are slightly better when all
 \section{Discussion}
 
 We develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence. Through simulations, we show that are method has better power over the two-stage approach, particularly for polygenic traits.
+
+
+
+Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. Such methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
+There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
+
+
+When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. 
+While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. 
+The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
+In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
 
 While the predominant motivation for these methods has been association testing, we believe that there are other applications in which they can be used as well. 
 For example, in the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal
@@ -1403,10 +1424,10 @@ We can also get the coefficients for given value(s) of lambda using the \texttt{
 \begin{verbatim}
 ## 5 x 2 Matrix of class "dgeMatrix"
 ##                      1            2
-## (Intercept) -0.3824525 -0.030224599
+## (Intercept) -0.3824525 -0.030227753
 ## X62          0.0000000  0.000000000
-## X185         0.0000000  0.001444518
-## X371         0.0000000  0.009513475
+## X185         0.0000000  0.001444670
+## X371         0.0000000  0.009513604
 ## X420         0.0000000  0.000000000
 \end{verbatim}
 \end{kframe}
@@ -1424,11 +1445,11 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 \end{alltt}
 \begin{verbatim}
 ##               1          2
-## id1 -1.19165061 -1.3123392
-## id2 -0.02913052  0.3885923
-## id3 -2.00084875 -2.6460043
-## id4 -0.37255277 -0.9542463
-## id5 -1.03967831 -2.1377268
+## id1 -1.19165061 -1.3123396
+## id2 -0.02913052  0.3885921
+## id3 -2.00084875 -2.6460045
+## id4 -0.37255277 -0.9542455
+## id5 -1.03967831 -2.1377274
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
