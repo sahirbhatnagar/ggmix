@@ -717,7 +717,7 @@ We simulate data from the model
 where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.5 \rbrace$, sample size $n=1000$, number of fixed effects $p_{fixed} = 5000$, number of SNPs used to calculate the kinship matrix $k = 10000$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios:
 \begin{enumerate}
 \item None of the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} \right]$$
-\item All the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right]$$.
+\item All the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right].$$
 \end{enumerate}
 These scenarios are meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects.
 
@@ -774,7 +774,14 @@ We compare the model error as a function of $\widehat{S}_{\hat{\lambda}}$ in Fig
 <<plot-me-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
 @
 
-Overall, we observe that variable selection results are slightly better when all the causal SNPs are in the kinship matrix across all three methods. \ggmix ~has very good Type 1 error control, while both the lasso and twostep have a very high false positive rate. Inclusion of the causal SNPs in the kinship calculation has a strong impact on the variance component estimation with the heritabilty and error variance estimates working in opposite directions. That is, when all causal SNPs are in the kinship matrix, the heritability estimates are biased towards 1 while the error variance is correctly estimated. Conversely, when none of the causal SNPs are included in the kinship matrix, the estimated heritability is closer to the true value, while the error variance is inflated. Both the lasso and twostep methods have better signal recovery as compared to \ggmix. However, this signal is being spread across many variables leading to many Type 1 errors. 
+Overall, we observe that variable selection results for \ggmix ~are similar regardless of whether the causal SNPs are in the kinship matrix or not. 
+This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal. 
+\ggmix ~has very good Type 1 error control, while both the lasso and twostep have a very high false positive rate. 
+Inclusion of the causal SNPs in the kinship calculation has a strong impact on the variance component estimation with the heritabilty and error variance estimates working in opposite directions. 
+That is, when all causal SNPs are in the kinship matrix, the heritability estimates are biased towards 1 while the error variance is correctly estimated. 
+Conversely, when none of the causal SNPs are included in the kinship matrix, the estimated heritability is closer to the true value, while the error variance is inflated. 
+Both the lasso and twostep methods have better signal recovery as compared to \ggmix. 
+However, this signal is being spread across many variables leading to many Type 1 errors. 
 
 
 
@@ -801,19 +808,23 @@ Overall, we observe that variable selection results are slightly better when all
 
 \section{Discussion}
 
-We develop a general penalized LMM framework that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. Our method can accommodate several sparsity inducing penalties such as the lasso, elastic net and group lasso, and also readily handles prior annotation information in the form of weights. We develop a groupwise-majorization descent algorithm which is highly scalable, computationally efficient and has theoretical guarantees of the convergence. Through simulations, we show that are method has better power over the two-stage approach, particularly for polygenic traits.
+We develop a general penalized LMM framework for population structure correction that simultaneously selects and estimates variables, accounting for between individual correlations, in one step. 
+Our CGD algorithm is computationally efficient and has theoretical guarantees of convergence. 
+We provide an easy-to-use software implementation of our algorithm along with a principled method for automatic tuning parameter selection. 
+Through simulation studies, we show that existing approaches such as the lasso with a principal component adjustment lead to a large number of false positives.     
+Our proposed method has excellent Type 1 error control and is robust to the inclusion of causal SNPs in the kinship matrix.  
+
+Although we derive a CGD algorithm for the $\ell_1$ penalty, our approach can also be easily extended to other penalties such as the elastic net and group lasso with the same guarantees of convergence. 
+
+%To our knowledge, we are the first to develop a CGD algorithm in the specific context of fitting a penalized LMM for population structure correction with theoretical guarantees of convergence. Furthermore, we develop a principled method for automatic tuning parameter selection and provide an easy-to-use software implementation in order to promote wider uptake of these more complex methods by applied practitioners.   
+
+A limitation of \ggmix ~is that it first requires computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. This computation becomes prohibitive for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. We are currently developing a low rank version of the CGD algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
+
+%There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
 
 
 
-Another issue with the aforementioned methods is that they first require computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. Such methods become prohibitive to use for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. 
-There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.  
-
-
-When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. 
-While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. 
-The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
-In the sequel, we develop a low rank version of the blockwise coordinate descent algorithm which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
-
+%The LMM-lasso paper mentions that this is possible but does not provide further details on how this can be implemented in a penalized mixed model framework. 
 While the predominant motivation for these methods has been association testing, we believe that there are other applications in which they can be used as well. 
 For example, in the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal
 relationships between DNA methylation (exposure) within some genes
