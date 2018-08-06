@@ -691,7 +691,7 @@ Each block represents a subpopulation, and a darker color indicates a closer gen
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding. 
 
-<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.", eval=finalversion>>=
+<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.", eval=finalversion>>=
 @
 
 
@@ -930,9 +930,9 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 	\Repeat{convergence criterion is satisfied}{
 		Approximate the Hessian $\nabla^2 f(\bTheta^{(k)})$ by a symmetric matix $H^{(k)}$:
 		\begin{equation}
-			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p+1} \label{eq:Hk}
+			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p} \label{eq:Hk}
 		\end{equation}
-		\For{$ j =1, \ldots, p+1$}{
+		\For{$ j =1, \ldots, p$}{
 			
 			Solve the descent direction $d^{(k)} \coloneqq d_{H^{(k)}}(\Theta_{j}^{(k)})$ \;
 			
@@ -940,14 +940,12 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 				\begin{equation}
 					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow \argmin_{d} \left\lbrace \nabla f(\Theta_{j}^{(k)}) d + \frac{1}{2} d^2 H^{(k)}_{j j} + \lambda P(\Theta_{j}^{(k)} + d) \right\rbrace \label{eq:descentdirection}
 				\end{equation}
-			}{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
-				\begin{equation}
-					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
-				\end{equation}
-			}{
-			
-			
-		}
+			}
+			%{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
+			%	\begin{equation}
+			%		d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
+			%	\end{equation}
+			%}
 	}
 	Choose a stepsize\;
 	\begin{equation*}
@@ -957,7 +955,6 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 	\begin{equation*}
 		\widehat{\Theta}_j^{(k+1)} \leftarrow \widehat{\Theta}_j^{(k)} + \alpha_j^{(k)}d^{(k)}
 	\end{equation*}
-}
 Update\;
 \begin{equation}
 	\widehat\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
@@ -1192,7 +1189,7 @@ There are three basic inputs that \ggmix ~needs:
 
 We can visualize the kinship matrix in the \texttt{admixed} data using the \texttt{popkin} package:  
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-popkin, echo=T, eval=finalversion>>=
 # need to install the package if you don't have it
 # pacman::p_load_gh('StoreyLab/popkin')
 popkin::plotPopkin(admixed$kin)
@@ -1210,7 +1207,7 @@ class(fit)
 
 We can see the solution path for each variable by calling the \texttt{plot} method for objects of class \texttt{ggmix\_fit}:  
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-solution-path, echo=T, eval=finalversion>>=
 plot(fit)
 @
 
@@ -1246,7 +1243,7 @@ bicfit <- gic(fit, an = log(length(admixed$y)))
 
 We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} method for objects of class \texttt{ggmix\_gic}:  
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-hdbic, echo=T, eval=finalversion>>=
 plot(hdbic)
 @
 
@@ -1259,7 +1256,7 @@ hdbic[["lambda.min"]]
 
 We can also plot the BIC results:
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-bic, echo=T, eval=finalversion>>=
 plot(bicfit, ylab = "BIC")
 bicfit[["lambda.min"]]
 @
@@ -1303,14 +1300,14 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 
 \subsubsection{Observed vs. Predicted Response}
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-obs-pred, echo=T, eval=finalversion>>=
 plot(hdbic, type = "predicted", newx = admixed$x, newy = admixed$y)
 @
 
 
 \subsubsection{QQ-plots for Residuals and Random Effects}
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-qqplot, echo=T, eval=finalversion>>=
 plot(hdbic, type = "QQranef", newx = admixed$x, newy = admixed$y)
 plot(hdbic, type = "QQresid", newx = admixed$x, newy = admixed$y)
 @
@@ -1318,7 +1315,7 @@ plot(hdbic, type = "QQresid", newx = admixed$x, newy = admixed$y)
 
 \subsubsection{Tukey-Anscombe Plot}
 
-<<echo=T, eval=finalversion>>=
+<<ggmix-tukey, echo=T, eval=finalversion>>=
 plot(hdbic, type = "Tukey", newx = admixed$x, newy = admixed$y)
 @
 

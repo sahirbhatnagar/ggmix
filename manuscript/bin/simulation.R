@@ -172,7 +172,7 @@ p1_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"],
   labs(x = "", y = "",
        title = "Correct Sparsity results for the Model with 1% Causal SNPs",
        subtitle = "Based on 200 simulations",
-       caption = TeX("$\\eta$ = 10%")) +
+       caption = "") +
   theme_box
 
 

@@ -744,7 +744,7 @@ In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores
 
 }
 
-\caption[First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations]{First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.}\label{fig:plot-pc-sim}
+\caption[First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations]{First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.}\label{fig:plot-pc-sim}
 \end{figure}
 
 
@@ -1041,9 +1041,9 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 	\Repeat{convergence criterion is satisfied}{
 		Approximate the Hessian $\nabla^2 f(\bTheta^{(k)})$ by a symmetric matix $H^{(k)}$:
 		\begin{equation}
-			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p+1} \label{eq:Hk}
+			H^{(k)} = \diag \left[ \min \left\lbrace \max \left\lbrace \left[ \nabla^2 f(\bTheta^{(k)})\right] _{jj}, c_{min} \right\rbrace c_{max} \right\rbrace\right]_{j = 1, \ldots, p} \label{eq:Hk}
 		\end{equation}
-		\For{$ j =1, \ldots, p+1$}{
+		\For{$ j =1, \ldots, p$}{
 			
 			Solve the descent direction $d^{(k)} \coloneqq d_{H^{(k)}}(\Theta_{j}^{(k)})$ \;
 			
@@ -1051,14 +1051,12 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 				\begin{equation}
 					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow \argmin_{d} \left\lbrace \nabla f(\Theta_{j}^{(k)}) d + \frac{1}{2} d^2 H^{(k)}_{j j} + \lambda P(\Theta_{j}^{(k)} + d) \right\rbrace \label{eq:descentdirection}
 				\end{equation}
-			}{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
-				\begin{equation}
-					d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
-				\end{equation}
-			}{
-			
-			
-		}
+			}
+			%{ \If{$\Theta_j^{(k)} \in \left\lbrace \eta \right\rbrace$}{
+			%	\begin{equation}
+			%		d_{H^{(k)}}(\Theta_{j}^{(k)}) \leftarrow - \nabla f(\Theta_{j}^{(k)}) / H_{jj}^{(k)}
+			%	\end{equation}
+			%}
 	}
 	Choose a stepsize\;
 	\begin{equation*}
@@ -1068,7 +1066,6 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 	\begin{equation*}
 		\widehat{\Theta}_j^{(k+1)} \leftarrow \widehat{\Theta}_j^{(k)} + \alpha_j^{(k)}d^{(k)}
 	\end{equation*}
-}
 Update\;
 \begin{equation}
 	\widehat\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
@@ -1376,7 +1373,7 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-2-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-popkin-1} 
 
 }
 
@@ -1418,7 +1415,7 @@ We can see the solution path for each variable by calling the \texttt{plot} meth
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-4-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-solution-path-1} 
 
 }
 
@@ -1498,7 +1495,7 @@ We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} met
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-8-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-hdbic-1} 
 
 }
 
@@ -1529,7 +1526,7 @@ We can also plot the BIC results:
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-10-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-bic-1} 
 
 }
 
@@ -1638,7 +1635,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-15-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-obs-pred-1} 
 
 }
 
@@ -1656,7 +1653,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-16-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-1} 
 
 }
 
@@ -1666,7 +1663,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-16-2} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-2} 
 
 }
 
@@ -1684,7 +1681,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=1\linewidth]{figure/unnamed-chunk-17-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-tukey-1} 
 
 }
 
