@@ -119,7 +119,7 @@ hist(res$y)
 res$kin %>% dim
 # save results ------------------------------------------------------------
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
-sim <- sim %>% run_method(list(twostepYVC, twostepVC),
+sim <- sim %>% run_method(list(lasso),
                           parallel = list(socket_names = 35,
                                           libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 save_simulation(sim)
@@ -129,8 +129,9 @@ ls()
 
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/july_12_2018_results_with_null_model.rds")
+saveRDS(df, file = "simulation/simulation_results/july_12_2018_results_with_null_model_VC_lasso_has_proper_MSE.rds")
 
+df %>% filter(Method=="twostep")
 
 
 # analyze results ---------------------------------------------------------

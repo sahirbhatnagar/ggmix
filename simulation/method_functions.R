@@ -31,7 +31,8 @@ lasso <- new_method("lasso", "lasso",
                         #Best Subset Selection via a Modern Optimization Lens
                         prediction_error <- model_error^2 / l2norm(draw[["mu"]])^2
 
-                        yhat <- cbind(1, draw[["Xtest"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["Xtest"]])),,drop = F]
+                        yhat <- predict(fitglmnet, newx = draw[["x_lasso"]], s = "lambda.min")
+                        # yhat <- cbind(1, draw[["Xtest"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["Xtest"]])),,drop = F]
                         error_var <- l2norm(yhat - draw[["y"]])^2 / (length(draw[["y"]]) - length(nz_names))
 
                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
