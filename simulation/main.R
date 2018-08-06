@@ -20,9 +20,9 @@
 rm(list = ls())
 # setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
-# source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
-# source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
-# source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
+source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 
 source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
 source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
@@ -56,7 +56,7 @@ name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, an
 
 sim <- new_simulation(name_of_simulation, "thesis-july-12", dir = "simulation/") %>%
   generate_model(make_ADmixed_model, b0 = 0, sigma2 = 1,
-                 eta = list(0.1, 0.5), 
+                 eta = list(0.1, 0.5),
                  n = 1000,
                  p_test = 5000,
                  beta_mean = 0.5,
@@ -83,32 +83,116 @@ ls()
 
 
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
-sim <- sim %>% 
+sim <- sim %>%
   run_method(list(lasso, ggmixed, twostep, twostepY),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","Matrix",
                                            "coxme","gaston","ggmix","popkin","bnpsd")))
 save_simulation(sim)
-sim <- sim %>% 
-  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, 
+sim <- sim %>%
+  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
                 correct_sparsity,mse, errorvariance))
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
 
-res <- make_ADmixed_model_not_sim(b0 = 0, sigma2 = 1,
-                                  eta = 0.1, 
+ns <- seq(500,4000, by = 500)
+res <- vector("numeric", length = length(ns))
+
+# for(jj in seq_along(ns)) {
+dat <- make_ADmixed_model_not_sim(b0 = 0, sigma2 = 1,
+                                  eta = 0.1,
+                                  # n = ns[jj],
                                   n = 1000,
-                                  p_test = 3000,
+                                  p_test = 1000,
                                   beta_mean = 0.5,
                                   # p_test = 500,
-                                  p_kinship = 5000,
+                                  p_kinship = 10000,
                                   geography = "ind",
                                   # geography = "circ",
-                                  percent_causal = 0.0,
+                                  percent_causal = 0.01,
                                   percent_overlap = "0",
                                   # percent_overlap = "100",
                                   k = 5, s = 0.5, Fst = 0.1)
+
+pheno_dat <- data.frame(Y = dat$y, id = paste0("ID",1:length(dat$y)))
+x1 <- cbind(rep(1, nrow(dat$x)))
+fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
+kin <- gaston::as.bed.matrix(dat$Xkinship)
+gaston::standardize(kin) <- "p"
+kin[1:5,1:5]
+kins <- gaston::GRM(kin)
+dim(kins)
+kins <- crossprod(dat$Xkinship)/ncol(dat$Xkinship)
+dim(kins)
+kins[1:5,1:5]
+popkin::plotPopkin(list(dat$kin, kins))
+fit <- gaston::lmm.aireml(dat$y, x1, K = kins)
+
+res[jj] <- fit$tau
+
+
+
+# karim data --------------------------------------------------------------
+
+data("karim")
+Phi <- 2 * karim$kin1
+P = MASS::mvrnorm(1, rep(0,600), karim$s.g * Phi)
+y <- 1 + karim$G %*% karim$b + P + rnorm(600,0,karim$s.e)
+
+pheno_dat <- data.frame(Y = y, id = paste0("ID",1:length(y)))
+x1 <- cbind(rep(1, nrow(karim$G)))
+fit_2 <- gaston::lmm.aireml(y, x1, K = Phi)
+
+karim$s.g
+karim$s.e
+fit_2$tau
+fit_2$sigma2
+karim$h.tot
+
+# need an ID variable
+dat <- data.frame(Y = y, x=1, id = 1:600)
+
+# provide the kinship matrix
+gfit1 <- coxme::lmekin(Y ~ x + (1|id), data=dat, varlist=Phi)
+gfit1
+
+
+karim$h.tot
+
+
+
+fit <- ggmix(x = karim$G,
+             y = y,
+             kinship = Phi,
+             verbose = 2)
+hdbic <- gic(fit, an = log(600))
+help(gic)
+plot(hdbic)
+dev.off()
+
+# error variance
+coef(hdbic, type = "nonzero")["sigma2",] * (1-coef(hdbic, type = "nonzero")["eta",])
+
+#kinship variance
+coef(hdbic, type = "nonzero")["sigma2",] * (coef(hdbic, type = "nonzero")["eta",])
+
+
+
+# }
+# plot(ns, res)
+
+# plot(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
+#      newy)
+# all.equal(dat$y - (fit$BLUP_omega + fit$BLUP_beta),
+#      newy)
+# abline(a=0,b=1)
+gaston_resid <- dat$y - (fit$BLUP_omega + fit$BLUP_beta)
+hist(gaston_resid)
+fitglmnet <- glmnet::cv.glmnet(x = dat$x, y = gaston_resid, standardize = T, alpha = 1, intercept = T)
+plot(fitglmnet)
+
+
 
 res$causal
 res$not_causal %>% length()
