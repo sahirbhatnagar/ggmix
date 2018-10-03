@@ -908,6 +908,10 @@ many measurements are available for each person).~\citep{eu2014comparison}
 \newpage
 
 
+\section*{Acknowledgments}
+
+SRB was supported by the Ludmer Centre for Neuroinformatics and Mental Health. This research was enabled in part by support provided by Calcul Québec (www.calculquebec.ca) and Compute Canada (www.computecanada.ca).
+
 %\bibliographystyle{unsrt}
 %\bibliography{GEbib}
 
