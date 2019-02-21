@@ -133,8 +133,47 @@ res[jj] <- fit$tau
 
 
 
+
+# simdata -----------------------------------------------------------------
+devtools::load_all()
+
+library(ggmix)
+library(glmnet)
+library(gaston)
+data("admixed")
+
+## ---- ggmix ----
+fit_ggmix <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin, verbose = 1)
+bicGGMIX <- gic(fit_ggmix, an = log(length(admixed$y)))
+yhat_ggmix <- predict(bicGGMIX, newx = admixed$x)
+RMSE_ggmix <- l2norm(yhat_ggmix - admixed$y)
+
+## ---- two-step ----
+x1 <- cbind(rep(1, nrow(admixed$x)))
+fit_lme <- gaston::lmm.aireml(Y = admixed$y, X = x1, K = admixed$kin)
+gaston_resid <- admixed$y - (fit_lme$BLUP_omega + fit_lme$BLUP_beta)
+fitglmnet <- glmnet::cv.glmnet(x = admixed$x, y = gaston_resid,
+                               standardize = T, alpha = 1, intercept = T)
+yhat_twostep <- predict(fitglmnet, newx = admixed$x, s = "lambda.min")
+RMSE_twostep <- l2norm(yhat_twostep - admixed$y)
+
+## ---- lasso ----
+fit_glmnet <- cv.glmnet(x = admixed$x_lasso, y = admixed$y,
+                        alpha = 1, standardize = T,
+                        penalty.factor = c(rep(1, ncol(admixed$x)), rep(0,10)))
+# extract only betas for SNPs
+betas_lasso <- coef(fit_glmnet, s = "lambda.min")[1:(ncol(admixed$x)+1), , drop = F]
+yhat_lasso <- cbind(1, admixed$x) %*% betas_lasso
+RMSE_lasso <- l2norm(yhat_lasso - admixed$y)
+
 # karim data --------------------------------------------------------------
 
+
+
+
+
+
+pacman::p_load(gaston)
 data("karim")
 Phi <- 2 * karim$kin1
 P = MASS::mvrnorm(1, rep(0,600), karim$s.g * Phi)
@@ -142,8 +181,18 @@ y <- 1 + karim$G %*% karim$b + P + rnorm(600,0,karim$s.e)
 
 pheno_dat <- data.frame(Y = y, id = paste0("ID",1:length(y)))
 x1 <- cbind(rep(1, nrow(karim$G)))
-fit_2 <- gaston::lmm.aireml(y, x1, K = Phi)
+fit <- gaston::lmm.aireml(y, x1, K = Phi)
 
+gaston_resid <- y - (fit$BLUP_omega + fit$BLUP_beta)
+hist(gaston_resid)
+fitglmnet <- glmnet::cv.glmnet(x = karim$G,
+                               y = gaston_resid,
+                               standardize = T, alpha = 1, intercept = T)
+plot(fitglmnet)
+pacman::p_load(magrittr)
+head(coef(fitglmnet))
+yhat <- predict(fitglmnet, newx = karim$G, s = "lambda.min")
+plot(yhat, y)
 karim$s.g
 karim$s.e
 fit_2$tau

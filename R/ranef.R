@@ -87,8 +87,8 @@ ranef.ggmix_gic <- function(object, s = "lambda.min", ...) {
           beta = beta,
           eigenvalues = object[["ggmix_fit"]][["ggmix_object"]][["D"]],
           eigenvectors = object[["ggmix_fit"]][["ggmix_object"]][["U"]],
-          x = object[["ggmix_fit"]][["ggmix_object"]][["x"]],
-          y = object[["ggmix_fit"]][["ggmix_object"]][["y"]])
+          x = object[["ggmix_fit"]][["ggmix_object"]][["x"]], # these are the transformed x
+          y = object[["ggmix_fit"]][["ggmix_object"]][["y"]]) # these are the transformed y
       })
 
       bisall <- do.call(cbind, bis)

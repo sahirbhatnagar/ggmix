@@ -14,11 +14,25 @@
 #'   sequence of converged tuning parameters.
 #' @export
 print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
+
   cat("\nCall: ", deparse(x$call), "\n\n")
   print(cbind(
     Df = x$result[, "Df"],
     `%Dev` = signif(x$result[, "%Dev"], digits),
     Lambda = signif(x$result[, "Lambda"], digits)
+  ))
+}
+
+#' @export
+#' @rdname print.ggmix_fit
+print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
+  xx <- x$ggmix_fit
+  cat("\nCall: ", deparse(xx$call), "\n\n")
+  print(cbind(
+    Df = xx$result[, "Df"],
+    `%Dev` = signif(xx$result[, "%Dev"], digits),
+    Lambda = signif(xx$result[, "Lambda"], digits),
+    GIC = signif(x$gic, digits)
   ))
 }
 
@@ -58,13 +72,19 @@ print.ggmix_fit <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 predict.ggmix_fit <- function(object, newx, s = NULL,
                               type = c(
                                 "link", "response", "coefficients",
-                                "all", "nonzero"), ...) {
+                                "all", "nonzero", "individual"), originalx, ...) {
 
   type <- match.arg(type)
 
   if (missing(newx)) {
     if (!match(type, c("coefficients", "nonzero","all"), FALSE)) {
-      stop("You need to supply a value for 'newx' when type is link or response")
+      stop("You need to supply a value for 'newx' when type is link or response or individual")
+    }
+  }
+
+  if (missing(originalx)) {
+    if (type == "individual") {
+      stop("You need to supply a value for 'originalx' when type is individual")
     }
   }
 
@@ -115,6 +135,29 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
     # prediction, residuals, ect.
     return(nfit)
   }
+
+
+  if (type == "individual") {
+    # this only works for one requested lambda
+    # do not use with more than one lambda
+    nfit <- as.matrix(cbind(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
+
+    n1 <- nrow(newx) # newx on test set individuals
+    n2 <- nrow(originalx) # original on observed individuals
+
+    etahat <- nall["eta",]
+    sigma2hat <- nall["sigma2",]
+
+
+
+
+    # The user must not input the first column as a intercept
+    # once the rotation is done on the Xs and Y, we use them for fitting the function
+    # but after that we dont use the rotated Xs or Y anymore. We use the original Xs and Ys for
+    # prediction, residuals, ect.
+    return(nfit)
+  }
+
 
 }
 
