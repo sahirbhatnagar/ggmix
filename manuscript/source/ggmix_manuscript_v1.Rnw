@@ -685,8 +685,8 @@ Here we describe the method used for predicting the unobserved phenotype $\bY^\s
 \bmu_{1_{(q\times 1)}} \\
 \bmu_{2_{(N-q)\times 1}}
 \end{matrix*}\right], \left[ \begin{matrix}
-\bSigma_{11_{(q\times q)}} & \bSigma_{12} \\
-\bSigma_{12_{(N-q)\times q}} & \bSigma_{22_{(N-q)\times (N-q)}}  \\
+\bSigma_{11_{(q\times q)}} & \bSigma_{12_{q\times (N-q)}} \\
+\bSigma_{21_{(N-q)\times q}} & \bSigma_{22_{(N-q)\times (N-q)}}  \\
 \end{matrix}   \right]  \right)
 \end{equation}
 
