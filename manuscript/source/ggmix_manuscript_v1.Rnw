@@ -698,14 +698,17 @@ Then, from standard multivariate Normal theory, the conditional distribution $\b
 \bSigma^\star & = \bSigma_{11} - \bSigma_{12} \bSigma_{22}^{-1} \bSigma_{21}
 \end{align}
 
-and $\bSigma_{12}$ is the covariance matrix between the training and testing individuals. The phenotype prediction is thus given by:
+The phenotype prediction is thus given by:
 
 \begin{align}
-\bmu^\star & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bV^{-1} (\bY - \bX \bbeta)\\
+\bmu^\star_{q \times 1} & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bV^{-1} (\bY - \bX \bbeta)\\
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} \bU^T (\bY - \bX \bbeta)\\
-& = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta )
+& = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
+& = \bX^\star \bbeta + \frac{1}{\sigma^2} \eta \sigma^2 \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
+& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) 
 \end{align}
 
+where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals. 
 
 
 

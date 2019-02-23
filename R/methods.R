@@ -44,9 +44,9 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #' @param object Fitted \code{ggmix_fit} model object from the
 #'   \code{\link{ggmix}} function
 #' @param newx matrix of values for \code{x} at which predictions are to be
-#'   made. Do not include the intercept. Must be a matrix. This
-#'   argument is not used for \code{type = c("coefficients","nonzero","all")}.
-#'   This matrix must have the same number of columns originally supplied to the
+#'   made. Do not include the intercept. Must be a matrix. This argument is not
+#'   used for \code{type = c("coefficients","nonzero","all")}. This matrix must
+#'   have the same number of columns originally supplied to the
 #'   \code{\link{ggmix}} fitting function.
 #' @param s Value(s) of the penalty parameter \code{lambda} at which predictions
 #'   are required. Default is the entire sequence used to create the model.
@@ -60,6 +60,9 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   effects, as well as variance components for each value of \code{s}. If more
 #'   than one \code{s} is provided, then \code{"nonzero"} will return a list of
 #'   1 column matrices. Default: "link"
+#' @param covariance covariance between test and training individuals. if there
+#'   are q testing individuals and N-q training individuals, then this
+#'   covariance matrix is q x (N-q)
 #' @return The object returned depends on type.
 #' @method predict ggmix_fit
 #' @details \code{s} is the new vector at which predictions are requested. If
@@ -72,7 +75,10 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 predict.ggmix_fit <- function(object, newx, s = NULL,
                               type = c(
                                 "link", "response", "coefficients",
-                                "all", "nonzero", "individual"), originalx, ...) {
+                                "all", "nonzero", "individual"), covariance, ...) {
+
+  # if you use predict on a gic_fit object, then by the time the function gets here
+  # s has been converted to a numeric
 
   type <- match.arg(type)
 
@@ -82,9 +88,9 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
     }
   }
 
-  if (missing(originalx)) {
+  if (missing(covariance)) {
     if (type == "individual") {
-      stop("You need to supply a value for 'originalx' when type is individual")
+      stop("You need to supply a value for 'covariance' when type is individual")
     }
   }
 
@@ -138,24 +144,63 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
 
 
   if (type == "individual") {
-    # this only works for one requested lambda
-    # do not use with more than one lambda
-    nfit <- as.matrix(cbind(1, newx) %*% nbeta) # this will result in a n x nlambda matrix!!!!!
-
-    n1 <- nrow(newx) # newx on test set individuals
-    n2 <- nrow(originalx) # original on observed individuals
-
-    etahat <- nall["eta",]
-    sigma2hat <- nall["sigma2",]
 
 
+    if (inherits(object, "lassofullrank")) {
+
+      if (length(s) == 1) {
+        # browser()
+        eta <- nall["eta", 1]
+        beta <- nall[object[["cov_names"]], 1, drop = FALSE]
+        nfit <- as.matrix(cbind(1, newx) %*% nbeta)
+
+
+        # see ranef.R
+        return(
+          as.vector(nfit) +
+          bi_future_lassofullrank(
+          eta = eta,
+          beta = beta,
+          eigenvalues = object[["ggmix_object"]][["D"]],
+          eigenvectors = object[["ggmix_object"]][["U"]],
+          x = object[["ggmix_object"]][["x"]],
+          y = object[["ggmix_object"]][["y"]],
+          covariance = covariance)
+        )
+      } else {
+
+        nfit <- as.matrix(cbind(1, newx) %*% nbeta)
+
+        bis <- lapply(seq_along(s), function(i) {
+          eta <- nall["eta", i]
+          sigma2 <- nall["sigma2", i]
+          beta <- nall[object[["ggmix_fit"]][["cov_names"]], i, drop = FALSE]
+
+          nfit[, i] +
+          bi_future_lassofullrank(
+            eta = eta,
+            beta = beta,
+            eigenvalues = object[["ggmix_object"]][["D"]],
+            eigenvectors = object[["ggmix_object"]][["U"]],
+            x = object[["ggmix_object"]][["x"]], # these are the transformed x
+            y = object[["ggmix_object"]][["y"]],
+            covariance = covariance) # these are the transformed y
+        })
+
+        bisall <- do.call(cbind, bis)
+        dimnames(bisall) <- list(rownames(object[["ggmix_object"]][["x"]]), paste(seq(along = s)))
+        return(bisall)
+      }
+    } else {
+      stop(strwrap("predict with type='individual' currently only implemented for lasso full rank"))
+    }
 
 
     # The user must not input the first column as a intercept
     # once the rotation is done on the Xs and Y, we use them for fitting the function
     # but after that we dont use the rotated Xs or Y anymore. We use the original Xs and Ys for
     # prediction, residuals, ect.
-    return(nfit)
+
   }
 
 
