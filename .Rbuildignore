@@ -1,3 +1,4 @@
+^rda$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^report\.html$
@@ -15,3 +16,4 @@
 ^codecov\.yml$
 ^_pkgdown\.yml$
 ^docs$
+^manuscript$

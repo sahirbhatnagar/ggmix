@@ -46,6 +46,10 @@
 #'   then the \code{group} argument must also be specified
 #' @param group a vector of consecutive integers describing the grouping of the
 #'   coefficients
+#' @param dfmax limit the maximum number of variables in the model. Useful for
+#'   very large \code{p} (the total number of predictors in the design matrix),
+#'   if a partial path is desired. Default is the number of columns in the
+#'   design matrix + 2 (for the variance components)
 #' @param penalty.factor Separate penalty factors can be applied to each
 #'   coefficient. This is a number that multiplies lambda to allow differential
 #'   shrinkage. Can be 0 for some variables, which implies no shrinkage, and
@@ -132,6 +136,7 @@ ggmix <- function(x, y,
                   alpha = 1, # elastic net mixing param. 1 is lasso, 0 is ridge
                   thresh_glmnet = 1e-8, # this is for glmnet
                   epsilon = 1e-4, # this is for ggmix
+                  dfmax = p_design + 2,
                   verbose = 0) {
   this.call <- match.call()
 
@@ -140,7 +145,7 @@ ggmix <- function(x, y,
   estimation <- tryCatch(match.arg(estimation),
     error = function(c) {
       stop(strwrap("Estimation method should be
-                                        \"full_rank\" or \"low_rank\""),
+                   \"full_rank\" or \"low_rank\""),
         call. = FALSE
       )
     }
@@ -149,7 +154,7 @@ ggmix <- function(x, y,
   penalty <- tryCatch(match.arg(penalty),
     error = function(c) {
       stop(strwrap("Inference method should be \"lasso\" or
-                                       \"group_lasso\""),
+                   \"group_lasso\""),
         call. = FALSE
       )
     }
@@ -182,12 +187,14 @@ ggmix <- function(x, y,
   if (is.null(np_design) | (np_design[2] <= 1)) {
     stop("x should be a matrix with 2 or more columns")
   }
-
+  
   # note that p_design doesn't contain the intercept
   # whereas the x in the ggmix_object will have the intercept
   n_design <- np_design[[1]]
   p_design <- np_design[[2]]
-
+  
+  dfmax <- as.double(dfmax)
+  
   is_kinship <- !missing(kinship)
   is_UD <- !missing(U) & !missing(D)
   is_K <- !missing(K)
@@ -413,6 +420,7 @@ ggmix <- function(x, y,
       alpha = alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
       thresh_glmnet = thresh_glmnet, # this is for glmnet
       epsilon = epsilon,
+      dfmax = dfmax,
       verbose = verbose
     )
   } else if (penalty == "gglasso") {

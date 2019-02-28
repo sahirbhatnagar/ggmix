@@ -87,8 +87,8 @@ ranef.ggmix_gic <- function(object, s = "lambda.min", ...) {
           beta = beta,
           eigenvalues = object[["ggmix_fit"]][["ggmix_object"]][["D"]],
           eigenvectors = object[["ggmix_fit"]][["ggmix_object"]][["U"]],
-          x = object[["ggmix_fit"]][["ggmix_object"]][["x"]],
-          y = object[["ggmix_fit"]][["ggmix_object"]][["y"]])
+          x = object[["ggmix_fit"]][["ggmix_object"]][["x"]], # these are the transformed x
+          y = object[["ggmix_fit"]][["ggmix_object"]][["y"]]) # these are the transformed y
       })
 
       bisall <- do.call(cbind, bis)
@@ -106,4 +106,13 @@ bi_lassofullrank <- function(eta, beta, eigenvalues, eigenvectors, x, y) {
   D_tilde_inv <- diag(1 / di)
   as.vector(eigenvectors %*% diag(1 / (1 / di + 1 / (eta * eigenvalues))) %*%
               t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
+}
+
+
+# this is for future observations used by predict.ggmix_fit when type="individual"
+# this contains the random part only, i.e. the 2nd part of eq 35 in manuscript section 3.7
+bi_future_lassofullrank <- function(eta, beta, eigenvalues, eigenvectors, x, y, covariance) {
+  di <- 1 + eta * (eigenvalues - 1)
+  D_tilde_inv <- diag(1 / di)
+  (eta) * as.vector(covariance %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
 }

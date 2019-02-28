@@ -38,6 +38,7 @@ lmmlasso.fullrank <- function(ggmix_object,
                               alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
                               thresh_glmnet, # this is for glmnet
                               epsilon, # this is for ggmix
+                              dfmax,
                               verbose) {
 
 
@@ -236,14 +237,6 @@ lmmlasso.fullrank <- function(ggmix_object,
     # that shows up in the glmnet solution. the +2 is for the two variance parameters
     df <- length(glmnet::nonzeroCoef(beta_next)) - 1 + 2
 
-    # bic_lambda <- bic(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-    #                   eigenvalues = ggmix_object[["D"]], x = ggmix_object[["x"]], y = ggmix_object[["y"]], nt = n_design,
-    #                   c = an, df_lambda = df)
-
-    # kkt_lambda <- kkt_check(eta = eta_next, sigma2 = sigma2_next, beta = beta_next,
-    #                         eigenvalues = ggmix_object[["D"]], x = ggmix_object[["x"]], y = ggmix_object[["y"]], nt = n_design,
-    #                         lambda = lambda, tol.kkt = tol.kkt)
-
     out_print[LAMBDA, ] <- c(
       if (df == 0) 0 else df,
       devratio,
@@ -259,48 +252,19 @@ lmmlasso.fullrank <- function(ggmix_object,
 
     coefficient_mat[, LAMBDA] <- Theta_next
 
-
-    # prediction of random effects
-    # bi <- drop(eta_next * Phi %*% (y - x %*% beta_next)) / di
-
-    # Phi Inverse (used for prediction of random effects)
-    # D_inv <- diag(1 / ggmix_object[["D"]])
-    # Phi_inv <- U %*% D_inv %*% t(U)
-
-    # D_tilde_inv <- diag(1 / di)
-    # V_inv <- U %*% D_tilde_inv %*% t(U)
-
-    # bi <- as.vector(solve((1 / eta_next) * Phi_inv + V_inv) %*% U %*% D_inv %*% (ggmix_object[["y"]] - ggmix_object[["x"]] %*% beta_next))
-    # bi <- as.vector(U %*% diag(1 / (1/di + 1/(eta_next*ggmix_object[["D"]]))) %*% t(U) %*% U %*% D_tilde_inv %*% (ggmix_object[["y"]] - ggmix_object[["x"]] %*% beta_next))
-
-    # predicted values (this contains the intercept)
-    # yi_hat <- as.vector(x %*% beta_next) + bi
-
-    # fitted values
-    # xbhat <- yi_hat - bi
-
-    # residuals
-    # ri <- drop(y) - yi_hat
-
-    # bi <- drop(eta_next * Phi %*% (ggmix_object[["y"]] - ggmix_object[["x"]] %*% beta_next)) / di
-    # qqnorm(bi)
-    # abline(a = 0, b = 1, col = "red")
-    # plot(density(bi))
-
-    # randomeff_mat[,LAMBDA] <- bi
-    # fitted_mat[,LAMBDA] <- xbhat
-    # predicted_mat[,LAMBDA] <- yi_hat
-    # resid_mat[,LAMBDA] <- ri
-
     deviance_change <- abs((out_print[lambda_index, "%Dev"] -
       out_print[lambda_index - 1, "%Dev"]) /
       out_print[lambda_index, "%Dev"])
     # message(sprintf("Deviance change = %.6f", deviance_change))
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
-    if (length(deviance_change) > 0) {
+    # also need to check if deviance change is NaN due to division by 0
+    if (length(deviance_change) > 0 & out_print[lambda_index, "%Dev"] > 0) {
       if (deviance_change < fdev) break
     }
+
+    if (df > dfmax) break
+
   }
 
   # if there is early stopping due to fdev, remove NAs
@@ -326,13 +290,7 @@ lmmlasso.fullrank <- function(ggmix_object,
     eta = coefficient_mat["eta", lambdas_fit, drop = FALSE],
     sigma2 = coefficient_mat["sigma2", lambdas_fit, drop = FALSE],
     nlambda = length(lambdas_fit),
-    # randomeff = randomeff_mat[, lambdas_fit, drop = FALSE],
-    # fitted = fitted_mat[, lambdas_fit, drop = FALSE],
-    # predicted = predicted_mat[, lambdas_fit, drop = FALSE],
-    # residuals = resid_mat[, lambdas_fit, drop = FALSE],
     cov_names = colnames(ggmix_object[["x"]]) # , used in predict function, this includes intercept
-    # lambda_min = id_min,
-    # lambda_min_value = lambda_min
   )
 
   class(out) <- c(paste0("lasso", attr(ggmix_object, "class")), "ggmix_fit")

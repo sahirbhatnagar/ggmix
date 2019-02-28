@@ -16,7 +16,8 @@ new_fullrank_K(x, y, K)
 
 new_fullrank_UD(x, y, U, D)
 
-new_lowrank_kinship(x, y, kinship, n_nonzero_eigenvalues, n_zero_eigenvalues)
+new_lowrank_kinship(x, y, kinship, n_nonzero_eigenvalues,
+  n_zero_eigenvalues)
 
 new_lowrank_K(x, y, K, n_nonzero_eigenvalues, n_zero_eigenvalues)
 

@@ -12,7 +12,7 @@ lmmlasso(ggmix_object, ...)
 
 \method{lmmlasso}{fullrank}(ggmix_object, ..., penalty.factor, lambda,
   lambda_min_ratio, nlambda, n_design, p_design, eta_init, maxit, fdev,
-  standardize, alpha, thresh_glmnet, epsilon, verbose)
+  standardize, alpha, thresh_glmnet, epsilon, dfmax, verbose)
 }
 \arguments{
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or
@@ -76,6 +76,11 @@ less than thresh times the null deviance. Defaults value is 1E-7}
 parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
 Defaults value is 1E-7}
+
+\item{dfmax}{limit the maximum number of variables in the model. Useful for
+very large \code{p} (the total number of predictors in the design matrix),
+if a partial path is desired. Default is the number of columns in the
+design matrix + 2 (for the variance components)}
 
 \item{verbose}{display progress. Can be either 0,1 or 2. 0 will not display
 any progress, 2 will display very detailed progress and 1 is somewhere in
