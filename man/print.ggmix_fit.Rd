@@ -2,9 +2,14 @@
 % Please edit documentation in R/methods.R
 \name{print.ggmix_fit}
 \alias{print.ggmix_fit}
+\alias{print.ggmix_gic}
 \title{Print Method for Objects of Class \code{ggmix_fit}}
 \usage{
-\method{print}{ggmix_fit}(x, ..., digits = max(3, getOption("digits") - 3))
+\method{print}{ggmix_fit}(x, ..., digits = max(3, getOption("digits") -
+  3))
+
+\method{print}{ggmix_gic}(x, ..., digits = max(3, getOption("digits") -
+  3))
 }
 \arguments{
 \item{x}{an object of class objects of class \code{ggmix_fit}}

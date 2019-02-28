@@ -36,6 +36,7 @@ test_that("no error in full rank constructor functions", {
 
 
 # kin <- gaston::GRM(gaston::as.bed.matrix(admixed$Xkinship), autosome.only = FALSE)
+# need to have pacman::p_load(RSpectra)
 
 lowrank_kinship <- try(new_lowrank_kinship(x = admixed$x, y = admixed$y,
                                        kinship = admixed$kin,

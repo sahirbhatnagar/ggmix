@@ -6,7 +6,8 @@
 \alias{grr_beta0}
 \title{Check of KKT Conditions for Linear Mixed Model}
 \usage{
-kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda, tol.kkt = 0.001)
+kkt_check(eta, sigma2, beta, eigenvalues, x, y, nt, lambda,
+  tol.kkt = 0.001)
 
 grr_sigma2(eta, sigma2, beta, eigenvalues, x, y, nt)
 

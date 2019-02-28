@@ -5,8 +5,9 @@
 \alias{plotGIC}
 \title{Plot the Generalised Information Criteria curve produced by \code{gic}}
 \usage{
-\method{plot}{ggmix_gic}(x, ..., sign.lambda = 1, type = c("gic", "QQranef",
-  "QQresid", "predicted", "Tukey-Anscombe"), s = "lambda.min", newy, newx)
+\method{plot}{ggmix_gic}(x, ..., sign.lambda = 1, type = c("gic",
+  "QQranef", "QQresid", "predicted", "Tukey-Anscombe"), s = "lambda.min",
+  newy, newx)
 
 plotGIC(x, sign.lambda, lambda.min, ...)
 }

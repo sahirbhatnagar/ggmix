@@ -5,6 +5,7 @@ library(gaston)
 library(glmnet)
 
 load("mice.RData")
+load("~/Dropbox/mcgill/students/tianyuan/results/mice/mice.RData")
 STRAND <- rs42
 
 markerinfo <- genotype[,c(1:3)]

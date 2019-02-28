@@ -1,3 +1,4 @@
+^rda$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^report\.html$

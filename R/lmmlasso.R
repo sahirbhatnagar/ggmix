@@ -38,7 +38,7 @@ lmmlasso.fullrank <- function(ggmix_object,
                               alpha, # elastic net mixing param. 1 is lasso, 0 is ridge
                               thresh_glmnet, # this is for glmnet
                               epsilon, # this is for ggmix
-                              dfmax, 
+                              dfmax,
                               verbose) {
 
 
@@ -258,12 +258,13 @@ lmmlasso.fullrank <- function(ggmix_object,
     # message(sprintf("Deviance change = %.6f", deviance_change))
 
     # this check: length(deviance_change) > 0 is for the first lambda since deviance_change returns numeric(0)
-    if (length(deviance_change) > 0) {
+    # also need to check if deviance change is NaN due to division by 0
+    if (length(deviance_change) > 0 & out_print[lambda_index, "%Dev"] > 0) {
       if (deviance_change < fdev) break
     }
-    
+
     if (df > dfmax) break
-    
+
   }
 
   # if there is early stopping due to fdev, remove NAs

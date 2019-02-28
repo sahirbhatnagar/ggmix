@@ -10,7 +10,8 @@ logliklasso(ggmix_object, ...)
 
 \method{logliklasso}{default}(ggmix_object, ...)
 
-\method{logliklasso}{fullrank}(ggmix_object, ..., eta, sigma2, beta, nt, x, y)
+\method{logliklasso}{fullrank}(ggmix_object, ..., eta, sigma2, beta, nt, x,
+  y)
 }
 \arguments{
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or

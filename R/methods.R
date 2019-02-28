@@ -71,6 +71,36 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   values are interpolated using a fraction of predicted values from both left
 #'   and right lambda indices. \code{coef(...)} is equivalent to
 #'   \code{predict(ggmix_fit, type="coefficients",...)}
+#' @examples
+#' \dontrun{
+#' set.seed(1234)
+#' ind <- caret::createDataPartition(admixed$y, p = 0.8, list = FALSE)[,1]
+#' xtrain <- admixed$x[ind,,drop=FALSE]
+#' xtest <- admixed$x[-ind,,drop=FALSE]
+#'
+#' ytrain <- admixed$y[ind]
+#' ytest <- admixed$y[-ind]
+#'
+#' Xall <- rbind(xtest, xtrain)
+#' cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
+#' dim(cov_train)
+#'
+#' cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
+#' dim(cov_all)
+#'
+#' cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
+#'
+#' dim(cov_test_train)
+#'
+#'
+#' fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
+#' bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
+#' plot(bicGGMIX)
+#' coef(bicGGMIX, s = "lambda.min")
+#' yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
+#' covariance = cov_test_train)
+#' yhat_test_population <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "response")
+#' }
 #' @export
 predict.ggmix_fit <- function(object, newx, s = NULL,
                               type = c(

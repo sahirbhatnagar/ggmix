@@ -13,9 +13,9 @@
 \item{object}{fitted \code{ggmix_gic} object}
 
 \item{newx}{matrix of values for \code{x} at which predictions are to be
-made. Do not include the intercept. Must be a matrix. This
-argument is not used for \code{type = c("coefficients","nonzero","all")}.
-This matrix must have the same number of columns originally supplied to the
+made. Do not include the intercept. Must be a matrix. This argument is not
+used for \code{type = c("coefficients","nonzero","all")}. This matrix must
+have the same number of columns originally supplied to the
 \code{\link{ggmix}} fitting function.}
 
 \item{s}{Value(s) of the penalty parameter \code{lambda} at which predictions

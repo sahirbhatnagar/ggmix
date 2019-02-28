@@ -6,7 +6,8 @@
 \title{Make predictions from a \code{ggmix_fit} object}
 \usage{
 \method{predict}{ggmix_fit}(object, newx, s = NULL, type = c("link",
-  "response", "coefficients", "all", "nonzero"), ...)
+  "response", "coefficients", "all", "nonzero", "individual"), covariance,
+  ...)
 
 \method{coef}{ggmix_fit}(object, s = NULL, type, ...)
 }
@@ -15,9 +16,9 @@
 \code{\link{ggmix}} function}
 
 \item{newx}{matrix of values for \code{x} at which predictions are to be
-made. Do not include the intercept. Must be a matrix. This
-argument is not used for \code{type = c("coefficients","nonzero","all")}.
-This matrix must have the same number of columns originally supplied to the
+made. Do not include the intercept. Must be a matrix. This argument is not
+used for \code{type = c("coefficients","nonzero","all")}. This matrix must
+have the same number of columns originally supplied to the
 \code{\link{ggmix}} fitting function.}
 
 \item{s}{Value(s) of the penalty parameter \code{lambda} at which predictions
@@ -33,6 +34,10 @@ Type \code{"nonzero"} returns a 1 column matrix of the the nonzero fixed
 effects, as well as variance components for each value of \code{s}. If more
 than one \code{s} is provided, then \code{"nonzero"} will return a list of
 1 column matrices. Default: "link"}
+
+\item{covariance}{covariance between test and training individuals. if there
+are q testing individuals and N-q training individuals, then this
+covariance matrix is q x (N-q)}
 
 \item{...}{additional arguments to pass to predict function}
 }
@@ -50,4 +55,35 @@ Similar to other predict methods, this functions predicts fitted
   values are interpolated using a fraction of predicted values from both left
   and right lambda indices. \code{coef(...)} is equivalent to
   \code{predict(ggmix_fit, type="coefficients",...)}
+}
+\examples{
+\dontrun{
+set.seed(1234)
+ind <- caret::createDataPartition(admixed$y, p = 0.8, list = FALSE)[,1]
+xtrain <- admixed$x[ind,,drop=FALSE]
+xtest <- admixed$x[-ind,,drop=FALSE]
+
+ytrain <- admixed$y[ind]
+ytest <- admixed$y[-ind]
+
+Xall <- rbind(xtest, xtrain)
+cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
+dim(cov_train)
+
+cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
+dim(cov_all)
+
+cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
+
+dim(cov_test_train)
+
+
+fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
+bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
+plot(bicGGMIX)
+coef(bicGGMIX, s = "lambda.min")
+yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
+covariance = cov_test_train)
+yhat_test_population <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "response")
+}
 }

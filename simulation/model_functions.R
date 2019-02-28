@@ -168,18 +168,41 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   new_model(name = "ggmixThesisv4",
             label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s,
                             sigma2 = %s, geography = %s, p_test = %s, p_kinship = %s, beta_mean = %s",
-                            percent_causal, percent_overlap, eta, sigma2, geography,
-                            p_test, p_kinship, beta_mean),
-            params = list(n = n, p_test = p_test, p_kinship = p_kinship,
-                          k = k, s = s, Fst = Fst, b0 = b0,
+                            percent_causal,
+                            percent_overlap,
+                            eta,
+                            sigma2,
+                            geography,
+                            p_test,
+                            p_kinship,
+                            beta_mean),
+            params = list(n = n,
+                          p_test = p_test,
+                          p_kinship = p_kinship,
+                          k = k,
+                          s = s,
+                          Fst = Fst,
+                          b0 = b0,
                           beta_mean = beta_mean,
-                           eta = eta, sigma2 = sigma2, geography = geography,
+                          eta = eta,
+                          sigma2 = sigma2,
+                          geography = geography,
                           percent_causal = percent_causal,
                           percent_overlap = percent_overlap),
-            simulate = function(n, p_test, p_kinship,
-                                k, s, Fst, b0, beta_mean,
-                                eta, sigma2, geography,
-                                percent_causal, percent_overlap, nsim) {
+            simulate = function(n,
+                                p_test,
+                                p_kinship,
+                                k,
+                                s,
+                                Fst,
+                                b0,
+                                beta_mean,
+                                eta,
+                                sigma2,
+                                geography,
+                                percent_causal,
+                                percent_overlap,
+                                nsim) {
 
               models <- list()
 
@@ -243,7 +266,7 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                   # not_causal <- setdiff(snps_test, causal)
 
                   Xkinship <- Xall[,snps_kinships]
-                  Xtest <- Xall[,snps_test]
+                  Xdesign <- Xall[,snps_test]
 
                   # now estimate kinship using popkin
                   # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -279,7 +302,7 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                   not_causal <- setdiff(snps_test, causal)
 
                   Xkinship <- Xall[,snps_kinships]
-                  Xtest <- Xall[,snps_test]
+                  Xdesign <- Xall[,snps_test]
 
                   # now estimate kinship using popkin
                   # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -293,21 +316,21 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                 # plot(eiK$values)
                 # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
 
-                np <- dim(Xtest)
+                np <- dim(Xdesign)
                 n <- np[[1]]
                 p <- np[[2]]
 
-                x_lasso <- cbind(Xtest,PC[,1:10])
-                x_lasso[1:5,1:5]
+                x_lasso <- cbind(Xdesign,PC[,1:10])
+                # x_lasso[1:5,1:5]
                 # kin <- snpStats::xxt(dat$genotypes)/p
 
                 beta <- rep(0, length = p)
                 if (percent_causal != 0) {
-                  beta[which(colnames(Xtest) %in% causal)] <- runif(n = length(causal), beta_mean - 0.3, beta_mean + 0.3)
-                  # beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
+                  beta[which(colnames(Xdesign) %in% causal)] <- runif(n = length(causal), beta_mean - 0.3, beta_mean + 0.3)
+                  # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
                 }
-                # beta[which(colnames(Xtest) %in% causal)] <- rnorm(n = length(causal))
-                mu <- as.numeric(Xtest %*% beta)
+                # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
+                mu <- as.numeric(Xdesign %*% beta)
 
                 tt <- eta * sigma2 * kin
                 if (!all(eigen(tt)$values > 0)) {
@@ -322,11 +345,34 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                 # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
                 y <- b0 + mu + P + E
 
-                models[[i]] <- list(y = y, Xtest = Xtest, causal = causal,
-                                    beta = beta, kin = kin,
+                ind <- caret::createDataPartition(y, p = 0.8, list = FALSE)[,1]
+                xtrain <- Xdesign[ind,,drop=FALSE]
+                xtest <- Xdesign[-ind,,drop=FALSE]
+
+                xtrain_lasso <- x_lasso[ind,,drop=FALSE]
+                xtest_lasso <- x_lasso[-ind,,drop=FALSE]
+
+                ytrain <- y[ind]
+                ytest <- y[-ind]
+
+                Xall <- rbind(xtest, xtrain)
+                cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
+                cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
+                cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
+
+
+                models[[i]] <- list(ytrain = ytrain,
+                                    ytest = ytest,
+                                    xtrain = xtrain,
+                                    xtrain_lasso = xtrain_lasso,
+                                    xtest = xtest,
+                                    xtest_lasso = xtest_lasso,
+                                    causal = causal,
+                                    beta = beta,
+                                    kin = kin,
                                     mu = mu,
-                                    not_causal = not_causal,
-                                    x_lasso = x_lasso)
+                                    not_causal = not_causal
+                                    )
               }
               return(models)
             })

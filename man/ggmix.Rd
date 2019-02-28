@@ -5,8 +5,8 @@
 \title{Fit Linear Mixed Model with Lasso or Group Lasso Regularization}
 \usage{
 ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
-  estimation = c("full", "low"), penalty = c("lasso", "gglasso"), group,
-  penalty.factor = rep(1, p_design), lambda = NULL,
+  estimation = c("full", "low"), penalty = c("lasso", "gglasso"),
+  group, penalty.factor = rep(1, p_design), lambda = NULL,
   lambda_min_ratio = ifelse(n_design < p_design, 0.01, 1e-04),
   nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-20,
   standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,

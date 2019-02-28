@@ -39,5 +39,5 @@ Suggests:
     rmarkdown
 BugReports: https://github.com/sahirbhatnagar/ggmix/issues
 URL: https://github.com/sahirbhatnagar/ggmix
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
