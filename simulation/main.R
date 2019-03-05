@@ -32,8 +32,8 @@ source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functio
 
 # name_of_simulation <- "thesis-ggmix-july1" this had only one eta value
 # name_of_simulation <- "thesis-ggmix-july3" # this has more than 1 eta value 0.1,0.2,0.3,0.4
-name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, and eta=0.1, 0.5
-
+# name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, and eta=0.1, 0.5
+name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1, 0.5
 ## @knitr main
 
 # nsim needs to be at least 2
@@ -54,29 +54,44 @@ name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, an
 # save_simulation(sim)
 
 
-sim <- new_simulation(name_of_simulation, "thesis-july-12", dir = "simulation/") %>%
-  generate_model(make_ADmixed_model, b0 = 0, sigma2 = 1,
-                 eta = list(0.1, 0.5),
+sim <- new_simulation(name_of_simulation, "mar-5", dir = "simulation/") %>%
+  generate_model(make_ADmixed_model,
+                 b0 = 2,
+                 sigma2 = 1,
+                 beta_mean = 1,
+                 k = 5,
+                 s = 0.5,
+                 Fst = 0.1,
+
+                 # n = 1000,
+                 # p_test = 5000,
+                 # p_kinship = 10000,
+                 # eta = list(0.1, 0.5),
+                 # geography = list("ind", "1d","circ"),
+                 # percent_causal = list(0, 0.01),
+                 # percent_overlap = list("0","100"),
+                 # vary_along = c("geography","percent_overlap","percent_causal","eta"),
+
                  n = 1000,
                  p_test = 5000,
-                 beta_mean = 0.5,
-                 # p_test = 500,
                  p_kinship = 10000,
-                 geography = list("ind", "1d","circ"),
-                 # geography = "circ",
-                 percent_causal = list(0, 0.01),
-                 percent_overlap = list("0","100"),
-                 # percent_overlap = "100",
-                 k = 5, s = 0.5, Fst = 0.1,
-                 vary_along = c("geography","percent_overlap","percent_causal","eta")
+                 eta = 0.5,
+                 geography = "circ",
+                 percent_causal = 0.01,
+                 percent_overlap = "100"#,
+                 # vary_along = c("percent_overlap","percent_causal","eta")
                  ) %>%
-  simulate_from_model(nsim = 6, index = 1:35) %>%
+  simulate_from_model(nsim = 2, index = 1) %>%
   # simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed, twostep, twostepY),
+  run_method(list(lasso, ggmixed))#, twostep, twostepY),
              parallel = list(socket_names = 35,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+
+sim <- sim %>% run_method(list(lasso, ggmixed))
+
 save_simulation(sim)
-sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
+sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
+                             correct_sparsity,mse, errorvariance, selected))
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()

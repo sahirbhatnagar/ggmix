@@ -25,10 +25,10 @@ pacman::p_load(simulator)
 pacman::p_load(gaston)
 pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd') # load this after popkin
-pacman::p_load('lfa')
+# pacman::p_load('lfa')
 pacman::p_load('RColorBrewer')
-pacman::p_load_gh('sahirbhatnagar/ggmix@papel')
-
+# pacman::p_load_gh('sahirbhatnagar/ggmix@master')
+devtools::load_all()
 # source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/fitting.R")
 # source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/functions.R")
 # source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/R/methods.R")
