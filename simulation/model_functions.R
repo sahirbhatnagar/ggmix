@@ -382,7 +382,8 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                 beta <- rep(0, length = p)
                 if (percent_causal != 0) {
-                  beta[which(colnames(Xdesign_train) %in% causal)] <- runif(n = length(causal), beta_mean - 0.3, beta_mean + 0.3)
+                  # beta[which(colnames(Xdesign_train) %in% causal)] <- runif(n = length(causal), beta_mean - 0.3, beta_mean + 0.3)
+                  beta[which(colnames(Xdesign_train) %in% causal)] <- c(2,4,3,3,1)
                   # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
                 }
                 # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
@@ -417,7 +418,8 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                 # used for covariance term in ggmix prediciton
                 Xall <- rbind(Xkinship_test, Xkinship_train)
-                cov_all <- 2 * popkin::popkin(Xall, subpops = ceiling( (1:(2*n))/(2*n)*(2*k) ), lociOnCols = TRUE)
+                # cov_all <- 2 * popkin::popkin(Xall, subpops = ceiling( (1:(2*n))/(2*n)*(2*k) ), lociOnCols = TRUE)
+                cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
                 cov_test_train <- cov_all[1:nrow(Xkinship_test), (nrow(Xkinship_test)+1):ncol(cov_all), drop = FALSE]
 
 

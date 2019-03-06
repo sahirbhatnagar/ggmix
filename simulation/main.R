@@ -24,9 +24,9 @@ source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
 source("/home/sahir/git_repositories/ggmix/simulation/method_functions.R")
 source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
-source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/model_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/method_functions.R")
+# source("/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/ggmix/simulation/eval_functions.R")
 
 ## @knitr init
 
@@ -56,7 +56,7 @@ name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1
 
 sim <- new_simulation(name_of_simulation, "mar-5", dir = "simulation/") %>%
   generate_model(make_ADmixed_model,
-                 b0 = 2,
+                 b0 = 1,
                  sigma2 = 1,
                  beta_mean = 1,
                  k = 5,
@@ -76,26 +76,27 @@ sim <- new_simulation(name_of_simulation, "mar-5", dir = "simulation/") %>%
                  p_test = 5000,
                  p_kinship = 10000,
                  eta = 0.5,
-                 geography = "circ",
-                 percent_causal = 0.01,
+                 geography = "ind",
+                 percent_causal = 0.001,
                  percent_overlap = "100"#,
                  # vary_along = c("percent_overlap","percent_causal","eta")
                  ) %>%
   simulate_from_model(nsim = 2, index = 1) %>%
   # simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed))#, twostep, twostepY),
-             parallel = list(socket_names = 35,
+  run_method(list(lasso, ggmixed),#, twostep, twostepY),
+             parallel = list(socket_names = 8,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 
-sim <- sim %>% run_method(list(lasso, ggmixed))
+# sim <- sim %>% run_method(list(lasso, ggmixed))
 
 save_simulation(sim)
 sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
-                             correct_sparsity,mse, errorvariance, selected))
+                             correct_sparsity,mse, errorvariance))
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
-
+plot_eval(sim, "mse")
+plot_eval(sim, "correct_sparsity")
 
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
 sim <- sim %>%
