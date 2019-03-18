@@ -848,7 +848,7 @@ However, this signal is being spread across many variables leading to many Type 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+\section{Real Data Application}
 
 
 \section{Discussion}
