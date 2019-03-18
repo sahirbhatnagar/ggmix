@@ -188,7 +188,7 @@ knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
 
 # set to FALSE if still in development and you dont want to run the R code
-finalversion <- FALSE
+finalversion <- TRUE
 @
 
 <<packages, eval=finalversion>>=
