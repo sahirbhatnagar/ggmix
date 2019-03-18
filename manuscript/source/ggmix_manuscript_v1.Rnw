@@ -884,9 +884,9 @@ To evaluate robustness of different models, we bootstrapped the 189-sample datas
 We directly estimated the kinship using genotypes marked by 625 microsatellite markers.
 
 We demonstrate that \ggmix ~recognizes the true associations more robustly than twostep and lasso. In almost all (99%) bootstrap replicates, \ggmix ~is able to capture both true positives, while twostep failed in 19% of the replicates and lasso failed in 56% of the replicates due to missing of at least one of the two true positives (Figure~\ref{fig:MethodComparisonMice}).
-Besides, although we do not have much supporting evidence from other studies, we found several other loci might also be reasonably associated with susceptibility to myobacterial infection, where \ggmix ~provides more information than the other two methods.
+Besides, although we do not have much supporting evidence from other studies, we found several other loci might also be reasonably associated with susceptibility to myobacterial infection, where \ggmix ~provides more information than the other two methods (Table).
 
-<<MethodComparisonMice, dev="cairo_pdf", fig.asp=0.8, fig.width=6, fig.height=13.2, fig.pos = 'H', fig.cap="", eval=finalversion>>=
+<<MethodComparisonMice, dev="cairo_pdf", fig.asp=0.8, fig.width=6, fig.height=13.2, fig.pos = 'H', fig.cap="Comparison of model performance. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model.", eval=finalversion>>=
 @
 
 \usepackage[T1]{fontenc}
