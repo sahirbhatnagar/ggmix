@@ -850,6 +850,11 @@ However, this signal is being spread across many variables leading to many Type 
 
 \section{Real Data Application}
 
+\subsection{GAW20}
+
+We applied 
+
+\subsection{Complex Mouse Crosses}
 
 \section{Discussion}
 
