@@ -852,9 +852,26 @@ However, this signal is being spread across many variables leading to many Type 
 
 \subsection{GAW20}
 
-We applied 
+We applied \ggmix ~to all 200 GAW20 simulation datasets and also compared its performance to the twostep and lasso methods.
+Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model) (cite: Richard AJH 2018 BMC Proc.), we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide p = \num{6.29e-9}).
+Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
+Therefore, to avoid ambiguity, we only focused on chromosome 1 where rs9661059 resides.
+Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP (cite: Thomton T 2012 AJHG.) after decomposing population compositions using ADMIXTURE (cite: Alexander DH 2009 Genome Res.).
+For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study, supplying the same estimated kinship matrix.
+
+On each simulated replicate, we selected the optimal model parameters for each method by fixing true positive rate to 1 while minimizing false positive rate, such that rs9661059 is an active predictor while non-causal SNPs are excluded to the greatest extent.
+All of the three mothods precisely choose the correct predictor without any false positive in more than half of the replicates given the outstanding causal signal (Figure~\ref{fig:GAW20-FalsePositive-fixFPR}), among which \ggmix ~shows the least variability in the number of non-causal SNP picked.
+Moreover, we assessed the accuracy of phenotype prediction following section 3.7. We observed that \ggmix ~outperforms the twostep method without taking advantage of more SNPs, while it achieves roughly the same prediction accuracy as lasso but with much less SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+
+<<GAW20-FalsePositive-fixFPR, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="", eval=finalversion>>=
+@
+
+<<GAW20-prediction-RMSE-activeVariable, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="", eval=finalversion>>=
+@
 
 \subsection{Complex Mouse Crosses}
+
+
 
 \section{Discussion}
 
