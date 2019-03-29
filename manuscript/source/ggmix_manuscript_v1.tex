@@ -96,14 +96,16 @@
 \newtheorem{proposition}{Proposition}[section]
 
 %\usepackage{csquotes}
-
-
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx,ragged2e,booktabs,caption}
+\usepackage{graphicx}
 
 %\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
 %\usepackage{epstopdf}
 
 %\usepackage{tabulary}
-%\usepackage{siunitx}
+\usepackage{siunitx}
 %\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
 %\usepackage{setspace}
 %\AtBeginEnvironment{tabulary}{\onehalfspacing}
@@ -227,7 +229,12 @@
 
 
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in normalizePath(path, winslash = "{}/"{}, mustWork = TRUE): path[1]="{}/home/sahir/git\_repositories/ggmix/"{}: No such file or directory}}\end{kframe}
+\end{knitrout}
 
 
 
@@ -707,7 +714,7 @@ where $\bV^{-1}$ is given by~\eqref{eq:Vinv}, and $(\widehat{\bbeta}, \widehat{\
 
 
 
-\subsection{Phenotype prediction}
+\subsection{Phenotype prediction} \label{phenoprediction}
 
 Here we describe the method used for predicting the unobserved phenotype $\bY^\star$ in a set of individuals with predictor set $\bX^\star$ that were not used in the model training e.g. a testing set. Let $q$ denote the number of observations in the testing set and $N-q$ the number of observations in the training set. We assume that a \texttt{ggmix} model has been fit on a set of training individuals with observed phenotype $\bY$ and predictor set $\bX$.  We further assume that $\bY$ and $\bY^\star$ are jointly multivariate Normal:
 
@@ -756,18 +763,30 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 
 
 
-\section{Simulation Study}
+\section{Simulation Study} \label{simustudy}
 
 To assess the performance of \texttt{ggmix}, we simulated random genotypes from the BN-PSD admixture model using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}.
 We used a block diagonal kinship structure with 5 subpopulations.
 In Figure~\ref{fig:plot-kinship-sim}, we plot an estimated kinship matrix  ($\bPhi$), based on a single simulated dataset, in the form of a heatmap.
 Each block represents a subpopulation, and a darker color indicates a closer genetic relationship.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: 'gen\_structured\_model' is not an exported object from 'namespace:ggmix'}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in popkin::plotPopkin(x = list(dat[[1]]\$kin), titles = c("{}Empirical Kinship Matrix with Block Structure"{}), : object 'dat' not found}}\end{kframe}
+\end{knitrout}
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in plot(dat[[1]]\$x\_lasso[, 5001], dat[[1]]\$x\_lasso[, 5002], pch = 19, : object 'dat' not found}}\end{kframe}
+\end{knitrout}
 
 
 For other parameters in our simulation study, we define the following quantities:
@@ -815,34 +834,119 @@ We also compare the model error $(\norm*{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{
 
 \subsection{Results}
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in gzfile(file, "{}rb"{}): cannot open the connection}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in UseMethod("{}separate\_"{}): no applicable method for 'separate\_' applied to an object of class "{}function"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in setDT(as.data.frame(x, ...)): Argument 'x' to 'setDT' should be a 'list', 'data.frame' or 'data.table'}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}\end{kframe}
+\end{knitrout}
 
 We first plot the correct sparsity results for the null model ($c=0$) and the model with 1\% causal SNPs ($c=0.01$) in Figures~\ref{fig:plot-correct-sparsity-sim-null-model} and~\ref{fig:plot-correct-sparsity-sim-1p-causal}, respectively. When the true model has no causal SNPs, we see that \ggmix ~has perfect Type 1 error control across all 200 replications while both the twostep and lasso methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[p\_causal == "{}Null model"{}][p\_overlap == "{}No causal SNPs in Kinship"{}][structure == : object 'DT' not found}}
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_cs' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[p\_causal != "{}Null model"{}][structure == "{}block"{}], aes(Method, : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_cs' not found}}\end{kframe}
+\end{knitrout}
 
 
 The true positive vs. false positive rate for the model with 1\% causal SNPs ($c=0.01$) is shown in Figure~\ref{fig:plot-tpr-fpr-sim-1p-causal}. Both the lasso and twostep outperform \ggmix ~in terms of identifying the true model. This accuracy however, comes at the cost of a very high false positive rate compared to \ggmix.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(lhs, parent, parent): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(data = df\_tpr\_fpr, aes(x = mean.fpr, y = mean.tpr, color = Method, : object 'df\_tpr\_fpr' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_tpr\_fpr' not found}}\end{kframe}
+\end{knitrout}
 
 We plot the twostep and \ggmix ~heritability estimates for $c=0$ (Figure~\ref{fig:plot-eta-sim-null-model}, Supplemental Section~\ref{ap:ggmix_sim_results}) and $c=0.01$ (Figure~\ref{fig:plot-eta-sim-1p-causal}). We see that both methods correctly estimate the heritability in the null model. When all of the causal SNPs are in the kinship matrix, both methods overestimate $\eta$ though \ggmix ~is closer to the true value. When none of the causal SNPs are in the kinship, both methods tend to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=50\%$.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal != "{}Null model"{}][Method \%in\% : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_eta' not found}}\end{kframe}
+\end{knitrout}
 
 
 In Figures~\ref{fig:plot-errorvar-sim-null-model} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-errorvar-sim-1p-causal}, we plot the error variance for $c=0$ and $c=0.01$, respectively.
 The twostep and \ggmix ~methods correctly estimate the error variance while the lasso overestimates it for the null model and for when 1\% of the causal SNPs are in the kinship matrix. We see an inflated estimated error variance across all three methods when $c=0.01$ and none of the causal SNPs are in the kinship matrix with the lasso and \ggmix ~performing similarly.
 
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal != "{}Null model"{}], aes(Method, : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_errorvar' not found}}\end{kframe}
+\end{knitrout}
 
 
 We compare the model error as a function of $\widehat{S}_{\hat{\lambda}}$ in Figures~\ref{fig:plot-me-nactive-sim-null} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-me-nactive-sim-1p-causal} for $c=0$ and $c=0.01$, respectively. Lasso achieves the smallest model error across all scenarios (for $c=0.01$), albeit with a large number of active variables. \ggmix ~has a smaller model error compared to twostep when all causal SNPs are in the kinship matrix and similar performance when none of the causal SNPs are in the kinship matrix.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(lhs, parent, parent): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(data = df\_me\_nactive, aes(x = mean.nactive, y = mean.me, : object 'df\_me\_nactive' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_me\_nactive' not found}}\end{kframe}
+\end{knitrout}
 
 Overall, we observe that variable selection results for \ggmix ~are similar regardless of whether the causal SNPs are in the kinship matrix or not.
 This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal.
@@ -869,8 +973,89 @@ However, this signal is being spread across many variables leading to many Type 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+\section{Real Data Application}
+
+Two datasets are used to illustrate \ggmix ~has the potential with contrasting features. In one dataset, family strature induces low level of correlation and sparsity in signals. In the second mouse crosses, correlations are extremely strong and can confound signals.
+
+\subsection{GAW20}
+
+In the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal relationships between DNA methylation (exposure) within some genes and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}.
+Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV).
+However, since GAW20 data consisted of families, twostep methods were used which could have resulted in a large number of false positives. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the family structure of the data.
+
+We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observations, and compared its performance to the twostep and lasso methods.
+Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model)~\citep{howey2018application}, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
+Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
+Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs where rs9661059 resides.
+Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix ~.
+For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}, supplying the same kinship matrix estimated by REAP.
+
+On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing true positive rate to 1 and then minimizing false positive rate. Hence, the selected SNP, rs9661059, is likely to be the true positive for each method, and non-causal SNPs are excluded to the greatest extent.
+All of the three mothods precisely choose the correct predictor without any false positives in more than half of the replicates, given the strong causal signal. When some false positives are selected, \ggmix ~performs comparably to twostep, and the lasso tends to select more false positives (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+Moreover, we assessed the accuracy of phenotype prediction following methods in section \ref{phenoprediction}. We observed that \ggmix ~outperforms the twostep method without requiring more SNPs, while it achieves roughly the same prediction accuracy as lasso but with fewer non-causal SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/GAW20-prediction-RMSE-activeVariable-1} 
+
+}
+
+\caption[Mean $\pm 1$ standard deviation of root mean square error vs]{Mean $\pm 1$ standard deviation of root mean square error vs. number of active variables used by each method. Diamonds represent median number of active variables and the corresponding root mean square error. Horizontal solid lines span from median to the 90th percentile; Horizontal dotted lines span from the 90th percentile to the 95th percentile.}\label{fig:GAW20-prediction-RMSE-activeVariable}
+\end{figure}
 
 
+\end{knitrout}
+
+\subsection{Mouse Crosses}
+
+Mouse inbred strains of genetically identical individuals are extensively used in research.
+Crosses of different inbred strains are useful for various studies of heritability focusing on either observable phenotypes or molecular mechanisms, and in particular, recombinant congenic strains have been an extremely useful resource for many years~\citep{fortin2001recombinant}.
+However, ignoring complex genetic relationship in association studies can lead to inflated false positives in genetic association studies when different inbred strains and their crosses are investigated~\citep{bennett2010high,flint2012genome,cheng2010genome}.
+Therefore, a previous study developed and implemented a mixed model to find loci associated with mouse sensitivity to mycobacterial infection~\citep{di2010strain}. The random effects in the model captured complex correlation between the recombinant congenic mouse strains based on the proportion of the shared identical by descent. Through a series of mixed model fits at each marker, new loci on chromosome 1 and chromosome 11.
+
+Here we show that \ggmix ~can identify these loci, as well as potentially others, in a single analysis. We also reanalyzed the mouse response to $Mycobacterium$ $bovis$ Bacille Calmette-Guerin (BCG) Russia strain as reported in ~\citep{di2010strain}.
+
+By taking the consensus between the "main model" and the "conditional model" of the original study, we regarded markers D1Mit435 on chromosome 1 and D11Mit119 on chromosome 11 as two true positive loci.
+Similar to our aforementioned strategy of choosing the true positives, we optimized models by tuning the penalty factor such that these two loci are picked up, while the number of other active loci is minimized.
+To evaluate robustness of different models, we bootstrapped the 189-sample dataset and repeated analysis 200 times.
+We directly estimated the kinship between mice using genotypes at 625 microsatellite markers. The estimated kinship entered directly into \ggmix ~and twostep. For the lasso, we calculated and included the first 10 principal components of the estimated kinship.
+Significant markers are defined as those captured in at least half of the bootstrap replicates, and in which the corresponding method successfully captures both pre-selected true positives with a penalty factor minimizing the number of active loci (Figure~\ref{fig:Mice-comparison-fixTPR}).
+
+We demonstrate that \ggmix ~recognizes the true associations more robustly than twostep and lasso. In almost all (99\%) bootstrap replicates, \ggmix ~is able to capture both true positives, while twostep failed in 19\% of the replicates and lasso failed in 56\% of the replicates by missing of at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}).
+We also identified several other loci that might also be associated with susceptibility to myobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markders, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. This locus is considered significant by our definition for both \ggmix ~and lasso. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/Mice-comparison-fixTPR-1} 
+
+}
+
+\caption[Comparison of model performance]{Comparison of model performance. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate $p$ value thresholds.}\label{fig:Mice-comparison-fixTPR}
+\end{figure}
+
+
+\end{knitrout}
+
+\newcolumntype{C}[1]{>{\Centering}m{#1}}
+\renewcommand\tabularxcolumn[1]{C{#1}}
+
+\begin{minipage}{\linewidth}
+\bigskip
+\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker} 
+\begin{tabular}{ C{1.25in} C{.85in} C{1.25in} C{2.5in}}\toprule[1.5pt]
+\bf Method & \bf Marker & \bf Position in cM & \bf Position in bp\\\midrule
+twostep & N/A & N/A & N/A\\
+lasso & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+& D14Mit155 & Chr14:31.52 & Chr14:59828398-59828596\\
+ggmix & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+& D14Mit131 & Chr14:63.59 & Chr14:120006565-120006669\\
+& D17Mit221 & Chr17:59.77 & Chr17:90087704-90087842\\
+\bottomrule[1.25pt]
+\end {tabular}\par
+\bigskip
+\end{minipage}
 
 \section{Discussion}
 
@@ -1203,16 +1388,53 @@ and $(x)_+ = \max(x, 0)$.
 
 \section{Additional Simulation Results} \label{ap:ggmix_sim_results}
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal == "{}Null model"{}][p\_overlap == : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_nactive' not found}}\end{kframe}
+\end{knitrout}
 
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal != "{}Null model"{}], aes(Method, : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_nactive' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal == "{}Null model"{}][Method \%in\% : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_eta' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(DT[structure == "{}block"{}][p\_causal == "{}Null model"{}][p\_overlap == : object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_errorvar' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(lhs, parent, parent): object 'DT' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(data = df\_me\_nactive, aes(x = mean.nactive, y = mean.me, : object 'df\_me\_nactive' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'p1\_me\_nactive' not found}}\end{kframe}
+\end{knitrout}
 
 \FloatBarrier
 
@@ -1246,6 +1468,12 @@ To showcase the main functions in \ggmix, ~we will use the simulated data which 
 \hlkwd{data}\hlstd{(}\hlstr{"admixed"}\hlstd{)}
 \hlkwd{names}\hlstd{(admixed)}
 \end{alltt}
+\begin{verbatim}
+##  [1] "y"               "x"               "causal"         
+##  [4] "beta"            "kin"             "Xkinship"       
+##  [7] "not_causal"      "causal_positive" "causal_negative"
+## [10] "x_lasso"
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1268,6 +1496,13 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 \hlstd{popkin}\hlopt{::}\hlkwd{plotPopkin}\hlstd{(admixed}\hlopt{$}\hlstd{kin)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-popkin-1} 
+
+}
+
+
+
 \end{knitrout}
 
 \subsection{Fit the linear mixed model with Lasso Penalty}
@@ -1279,8 +1514,19 @@ We will use the most basic call to the main function of this package, which is c
 \begin{alltt}
 \hlstd{fit} \hlkwb{<-} \hlkwd{ggmix}\hlstd{(}\hlkwc{x} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{y} \hlstd{= admixed}\hlopt{$}\hlstd{y,} \hlkwc{kinship} \hlstd{= admixed}\hlopt{$}\hlstd{kin)}
 \hlkwd{names}\hlstd{(fit)}
+\end{alltt}
+\begin{verbatim}
+##  [1] "result"       "ggmix_object" "n_design"     "p_design"    
+##  [5] "lambda"       "coef"         "b0"           "beta"        
+##  [9] "df"           "eta"          "sigma2"       "nlambda"     
+## [13] "cov_names"    "call"
+\end{verbatim}
+\begin{alltt}
 \hlkwd{class}\hlstd{(fit)}
 \end{alltt}
+\begin{verbatim}
+## [1] "lassofullrank" "ggmix_fit"
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1292,6 +1538,13 @@ We can see the solution path for each variable by calling the \texttt{plot} meth
 \hlkwd{plot}\hlstd{(fit)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-solution-path-1} 
+
+}
+
+
+
 \end{knitrout}
 
 We can also get the coefficients for given value(s) of lambda using the \texttt{coef} method for objects of class \texttt{ggmix\_fit}:
@@ -1302,6 +1555,15 @@ We can also get the coefficients for given value(s) of lambda using the \texttt{
 \hlcom{# only the first 5 coefficients printed here for brevity}
 \hlkwd{coef}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{))[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ]}
 \end{alltt}
+\begin{verbatim}
+## 5 x 2 Matrix of class "dgeMatrix"
+##                      1            2
+## (Intercept) -0.3824525 -0.030224599
+## X62          0.0000000  0.000000000
+## X185         0.0000000  0.001444518
+## X371         0.0000000  0.009513475
+## X420         0.0000000  0.000000000
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 Here, \texttt{s} specifies the value(s) of $\lambda$ at which the extraction is made. The function uses linear interpolation to make predictions for values of \texttt{s} that do not coincide with the lambda sequence used in the fitting algorithm.
@@ -1315,6 +1577,14 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 \hlcom{# predict for the first 5 subjects}
 \hlkwd{predict}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{),} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
+\begin{verbatim}
+##               1          2
+## id1 -1.19165061 -1.3123392
+## id2 -0.02913052  0.3885923
+## id3 -2.00084875 -2.6460043
+## id4 -0.37255277 -0.9542463
+## id5 -1.03967831 -2.1377268
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1329,7 +1599,11 @@ We use the Generalized Information Criterion (GIC) to select the optimal value f
 \hlcom{# pass the fitted object from ggmix to the gic function:}
 \hlstd{hdbic} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit)}
 \hlkwd{class}\hlstd{(hdbic)}
-
+\end{alltt}
+\begin{verbatim}
+## [1] "ggmix_gic"     "lassofullrank" "ggmix_fit"
+\end{verbatim}
+\begin{alltt}
 \hlcom{# we can also fit the BIC by specifying the an argument}
 \hlstd{bicfit} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit,} \hlkwc{an} \hlstd{=} \hlkwd{log}\hlstd{(}\hlkwd{length}\hlstd{(admixed}\hlopt{$}\hlstd{y)))}
 \end{alltt}
@@ -1344,6 +1618,13 @@ We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} met
 \hlkwd{plot}\hlstd{(hdbic)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-hdbic-1} 
+
+}
+
+
+
 \end{knitrout}
 
 The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that leads to the minium HDBIC is:
@@ -1353,6 +1634,9 @@ The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that
 \begin{alltt}
 \hlstd{hdbic[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
+\begin{verbatim}
+## [1] 0.05596623
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1363,8 +1647,20 @@ We can also plot the BIC results:
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(bicfit,} \hlkwc{ylab} \hlstd{=} \hlstr{"BIC"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-bic-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
 \hlstd{bicfit[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
+\begin{verbatim}
+## [1] 0.05596623
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1378,6 +1674,15 @@ We can use the object outputted by the \texttt{gic} function to extract the coef
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ,} \hlkwc{drop} \hlstd{=} \hlnum{FALSE}\hlstd{]}
 \end{alltt}
+\begin{verbatim}
+## 5 x 1 sparse Matrix of class "dgCMatrix"
+##                      1
+## (Intercept) -0.2668419
+## X62          .        
+## X185         .        
+## X371         .        
+## X420         .
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1388,6 +1693,19 @@ We can also extract just the nonzero coefficients which also provide the estimat
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"nonzero"}\hlstd{)}
 \end{alltt}
+\begin{verbatim}
+##                       1
+## (Intercept) -0.26684191
+## X336        -0.67986393
+## X7638        0.43403365
+## X1536        0.93994982
+## X1943        0.56600730
+## X2849       -0.58157979
+## X56         -0.08244685
+## X4106       -0.35939830
+## eta          0.26746240
+## sigma2       0.98694300
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1398,6 +1716,14 @@ We can also make predictions from the \texttt{hdbic} object, which by default wi
 \begin{alltt}
 \hlkwd{predict}\hlstd{(hdbic,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
+\begin{verbatim}
+##              1
+## id1 -1.3061041
+## id2  0.2991654
+## id3 -2.3453664
+## id4 -0.4486012
+## id5 -1.3895793
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1411,6 +1737,9 @@ The user can compute the random effects using the provided \texttt{ranef} method
 \begin{alltt}
 \hlkwd{ranef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{]}
 \end{alltt}
+\begin{verbatim}
+## [1] -0.02548691 -0.10011680  0.13020240 -0.30650997  0.16045768
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1429,6 +1758,13 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"predicted"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-obs-pred-1} 
+
+}
+
+
+
 \end{knitrout}
 
 
@@ -1438,9 +1774,25 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQranef"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQresid"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-2} 
+
+}
+
+
+
 \end{knitrout}
 
 
@@ -1452,6 +1804,13 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"Tukey"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-tukey-1} 
+
+}
+
+
+
 \end{knitrout}
 
 
