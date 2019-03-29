@@ -46,14 +46,16 @@
 \newtheorem{proposition}{Proposition}[section]
 
 %\usepackage{csquotes}
-
-
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx,ragged2e,booktabs,caption}
+\usepackage{graphicx}
 
 %\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
 %\usepackage{epstopdf}
 
 %\usepackage{tabulary}
-%\usepackage{siunitx}
+\usepackage{siunitx}
 %\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
 %\usepackage{setspace}
 %\AtBeginEnvironment{tabulary}{\onehalfspacing}
@@ -186,6 +188,7 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 # code externalizations
 knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
+knitr::read_chunk("../bin/RealData.R")
 
 # set to FALSE if still in development and you dont want to run the R code
 finalversion <- TRUE
@@ -673,7 +676,7 @@ where $\bV^{-1}$ is given by~\eqref{eq:Vinv}, and $(\widehat{\bbeta}, \widehat{\
 
 
 
-\subsection{Phenotype prediction}
+\subsection{Phenotype prediction} \label{phenoprediction}
 
 Here we describe the method used for predicting the unobserved phenotype $\bY^\star$ in a set of individuals with predictor set $\bX^\star$ that were not used in the model training e.g. a testing set. Let $q$ denote the number of observations in the testing set and $N-q$ the number of observations in the training set. We assume that a \texttt{ggmix} model has been fit on a set of training individuals with observed phenotype $\bY$ and predictor set $\bX$.  We further assume that $\bY$ and $\bY^\star$ are jointly multivariate Normal:
 
@@ -722,7 +725,7 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 
 
 
-\section{Simulation Study}
+\section{Simulation Study} \label{simustudy}
 
 To assess the performance of \texttt{ggmix}, we simulated random genotypes from the BN-PSD admixture model using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}.
 We used a block diagonal kinship structure with 5 subpopulations.
@@ -850,65 +853,66 @@ However, this signal is being spread across many variables leading to many Type 
 
 \section{Real Data Application}
 
+Two datasets are used to illustrate \ggmix ~has the potential with contrasting features. In one dataset, family strature induces low level of correlation and sparsity in signals. In the second mouse crosses, correlations are extremely strong and can confound signals.
+
 \subsection{GAW20}
 
+In the most recent Genetic Analysis Workship 20 (GAW20),  the causal modeling group investigated causal relationships between DNA methylation (exposure) within some genes and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}.
+Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV).
+However, since GAW20 data consisted of families, twostep methods were used which could have resulted in a large number of false positives. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the family structure of the data.
+
 We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observations, and compared its performance to the twostep and lasso methods.
-Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model) (cite: Richard AJH 2018 BMC Proc.), we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide p = \num{6.29e-9}).
+Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model)~\citep{howey2018application}, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
 Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
 Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs where rs9661059 resides.
-Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP (cite: Thomton T 2012 AJHG.) after decomposing population compositions using ADMIXTURE (cite: Alexander DH 2009 Genome Res.).
-For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study, supplying the same estimated kinship matrix.
+Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix ~.
+For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}, supplying the same kinship matrix estimated by REAP.
 
-On each simulated replicate, we selected the optimal model parameters for each method by fixing true positive rate to 1 while minimizing false positive rate, such that the only true positive, rs9661059, is an active predictor while non-causal SNPs are excluded to the greatest extent.
-All of the three mothods precisely choose the correct predictor without any false positive in more than half of the replicates given the outstanding causal signal (Figure~\ref{fig:GAW20-FalsePositive-fixFPR}), among which \ggmix ~shows the least variability in the number of non-causal SNP picked.
-Moreover, we assessed the accuracy of phenotype prediction following section 3.7. We observed that \ggmix ~outperforms the twostep method without taking advantage of more SNPs, while it achieves roughly the same prediction accuracy as lasso but with much less SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing true positive rate to 1 and then minimizing false positive rate. Hence, the selected SNP, rs9661059, is likely to be the true positive for each method, and non-causal SNPs are excluded to the greatest extent.
+All of the three mothods precisely choose the correct predictor without any false positives in more than half of the replicates, given the strong causal signal. When some false positives are selected, \ggmix ~performs comparably to twostep, and the lasso tends to select more false positives (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+Moreover, we assessed the accuracy of phenotype prediction following methods in section \ref{phenoprediction}. We observed that \ggmix ~outperforms the twostep method without requiring more SNPs, while it achieves roughly the same prediction accuracy as lasso but with fewer non-causal SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
 
-<<GAW20-FalsePositive-fixFPR, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Least number false positives generated when the true causal SNP is captured on 200 GAW20 simulation datasets.", eval=finalversion>>=
-@
-
-<<GAW20-prediction-RMSE-activeVariable, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean $\\pm 1$ standard deviation of root mean square error vs. number of active variables used by each method. Dots represent median number of active variables and the corresponding root mean square error. Horizontal solid lines span from median to the 90th percentile. Horizontal dotted lines span from the 90th percentile to the 95th percentile.", eval=finalversion>>=
+<<GAW20-prediction-RMSE-activeVariable, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean $\\pm 1$ standard deviation of root mean square error vs. number of active variables used by each method. Diamonds represent median number of active variables and the corresponding root mean square error. Horizontal solid lines span from median to the 90th percentile; Horizontal dotted lines span from the 90th percentile to the 95th percentile.", eval=finalversion>>=
 @
 
 \subsection{Mouse Crosses}
 
 Mouse inbred strains of genetically identical individuals are extensively used in research.
-Crosses of different inbred strains are useful for various studies of heritability focusing on either observable phenotypes or molecular mechanisms.
-However, complex genetic relationship is likely to incur inflated false positives in genetic association studies when different inbred strains and their crosses are investigated (cite: Bennett BJ 2010 Genome Res.; Kang HM 2008 Genetics.; Manenti G 2009 PLoS Genet.; Flint J 2013 Nat Rev Genet.; Cheng R 2010 Genetics.).
-A previous study implemented random effect of genetic relatedness, utilizing $a priori$ knowledge of genetic relatedness revealed by microsatellite markers, and identified convincing loci responsible for susceptibility to mycobacterial infection (Pietrantonio TD 2010 PLoS Pathogens.).
-Here, we show that \ggmix ~has the ability to consistently and accurately capture the susceptibility-related loci from all genotyped loci without the need to perform repetitive regressions.
+Crosses of different inbred strains are useful for various studies of heritability focusing on either observable phenotypes or molecular mechanisms, and in particular, recombinant congenic strains have been an extremely useful resource for many years~\citep{fortin2001recombinant}.
+However, ignoring complex genetic relationship in association studies can lead to inflated false positives in genetic association studies when different inbred strains and their crosses are investigated~\citep{bennett2010high,flint2012genome,cheng2010genome}.
+Therefore, a previous study developed and implemented a mixed model to find loci associated with mouse sensitivity to mycobacterial infection~\citep{di2010strain}. The random effects in the model captured complex correlation between the recombinant congenic mouse strains based on the proportion of the shared identical by descent. Through a series of mixed model fits at each marker, new loci on chromosome 1 and chromosome 11.
 
-We focused on mice response to $M. bovis$ Bacille Calmette-Guerin (BCG) Russia strain since it has the most abundant susceptibility-related loci reported to be statistically significant (Pietrantonio TD 2010 PLoS Pathogens.).
-By taking consensus between the "main model" and the "conditional model" of the original study, we regarded markers $D1Mit435$ on chromosome 1 and $D11Mit119$ on chromosome 11 as two true positives.
-Resembling our aforementioned philosophy of controlling true positive rate, we optimized models by tuning the penalty factor such that these two loci are picked up while the number of other active loci is minimized.
-To evaluate robustness of different models, we bootstrapped the 189-sample dataset for 200 times.
-We directly estimated the kinship using genotypes marked by 625 microsatellite markers.
+Here we show that \ggmix ~can identify these loci, as well as potentially others, in a single analysis. We also reanalyzed the mouse response to $Mycobacterium$ $bovis$ Bacille Calmette-Guerin (BCG) Russia strain as reported in ~\citep{di2010strain}.
 
-We demonstrate that \ggmix ~recognizes the true associations more robustly than twostep and lasso. In almost all (99%) bootstrap replicates, \ggmix ~is able to capture both true positives, while twostep failed in 19% of the replicates and lasso failed in 56% of the replicates due to missing of at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}).
-Besides, although we do not have much supporting evidence from other studies, we found several other loci might also be reasonably associated with susceptibility to myobacterial infection, where \ggmix ~provides more information than the other two methods (Table).
+By taking the consensus between the "main model" and the "conditional model" of the original study, we regarded markers D1Mit435 on chromosome 1 and D11Mit119 on chromosome 11 as two true positive loci.
+Similar to our aforementioned strategy of choosing the true positives, we optimized models by tuning the penalty factor such that these two loci are picked up, while the number of other active loci is minimized.
+To evaluate robustness of different models, we bootstrapped the 189-sample dataset and repeated analysis 200 times.
+We directly estimated the kinship between mice using genotypes at 625 microsatellite markers. The estimated kinship entered directly into \ggmix ~and twostep. For the lasso, we calculated and included the first 10 principal components of the estimated kinship.
+Significant markers are defined as those captured in at least half of the bootstrap replicates, and in which the corresponding method successfully captures both pre-selected true positives with a penalty factor minimizing the number of active loci (Figure~\ref{fig:Mice-comparison-fixTPR}).
 
-<<Mice-comparison-fixTPR, dev="cairo_pdf", fig.asp=0.8, fig.width=6, fig.height=13.2, fig.pos = 'H', fig.cap="Comparison of model performance. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model.", eval=finalversion>>=
+We demonstrate that \ggmix ~recognizes the true associations more robustly than twostep and lasso. In almost all (99\%) bootstrap replicates, \ggmix ~is able to capture both true positives, while twostep failed in 19\% of the replicates and lasso failed in 56\% of the replicates by missing of at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}).
+We also identified several other loci that might also be associated with susceptibility to myobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markders, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. This locus is considered significant by our definition for both \ggmix ~and lasso. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered.
+
+<<Mice-comparison-fixTPR, dev="cairo_pdf", fig.asp=0.8, fig.width=20, fig.height=8, fig.pos = 'H', fig.cap="Comparison of model performance. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate $p$ value thresholds.", eval=finalversion>>=
 @
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{tabularx,ragged2e,booktabs,caption}
 \newcolumntype{C}[1]{>{\Centering}m{#1}}
 \renewcommand\tabularxcolumn[1]{C{#1}}
 
 \begin{minipage}{\linewidth}
-\captionof{table}{Additional Loci Significantly Associated with Mice Susceptibility to Myobacterial Infection} \label{tab:title} 
-\begin{tabular}{ C{1.25in} C{.85in} C{1.25in}}\toprule[1.5pt]
-\bf Method & \bf Marker & \bf Associated Gene\\\midrule
-twostep & D2Mit156 & Gm13527\\
-& D14Mit155 & Atp8a2\\
-lasso & N/A & N/A\\
-ggmix & D2Mit156 & Gm13527\\
-& D14Mit131 & Oxgr1\\
-& D17Mit221 & Nrxn1\\
+\bigskip
+\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker} 
+\begin{tabular}{ C{1.25in} C{.85in} C{1.25in} C{2.5in}}\toprule[1.5pt]
+\bf Method & \bf Marker & \bf Position in cM & \bf Position in bp\\\midrule
+twostep & N/A & N/A & N/A\\
+lasso & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+& D14Mit155 & Chr14:31.52 & Chr14:59828398-59828596\\
+ggmix & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+& D14Mit131 & Chr14:63.59 & Chr14:120006565-120006669\\
+& D17Mit221 & Chr17:59.77 & Chr17:90087704-90087842\\
 \bottomrule[1.25pt]
 \end {tabular}\par
 \bigskip
-Significant markers are required to be observed in at least half of the bootstrap replicates in which the corresponding method successfully captures both true positives with a proper penalty factor (Figure~\ref{fig:Mice-comparison-fixTPR}). Since microsatellite markers are not explicitly pointing towards genes, the most adjacent genes are reported without further interpretation. Two true positive controls are omitted.
 \end{minipage}
 
 \section{Discussion}
