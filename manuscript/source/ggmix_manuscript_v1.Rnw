@@ -865,7 +865,7 @@ We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observation
 Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model)~\citep{howey2018application}, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
 Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
 Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs where rs9661059 resides.
-Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix ~.
+Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix~.
 For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}, supplying the same kinship matrix estimated by REAP.
 
 On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing true positive rate to 1 and then minimizing false positive rate. Hence, the selected SNP, rs9661059, is likely to be the true positive for each method, and non-causal SNPs are excluded to the greatest extent.
