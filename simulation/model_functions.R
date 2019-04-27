@@ -159,13 +159,13 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
   # browser()
   # define population structure
 
-
+  # FF <- 1:k # subpopulation FST vector, up to a scalar
   # s <- 0.5 # desired bias coefficient
   # Fst <- 0.1 # desired FST for the admixed individuals
   geography <- match.arg(geography)
 
 
-  new_model(name = "ggmix_3_04_2019",
+  new_model(name = "ggmix_4_27_2019",
             label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s,
                             sigma2 = %s, geography = %s, p_test = %s, p_kinship = %s, beta_mean = %s",
                             percent_causal,
@@ -210,17 +210,9 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                 if (geography == "1d") {
 
-                  # train
-                  FF_train <- 1:k # subpopulation FST vector, up to a scalar
-                  obj_train <- bnpsd::q1d(n = n, k = k, s = s, F = FF_train, Fst = Fst)
-                  Q_train <- obj_train$Q
-                  FF_train <- obj_train$F
-
-                  # test
-                  FF_test <- 1:k # subpopulation FST vector, up to a scalar
-                  obj_test <- bnpsd::q1d(n = n, k = k, s = s, F = FF_test, Fst = Fst)
-                  Q_test <- obj_test$Q
-                  FF_test <- obj_test$F
+                  obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
+                  Q <- obj$Q
+                  FF <- obj$F
 
 
                 } else if (geography == "ind") {
@@ -235,30 +227,16 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                   # train
                   # desired admixture matrix ("is" stands for "Independent Subpopulations")
-                  Q_train <- bnpsd::qis(labs)
-                  FF_train <- 1:k # subpopulation FST vector, unnormalized so far
-                  FF_train <- FF_train/popkin::fst(FF_train)*Fst # normalized to have the desired Fst
-
-                  # test
-                  # desired admixture matrix ("is" stands for "Independent Subpopulations")
-                  Q_test <- bnpsd::qis(labs)
-                  FF_test <- 1:k # subpopulation FST vector, unnormalized so far
-                  FF_test <- FF_test/popkin::fst(FF_test)*Fst # normalized to have the desired Fst
+                  Q <- bnpsd::qis(labs)
+                  FF <- 1:k # subpopulation FST vector, unnormalized so far
+                  FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
 
 
                 } else if (geography == "circ") {
 
-                  # train
-                  FF_train <- 1:k # subpopulation FST vector, up to a scalar
-                  obj_train <- bnpsd::q1dc(n = n, k = k, s = s, F = FF_train, Fst = Fst)
-                  Q_train <- obj_train$Q
-                  FF_train <- obj_train$F
-
-                  # test
-                  FF_test <- 1:k # subpopulation FST vector, up to a scalar
-                  obj_test <- bnpsd::q1dc(n = n, k = k, s = s, F = FF_test, Fst = Fst)
-                  Q_test <- obj_test$Q
-                  FF_test <- obj_test$F
+                  obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
+                  Q <- obj$Q
+                  FF <- obj$F
 
                 }
 
@@ -268,24 +246,17 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                   total_snps_to_simulate <- p_test + p_kinship - ncausal
 
-                  # train
                   # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out_train <- bnpsd::rbnpsd(Q_train, FF_train, total_snps_to_simulate)
-                  Xall_train <- t(out_train$X) # genotypes are columns, rows are subjects
+                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
-                  colnames(Xall_train) <- cnames
-                  rownames(Xall_train) <- paste0("id", 1:n)
+                  colnames(Xall) <- cnames
+                  rownames(Xall) <- paste0("id", 1:n)
+                  Xall[1:5,1:5]
+                  dim(Xall)
                   subpops <- ceiling( (1:n)/n*k )
                   table(subpops) # got k=10 subpops with 100 individuals each
 
-                  # test
-                  # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out_test <- bnpsd::rbnpsd(Q_test, FF_test, total_snps_to_simulate)
-                  Xall_test <- t(out_test$X) # genotypes are columns, rows are subjects
-                  cnames <- paste0("X", 1:total_snps_to_simulate)
-                  colnames(Xall_test) <- cnames
-                  rownames(Xall_test) <- paste0("id", 1:n)
-                  # subpops <- ceiling( (1:n)/n*k )
 
                   # Snps used for kinship
                   snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
@@ -301,39 +272,28 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                     not_causal <- snps_test
                   }
 
-                  Xkinship_train <- Xall_train[,snps_kinships]
-                  Xdesign_train <- Xall_train[,snps_test]
-
-                  Xkinship_test <- Xall_test[,snps_kinships]
-                  Xdesign_test <- Xall_test[,snps_test]
+                  Xkinship <- Xall[,snps_kinships]
+                  Xdesign <- Xall[,snps_test]
 
                   # now estimate kinship using popkin
-                  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
-                  PhiHat_train <- popkin::popkin(Xkinship_train, subpops = subpops, lociOnCols = TRUE)
-                  PhiHat_test <- popkin::popkin(Xkinship_test, subpops = subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(X, subpops = subpops, lociOnCols = TRUE)
+                  # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
                 } else if (percent_overlap == "0") {
 
                   total_snps_to_simulate <- p_test + p_kinship
 
-                  # train
                   # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out_train <- bnpsd::rbnpsd(Q_train, FF_train, total_snps_to_simulate)
-                  Xall_train <- t(out_train$X) # genotypes are columns, rows are subjects
+                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
-                  colnames(Xall_train) <- cnames
-                  rownames(Xall_train) <- paste0("id", 1:n)
+                  colnames(Xall) <- cnames
+                  rownames(Xall) <- paste0("id", 1:n)
+                  Xall[1:5,1:5]
+                  dim(Xall)
                   subpops <- ceiling( (1:n)/n*k )
                   table(subpops) # got k=10 subpops with 100 individuals each
 
-                  # test
-                  # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out_test <- bnpsd::rbnpsd(Q_test, FF_test, total_snps_to_simulate)
-                  Xall_test <- t(out_test$X) # genotypes are columns, rows are subjects
-                  cnames <- paste0("X", 1:total_snps_to_simulate)
-                  colnames(Xall_test) <- cnames
-                  rownames(Xall_test) <- paste0("id", 1:n)
-                  subpops <- ceiling( (1:n)/n*k )
 
                   # Snps used for kinship
                   snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
@@ -350,16 +310,13 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                   not_causal <- setdiff(snps_test, causal)
 
-                  Xkinship_train <- Xall_train[,snps_kinships] # used to calculate kinship matrix
-                  Xdesign_train <- Xall_train[,snps_test] # used in design matrix
-
-                  Xkinship_test <- Xall_test[,snps_kinships] # used to calculate kinship matrix
-                  Xdesign_test <- Xall_test[,snps_test] # used in design matrix
+                  Xkinship <- Xall[,snps_kinships]
+                  Xdesign <- Xall[,snps_test]
 
                   # now estimate kinship using popkin
-                  # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
-                  PhiHat_train <- popkin::popkin(Xkinship_train, subpops = subpops,  lociOnCols = TRUE)
-                  PhiHat_test <- popkin::popkin(Xkinship_test, subpops = subpops,  lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(X, subpops = subpops, lociOnCols = TRUE)
+                  # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
+
                 }
 
                 # eiK <- eigen(kin)
@@ -368,17 +325,19 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                 # plot(eiK$values)
                 # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
 
-                np <- dim(Xdesign_train)
+                kin <- 2 * PhiHat
+                eiK <- eigen(kin)
+                if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
+                PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+                # plot(eiK$values)
+                # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
+
+                np <- dim(Xdesign)
                 n <- np[[1]]
                 p <- np[[2]]
 
-                PC_train <- prcomp(Xkinship_train)
-                PC_test <- predict(PC_train, newdata = Xkinship_test)
+                x_lasso <- cbind(Xdesign,PC[,1:10])
 
-                x_lasso_train <- cbind(Xdesign_train, PC_train$x[,1:10])
-                x_lasso_test <- cbind(Xdesign_test, PC_test[,1:10])
-                # x_lasso[1:5,1:5]
-                # kin <- snpStats::xxt(dat$genotypes)/p
 
                 beta <- rep(0, length = p)
                 if (percent_causal != 0) {
@@ -387,40 +346,37 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                   # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
                 }
                 # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
-                mu_train <- as.numeric(Xdesign_train %*% beta)
-                mu_test <- as.numeric(Xdesign_test %*% beta)
+                mu <- as.numeric(Xdesign %*% beta)
 
 
-                kin_train <- 2 * PhiHat_train
-                tt_train <- eta * sigma2 * kin_train
-                if (!all(eigen(tt_train)$values > 0)) {
-                  message("eta * sigma2 * kin_train not PD, using Matrix::nearPD")
-                  tt_train <- Matrix::nearPD(tt_train)$mat
+
+                tt <- eta * sigma2 * kin
+                if (!all(eigen(tt)$values > 0)) {
+                  message("eta * sigma2 * kin not PD, using Matrix::nearPD")
+                  tt <- Matrix::nearPD(tt)$mat
                 }
 
-                kin_test <- 2 * PhiHat_test
-                tt_test <- eta * sigma2 * kin_test
-                if (!all(eigen(tt_test)$values > 0)) {
-                  message("eta * sigma2 * kin_test not PD, using Matrix::nearPD")
-                  tt_test <- Matrix::nearPD(tt_test)$mat
-                }
-
-                P_train <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = tt_train)
-                E_train <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
-
-                P_test <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = tt_test)
-                E_test <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+                P <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = tt)
+                E <- MASS::mvrnorm(1, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
                 # y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
                 # y <- b0 + mu + t(P) + t(E)
                 # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
-                y_train <- b0 + mu_train + P_train + E_train
-                y_test <- b0 + mu_test + P_test + E_test
+                y <- b0 + mu + P + E
 
-                # used for covariance term in ggmix prediciton
-                Xall <- rbind(Xkinship_test, Xkinship_train)
-                # cov_all <- 2 * popkin::popkin(Xall, subpops = ceiling( (1:(2*n))/(2*n)*(2*k) ), lociOnCols = TRUE)
+                ind <- caret::createDataPartition(y, p = 0.8, list = FALSE)[,1]
+                xtrain <- Xdesign[ind,,drop=FALSE]
+                xtest <- Xdesign[-ind,,drop=FALSE]
+
+                xtrain_lasso <- x_lasso[ind,,drop=FALSE]
+                xtest_lasso <- x_lasso[-ind,,drop=FALSE]
+
+                ytrain <- y[ind]
+                ytest <- y[-ind]
+
+                Xall <- rbind(xtest, xtrain)
+                cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
                 cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
-                cov_test_train <- cov_all[1:nrow(Xkinship_test), (nrow(Xkinship_test)+1):ncol(cov_all), drop = FALSE]
+                cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
 
 
                 models[[i]] <- list(ytrain = y_train,
