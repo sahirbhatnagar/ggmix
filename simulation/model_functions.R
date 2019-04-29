@@ -145,11 +145,11 @@ make_mixed_model_SSC <- function(b0, beta_mean, eta, sigma2, percent_causal, per
 }
 
 
-make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
+make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                                eta, sigma2, geography = c("ind", "1d","circ"),
                                percent_causal, percent_overlap) {
 
-  # p_test: number of variables in X_test, i.e., the design matrix
+  # p_design: number of variables in X_design, i.e., the design matrix
   # p_kinship: number of variable in X_kinship, i.e., matrix used to calculate kinship
   # k:	Number of intermediate subpopulations
   # s: The desired bias coefficient, which specifies σ indirectly. Required if sigma is missing
@@ -167,17 +167,17 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
   new_model(name = "ggmix_4_27_2019",
             label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s,
-                            sigma2 = %s, geography = %s, p_test = %s, p_kinship = %s, beta_mean = %s",
+                            sigma2 = %s, geography = %s, p_design = %s, p_kinship = %s, beta_mean = %s",
                             percent_causal,
                             percent_overlap,
                             eta,
                             sigma2,
                             geography,
-                            p_test,
+                            p_design,
                             p_kinship,
                             beta_mean),
             params = list(n = n,
-                          p_test = p_test,
+                          p_design = p_design,
                           p_kinship = p_kinship,
                           k = k,
                           s = s,
@@ -190,7 +190,7 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                           percent_causal = percent_causal,
                           percent_overlap = percent_overlap),
             simulate = function(n,
-                                p_test,
+                                p_design,
                                 p_kinship,
                                 k,
                                 s,
@@ -240,13 +240,13 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
 
                 }
 
-                ncausal <- p_test * percent_causal
+                ncausal <- p_design * percent_causal
                 # browser()
                 if (percent_overlap == "100") {
 
-                  total_snps_to_simulate <- p_test + p_kinship - ncausal
+                  total_snps_to_simulate <- p_design + p_kinship - ncausal
 
-                  # this contains all SNPs (X_{Testing}:X_{kinship})
+                  # this contains all SNPs (X_{Design}:X_{kinship})
                   out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
                   Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
@@ -264,24 +264,24 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                   # all causal snps are in kinship matrix
                   if (percent_causal != 0 ) {
                     causal <- sample(snps_kinships, ncausal, replace = FALSE)
-                    snps_test <- c(setdiff(cnames, snps_kinships), causal)
-                    not_causal <- setdiff(snps_test, causal)
+                    snps_design <- c(setdiff(cnames, snps_kinships), causal)
+                    not_causal <- setdiff(snps_design, causal)
                   } else if (percent_causal == 0) {
                     causal <- ""
-                    snps_test <- setdiff(cnames, snps_kinships)
-                    not_causal <- snps_test
+                    snps_design <- setdiff(cnames, snps_kinships)
+                    not_causal <- snps_design
                   }
 
                   Xkinship <- Xall[,snps_kinships]
-                  Xdesign <- Xall[,snps_test]
+                  Xdesign <- Xall[,snps_design]
 
                   # now estimate kinship using popkin
-                  PhiHat <- popkin::popkin(X, subpops = subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, lociOnCols = TRUE)
                   # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
                 } else if (percent_overlap == "0") {
 
-                  total_snps_to_simulate <- p_test + p_kinship
+                  total_snps_to_simulate <- p_design + p_kinship
 
                   # this contains all SNPs (X_{Testing}:X_{kinship})
                   out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
@@ -299,22 +299,22 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                   snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
                   length(snps_kinships)
 
-                  snps_test <- setdiff(cnames, snps_kinships)
-                  # length(snps_test)
+                  snps_design <- setdiff(cnames, snps_kinships)
+                  # length(snps_design)
                   # setdiff(cnames, snps_kinships) %>% length()
                   if (percent_causal !=0) {
-                    causal <- sample(snps_test, ncausal, replace = FALSE)
+                    causal <- sample(snps_design, ncausal, replace = FALSE)
                   } else if (percent_causal == 0) {
                     causal <- ""
                   }
 
-                  not_causal <- setdiff(snps_test, causal)
+                  not_causal <- setdiff(snps_design, causal)
 
                   Xkinship <- Xall[,snps_kinships]
-                  Xdesign <- Xall[,snps_test]
+                  Xdesign <- Xall[,snps_design]
 
                   # now estimate kinship using popkin
-                  PhiHat <- popkin::popkin(X, subpops = subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, lociOnCols = TRUE)
                   # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
                 }
@@ -366,6 +366,10 @@ make_ADmixed_model <- function(n, p_test, p_kinship, k, s, Fst, b0, beta_mean,
                 ind <- caret::createDataPartition(y, p = 0.8, list = FALSE)[,1]
                 xtrain <- Xdesign[ind,,drop=FALSE]
                 xtest <- Xdesign[-ind,,drop=FALSE]
+
+
+                Phi_train <- Phi[ind,ind]
+                Phi_test_train <- Phi[-ind,ind]
 
                 xtrain_lasso <- x_lasso[ind,,drop=FALSE]
                 xtest_lasso <- x_lasso[-ind,,drop=FALSE]
@@ -475,20 +479,20 @@ make_ADmixed_model_not_sim <- function(n, p_test, p_kinship, k, s, Fst, b0, beta
     # all causal snps are in kinship matrix
     if (percent_causal != 0 ) {
       causal <- sample(snps_kinships, ncausal, replace = FALSE)
-      snps_test <- c(setdiff(cnames, snps_kinships), causal)
-      not_causal <- setdiff(snps_test, causal)
+      snps_design <- c(setdiff(cnames, snps_kinships), causal)
+      not_causal <- setdiff(snps_design, causal)
     } else if (percent_causal == 0) {
       causal <- ""
-      snps_test <- setdiff(cnames, snps_kinships)
-      not_causal <- snps_test
+      snps_design <- setdiff(cnames, snps_kinships)
+      not_causal <- snps_design
     }
 
-    # length(snps_test)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
 
     # browser()
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -512,19 +516,19 @@ make_ADmixed_model_not_sim <- function(n, p_test, p_kinship, k, s, Fst, b0, beta
     snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
     length(snps_kinships)
 
-    snps_test <- setdiff(cnames, snps_kinships)
-    # length(snps_test)
+    snps_design <- setdiff(cnames, snps_kinships)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
     if (percent_causal !=0) {
-      causal <- sample(snps_test, ncausal, replace = FALSE)
+      causal <- sample(snps_design, ncausal, replace = FALSE)
     } else if (percent_causal == 0) {
       causal <- ""
     }
 
-    not_causal <- setdiff(snps_test, causal)
+    not_causal <- setdiff(snps_design, causal)
 
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -1010,13 +1014,13 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
     # all causal snps are in kinship matrix
     causal <- sample(snps_kinships, ncausal, replace = FALSE)
 
-    snps_test <- c(setdiff(cnames, snps_kinships), causal)
-    # length(snps_test)
+    snps_design <- c(setdiff(cnames, snps_kinships), causal)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
-    not_causal <- setdiff(snps_test, causal)
+    not_causal <- setdiff(snps_design, causal)
 
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -1040,14 +1044,14 @@ make_ADmixed_model_not_simulator <- function(n, p_test, p_kinship, k, s, Fst, b0
     snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
     length(snps_kinships)
 
-    snps_test <- setdiff(cnames, snps_kinships)
-    # length(snps_test)
+    snps_design <- setdiff(cnames, snps_kinships)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
-    causal <- sample(snps_test, ncausal, replace = FALSE)
-    not_causal <- setdiff(snps_test, causal)
+    causal <- sample(snps_design, ncausal, replace = FALSE)
+    not_causal <- setdiff(snps_design, causal)
 
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -1225,16 +1229,16 @@ make_ADmixed_model_not_simulator_with_validation <- function(n_train, p_test, p_
     # all causal snps are in kinship matrix
     causal <- sample(snps_kinships, ncausal, replace = FALSE)
     length(causal)
-    snps_test <- c(setdiff(cnames, snps_kinships), causal)
-    # length(snps_test)
+    snps_design <- c(setdiff(cnames, snps_kinships), causal)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
-    not_causal <- setdiff(snps_test, causal)
+    not_causal <- setdiff(snps_design, causal)
 
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     Xkinship_val <- Xall_val[,snps_kinships]
-    Xtest_val <- Xall_val[,snps_test]
+    Xtest_val <- Xall_val[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)
@@ -1260,14 +1264,14 @@ make_ADmixed_model_not_simulator_with_validation <- function(n_train, p_test, p_
     snps_kinships <- sample(cnames, p_kinship, replace = FALSE)
     length(snps_kinships)
 
-    snps_test <- setdiff(cnames, snps_kinships)
-    # length(snps_test)
+    snps_design <- setdiff(cnames, snps_kinships)
+    # length(snps_design)
     # setdiff(cnames, snps_kinships) %>% length()
-    causal <- sample(snps_test, ncausal, replace = FALSE)
-    not_causal <- setdiff(snps_test, causal)
+    causal <- sample(snps_design, ncausal, replace = FALSE)
+    not_causal <- setdiff(snps_design, causal)
 
     Xkinship <- Xall[,snps_kinships]
-    Xtest <- Xall[,snps_test]
+    Xtest <- Xall[,snps_design]
 
     # now estimate kinship using popkin
     # PhiHat <- popkin::popkin(X, subpops, lociOnCols = TRUE)

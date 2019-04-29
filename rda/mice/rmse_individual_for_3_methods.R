@@ -11,6 +11,7 @@ library(popkin)
 
 set.seed(123)
 ind <- caret::createDataPartition(admixed$y, p = 0.7, list = FALSE)[,1]
+
 xtrain <- admixed$x[ind,,drop=FALSE]
 xtest <- admixed$x[-ind,,drop=FALSE]
 
@@ -18,14 +19,19 @@ ytrain <- admixed$y[ind]
 ytest <- admixed$y[-ind]
 
 Xall <- rbind(xtest, xtrain)
-cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
-dim(cov_train)
+Phi <- 2 * popkin::popkin(admixed$x, lociOnCols = TRUE)
+cov_train <- Phi[ind,ind]
+cov_test_train <- Phi[-ind,ind]
 
-cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
-dim(cov_all)
 
-cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
-dim(cov_test_train)
+
+popkin::plotPopkin(cov_train)
+popkin::plotPopkin(cov_test_train)
+
+set.seed(123)
+ind <- caret::createDataPartition(y, p = 0.7, list = FALSE)[,1]
+
+
 
 
 # ggmix -------------------------------------------------------------------
