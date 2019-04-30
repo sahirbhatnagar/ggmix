@@ -211,9 +211,19 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                 if (geography == "1d") {
 
                   FF <- 1:k # subpopulation FST vector, up to a scalar
-                  obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
-                  Q <- obj$Q
-                  FF <- obj$F
+                  obj <- bnpsd::admix_prop_1d_linear(n_ind = n,
+                                                     k_subpops = k,
+                                                     bias_coeff = s,
+                                                     coanc_subpops = FF,
+                                                     fst = Fst)
+                  # Q <- obj$Q
+                  # FF <- obj$F
+                  admix_proportions <- obj$admix_proportions
+                  # rescaled inbreeding vector for intermediate subpopulations
+                  inbr_subpops <- obj$coanc_subpops
+
+                  # get pop structure parameters of the admixed individuals
+                  coancestry <- coanc_admix(admix_proportions, inbr_subpops)
 
 
                 } else if (geography == "ind") {
@@ -228,17 +238,51 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
 
                   # train
                   # desired admixture matrix ("is" stands for "Independent Subpopulations")
-                  Q <- bnpsd::qis(labs)
-                  FF <- 1:k # subpopulation FST vector, unnormalized so far
-                  FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
+                  # Q <- bnpsd::admix_prop_indep_subpops(labs)
+                  # FF <- 1:k # subpopulation FST vector, unnormalized so far
+                  # FF <- FF/popkin::fst(FF)*Fst # normalized to have the desired Fst
 
+
+                  # number of subpopulations "k_subpops"
+                  k_subpops <- length(unique(labs))
+
+                  # desired admixture matrix
+                  admix_proportions <- admix_prop_indep_subpops(labs)
+
+                  # subpopulation FST vector, unnormalized so far
+                  inbr_subpops <- 1 : k_subpops
+                  # normalized to have the desired FST
+                  # NOTE fst is a function in the `popkin` package
+                  inbr_subpops <- inbr_subpops / popkin::fst(inbr_subpops) * Fst
+                  # verify FST for the intermediate subpopulations
+                  # fst(inbr_subpops)
+                  #> [1] 0.2
+
+                  # get coancestry of the admixed individuals
+                  coancestry <- coanc_admix(admix_proportions, inbr_subpops)
+                  # before getting FST for individuals, weigh then inversely proportional to subpop sizes
+                  weights <- popkin::weights_subpops(labs) # function from `popkin` package
 
                 } else if (geography == "circ") {
 
                   FF <- 1:k # subpopulation FST vector, up to a scalar
-                  obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
-                  Q <- obj$Q
-                  FF <- obj$F
+                  # obj <- bnpsd::admix_prop_1d_circular(n_ind = n, k_subpops = k, s = s, F = FF, Fst = Fst)
+                  # Q <- obj$Q
+                  # FF <- obj$F
+
+                  # admixture proportions from *circular* 1D geography
+                  obj <- admix_prop_1d_circular(
+                    n_ind = n,
+                    k_subpops = k,
+                    bias_coeff = s,
+                    coanc_subpops = FF,
+                    fst = Fst
+                  )
+                  admix_proportions <- obj$admix_proportions
+                  inbr_subpops <- obj$coanc_subpops
+
+                  # get pop structure parameters of the admixed individuals
+                  coancestry <- coanc_admix(admix_proportions, inbr_subpops)
 
                 }
 
@@ -249,7 +293,19 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   total_snps_to_simulate <- p_design + p_kinship - ncausal
 
                   # this contains all SNPs (X_{Design}:X_{kinship})
-                  out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
+                  # out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
+
+                  # draw all random Allele Freqs (AFs) and genotypes
+                  # reuse the previous inbr_subpops, admix_proportions
+                  out <- bnpsd::draw_all_admix(
+                    admix_proportions = admix_proportions,
+                    inbr_subpops = inbr_subpops,
+                    m_loci = total_snps_to_simulate,
+                    # NOTE by default p_subpops and p_ind are not returned, but here we will ask for them
+                    want_p_subpops = TRUE,
+                    want_p_ind = TRUE
+                  )
+
                   Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
                   colnames(Xall) <- cnames
@@ -278,7 +334,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   Xdesign <- Xall[,snps_design]
 
                   # now estimate kinship using popkin
-                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, loci_on_cols = TRUE)
                   # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
                 } else if (percent_overlap == "0") {
@@ -286,7 +342,20 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   total_snps_to_simulate <- p_design + p_kinship
 
                   # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
+                  # out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
+
+                  # draw all random Allele Freqs (AFs) and genotypes
+                  # reuse the previous inbr_subpops, admix_proportions
+                  out <- draw_all_admix(
+                    admix_proportions = admix_proportions,
+                    inbr_subpops = inbr_subpops,
+                    m_loci = total_snps_to_simulate,
+                    # NOTE by default p_subpops and p_ind are not returned, but here we will ask for them
+                    want_p_subpops = TRUE,
+                    want_p_ind = TRUE
+                  )
+
+
                   Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
                   colnames(Xall) <- cnames
@@ -316,7 +385,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   Xdesign <- Xall[,snps_design]
 
                   # now estimate kinship using popkin
-                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, lociOnCols = TRUE)
+                  PhiHat <- popkin::popkin(Xkinship, subpops = subpops, loci_on_cols = TRUE)
                   # PhiHat <- popkin::popkin(Xkinship, lociOnCols = TRUE)
 
                 }
