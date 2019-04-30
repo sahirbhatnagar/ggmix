@@ -17,7 +17,8 @@
 
 
 # This is the main simulator file
-rm(list = ls())
+# rm(list = ls())
+
 # setwd("/home/sahir/git_repositories/ggmix/simulation/")
 pacman::p_load(simulator) # this file was created under simulator version 0.2.0
 source("/home/sahir/git_repositories/ggmix/simulation/model_functions.R")
@@ -33,7 +34,8 @@ source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 # name_of_simulation <- "thesis-ggmix-july1" this had only one eta value
 # name_of_simulation <- "thesis-ggmix-july3" # this has more than 1 eta value 0.1,0.2,0.3,0.4
 # name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, and eta=0.1, 0.5
-name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1, 0.5
+# name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1, 0.5
+name_of_simulation <- "ggmix-apr29" # this has train/test split
 ## @knitr main
 
 # nsim needs to be at least 2
@@ -54,7 +56,7 @@ name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1
 # save_simulation(sim)
 
 
-sim <- new_simulation(name_of_simulation, "mar-5", dir = "simulation/") %>%
+sim <- new_simulation(name_of_simulation, "apr-29", dir = "simulation/") %>%
   generate_model(make_ADmixed_model,
                  b0 = 1,
                  sigma2 = 1,
@@ -72,22 +74,26 @@ sim <- new_simulation(name_of_simulation, "mar-5", dir = "simulation/") %>%
                  # percent_overlap = list("0","100"),
                  # vary_along = c("geography","percent_overlap","percent_causal","eta"),
 
-                 n = 1000,
-                 p_test = 5000,
+                 n = 2000, # 50% train, 50% test
+                 p_design = 500,
                  p_kinship = 10000,
                  eta = 0.5,
                  geography = "ind",
-                 percent_causal = 0.001,
+                 percent_causal = 0.02,
                  percent_overlap = "100"#,
                  # vary_along = c("percent_overlap","percent_causal","eta")
                  ) %>%
   simulate_from_model(nsim = 2, index = 1) %>%
   # simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed),#, twostep, twostepY),
-             parallel = list(socket_names = 8,
-                             libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+  run_method(list(lasso, ggmixed, twostepY))#,
+             # parallel = list(socket_names = 8,
+                             # libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 
 # sim <- sim %>% run_method(list(lasso, ggmixed))
+
+sim <- sim %>% run_method(list(lasso, ggmixed))#,#, twostep, twostepY),
+             parallel = list(socket_names = 8,
+                             libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 
 save_simulation(sim)
 sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
@@ -96,6 +102,7 @@ save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
 plot_eval(sim, "mse")
+plot_eval(sim, "tpr")
 plot_eval(sim, "correct_sparsity")
 
 sim <- load_simulation(name = name_of_simulation, dir = "simulation/")

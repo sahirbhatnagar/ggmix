@@ -159,7 +159,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
   # browser()
   # define population structure
 
-  # FF <- 1:k # subpopulation FST vector, up to a scalar
+
   # s <- 0.5 # desired bias coefficient
   # Fst <- 0.1 # desired FST for the admixed individuals
   geography <- match.arg(geography)
@@ -210,6 +210,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
 
                 if (geography == "1d") {
 
+                  FF <- 1:k # subpopulation FST vector, up to a scalar
                   obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
                   Q <- obj$Q
                   FF <- obj$F
@@ -217,7 +218,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
 
                 } else if (geography == "ind") {
 
-                  n1 <- 200; n2 <- 200; n3 <- 200; n4 <- 200; n5 <- 200
+                  n1 <- n2 <- n3 <- n4 <- n5 <- 200*2
 
                   # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
                   labs <- c( rep.int("S1", n1), rep.int("S2", n2), rep.int("S3", n3),
@@ -234,6 +235,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
 
                 } else if (geography == "circ") {
 
+                  FF <- 1:k # subpopulation FST vector, up to a scalar
                   obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
                   Q <- obj$Q
                   FF <- obj$F
@@ -247,7 +249,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   total_snps_to_simulate <- p_design + p_kinship - ncausal
 
                   # this contains all SNPs (X_{Design}:X_{kinship})
-                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
                   Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
                   colnames(Xall) <- cnames
@@ -284,7 +286,7 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                   total_snps_to_simulate <- p_design + p_kinship
 
                   # this contains all SNPs (X_{Testing}:X_{kinship})
-                  out <- bnpsd::rbnpsd(Q, FF, total_snps_to_simulate)
+                  out <- bnpsd::rbnpsd(Q = Q, F = FF, m = total_snps_to_simulate)
                   Xall <- t(out$X) # genotypes are columns, rows are subjects
                   cnames <- paste0("X", 1:total_snps_to_simulate)
                   colnames(Xall) <- cnames
@@ -325,10 +327,9 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                 # plot(eiK$values)
                 # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
 
-                kin <- 2 * PhiHat
-                eiK <- eigen(kin)
-                if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
-                PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+                # eiK <- eigen(kin)
+                # if (any(eiK$values < 1e-5)) { eiK$values[ eiK$values < 1e-5 ] <- 1e-5 }
+                # PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
                 # plot(eiK$values)
                 # plot(PC[,1],PC[,2], pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200))
 
@@ -336,19 +337,19 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                 n <- np[[1]]
                 p <- np[[2]]
 
-                x_lasso <- cbind(Xdesign,PC[,1:10])
-
+                # x_lasso <- cbind(Xdesign,PC[,1:10])
 
                 beta <- rep(0, length = p)
                 if (percent_causal != 0) {
                   # beta[which(colnames(Xdesign_train) %in% causal)] <- runif(n = length(causal), beta_mean - 0.3, beta_mean + 0.3)
-                  beta[which(colnames(Xdesign_train) %in% causal)] <- c(2,4,3,3,1)
+                  beta[which(colnames(Xdesign) %in% causal)] <- c(2,4,3,3,1)
                   # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
                 }
                 # beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
+
                 mu <- as.numeric(Xdesign %*% beta)
 
-
+                kin <- 2 * PhiHat
 
                 tt <- eta * sigma2 * kin
                 if (!all(eigen(tt)$values > 0)) {
@@ -363,42 +364,37 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                 # y <- MASS::mvrnorm(1, mu = mu, Sigma = eta * sigma2 * kin + (1 - eta) * sigma2 * diag(n))
                 y <- b0 + mu + P + E
 
-                ind <- caret::createDataPartition(y, p = 0.8, list = FALSE)[,1]
+                ind <- caret::createDataPartition(y, p = 0.5, list = FALSE)[,1]
+
                 xtrain <- Xdesign[ind,,drop=FALSE]
                 xtest <- Xdesign[-ind,,drop=FALSE]
 
+                PC <- prcomp(xtrain)
+                xtrain_lasso <- cbind(xtrain, PC$x[,1:10])
+                xtest_pc <- predict(PC, newdata = xtest)
+                xtest_lasso <- cbind(xtest, xtest_pc[,1:10])
 
-                Phi_train <- Phi[ind,ind]
-                Phi_test_train <- Phi[-ind,ind]
-
-                xtrain_lasso <- x_lasso[ind,,drop=FALSE]
-                xtest_lasso <- x_lasso[-ind,,drop=FALSE]
+                kin_train <- kin[ind,ind]
+                kin_test_train <- kin[-ind,ind]
 
                 ytrain <- y[ind]
                 ytest <- y[-ind]
 
-                Xall <- rbind(xtest, xtrain)
-                cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
-                cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
-                cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
+                mu_train <- mu[ind]
 
+                models[[i]] <- list(ytrain = ytrain,
+                                    ytest = ytest,
 
-                models[[i]] <- list(ytrain = y_train,
-                                    ytest = y_test,
+                                    xtrain = xtrain,
+                                    xtest = xtest,
 
-                                    xtrain = Xdesign_train,
-                                    xtest = Xdesign_test,
-
-                                    xtrain_lasso = x_lasso_train,
-                                    xtest_lasso = x_lasso_test,
+                                    xtrain_lasso = xtrain_lasso,
+                                    xtest_lasso = xtest_lasso,
 
                                     kin_train = kin_train,
-                                    kin_test = kin_test,
+                                    kin_test_train = kin_test_train, # covaraince between train and test
 
-                                    mu_train = mu_train,
-                                    mu_test = mu_test,
-
-                                    cov_test_train = cov_test_train,
+                                    mu_train = mu_train, # Xbeta for training set
 
                                     causal = causal,
                                     beta = beta,

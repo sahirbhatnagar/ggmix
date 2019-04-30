@@ -24,7 +24,7 @@ lasso <- new_method("lasso", "lasso",
                                                        standardize = T,
                                                        penalty.factor = c(rep(1, ncol(draw[["xtrain"]])), rep(0,10)))
 
-                        nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
+                        nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)",paste0("PC",1:10)))
 
                         model_error <- l2norm(draw[["mu_train"]] -
                           draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
@@ -47,7 +47,7 @@ lasso <- new_method("lasso", "lasso",
                              prediction_error = prediction_error,
                              eta = NA,
                              sigma2 = NA,
-                             yhat = yhat, # on the test set
+                             yhat = yhat, # on the test set using principal components
                              nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F],
                              nonzero_names = nz_names,
                              ytrain = draw[["ytrain"]],
@@ -73,7 +73,7 @@ ggmixed <- new_method("ggmix", "ggmix",
 
                        # inidividual level prediction
                        yhat <- predict(hdbic, s="lambda.min", newx = draw[["xtest"]],
-                                       type = "individual", covariance = draw[["cov_test_train"]])
+                                       type = "individual", covariance = draw[["kin_test_train"]])
 
                        # mse_value <- crossprod(predict(hdbic, newx = draw[["xtrain"]]) + ranef(hdbic) - draw[["ytrain"]]) / length(draw[["ytrain"]])
 
@@ -154,20 +154,21 @@ twostepY <- new_method("twostepY", "two step Y",
 
                         # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
                         x1 <- cbind(rep(1, nrow(draw[["xtrain"]])))
-                        fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin"]])
+                        fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin_train"]])
                         gaston_resid <- draw[["ytrain"]] - (fit_lme$BLUP_omega + fit_lme$BLUP_beta)
                         fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = gaston_resid,
                                                        standardize = T, alpha = 1, intercept = T)
 
                         nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
 
-                        model_error <- l2norm(draw[["mutrain"]] -
+                        model_error <- l2norm(draw[["mu_train"]] -
                                                 draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
 
-                        prediction_error <- model_error^2 / l2norm(draw[["mutrain"]])^2
+                        prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
 
-                        yhat <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
-                        error_var <- l2norm(yhat - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
+                        yhat <- predict(fitglmnet, newx = draw[["xtest"]], s = "lambda.min")
+                        yhat_train <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
+                        error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
 
 
                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
@@ -179,6 +180,7 @@ twostepY <- new_method("twostepY", "two step Y",
                              eta = NA,
                              sigma2 = NA,
                              y = draw[["ytrain"]],
+                             ytest = draw[["ytest"]],
                              error_variance = error_var,
                              causal = draw[["causal"]],
                              not_causal = draw[["not_causal"]],
