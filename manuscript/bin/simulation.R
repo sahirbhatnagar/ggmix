@@ -12,8 +12,9 @@
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC_lasso_has_proper_MSE.rds")
 # df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_02_2019_results.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_02_2019_results.rds")
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_06_2019_results.rds")
 
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
@@ -40,8 +41,9 @@ DT[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
 # DT[, table(eta_p)]
 # use twostepY, which compares to the original Y
 # DT[, table(Method)]
-DT <- DT[Method != "twostep"]
-DT[Method == "twostepY", Method := "twostep"]
+DT <- DT[Method %ni% c("twostep","twostepY","lasso1se")]
+# DT[Method == "twostepY", Method := "twostep"]
+DT[Method == "twostepYVC", Method := "twostep"]
 # DT <- DT[Method != "lasso"]
 # DT[Method == "lasso1se", Method := "lasso"]
 # DT[,table(Method)]

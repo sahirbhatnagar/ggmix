@@ -120,9 +120,11 @@ plot_eval(sim, "correct_sparsity")
 # save results ------------------------------------------------------------
 sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
 df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
-saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
-df %>% filter(Method=="twostepY")
+# sim %>% subset_simulation(methods = c("ggmix","lasso"))
+# saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
+# saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
+saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
+df %>% filter(Method=="twostepYVC")
 
 simulator::tabulate_eval(sim, "mse")
 

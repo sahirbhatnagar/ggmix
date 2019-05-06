@@ -59,48 +59,51 @@ lasso <- new_method("lasso", "lasso",
                         )
                       })
 
-lasso1se <- new_method("lasso1se", "lasso1se",
-                    method = function(model, draw) {
-                      fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain_lasso"]],
-                                                     y = draw[["ytrain"]],
-                                                     alpha = 1,
-                                                     standardize = T,
-                                                     penalty.factor = c(rep(1, ncol(draw[["xtrain"]])), rep(0,10)))
+# this one uses the original y to compare to and stores the variance components (VC) (USE THIS ONE)
+twostepYVC <- new_method("twostepYVC", "two step YVC",
+                         method = function(model, draw) {
 
-                      nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.1se")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.1se")),,drop = F]),c("(Intercept)",paste0("PC",1:10)))
+                           # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
+                           # fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = model$kin)
+                           # newy <- residuals(fit_lme)
+                           # fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = newy, standardize = F, alpha = 1)
 
-                      model_error <- l2norm(draw[["mu_train"]] -
-                                              draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.1se")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
+                           # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
+                           x1 <- cbind(rep(1, nrow(draw[["xtrain"]])))
+                           fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin_train"]])
+                           gaston_resid <- draw[["ytrain"]] - (fit_lme$BLUP_omega + fit_lme$BLUP_beta)
+                           fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = gaston_resid,
+                                                          standardize = T, alpha = 1, intercept = T)
 
-                      # defined in Bertsimas et al. 2016
-                      # Best Subset Selection via a Modern Optimization Lens
-                      prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
+                           nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
 
-                      # inidividual level predictions
-                      yhat <- predict(fitglmnet, newx = draw[["xtest_lasso"]], s = "lambda.1se")
+                           model_error <- l2norm(draw[["mu_train"]] -
+                                                   draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
 
-                      # yhat <- cbind(1, draw[["xtest"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["xtest"]])),,drop = F]
-                      # yhat_train <- cbind(1, draw[["xtrain"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["xtrain"]])),,drop = F]
-                      yhat_train <- predict(fitglmnet, newx = draw[["xtrain_lasso"]], s = "lambda.1se")
+                           prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
 
-                      error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
+                           yhat <- predict(fitglmnet, newx = draw[["xtest"]], s = "lambda.min")
+                           yhat_train <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
+                           error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
 
-                      list(beta = coef(fitglmnet, s = "lambda.1se")[-1,,drop = F],
-                           model_error = model_error,
-                           prediction_error = prediction_error,
-                           eta = NA,
-                           sigma2 = NA,
-                           yhat = yhat, # on the test set using principal components
-                           nonzero = coef(fitglmnet, s = "lambda.1se")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.1se")),,drop = F],
-                           nonzero_names = nz_names,
-                           ytrain = draw[["ytrain"]],
-                           ytest = draw[["ytest"]],
-                           error_variance = error_var,
-                           causal = draw[["causal"]],
-                           not_causal = draw[["not_causal"]],
-                           p = ncol(draw[["xtrain"]])
-                      )
-                    })
+
+                           list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
+                                yhat = yhat,
+                                nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F],
+                                nonzero_names = nz_names,
+                                model_error = model_error,
+                                prediction_error = prediction_error,
+                                eta = fit_lme$tau, # this is the VC for kinship
+                                sigma2 = fit_lme$sigma2, # this is VC for error
+                                y = draw[["ytrain"]],
+                                ytest = draw[["ytest"]],
+                                error_variance = error_var,
+                                causal = draw[["causal"]],
+                                not_causal = draw[["not_causal"]],
+                                p = ncol(draw[["xtrain"]])
+                           )
+                         })
+
 
 ggmixed <- new_method("ggmix", "ggmix",
                      method = function(model, draw) {
@@ -142,7 +145,7 @@ ggmixed <- new_method("ggmix", "ggmix",
                      })
 
 
-# this one uses residuals to compare to
+# this one uses residuals to compare to (DO NOT USE)
 twostep <- new_method("twostep", "two step",
                       method = function(model, draw) {
 
@@ -186,7 +189,7 @@ twostep <- new_method("twostep", "two step",
                         )
                       })
 
-# this one uses the original y to compare to
+# this one uses the original y to compare to (DO nOT USE)
 twostepY <- new_method("twostepY", "two step Y",
                       method = function(model, draw) {
 
@@ -234,7 +237,7 @@ twostepY <- new_method("twostepY", "two step Y",
 
 
 
-# this one uses residuals to compare to and stores the variance components (VC)
+# this one uses residuals to compare to and stores the variance components (VC) (DO NOT USE)
 twostepVC <- new_method("twostep", "two step",
                       method = function(model, draw) {
 
@@ -278,47 +281,3 @@ twostepVC <- new_method("twostep", "two step",
                         )
                       })
 
-# this one uses the original y to compare to and stores the variance components (VC)
-twostepYVC <- new_method("twostepYVC", "two step YVC",
-                       method = function(model, draw) {
-
-                         # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
-                         # fit_lme <- coxme::lmekin(Y ~ 1 + (1|id), data = pheno_dat, varlist = model$kin)
-                         # newy <- residuals(fit_lme)
-                         # fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = newy, standardize = F, alpha = 1)
-
-                         # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
-                         x1 <- cbind(rep(1, nrow(draw[["xtrain"]])))
-                         fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin_train"]])
-                         gaston_resid <- draw[["ytrain"]] - (fit_lme$BLUP_omega + fit_lme$BLUP_beta)
-                         fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = gaston_resid,
-                                                        standardize = T, alpha = 1, intercept = T)
-
-                         nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
-
-                         model_error <- l2norm(draw[["mu_train"]] -
-                                                 draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
-
-                         prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
-
-                         yhat <- predict(fitglmnet, newx = draw[["xtest"]], s = "lambda.min")
-                         yhat_train <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
-                         error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
-
-
-                         list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
-                              yhat = yhat,
-                              nonzero = coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop=F],
-                              nonzero_names = nz_names,
-                              model_error = model_error,
-                              prediction_error = prediction_error,
-                              eta = fit_lme$tau, # this is the VC for kinship
-                              sigma2 = fit_lme$sigma2, # this is VC for error
-                              y = draw[["ytrain"]],
-                              ytest = draw[["ytest"]],
-                              error_variance = error_var,
-                              causal = draw[["causal"]],
-                              not_causal = draw[["not_causal"]],
-                              p = ncol(draw[["xtrain"]])
-                         )
-                       })
