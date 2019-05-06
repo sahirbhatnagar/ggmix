@@ -103,10 +103,13 @@ save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
 
-sim <- sim %>% run_method(list(lasso1se),
+sim <- sim %>% run_method(list(twostepYVC),
                   parallel = list(socket_names = 40,
-                                  libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
-
+                                  libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
+  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
+                correct_sparsity,mse, errorvariance))
+save_simulation(sim)
+ls()
 
 sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
 plot_eval(sim, "mse")

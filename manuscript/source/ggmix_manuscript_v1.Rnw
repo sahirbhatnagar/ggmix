@@ -161,6 +161,7 @@
 \author[1,2]{Sahir R Bhatnagar}
 \author[3]{Karim Oualkacha}
 \author[4]{Yi Yang}
+\author[2]{Tianyuan Lu}
 \author[2]{Marie Forest}
 \author[1,2,5]{\mbox{Celia MT Greenwood}}
 \affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
@@ -188,7 +189,7 @@ knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
 
 # set to FALSE if still in development and you dont want to run the R code
-finalversion <- FALSE
+finalversion <- TRUE
 @
 
 <<packages, eval=finalversion>>=
@@ -705,10 +706,10 @@ The phenotype prediction is thus given by:
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} \bU^T (\bY - \bX \bbeta)\\
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \eta \sigma^2 \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
-& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) 
+& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta )
 \end{align}
 
-where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals. 
+where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals.
 
 
 

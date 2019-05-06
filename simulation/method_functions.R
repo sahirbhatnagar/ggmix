@@ -279,7 +279,7 @@ twostepVC <- new_method("twostep", "two step",
                       })
 
 # this one uses the original y to compare to and stores the variance components (VC)
-twostepYVC <- new_method("twostepY", "two step Y",
+twostepYVC <- new_method("twostepYVC", "two step YVC",
                        method = function(model, draw) {
 
                          # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
@@ -289,20 +289,21 @@ twostepYVC <- new_method("twostepY", "two step Y",
 
                          # pheno_dat <- data.frame(Y = draw, id = rownames(model$kin))
                          x1 <- cbind(rep(1, nrow(draw[["xtrain"]])))
-                         fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin"]])
+                         fit_lme <- gaston::lmm.aireml(draw[["ytrain"]], x1, K = draw[["kin_train"]])
                          gaston_resid <- draw[["ytrain"]] - (fit_lme$BLUP_omega + fit_lme$BLUP_beta)
                          fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain"]], y = gaston_resid,
                                                         standardize = T, alpha = 1, intercept = T)
 
                          nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.min")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.min")),,drop = F]),c("(Intercept)"))
 
-                         model_error <- l2norm(draw[["mutrain"]] -
+                         model_error <- l2norm(draw[["mu_train"]] -
                                                  draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.min")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
 
-                         prediction_error <- model_error^2 / l2norm(draw[["mutrain"]])^2
+                         prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
 
-                         yhat <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
-                         error_var <- l2norm(yhat - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
+                         yhat <- predict(fitglmnet, newx = draw[["xtest"]], s = "lambda.min")
+                         yhat_train <- predict(fitglmnet, newx = draw[["xtrain"]], s = "lambda.min")
+                         error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
 
 
                          list(beta = coef(fitglmnet, s = "lambda.min")[-1,,drop = F],
@@ -314,6 +315,7 @@ twostepYVC <- new_method("twostepY", "two step Y",
                               eta = fit_lme$tau, # this is the VC for kinship
                               sigma2 = fit_lme$sigma2, # this is VC for error
                               y = draw[["ytrain"]],
+                              ytest = draw[["ytest"]],
                               error_variance = error_var,
                               causal = draw[["causal"]],
                               not_causal = draw[["not_causal"]],
