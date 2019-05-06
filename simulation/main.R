@@ -102,13 +102,26 @@ sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
-sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/simulation")
+
+sim <- sim %>% run_method(list(lasso1se),
+                  parallel = list(socket_names = 40,
+                                  libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+
+
+sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
 plot_eval(sim, "mse")
 plot_eval(sim, "tpr")
 plot_eval(sim, "fpr")
 plot_eval(sim, "correct_sparsity")
 
+# save results ------------------------------------------------------------
+sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
+df <- as.data.frame(evals(sim))
+saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
+saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
+df %>% filter(Method=="twostepY")
 
+simulator::tabulate_eval(sim, "mse")
 
 # sim <- sim %>%
 #   run_method(list(lasso, ggmixed, twostepY),
@@ -123,40 +136,40 @@ plot_eval(sim, "correct_sparsity")
 # as.data.frame(evals(sim))
 # ls()
 
-ns <- seq(500,4000, by = 500)
-res <- vector("numeric", length = length(ns))
+# ns <- seq(500,4000, by = 500)
+# res <- vector("numeric", length = length(ns))
 
 # for(jj in seq_along(ns)) {
-dat <- make_ADmixed_model_not_sim(b0 = 0, sigma2 = 1,
-                                  eta = 0.1,
-                                  # n = ns[jj],
-                                  n = 1000,
-                                  p_test = 1000,
-                                  beta_mean = 0.5,
-                                  # p_test = 500,
-                                  p_kinship = 10000,
-                                  geography = "ind",
-                                  # geography = "circ",
-                                  percent_causal = 0.01,
-                                  percent_overlap = "0",
-                                  # percent_overlap = "100",
-                                  k = 5, s = 0.5, Fst = 0.1)
-
-pheno_dat <- data.frame(Y = dat$y, id = paste0("ID",1:length(dat$y)))
-x1 <- cbind(rep(1, nrow(dat$x)))
-fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
-kin <- gaston::as.bed.matrix(dat$Xkinship)
-gaston::standardize(kin) <- "p"
-kin[1:5,1:5]
-kins <- gaston::GRM(kin)
-dim(kins)
-kins <- crossprod(dat$Xkinship)/ncol(dat$Xkinship)
-dim(kins)
-kins[1:5,1:5]
-popkin::plotPopkin(list(dat$kin, kins))
-fit <- gaston::lmm.aireml(dat$y, x1, K = kins)
-
-res[jj] <- fit$tau
+# dat <- make_ADmixed_model_not_sim(b0 = 0, sigma2 = 1,
+#                                   eta = 0.1,
+#                                   # n = ns[jj],
+#                                   n = 1000,
+#                                   p_test = 1000,
+#                                   beta_mean = 0.5,
+#                                   # p_test = 500,
+#                                   p_kinship = 10000,
+#                                   geography = "ind",
+#                                   # geography = "circ",
+#                                   percent_causal = 0.01,
+#                                   percent_overlap = "0",
+#                                   # percent_overlap = "100",
+#                                   k = 5, s = 0.5, Fst = 0.1)
+#
+# pheno_dat <- data.frame(Y = dat$y, id = paste0("ID",1:length(dat$y)))
+# x1 <- cbind(rep(1, nrow(dat$x)))
+# fit <- gaston::lmm.aireml(dat$y, x1, K = dat$kin)
+# kin <- gaston::as.bed.matrix(dat$Xkinship)
+# gaston::standardize(kin) <- "p"
+# kin[1:5,1:5]
+# kins <- gaston::GRM(kin)
+# dim(kins)
+# kins <- crossprod(dat$Xkinship)/ncol(dat$Xkinship)
+# dim(kins)
+# kins[1:5,1:5]
+# popkin::plotPopkin(list(dat$kin, kins))
+# fit <- gaston::lmm.aireml(dat$y, x1, K = kins)
+#
+# res[jj] <- fit$tau
 
 
 
@@ -277,21 +290,7 @@ all(colnames(res$Xtest) == res$not_causal)
 # res$x_lasso
 hist(res$y)
 res$kin %>% dim
-# save results ------------------------------------------------------------
-sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
-sim <- sim %>% run_method(list(lasso),
-                          parallel = list(socket_names = 35,
-                                          libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
-save_simulation(sim)
-sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, correct_sparsity,mse, errorvariance))
-save_simulation(sim)
-ls()
 
-sim <- load_simulation(name = name_of_simulation, dir = "simulation/")
-df <- as.data.frame(evals(sim))
-saveRDS(df, file = "simulation/simulation_results/july_12_2018_results_with_null_model_VC_lasso_has_proper_MSE.rds")
-
-df %>% filter(Method=="twostep")
 
 
 # analyze results ---------------------------------------------------------
@@ -299,7 +298,7 @@ df %>% filter(Method=="twostep")
 source("simulation/packages.R")
 df <- readRDS("simulation/simulation_results/june_29_2018_results.rds")
 df <- as.data.frame(evals(sim))
-df <- df %>% separate(Model, into = c("simnames","b0","eta","Fst","geography","k","n","pkinship","ptest","percentcausal","percentoverlap","s","sigma2"),
+df <- df %>% separate(Model, into = c("simnames","b0","eta","Fst","geography","k","n","pkinship","pdesign","percentcausal","percentoverlap","s","sigma2"),
                       sep = "/")
 DT <- as.data.table(df)
 
@@ -369,7 +368,7 @@ sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
 
 sim %>%
   subset_simulation(methods = c("ggmix","lasso")) %>%
-  plot_eval(metric_name = "mse") + panel_border() #+
+  plot_eval(metric_name = "mse", scales = "free") + panel_border() #+
   # ggplot2::geom_hline(yintercept = 0.5)
 
 sim %>%

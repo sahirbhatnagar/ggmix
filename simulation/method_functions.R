@@ -59,6 +59,49 @@ lasso <- new_method("lasso", "lasso",
                         )
                       })
 
+lasso1se <- new_method("lasso1se", "lasso1se",
+                    method = function(model, draw) {
+                      fitglmnet <- glmnet::cv.glmnet(x = draw[["xtrain_lasso"]],
+                                                     y = draw[["ytrain"]],
+                                                     alpha = 1,
+                                                     standardize = T,
+                                                     penalty.factor = c(rep(1, ncol(draw[["xtrain"]])), rep(0,10)))
+
+                      nz_names <- setdiff(rownames(coef(fitglmnet, s = "lambda.1se")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.1se")),,drop = F]),c("(Intercept)",paste0("PC",1:10)))
+
+                      model_error <- l2norm(draw[["mu_train"]] -
+                                              draw[["xtrain"]] %*% coef(fitglmnet, s = "lambda.1se")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
+
+                      # defined in Bertsimas et al. 2016
+                      # Best Subset Selection via a Modern Optimization Lens
+                      prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
+
+                      # inidividual level predictions
+                      yhat <- predict(fitglmnet, newx = draw[["xtest_lasso"]], s = "lambda.1se")
+
+                      # yhat <- cbind(1, draw[["xtest"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["xtest"]])),,drop = F]
+                      # yhat_train <- cbind(1, draw[["xtrain"]]) %*% coef(fitglmnet, s = "lambda.min")[c("(Intercept)",colnames(draw[["xtrain"]])),,drop = F]
+                      yhat_train <- predict(fitglmnet, newx = draw[["xtrain_lasso"]], s = "lambda.1se")
+
+                      error_var <- l2norm(yhat_train - draw[["ytrain"]])^2 / (length(draw[["ytrain"]]) - length(nz_names))
+
+                      list(beta = coef(fitglmnet, s = "lambda.1se")[-1,,drop = F],
+                           model_error = model_error,
+                           prediction_error = prediction_error,
+                           eta = NA,
+                           sigma2 = NA,
+                           yhat = yhat, # on the test set using principal components
+                           nonzero = coef(fitglmnet, s = "lambda.1se")[glmnet::nonzeroCoef(coef(fitglmnet, s = "lambda.1se")),,drop = F],
+                           nonzero_names = nz_names,
+                           ytrain = draw[["ytrain"]],
+                           ytest = draw[["ytest"]],
+                           error_variance = error_var,
+                           causal = draw[["causal"]],
+                           not_causal = draw[["not_causal"]],
+                           p = ncol(draw[["xtrain"]])
+                      )
+                    })
+
 ggmixed <- new_method("ggmix", "ggmix",
                      method = function(model, draw) {
                        fit <- ggmix(x = draw[["xtrain"]],

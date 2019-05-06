@@ -10,8 +10,11 @@
 #                       sep = "/")
 
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC_lasso_has_proper_MSE.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC_lasso_has_proper_MSE.rds")
 # df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_02_2019_results.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
+
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
                                "pkinship","ptest","percentcausal",
@@ -39,6 +42,9 @@ DT[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
 # DT[, table(Method)]
 DT <- DT[Method != "twostep"]
 DT[Method == "twostepY", Method := "twostep"]
+# DT <- DT[Method != "lasso"]
+# DT[Method == "lasso1se", Method := "lasso"]
+DT[,table(Method)]
 # DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
 DT[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
 # DT[, table(percentcausal,p_causal)]
@@ -360,7 +366,9 @@ p1_me_nactive
 df_me_nactive <- DT[structure == "block"][Method %in% c("lasso","ggmix")][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")] %>%
   group_by(Method, eta_p, p_overlap) %>%
   summarise(mean.me = mean(mse, na.rm = TRUE), sd.me = sd(mse, na.rm = TRUE),
-            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE),
+            median.me = median(mse, na.rm = TRUE),
+            median.nactive = median(nactive, na.rm = TRUE))
 
 p1_me_nactive <- ggplot(data = df_me_nactive,
                         aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
@@ -394,6 +402,7 @@ p1_me_nactive <- ggplot(data = df_me_nactive,
        title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
        subtitle = "Based on 200 simulations",
        caption = "") +
+  # ylim(c(0,10)) +
   theme_box
 
 p1_me_nactive
@@ -717,7 +726,7 @@ p1_tpr_fpr
 
 ## ---- plot-mse-sim ----
 
-p1_mse <- ggplot(DT, aes(Method, mse, fill = Method)) +
+p1_mse <- ggplot(DT[Method %in% c("lasso","ggmix")], aes(Method, mse, fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ structure, scales = "free",
                  repeat.tick.labels = 'left',
