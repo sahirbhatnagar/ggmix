@@ -833,10 +833,6 @@ Both the lasso and twostep methods have better signal recovery as compared to \g
 However, this signal is being spread across many variables leading to many Type 1 errors.
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MSE is not being calculated correctly for lasso because its not using the PC in predict()
-% ignore this for now.
 <<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
@@ -849,7 +845,18 @@ However, this signal is being spread across many variables leading to many Type 
 <<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Run time}
+
+<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for twostep, lasso and ggmix.", eval=finalversion>>=
+@
+
+
+
+<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for 1\\% causal SNPs for twostep, lasso and ggmix.", eval=finalversion>>=
+@
+
+
 
 
 \section{Real Data Application}

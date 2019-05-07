@@ -945,10 +945,6 @@ Both the lasso and twostep methods have better signal recovery as compared to \g
 However, this signal is being spread across many variables leading to many Type 1 errors.
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MSE is not being calculated correctly for lasso because its not using the PC in predict()
-% ignore this for now.
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
@@ -1001,7 +997,38 @@ However, this signal is being spread across many variables leading to many Type 
 
 \end{knitrout}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Run time}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-runtime-sim-null-model-1} 
+
+}
+
+\caption[Run time (in log seconds) for null model for twostep, lasso and ggmix]{Run time (in log seconds) for null model for twostep, lasso and ggmix.}\label{fig:plot-runtime-sim-null-model}
+\end{figure}
+
+
+\end{knitrout}
+
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-runtime-sim-1p-causal-1} 
+
+}
+
+\caption[Run time (in log seconds) for 1\% causal SNPs for twostep, lasso and ggmix]{Run time (in log seconds) for 1\% causal SNPs for twostep, lasso and ggmix.}\label{fig:plot-runtime-sim-1p-causal}
+\end{figure}
+
+
+\end{knitrout}
+
+
 
 
 \section{Real Data Application}

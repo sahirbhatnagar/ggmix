@@ -744,6 +744,59 @@ p1_mse <- ggplot(DT[Method %in% c("lasso","ggmix")], aes(Method, mse, fill = Met
 p1_mse
 
 
+
+## ---- plot-runtime-sim-null-model ----
+
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"],
+                      aes(Method, log(time), fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = "log run time (seconds)",
+       title = TeX("Log Run Time (seconds) for the Null Model"),
+       subtitle = "Based on 200 simulations") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) #+
+# geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+p1_errorvar
+
+
+
+
+## ---- plot-runtime-sim-1p-causal ----
+
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+p1_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"],
+                      aes(Method, log(time), fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = "log run time (seconds)",
+       title = TeX("Log Run Time (seconds) for the Model with 1% Causal SNPs"),
+       subtitle = "Based on 200 simulations") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) #+
+  # geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+p1_errorvar
+
+
 ## ---- plot-fpr-tpr-boxplot-sim ----
 # not-used
 # DT_tpr_fpr <- melt(DT[, .(method, tpr, fpr, scen)], id.vars = c("method","scen"))
