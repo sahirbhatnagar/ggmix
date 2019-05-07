@@ -161,6 +161,7 @@
 \author[1,2]{Sahir R Bhatnagar}
 \author[3]{Karim Oualkacha}
 \author[4]{Yi Yang}
+\author[2]{Tianyuan Lu}
 \author[2]{Marie Forest}
 \author[1,2,5]{\mbox{Celia MT Greenwood}}
 \affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
@@ -188,7 +189,7 @@ knitr::read_chunk("../bin/setup.R")
 knitr::read_chunk("../bin/simulation.R")
 
 # set to FALSE if still in development and you dont want to run the R code
-finalversion <- FALSE
+finalversion <- TRUE
 @
 
 <<packages, eval=finalversion>>=
@@ -705,10 +706,10 @@ The phenotype prediction is thus given by:
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} \bU^T (\bY - \bX \bbeta)\\
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
 & = \bX^\star \bbeta + \frac{1}{\sigma^2} \eta \sigma^2 \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
-& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) 
+& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta )
 \end{align}
 
-where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals. 
+where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals.
 
 
 
@@ -833,16 +834,16 @@ However, this signal is being spread across many variables leading to many Type 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MSE is not being calculated correctly for lasso because its not using the PC in predict()
 % ignore this for now.
-<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=FALSE>>=
+<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
-<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the model with 1\\% causal SNPs.", eval=FALSE>>=
+<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the model with 1\\% causal SNPs.", eval=finalversion>>=
 @
 
-<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for 1\\% causal SNPs for ggmix and lasso.", eval=FALSE>>=
+<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for 1\\% causal SNPs for ggmix and lasso.", eval=finalversion>>=
 @
 
-<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=FALSE>>=
+<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

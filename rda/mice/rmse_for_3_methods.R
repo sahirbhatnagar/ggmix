@@ -66,18 +66,20 @@ yhat_twostep <- predict(fitglmnet, newx = xtest, s = "lambda.min")
 cor(yhat_twostep, ytest)^2
 
 ## ---- lasso ----
-eiK <- eigen(cov_train)
+# eiK <- eigen(cov_train)
 
-# prc <- prcomp(xtrain)
-# plot(prc$x[,1], PC[,1])
+PC <- prcomp(xtrain)
+PC$rotation %>% dim
+PC$x %>% dim
 
-if (any(eiK$values < 1e-5)) {
-  eiK$values[ eiK$values < 1e-5 ] <- 1e-5
-}
 
-PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+# if (any(eiK$values < 1e-5)) {
+#   eiK$values[ eiK$values < 1e-5 ] <- 1e-5
+# }
+#
+# PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
 
-xtrain_lasso <- cbind(xtrain, PC[,1:10])
+xtrain_lasso <- cbind(xtrain, PC$x[,1:10])
 # xtrain_lasso2 <- cbind(xtrain, prc$x[,1:10])
 
 # eiK$vectors %>% dim
@@ -89,22 +91,17 @@ fit_glmnet <- cv.glmnet(x = xtrain_lasso,
                         penalty.factor = c(rep(1, ncol(xtrain)), rep(0,10)))
 plot(fit_glmnet)
 
-fit_glmnet <- cv.glmnet(x = xtrain,
-                        y = ytrain,
-                        alpha = 1,
-                        standardize = T)
-
-
-# xtest %>% dim
-# xtest_pc <- predict(prc, newdata = xtest)
-# xtest_lasso <- cbind(xtest, xtest_pc[,1:10])
+xtest %>% dim
+xtest_pc <- predict(PC, newdata = xtest)
+xtest_pc %>% dim
+xtest_lasso <- cbind(xtest, xtest_pc[,1:10])
 
 
 # extract only betas for SNPs
-betas_lasso <- coef(fit_glmnet, s = "lambda.min")[1:(ncol(xtrain)+1), , drop = F]
-yhat_lasso <- cbind(1, xtest) %*% betas_lasso
+# betas_lasso <- coef(fit_glmnet, s = "lambda.min")[1:(ncol(xtrain)+1), , drop = F]
+# yhat_lasso <- cbind(1, xtest) %*% betas_lasso
 
-# yhat_lasso <- predict(fit_glmnet, s="lambda.min", newx = xtest_lasso)
+yhat_lasso <- predict(fit_glmnet, s="lambda.min", newx = xtest_lasso)
 (RMSE_lasso <- l2norm(yhat_lasso - ytest))
 cor(as.vector(yhat_lasso), ytest)^2
 
