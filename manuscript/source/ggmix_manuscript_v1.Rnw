@@ -902,7 +902,7 @@ We also identified several other loci that might also be associated with suscept
 
 \begin{minipage}{\linewidth}
 \bigskip
-\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker} 
+\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker}
 \begin{tabular}{ C{1.25in} C{.85in} C{1.25in} C{2.5in}}\toprule[1.5pt]
 \bf Method & \bf Marker & \bf Position in cM & \bf Position in bp\\\midrule
 twostep & N/A & N/A & N/A\\

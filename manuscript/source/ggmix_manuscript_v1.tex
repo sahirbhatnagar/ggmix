@@ -230,12 +230,7 @@
 
 
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in normalizePath(path, winslash = "{}/"{}, mustWork = TRUE): path[1]="{}/home/sahir/git\_repositories/ggmix/"{}: No such file or directory}}\end{kframe}
-\end{knitrout}
 
 
 
@@ -845,46 +840,7 @@ We also compare the model error $(\norm*{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{
 
 \subsection{Results}
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in gzfile(file, "{}rb"{}): cannot open the connection}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in UseMethod("{}separate\_"{}): no applicable method for 'separate\_' applied to an object of class "{}function"{}}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in setDT(as.data.frame(x, ...)): Argument 'x' to 'setDT' should be a 'list', 'data.frame' or 'data.table'}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'DT' not found}}\end{kframe}
-\end{knitrout}
 
 We first plot the correct sparsity results for the null model ($c=0$) and the model with 1\% causal SNPs ($c=0.01$) in Figures~\ref{fig:plot-correct-sparsity-sim-null-model} and~\ref{fig:plot-correct-sparsity-sim-1p-causal}, respectively. When the true model has no causal SNPs, we see that \ggmix ~has perfect Type 1 error control across all 200 replications while both the twostep and lasso methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
@@ -898,8 +854,6 @@ We first plot the correct sparsity results for the null model ($c=0$) and the mo
 \caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}\label{fig:plot-correct-sparsity-sim-null-model}
 \end{figure}
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
 \end{knitrout}
 
@@ -1064,7 +1018,7 @@ We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observation
 Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model)~\citep{howey2018application}, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
 Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
 Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs where rs9661059 resides.
-Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix ~.
+Having acknowledged potential population admixture in the GAW20 study, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix~.
 For both the lasso and twostep methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}, supplying the same kinship matrix estimated by REAP.
 
 On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing true positive rate to 1 and then minimizing false positive rate. Hence, the selected SNP, rs9661059, is likely to be the true positive for each method, and non-causal SNPs are excluded to the greatest extent.
@@ -1120,7 +1074,7 @@ We also identified several other loci that might also be associated with suscept
 
 \begin{minipage}{\linewidth}
 \bigskip
-\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker} 
+\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker}
 \begin{tabular}{ C{1.25in} C{.85in} C{1.25in} C{2.5in}}\toprule[1.5pt]
 \bf Method & \bf Marker & \bf Position in cM & \bf Position in bp\\\midrule
 twostep & N/A & N/A & N/A\\
