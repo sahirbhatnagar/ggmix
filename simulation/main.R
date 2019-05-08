@@ -66,91 +66,41 @@ sim <- new_simulation(name_of_simulation, "may-7", dir = "simulation/") %>%
                  s = 0.5,
                  Fst = 0.1,
 
-                 # eta = list(0.1, 0.5),
-                 # geography = list("ind", "1d","circ"),
-                 # percent_causal = list(0, 0.01),
-                 # percent_overlap = list("0","100"),
-                 # vary_along = c("geography","percent_overlap","percent_causal","eta"),
-                 # n = 2000, # 50% train, 50% test
-                 # p_design = 5000,
-                 # p_kinship = 10000,
-
-                 eta = 0.50,
+                 eta = list(0.1, 0.5),
                  geography = "1d",
-                 percent_causal = 0,
-                 percent_overlap = "0",
-                 n = 800, # 50% train, 50% test
+                 percent_causal = list(0, 0.01),
+                 percent_overlap = list("0","100"),
+                 vary_along = c("percent_overlap","percent_causal","eta"),
+                 # n = 2000, # 60/20/20 split
+                 n = 500, # 60/20/20 split
+                 # p_design = 5000,
                  p_design = 500,
+                 # p_kinship = 10000
                  p_kinship = 1000
+                 # eta = 0.50,
+                 # geography = "1d",
+                 # percent_causal = 0,
+                 # percent_overlap = "0",
+                 # n = 800, # 50% train, 50% test
+                 # p_design = 500,
+                 # p_kinship = 1000
 
                  ) %>%
   # simulate_from_model(nsim = 5, index = 1:40) %>%
   simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed, twostepYVC))#,
-              # parallel = list(socket_names = 40,
-                              # libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+  run_method(list(lasso, ggmixed, twostepYVC),
+              parallel = list(socket_names = 40,
+                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
 
-ggmixed@method(draw = draws(sim)@draws$r1.2)
-
-
-method_ggmixed <- function(model, draw) {
-  fit <- ggmix(x = draw[["xtrain"]],
-               y = draw[["ytrain"]],
-               kinship = draw[["kin_train"]],
-               verbose = 1, dfmax = 100)
-  # hdbic <- gic(fit, an = log(length(draw[["ytrain"]])))
-  # hdbic <- gic(fit)
-browser()
-
-  predmat <- predict(fit,
-                     newx = draw[["xtest"]],
-                     type = "individual",
-                     covariance = draw[["kin_test_train"]],
-                     s = fit$lambda)
-  cvmat <- apply((draw[["ytest"]] - predmat)^2, 2, mean)
-  lambda_min_ggmix <- fit$result[which.min(cvmat), "Lambda"]
-
-  model_error <- l2norm(draw[["mu_train"]] -
-                          draw[["xtrain"]] %*% predict(fit, s = lambda_min_ggmix, type = "coef")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F])
-
-  # inidividual level prediction
-  yhat <- predict(fit,
-                  s = lambda_min_ggmix,
-                  newx = draw[["xvalidate"]],
-                  type = "individual",
-                  covariance = draw[["kin_validate_train"]])
-
-  # mse_value <- crossprod(predict(hdbic, newx = draw[["xtrain"]]) + ranef(hdbic) - draw[["ytrain"]]) / length(draw[["ytrain"]])
-
-  prediction_error <- model_error^2 / l2norm(draw[["mu_train"]])^2
-
-  list(beta = predict(fit, s = lambda_min_ggmix, type = "coef")[2:(ncol(draw[["xtrain"]]) + 1),,drop = F], #this doesnt have intercept and is a 1-col matrix
-       model_error = model_error,
-       prediction_error = prediction_error,
-       nonzero = coef(fit, type = "nonzero", s = lambda_min_ggmix),
-       nonzero_names = setdiff(rownames(coef(fit, type = "nonzero", s = lambda_min_ggmix)), c("(Intercept)","eta","sigma2")),
-       # yhat = predict(hdbic, newx = draw[["xtrain"]]) + ranef(hdbic),
-       yhat = yhat,
-       ytrain = draw[["ytrain"]],
-       ytest = draw[["ytest"]],
-       yvalidate = draw[["yvalidate"]],
-       eta = coef(fit, type = "nonzero", s = lambda_min_ggmix)["eta",],
-       sigma2 = coef(fit, type = "nonzero", s = lambda_min_ggmix)["sigma2",],
-       error_variance = (1 - coef(fit, type = "nonzero", s = lambda_min_ggmix)["eta",]) * coef(fit, type = "nonzero", s = lambda_min_ggmix)["sigma2",],
-       y = draw[["ytrain"]],
-       causal = draw[["causal"]],
-       not_causal = draw[["not_causal"]],
-       p = ncol(draw[["xtrain"]])
-  )
-}
-
-tt <- ggmixed@method(draw = draws(sim)@draws$r1.1)
-draws(sim)@draws$r1.2$xtrain
-ls()
-tt$causal
-tt$nonzero
+# ggmixed@method(draw = draws(sim)@draws$r1.2)
+#
+# tt <- ggmixed@method(draw = draws(sim)@draws$r1.1)
+# draws(sim)@draws$r1.2$xtrain
+# ls()
+# tt$causal
+# tt$nonzero
 # sim <- sim %>% run_method(list(lasso, ggmixed))
-
+tp <- simulator::load_draws(dir = "simulation/", model_name = "ggmix_05_07_2019")
 # sim <- sim %>% run_method(list(lasso, ggmixed))#,#, twostep, twostepY),
 #              parallel = list(socket_names = 8,
 #                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))
@@ -161,7 +111,7 @@ sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
-
+load_model()
 sim <- sim %>% run_method(list(twostepYVC),
                   parallel = list(socket_names = 40,
                                   libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
