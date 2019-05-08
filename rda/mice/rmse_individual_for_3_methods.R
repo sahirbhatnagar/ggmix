@@ -69,7 +69,7 @@ cov_validate_train %>% dim
 
 # ggmix -------------------------------------------------------------------
 
-
+devtools::load_all()
 fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
 predmat <- predict(fit_ggmix, newx = xtest, type = "individual", covariance = cov_test_train, s = fit_ggmix$lambda)
 cvmat <- apply((ytest - predmat)^2, 2, mean)
@@ -82,6 +82,8 @@ plot(log(fit_ggmix$lambda), cvmat, pch = 19)
 lambda.min.name = which.min(cvmat)
 lambda.min = fit_ggmix$result[lambda.min.name, "Lambda"]
 bicGGMIX$lambda.min
+
+coef(fit_ggmix, s = lambda.min, type = "nonzero")
 
 sum(admixed$causal %in% rownames(predict(fit_ggmix, s = lambda.min, type = "coef")[nonzeroCoef(predict(fit_ggmix, s = lambda.min, type = "coef")),,drop=F])) / length(admixed$causal)
 rownames(predict(fit_ggmix, s = lambda.min, type = "coef")[nonzeroCoef(predict(fit_ggmix, s = lambda.min, type = "coef")),,drop=F]) %>% length()
