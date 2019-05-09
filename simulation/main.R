@@ -11,7 +11,7 @@
 # and then create figures based on that
 # Author: Sahir Bhatnagar
 # Created: 2018
-# Updated: April 30, 2019
+# Updated: May 8, 2019
 #####################################
 
 
@@ -71,12 +71,12 @@ sim <- new_simulation(name_of_simulation, "may-7", dir = "simulation/") %>%
                  percent_causal = list(0, 0.01),
                  percent_overlap = list("0","100"),
                  vary_along = c("percent_overlap","percent_causal","eta"),
-                 # n = 2000, # 60/20/20 split
-                 n = 500, # 60/20/20 split
-                 # p_design = 5000,
-                 p_design = 500,
-                 # p_kinship = 10000
-                 p_kinship = 1000
+                 n = 2000, # 60/20/20 split
+                 # n = 500, # 60/20/20 split
+                 p_design = 5000,
+                 # p_design = 500,
+                 p_kinship = 10000
+                 # p_kinship = 1000
                  # eta = 0.50,
                  # geography = "1d",
                  # percent_causal = 0,
@@ -86,11 +86,13 @@ sim <- new_simulation(name_of_simulation, "may-7", dir = "simulation/") %>%
                  # p_kinship = 1000
 
                  ) %>%
-  # simulate_from_model(nsim = 5, index = 1:40) %>%
-  simulate_from_model(nsim = 2, index = 1) %>%
+  simulate_from_model(nsim = 5, index = 1:40) %>%
+  # simulate_from_model(nsim = 2, index = 1) %>%
   run_method(list(lasso, ggmixed, twostepYVC),
               parallel = list(socket_names = 40,
                               libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+# make sure most recent version of ggmix is installed for the parallel code to work!!!!#!#@$!@$!@$
+# remotes::install_github('sahirbhatnagar/ggmix', ref = "validate")
 
 # ggmixed@method(draw = draws(sim)@draws$r1.2)
 #
@@ -100,7 +102,7 @@ sim <- new_simulation(name_of_simulation, "may-7", dir = "simulation/") %>%
 # tt$causal
 # tt$nonzero
 # sim <- sim %>% run_method(list(lasso, ggmixed))
-tp <- simulator::load_draws(dir = "simulation/", model_name = "ggmix_05_07_2019")
+# tp <- simulator::load_draws(dir = "simulation/", model_name = "ggmix_05_07_2019")
 # sim <- sim %>% run_method(list(lasso, ggmixed))#,#, twostep, twostepY),
 #              parallel = list(socket_names = 8,
 #                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))
@@ -111,7 +113,7 @@ sim <- sim %>% evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
-load_model()
+
 sim <- sim %>% run_method(list(twostepYVC),
                   parallel = list(socket_names = 40,
                                   libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
@@ -133,7 +135,8 @@ df <- as.data.frame(evals(sim))
 # sim %>% subset_simulation(methods = c("ggmix","lasso"))
 # saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
 # saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
-saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
+# saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
+saveRDS(df, file = "simulation/simulation_results/may_07_2019_results.rds") # this has train/test/validate split
 df %>% filter(Method=="twostepYVC")
 
 simulator::tabulate_eval(sim, "mse")
