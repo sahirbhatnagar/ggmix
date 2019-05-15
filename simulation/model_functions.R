@@ -1,150 +1,7 @@
 ## @knitr models
 
 
-make_mixed_model_SSC <- function(b0, beta_mean, eta, sigma2, percent_causal, percent_overlap) {
-
-  if (percent_causal == 1) {
-
-    file_paths <- switch(percent_overlap,
-                         `0` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_8k.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_8k.rel.id",
-                                #X_phi is bed files used to make kinship
-                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_8k",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_1k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_10")
-                         },
-                         `100` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7990_causal_10.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7990_causal_10.rel.id",
-                                #X_phi is bed files used to make kinship
-                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_7990_causal_10",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_1k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_10")
-                         })
-
-  } else if (percent_causal == 2.5) {
-
-    file_paths <- switch(percent_overlap,
-                         `0` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
-                                #X_phi is bed files used to make kinship
-                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_4k",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_100")
-                         },
-                         `100` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7900_causal_100.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7900_causal_100.rel.id",
-                                #X_phi is bed files used to make kinship
-                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_7900_causal_100",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_100")
-                         })
-
-  } else if (percent_causal == 10) {
-
-    file_paths <- switch(percent_overlap,
-                         `0` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
-                         },
-                         `50` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3800_causal_200.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3800_causal_200.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
-                         },
-                         `100` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3600_causal_400.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3600_causal_400.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
-                         })
-
-  } else if (percent_causal == 50) {
-
-    file_paths <- switch(percent_overlap,
-                         `0` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
-                         },
-                         `50` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3000_causal_1000.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3000_causal_1000.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
-                         },
-                         `100` = {
-                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_2000_causal_2000.rel",
-                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_2000_causal_2000.rel.id",
-                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
-                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
-                         })
-  }
-
-  # gaston kinship
-  Phi <- gaston::read.bed.matrix(file_paths$X_Phi)
-  kin <- gaston::GRM(Phi, autosome.only = FALSE)
-  kin[1:5,1:5]
-  all(complete.cases(kin))
-  eiK <- eigen(kin)
-  # all(rownames(as.matrix(x))==rownames(kin))
-  # deal with a small negative eigen value
-  any(eiK$values < 0)
-  eiK$values[ eiK$values < 0 ] <- 0
-  PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
-
-  dat <- gaston::read.bed.matrix(file_paths$bedfile)
-  gaston::standardize(dat) <- "p"
-  X <- as.matrix(dat)
-  any(is.na(X))
-  X[is.na(X)] <- 0
-  any(is.na(X))
-  X[1:5,1:5]
-
-  # need to re-order
-  all(rownames(X)==rownames(kin))
-  all(rownames(X) %in% rownames(kin))
-  X <- X[match(rownames(kin), rownames(X)),]
-  all(rownames(X)==rownames(kin))
-
-  np <- dim(X)
-  n <- np[[1]]
-  p <- np[[2]]
-
-  all(rownames(X)==rownames(kin))
-
-  x_lasso <- cbind(X,PC[,1:10])
-  x_lasso[1:5,1:5]
-
-  causal <- data.table::fread(file_paths$causal_list, header = FALSE)$V1
-  not_causal <- setdiff(colnames(X), causal)
-  beta <- rep(0, length = p)
-  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
-  mu <- as.numeric(X %*% beta)
-
-  new_model(name = "ggmixSSCv3", label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s, sigma = %s, beta_mean = %s",
-                                                 percent_causal, percent_overlap, eta, sigma2, beta_mean),
-            params = list(mu = mu, n = n, x = X, x_lasso = x_lasso,
-                          beta = beta, percent_causal = percent_causal,
-                          percent_overlap = percent_overlap,
-                          not_causal = not_causal,
-                          kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal, beta_mean = beta_mean),
-            simulate = function(mu, sigma2, eta, kin, n, nsim) {
-              P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
-              E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
-              y <- b0 + mu + t(P) + t(E)
-              return(split(y, col(y))) # make each col its own list element
-            })
-}
-
-
+# USE THIS ONE MAY 7, 2019
 make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                                eta, sigma2, geography = c("ind", "1d","circ"),
                                percent_causal, percent_overlap) {
@@ -584,6 +441,9 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
 
 }
 
+
+
+## @knitr models-not-used
 
 make_ADmixed_model_simtrait <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                                eta, sigma2, geography = c("ind", "1d","circ"),
@@ -1028,7 +888,152 @@ make_ADmixed_model_not_sim <- function(n, p_test, p_kinship, k, s, Fst, b0, beta
 
 }
 
-## @knitr models-not-used
+
+make_mixed_model_SSC <- function(b0, beta_mean, eta, sigma2, percent_causal, percent_overlap) {
+
+  if (percent_causal == 1) {
+
+    file_paths <- switch(percent_overlap,
+                         `0` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_8k.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_8k.rel.id",
+                                #X_phi is bed files used to make kinship
+                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_8k",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_1k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_10")
+                         },
+                         `100` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7990_causal_10.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7990_causal_10.rel.id",
+                                #X_phi is bed files used to make kinship
+                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_7990_causal_10",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_1k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_10")
+                         })
+
+  } else if (percent_causal == 2.5) {
+
+    file_paths <- switch(percent_overlap,
+                         `0` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
+                                #X_phi is bed files used to make kinship
+                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_4k",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_100")
+                         },
+                         `100` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7900_causal_100.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_7900_causal_100.rel.id",
+                                #X_phi is bed files used to make kinship
+                                X_Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_other_7900_causal_100",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_100")
+                         })
+
+  } else if (percent_causal == 10) {
+
+    file_paths <- switch(percent_overlap,
+                         `0` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
+                         },
+                         `50` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3800_causal_200.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3800_causal_200.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
+                         },
+                         `100` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3600_causal_400.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3600_causal_400.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_400")
+                         })
+
+  } else if (percent_causal == 50) {
+
+    file_paths <- switch(percent_overlap,
+                         `0` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_4k.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
+                         },
+                         `50` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3000_causal_1000.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_3000_causal_1000.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
+                         },
+                         `100` = {
+                           list(Phi = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_2000_causal_2000.rel",
+                                Phi_names = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/kinship/Kinship_other_2000_causal_2000.rel.id",
+                                bedfile = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/bed/X_test_4k",
+                                causal_list = "/mnt/GREENWOOD_BACKUP/home/sahir.bhatnagar/penfam/simulation/data/snplist/causal_SNP_from_X_test_2000")
+                         })
+  }
+
+  # gaston kinship
+  Phi <- gaston::read.bed.matrix(file_paths$X_Phi)
+  kin <- gaston::GRM(Phi, autosome.only = FALSE)
+  kin[1:5,1:5]
+  all(complete.cases(kin))
+  eiK <- eigen(kin)
+  # all(rownames(as.matrix(x))==rownames(kin))
+  # deal with a small negative eigen value
+  any(eiK$values < 0)
+  eiK$values[ eiK$values < 0 ] <- 0
+  PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
+
+  dat <- gaston::read.bed.matrix(file_paths$bedfile)
+  gaston::standardize(dat) <- "p"
+  X <- as.matrix(dat)
+  any(is.na(X))
+  X[is.na(X)] <- 0
+  any(is.na(X))
+  X[1:5,1:5]
+
+  # need to re-order
+  all(rownames(X)==rownames(kin))
+  all(rownames(X) %in% rownames(kin))
+  X <- X[match(rownames(kin), rownames(X)),]
+  all(rownames(X)==rownames(kin))
+
+  np <- dim(X)
+  n <- np[[1]]
+  p <- np[[2]]
+
+  all(rownames(X)==rownames(kin))
+
+  x_lasso <- cbind(X,PC[,1:10])
+  x_lasso[1:5,1:5]
+
+  causal <- data.table::fread(file_paths$causal_list, header = FALSE)$V1
+  not_causal <- setdiff(colnames(X), causal)
+  beta <- rep(0, length = p)
+  beta[which(colnames(X) %in% causal)] <- runif(n = length(causal), beta_mean - 0.1, beta_mean + 0.1)
+  mu <- as.numeric(X %*% beta)
+
+  new_model(name = "ggmixSSCv3", label = sprintf("percent_causal = %s, percent_overlap = %s, eta = %s, sigma = %s, beta_mean = %s",
+                                                 percent_causal, percent_overlap, eta, sigma2, beta_mean),
+            params = list(mu = mu, n = n, x = X, x_lasso = x_lasso,
+                          beta = beta, percent_causal = percent_causal,
+                          percent_overlap = percent_overlap,
+                          not_causal = not_causal,
+                          kin = kin, b0 = b0, sigma2 = sigma2, eta = eta, causal = causal, beta_mean = beta_mean),
+            simulate = function(mu, sigma2, eta, kin, n, nsim) {
+              P <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = eta * sigma2 * kin)
+              E <- MASS::mvrnorm(nsim, mu = rep(0, n), Sigma = (1 - eta) * sigma2 * diag(n))
+              y <- b0 + mu + t(P) + t(E)
+              return(split(y, col(y))) # make each col its own list element
+            })
+}
+
+
+
 
 make_sparse_linear_model <- function(b0, eta, sigma2, type) {
   file_paths <- switch(type,

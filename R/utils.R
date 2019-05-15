@@ -74,14 +74,27 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, nPC = 10,
   }
 
 
-  FF <- 1:k # subpopulation FST vector, up to a scalar
+  # FF <- 1:k # subpopulation FST vector, up to a scalar
   # s <- 0.5 # desired bias coefficient
   # Fst <- 0.1 # desired FST for the admixed individuals
   geography <- match.arg(geography)
   if (geography == "1d") {
-    obj <- bnpsd::q1d(n = n, k = k, s = s, F = FF, Fst = Fst)
-    Q <- obj$Q
-    FF <- obj$F
+    FF <- 1:k # subpopulation FST vector, up to a scalar
+    obj <- bnpsd::admix_prop_1d_linear(n_ind = n,
+                                       k_subpops = k,
+                                       bias_coeff = s,
+                                       coanc_subpops = FF,
+                                       fst = Fst)
+    # Q <- obj$Q
+    # FF <- obj$F
+    admix_proportions <- obj$admix_proportions
+    # rescaled inbreeding vector for intermediate subpopulations
+    inbr_subpops <- obj$coanc_subpops
+
+    # get pop structure parameters of the admixed individuals
+    coancestry <- coanc_admix(admix_proportions, inbr_subpops)
+    kinship <- coanc_to_kinship(coancestry)
+
   } else if (geography == "ind") {
     ngroup <- n / k # equal sized groups
     # here’s the labels (for simplicity, list all individuals of S1 first, then S2, then S3)
@@ -89,13 +102,49 @@ gen_structured_model <- function(n, p_test, p_kinship, k, s, Fst, b0, nPC = 10,
     # data dimensions infered from labs:
     length(labs) # number of individuals "n"
     # desired admixture matrix ("is" stands for "Independent Subpopulations")
-    Q <- bnpsd::qis(labs)
-    FF <- 1:k # subpopulation FST vector, unnormalized so far
-    FF <- FF / popkin::fst(FF) * Fst # normalized to have the desired Fst
+    # number of subpopulations "k_subpops"
+    k_subpops <- length(unique(labs))
+
+    # desired admixture matrix
+    admix_proportions <- admix_prop_indep_subpops(labs)
+
+    # subpopulation FST vector, unnormalized so far
+    inbr_subpops <- 1 : k_subpops
+    # normalized to have the desired FST
+    # NOTE fst is a function in the `popkin` package
+    inbr_subpops <- inbr_subpops / popkin::fst(inbr_subpops) * Fst
+    # verify FST for the intermediate subpopulations
+    # fst(inbr_subpops)
+    #> [1] 0.2
+
+    # get coancestry of the admixed individuals
+    coancestry <- coanc_admix(admix_proportions, inbr_subpops)
+    # before getting FST for individuals, weigh then inversely proportional to subpop sizes
+    weights <- popkin::weights_subpops(labs) # function from `popkin` package
+
+    kinship <- coanc_to_kinship(coancestry)
+
   } else if (geography == "circ") {
-    obj <- bnpsd::q1dc(n = n, k = k, s = s, F = FF, Fst = Fst)
-    Q <- obj$Q
-    FF <- obj$F
+    FF <- 1:k # subpopulation FST vector, up to a scalar
+    # obj <- bnpsd::admix_prop_1d_circular(n_ind = n, k_subpops = k, s = s, F = FF, Fst = Fst)
+    # Q <- obj$Q
+    # FF <- obj$F
+
+    # admixture proportions from *circular* 1D geography
+    obj <- admix_prop_1d_circular(
+      n_ind = n,
+      k_subpops = k,
+      bias_coeff = s,
+      coanc_subpops = FF,
+      fst = Fst
+    )
+    admix_proportions <- obj$admix_proportions
+    inbr_subpops <- obj$coanc_subpops
+
+    # get pop structure parameters of the admixed individuals
+    coancestry <- coanc_admix(admix_proportions, inbr_subpops)
+
+    kinship <- coanc_to_kinship(coancestry)
   }
 
   ncausal <- p_test * percent_causal

@@ -14,7 +14,8 @@
 # df <- readRDS("C:/Users/sahir/Documents/git_repositories/ggmix/simulation/simulation_results/july_12_2018_results_with_null_model_VC.rds")
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_02_2019_results.rds")
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_06_2019_results.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_06_2019_results.rds")
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_07_2019_results.rds")
 
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
@@ -31,17 +32,22 @@ DT[, p_causal := case_when(percentcausal == "percent_causal_0" ~ "Null model",
                             percentcausal == "percent_causal_0.01" ~ "1% of SNPs are causal")]
 
 DT[, p_causal := factor(p_causal, levels = c("Null model","1% of SNPs are causal"))]
-DT[geography == "geography_ind", structure := "block"]
-DT[geography == "geography_circ", structure := "circular"]
-DT[geography == "geography_1d", structure := "1D"]
+
+DT[,table(geography)]
+# DT[geography == "geography_ind", structure := "block"]
+# DT[geography == "geography_circ", structure := "circular"]
+## --PATCH- # to keep code with as little change as possible, im renaming 1D to block
+## because everything below is for "block". Even though, the may7th results are for 1D structure.
+DT[geography == "geography_1d", structure := "block"]
 # DT[, table(geography, structure)]
-DT[, structure := factor(structure, levels = c("block","1D","circular"))]
+# DT[, structure := factor(structure, levels = c("block","1D","circular"))]
+DT[, structure := factor(structure, levels = c("block"))]
 DT[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
                         eta_p == "eta_0.5" ~ "50% Heritability")]
 # DT[, table(eta_p)]
 # use twostepY, which compares to the original Y
 # DT[, table(Method)]
-DT <- DT[Method %ni% c("twostep","twostepY","lasso1se")]
+# DT <- DT[Method %ni% c("twostep","twostepY","lasso1se")]
 # DT[Method == "twostepY", Method := "twostep"]
 DT[Method == "twostepYVC", Method := "twostep"]
 # DT <- DT[Method != "lasso"]

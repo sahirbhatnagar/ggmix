@@ -733,12 +733,14 @@ We used a block diagonal kinship structure with 5 subpopulations.
 In Figure~\ref{fig:plot-kinship-sim}, we plot an estimated kinship matrix  ($\bPhi$), based on a single simulated dataset, in the form of a heatmap.
 Each block represents a subpopulation, and a darker color indicates a closer genetic relationship.
 
-<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation. ", eval=finalversion>>=
+<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation. ", eval=FALSE>>=
+# need to fixed the gen_structured_function for updated functions. use model_functions make_ADmixed_model to make
+# a non-simulator version to replce the gen_structured_function
 @
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
 
-<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.", eval=finalversion>>=
+<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.", eval=FALSE>>=
 @
 
 
