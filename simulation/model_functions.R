@@ -368,6 +368,8 @@ make_ADmixed_model <- function(n, p_design, p_kinship, k, s, Fst, b0, beta_mean,
                 # ind <- caret::createDataPartition(y, p = 0.5, list = FALSE)[,1]
 
                 # partition the data into train/test/validate
+                # here i used train/test/validate, but I should have used train/tune/test like I did in
+                # the gen_structured_model function in utils.R
                 spec = c(train = .6, test = .2, validate = .2)
 
                 g = sample(cut(
