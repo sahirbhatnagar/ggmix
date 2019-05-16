@@ -52,7 +52,7 @@ correct_sparsity <- new_metric("correct_sparsity", "Correct Sparsity",
 
 mse <- new_metric("mse", "Test Set MSE",
                   metric = function(model, out) {
-                    as.numeric(crossprod(out$yhat - out$ytest) / (length(out$ytest)))
+                    as.numeric(crossprod(out$yhat - out$yvalidate) / (length(out$yvalidate)))
                   })
 
 

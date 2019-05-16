@@ -1,5 +1,6 @@
 ## ---- GAW20-prediction-RMSE-activeVariable ----
-load("~/Desktop/ggmixGit/RealData/GAW20-RMSE-Nactive.RData")
+root <- "/home/sahir/git_repositories/ggmix/RealData/"
+load(paste0(root, "GAW20-RMSE-Nactive.RData"))
 
 ggplot(RMSEACTIVE, aes(x=meanACTIVE,y=meanRMSE,colour=Method,label=Method)) + geom_point(shape=18,size=5) +
   #ylim(0.29,0.38) +
@@ -11,7 +12,7 @@ ggplot(RMSEACTIVE, aes(x=meanACTIVE,y=meanRMSE,colour=Method,label=Method)) + ge
   labs(x = "Number of active variables", y = "Root mean square error",
        title = "Prediction Root Mean Square Error vs. Number of Active Variables",
        subtitle = "Based on five-fold cross validation of 200 GAW20 simulations",
-       caption = "") + theme_bw() + geom_text(aes(label=Method),hjust=-0.5,vjust=-0.5) + 
+       caption = "") + theme_bw() + geom_text(aes(label=Method),hjust=-0.5,vjust=-0.5) +
   theme(legend.position = "bottom",title = element_text(size = 20),
         axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
         axis.text.y = element_text(size = 16),
@@ -23,8 +24,10 @@ ggplot(RMSEACTIVE, aes(x=meanACTIVE,y=meanRMSE,colour=Method,label=Method)) + ge
   scale_x_continuous(breaks = seq(1,51,5))
 
 ## ---- Mice-comparison-fixTPR ----
-load("/Users/apple/Desktop/ggmixGit/RealData/Mice-200Bootstrap.RData")
-load("/Users/apple/Desktop/ggmixGit/RealData/mice.RData")
+
+load(paste0(root, "Mice-200Bootstrap.RData"))
+load(paste0(root, "mice.RData"))
+
 
 ggmixpie <- c(ggmixfail, 200 - ggmixfail)
 ggmixlab <- c("Failure","Success")

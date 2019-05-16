@@ -25,6 +25,7 @@ pacman::p_load(simulator)
 pacman::p_load(gaston)
 pacman::p_load_gh('StoreyLab/popkin')
 pacman::p_load_gh('StoreyLab/bnpsd') # load this after popkin
+pacman::p_load_gh('OchoaLab/simtrait')
 # pacman::p_load('lfa')
 # pacman::p_load('RColorBrewer')
 # pacman::p_load_gh('sahirbhatnagar/ggmix@master')

@@ -4,14 +4,14 @@
 \alias{gen_structured_model}
 \title{Simulation Scenarion from Bhatnagar et al. (2018+) ggmix paper}
 \usage{
-gen_structured_model(n, p_test, p_kinship, k, s, Fst, b0, nPC = 10, eta,
-  sigma2, geography = c("ind", "1d", "circ"), percent_causal,
-  percent_overlap)
+gen_structured_model(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10,
+  eta, sigma2, geography = c("ind", "1d", "circ"), percent_causal,
+  percent_overlap, train_tune_test = c(0.6, 0.2, 0.2))
 }
 \arguments{
 \item{n}{number of observations to simulate}
 
-\item{p_test}{number of variables in X_test, i.e., the design matrix}
+\item{p_design}{number of variables in X_test, i.e., the design matrix}
 
 \item{p_kinship}{number of variable in X_kinship, i.e., matrix used to
 calculate kinship}
@@ -41,12 +41,15 @@ unadmixed, "1d" is a 1D geography and "circ" is circular geography.
 Default: "ind". See the functions in the \code{bnpsd} for details on how
 this data is actually generated.}
 
-\item{percent_causal}{percentage of \code{p_test} that is causal. must be
+\item{percent_causal}{percentage of \code{p_design} that is causal. must be
 \eqn{0 \leq percent_causal \leq 1}. The true regression coefficients are
 generated from a standard normal distribution.}
 
 \item{percent_overlap}{this represents the percentage of causal SNPs that
 will also be included in the calculation of the kinship matrix}
+
+\item{train_tune_test}{the proportion of sample size used for training
+tuning parameter selection and testing. default is 60/20/20 split}
 }
 \value{
 A list with the following elements \describe{\item{y}{simulated

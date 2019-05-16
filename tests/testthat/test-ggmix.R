@@ -55,36 +55,36 @@ context(strwrap("check simulation function with different geography"))
 test_that("test simulation function", {
   set.seed(2345)
   sim1d <- gen_structured_model(n = 500,
-                                  p_test = 200,
-                                  p_kinship = 1e4,
-                                  geography = "1d",
-                                  percent_causal = 0.05,
-                                  percent_overlap = "100",
-                                  k = 5, s = 0.5, Fst = 0.1, nPC = 5,
-                                  b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(sim1d, 10)
+                                p_design = 200,
+                                p_kinship = 1e4,
+                                geography = "1d",
+                                percent_causal = 0.05,
+                                percent_overlap = "100",
+                                k = 5, s = 0.5, Fst = 0.1, nPC = 5,
+                                b0 = 0, eta = 0.1, sigma2 = 1)
+  expect_length(sim1d, 16)
   expect_is(sim1d, "list")
 
   simcirc <- gen_structured_model(n = 500,
-                                  p_test = 200,
+                                  p_design = 200,
                                   p_kinship = 1e4,
                                   geography = "circ",
                                   percent_causal = 0.05,
                                   percent_overlap = "100",
                                   k = 5, s = 0.5, Fst = 0.1, nPC = 5,
                                   b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simcirc, 10)
+  expect_length(simcirc, 16)
   expect_is(simcirc, "list")
 
   simind <- gen_structured_model(n = 500,
-                                  p_test = 200,
-                                  p_kinship = 1e4,
-                                  geography = "ind",
-                                  percent_causal = 0.05,
-                                  percent_overlap = "100",
-                                  k = 5, s = 0.5, Fst = 0.1, nPC = 10,
-                                  b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simind, 10)
+                                 p_design = 200,
+                                 p_kinship = 1e4,
+                                 geography = "ind",
+                                 percent_causal = 0.05,
+                                 percent_overlap = "100",
+                                 k = 5, s = 0.5, Fst = 0.1, nPC = 10,
+                                 b0 = 0, eta = 0.1, sigma2 = 1)
+  expect_length(simind, 16)
   expect_is(simind, "list")
 })
 

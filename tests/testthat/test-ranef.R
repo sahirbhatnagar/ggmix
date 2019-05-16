@@ -24,25 +24,34 @@ test_that("Check random effects for multiple s values", {
 
 test_that("Check predicted random effects on test set", {
 
-  ind <- sample(1:nrow(admixed$x), size = floor(nrow(admixed$x)*0.80), replace = FALSE)
-  xtrain <- admixed$x[ind,,drop=FALSE]
-  xtest <- admixed$x[-ind,,drop=FALSE]
+  draw <- gen_structured_model(n = 500,
+                                p_design = 200,
+                                p_kinship = 1e4,
+                                geography = "1d",
+                                percent_causal = 0.05,
+                                percent_overlap = "100",
+                                k = 5, s = 0.5, Fst = 0.1, nPC = 10,
+                                b0 = 0, eta = 0.1, sigma2 = 1)
 
-  ytrain <- admixed$y[ind]
-  ytest <- admixed$y[-ind]
+  fit <- ggmix(x = draw[["xtrain"]],
+               y = draw[["ytrain"]],
+               kinship = draw[["kin_train"]])
+  predmat <- predict(fit,
+                     newx = draw[["xtune"]],
+                     type = "individual",
+                     covariance = draw[["kin_tune_train"]],
+                     s = fit$lambda)
+  cvmat <- apply((draw[["ytune"]] - predmat)^2, 2, mean)
+  lambda_min_ggmix <- fit$result[which.min(cvmat), "Lambda"]
 
-  Xall <- rbind(xtest, xtrain)
-  cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
+  # inidividual level prediction
+  yhat <- predict(fit,
+                  s = lambda_min_ggmix,
+                  newx = draw[["xtest"]],
+                  type = "individual",
+                  covariance = draw[["kin_test_train"]])
 
-  cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
-
-  cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
-
-  fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
-  bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
-  yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual", covariance = cov_test_train)
-
-  expect_length(yhat_test, n = nrow(xtest))
+  expect_length(yhat, n = nrow(draw[["xtest"]]))
 
 
 })

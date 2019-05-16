@@ -54,7 +54,10 @@ Similar to other predict methods, this functions predicts fitted
   predict function will use linear interpolation to make predictions. The new
   values are interpolated using a fraction of predicted values from both left
   and right lambda indices. \code{coef(...)} is equivalent to
-  \code{predict(ggmix_fit, type="coefficients",...)}
+  \code{predict(ggmix_fit, type="coefficients",...)}. To get individual level
+  predictions at each value of lambda, you must provide the lambda sequence
+  to the s argument. You can pass either a ggmix_fit or ggmix_gic object. See
+  examples for more details.
 }
 \examples{
 \dontrun{
@@ -66,17 +69,8 @@ xtest <- admixed$x[-ind,,drop=FALSE]
 ytrain <- admixed$y[ind]
 ytest <- admixed$y[-ind]
 
-Xall <- rbind(xtest, xtrain)
-cov_train <- 2 * popkin::popkin(xtrain, lociOnCols = TRUE)
-dim(cov_train)
-
-cov_all <- 2 * popkin::popkin(Xall, lociOnCols = TRUE)
-dim(cov_all)
-
-cov_test_train <- cov_all[1:nrow(xtest), (nrow(xtest)+1):ncol(cov_all)]
-
-dim(cov_test_train)
-
+cov_train <- admixed$kin[ind,ind]
+cov_test_train <- admixed$kin[-ind,ind]
 
 fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
 bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
@@ -84,6 +78,17 @@ plot(bicGGMIX)
 coef(bicGGMIX, s = "lambda.min")
 yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
 covariance = cov_test_train)
-yhat_test_population <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "response")
+yhat_test_population <- predict(bicGGMIX, s="lambda.min",
+newx = xtest, type = "response")
+
+# predict individual level response for each lambda:
+predict(bicGGMIX, newx = xtest, type = "individual",
+covariance = cov_test_train, s = bicGGMIX$lambda)
+
+# this is equivalent to supplying an object of class ggmix_fit
+identical(predict(fit_ggmix, newx = xtest, type = "individual",
+covariance = cov_test_train, s = bicGGMIX$lambda),
+       predict(bicGGMIX, newx = xtest, type = "individual",
+       covariance = cov_test_train, s = bicGGMIX$lambda))
 }
 }

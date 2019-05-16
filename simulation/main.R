@@ -11,7 +11,7 @@
 # and then create figures based on that
 # Author: Sahir Bhatnagar
 # Created: 2018
-# Updated: April 30, 2019
+# Updated: May 8, 2019
 #####################################
 
 
@@ -35,7 +35,8 @@ source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 # name_of_simulation <- "thesis-ggmix-july3" # this has more than 1 eta value 0.1,0.2,0.3,0.4
 # name_of_simulation <- "thesis-ggmix-july12" # this has percent causal 0,0.01, and eta=0.1, 0.5
 # name_of_simulation <- "ggmix-mar5" # this has percent causal 0,0.01, and eta=0.1, 0.5
-name_of_simulation <- "ggmix-apr29" # this has train/test split
+# name_of_simulation <- "ggmix-apr29" # this has train/test split 50/50 split
+name_of_simulation <- "ggmix-may7" # this has train/test/validation split 60/20/20 split
 ## @knitr main
 
 # nsim needs to be at least 2
@@ -56,42 +57,52 @@ name_of_simulation <- "ggmix-apr29" # this has train/test split
 # save_simulation(sim)
 
 
-sim <- new_simulation(name_of_simulation, "apr-29", dir = "simulation/") %>%
+sim <- new_simulation(name_of_simulation, "may-7", dir = "simulation/") %>%
   generate_model(make_ADmixed_model,
                  b0 = 1,
                  sigma2 = 1,
                  beta_mean = 1,
-                 k = 5,
+                 k = 3,
                  s = 0.5,
                  Fst = 0.1,
 
-                 # n = 1000,
-                 # p_test = 5000,
-                 # p_kinship = 10000,
                  eta = list(0.1, 0.5),
-                 geography = list("ind", "1d","circ"),
+                 geography = "1d",
                  percent_causal = list(0, 0.01),
                  percent_overlap = list("0","100"),
-                 vary_along = c("geography","percent_overlap","percent_causal","eta"),
-                 # vary_along = c("geography"),
-                 n = 2000, # 50% train, 50% test
+                 vary_along = c("percent_overlap","percent_causal","eta"),
+                 n = 2000, # 60/20/20 split
+                 # n = 500, # 60/20/20 split
                  p_design = 5000,
+                 # p_design = 500,
                  p_kinship = 10000
-                 # eta = 0.5,
+                 # p_kinship = 1000
+                 # eta = 0.50,
                  # geography = "1d",
-                 # percent_causal = 0.02,
-                 # percent_overlap = "100"#,
-                 # vary_along = c("percent_overlap","percent_causal","eta")
+                 # percent_causal = 0,
+                 # percent_overlap = "0",
+                 # n = 800, # 50% train, 50% test
+                 # p_design = 500,
+                 # p_kinship = 1000
+
                  ) %>%
   simulate_from_model(nsim = 5, index = 1:40) %>%
   # simulate_from_model(nsim = 2, index = 1) %>%
-  run_method(list(lasso, ggmixed, twostepY),
+  run_method(list(lasso, ggmixed, twostepYVC),
               parallel = list(socket_names = 40,
                               libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd")))
+# make sure most recent version of ggmix is installed for the parallel code to work!!!!#!#@$!@$!@$
+# remotes::install_github('sahirbhatnagar/ggmix', ref = "validate")
 
-ls()
+# ggmixed@method(draw = draws(sim)@draws$r1.2)
+#
+# tt <- ggmixed@method(draw = draws(sim)@draws$r1.1)
+# draws(sim)@draws$r1.2$xtrain
+# ls()
+# tt$causal
+# tt$nonzero
 # sim <- sim %>% run_method(list(lasso, ggmixed))
-
+# tp <- simulator::load_draws(dir = "simulation/", model_name = "ggmix_05_07_2019")
 # sim <- sim %>% run_method(list(lasso, ggmixed))#,#, twostep, twostepY),
 #              parallel = list(socket_names = 8,
 #                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))
@@ -112,7 +123,8 @@ save_simulation(sim)
 ls()
 
 sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
-plot_eval(sim, "mse")
+sim %>% subset_simulation(methods = c("lasso","ggmix")) %>% plot_eval("mse")
+sim %>% subset_simulation(methods = c("lasso","ggmix","twostepYVC")) %>% plot_eval("mse")
 plot_eval(sim, "tpr")
 plot_eval(sim, "fpr")
 plot_eval(sim, "correct_sparsity")
@@ -123,7 +135,8 @@ df <- as.data.frame(evals(sim))
 # sim %>% subset_simulation(methods = c("ggmix","lasso"))
 # saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
 # saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
-saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
+# saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
+saveRDS(df, file = "simulation/simulation_results/may_07_2019_results.rds") # this has train/test/validate split
 df %>% filter(Method=="twostepYVC")
 
 simulator::tabulate_eval(sim, "mse")

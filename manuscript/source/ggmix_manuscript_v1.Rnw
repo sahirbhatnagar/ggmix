@@ -733,12 +733,14 @@ We used a block diagonal kinship structure with 5 subpopulations.
 In Figure~\ref{fig:plot-kinship-sim}, we plot an estimated kinship matrix  ($\bPhi$), based on a single simulated dataset, in the form of a heatmap.
 Each block represents a subpopulation, and a darker color indicates a closer genetic relationship.
 
-<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation. ", eval=finalversion>>=
+<<plot-kinship-sim, fig.width=11, fig.height=7, fig.pos = 'H', fig.cap="Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation. ", eval=FALSE>>=
+# need to fixed the gen_structured_function for updated functions. use model_functions make_ADmixed_model to make
+# a non-simulator version to replce the gen_structured_function
 @
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
 
-<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.", eval=finalversion>>=
+<<plot-pc-sim, fig.width=11, fig.height=6, fig.pos = 'H', fig.cap="First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.", eval=FALSE>>=
 @
 
 
@@ -833,10 +835,6 @@ Both the lasso and twostep methods have better signal recovery as compared to \g
 However, this signal is being spread across many variables leading to many Type 1 errors.
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MSE is not being calculated correctly for lasso because its not using the PC in predict()
-% ignore this for now.
 <<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
 @
 
@@ -849,7 +847,18 @@ However, this signal is being spread across many variables leading to many Type 
 <<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
 @
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Run time}
+
+<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for twostep, lasso and ggmix.", eval=finalversion>>=
+@
+
+
+
+<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for 1\\% causal SNPs for twostep, lasso and ggmix.", eval=finalversion>>=
+@
+
+
 
 
 \section{Real Data Application}
@@ -902,7 +911,7 @@ We also identified several other loci that might also be associated with suscept
 
 \begin{minipage}{\linewidth}
 \bigskip
-\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker} 
+\captionof{table}{Additional loci significantly associated with mouce susceptibility to myobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.} \label{tab:Marker}
 \begin{tabular}{ C{1.25in} C{.85in} C{1.25in} C{2.5in}}\toprule[1.5pt]
 \bf Method & \bf Marker & \bf Position in cM & \bf Position in bp\\\midrule
 twostep & N/A & N/A & N/A\\
