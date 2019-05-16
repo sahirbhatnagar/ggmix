@@ -27,7 +27,8 @@ Imports:
     glmnet, 
     methods,
     stats,
-    MASS
+    MASS,
+    Matrix
 Suggests: 
     RSpectra,
     popkin,

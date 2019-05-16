@@ -310,7 +310,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
   beta <- rep(0, length = p)
   if (percent_causal != 0) {
-    beta[which(colnames(Xdesign) %in% causal)] <- rnorm(n = length(causal))
+    beta[which(colnames(Xdesign) %in% causal)] <- stats::rnorm(n = length(causal))
   }
 
   mu <- as.numeric(Xdesign %*% beta)
@@ -361,11 +361,11 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
   # xtrain <- Xdesign[ind,,drop=FALSE]
   # xtune <- Xdesign[-ind,,drop=FALSE]
 
-  PC <- prcomp(xtrain)
+  PC <- stats::prcomp(xtrain)
   xtrain_lasso <- cbind(xtrain, PC$x[,1:nPC])
-  xtune_pc <- predict(PC, newdata = xtune)
+  xtune_pc <- stats::predict(PC, newdata = xtune)
   xtune_lasso <- cbind(xtune, xtune_pc[,1:nPC])
-  xtest_pc <- predict(PC, newdata = xtest)
+  xtest_pc <- stats::predict(PC, newdata = xtest)
   xtest_lasso <- cbind(xtest, xtest_pc[,1:nPC])
 
   mu_train <- mu[train_ind]

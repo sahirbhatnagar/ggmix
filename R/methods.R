@@ -93,14 +93,18 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #' coef(bicGGMIX, s = "lambda.min")
 #' yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
 #' covariance = cov_test_train)
-#' yhat_test_population <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "response")
+#' yhat_test_population <- predict(bicGGMIX, s="lambda.min",
+#' newx = xtest, type = "response")
 #'
 #' # predict individual level response for each lambda:
-#' predict(bicGGMIX, newx = xtest, type = "individual", covariance = cov_test_train, s = bicGGMIX$lambda)
+#' predict(bicGGMIX, newx = xtest, type = "individual",
+#' covariance = cov_test_train, s = bicGGMIX$lambda)
 #'
 #' # this is equivalent to supplying an object of class ggmix_fit
-#' identical(predict(fit_ggmix, newx = xtest, type = "individual", covariance = cov_test_train, s = bicGGMIX$lambda),
-#'        predict(bicGGMIX, newx = xtest, type = "individual", covariance = cov_test_train, s = bicGGMIX$lambda))
+#' identical(predict(fit_ggmix, newx = xtest, type = "individual",
+#' covariance = cov_test_train, s = bicGGMIX$lambda),
+#'        predict(bicGGMIX, newx = xtest, type = "individual",
+#'        covariance = cov_test_train, s = bicGGMIX$lambda))
 #' }
 #' @export
 predict.ggmix_fit <- function(object, newx, s = NULL,
