@@ -21,3 +21,6 @@ after_success:
 notifications:
   email:
     - sahir.bhatnagar@gmail.com
+
+r_github_packages:
+    - OchoaLab/simtrait
