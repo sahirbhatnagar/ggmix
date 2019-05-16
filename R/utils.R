@@ -248,7 +248,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
     # draw all random Allele Freqs (AFs) and genotypes
     # reuse the previous inbr_subpops, admix_proportions
-    out <- draw_all_admix(
+    out <- bnpsd::draw_all_admix(
       admix_proportions = admix_proportions,
       inbr_subpops = inbr_subpops,
       m_loci = total_snps_to_simulate,
