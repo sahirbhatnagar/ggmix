@@ -70,12 +70,12 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
     )
   }
 
-  if (!requireNamespace("simtrait", quietly = TRUE)) {
-    stop(strwrap("Package \"simtrait\" needed to simulate data.
-                 Please install it."),
-         call. = FALSE
-    )
-  }
+  # if (!requireNamespace("simtrait", quietly = TRUE)) {
+  #   stop(strwrap("Package \"simtrait\" needed to simulate data.
+  #                Please install it."),
+  #        call. = FALSE
+  #   )
+  # }
 
   if (!requireNamespace("popkin", quietly = TRUE)) {
     stop(strwrap("Package \"popkin\" needed to simulate data.
@@ -211,7 +211,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
       # select random SNPs! this performs the magic...
       # also runs additional checks
-      causal_indexes <- simtrait:::select_loci(maf = p_anc_hat, m_causal = ncausal, maf_cut = 0.05)
+      causal_indexes <- select_loci(maf = p_anc_hat, m_causal = ncausal, maf_cut = 0.05)
 
       # draw random SNP coefficients for selected loci
       # causal_coeffs <- stats::rnorm(ncausal, 0, 1)
@@ -282,7 +282,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
       # select random SNPs! this performs the magic...
       # also runs additional checks
-      causal_indexes <- simtrait:::select_loci(maf = p_anc_hat, m_causal = ncausal, maf_cut = 0.05)
+      causal_indexes <- select_loci(maf = p_anc_hat, m_causal = ncausal, maf_cut = 0.05)
 
       # draw random SNP coefficients for selected loci
       # causal_coeffs <- stats::rnorm(ncausal, 0, 1)
@@ -404,3 +404,25 @@ l2norm <- function(x) sqrt(sum(x^2))
 
 
 
+
+
+# internal function
+# taken verbatim from https://github.com/OchoaLab/simtrait/blob/master/R/select_loci.R
+select_loci <- function(maf, m_causal, maf_cut = 0.05) {
+  # check for missing parameters
+  if (missing(maf))
+    stop('marginal allele frequency vector `maf` is required!')
+  if (missing(m_causal))
+    stop('the number of causal loci `m_causal` is required!')
+
+  # data dimensions
+  m <- length(maf)
+  # other checks
+  if (m_causal > m)
+    stop('the number of causal loci cannot be larger than the total number of loci (', m_causal, ' > ', m, ')')
+
+  # select random loci!
+  # we might not want to pick extremely rare alleles, so set MAF thresholds
+  i <- which(maf_cut <= maf & maf <= 1 - maf_cut) # candidate locus indexes
+  sample(i, m_causal) # these are the chosen locus indeces!
+}
