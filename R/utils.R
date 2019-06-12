@@ -360,7 +360,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
   # xtrain <- Xdesign[ind,,drop=FALSE]
   # xtune <- Xdesign[-ind,,drop=FALSE]
-
+  PC_all <- stats::prcomp(Xdesign)
   PC <- stats::prcomp(xtrain)
   xtrain_lasso <- cbind(xtrain, PC$x[,1:nPC])
   xtune_pc <- stats::predict(PC, newdata = xtune)
@@ -392,7 +392,13 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
               causal = causal,
               beta = beta,
 
-              not_causal = not_causal
+              not_causal = not_causal,
+
+              # used in manuscript to generate simulation study figures
+              kinship = kinship,
+              coancestry = coancestry,
+              PC = PC_all$x[,1:nPC],
+              subpops = subpops
   ))
 }
 

@@ -77,17 +77,19 @@ theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = 
 
 ## ---- plot-kinship-sim ----
 
-dat <- lapply(list("ind","1d","circ"),
+dat <- lapply(#list("ind","1d","circ"),
+              list("1d"),
               function(i)
-                ggmix::gen_structured_model(n = 1000,
-                                            p_test = 5000,
+                ggmix::gen_structured_model(n = 1200,
+                                            p_design = 5000,
                                             p_kinship = 10000,
                                             geography = i,
                                             percent_causal = 0.01,
                                             percent_overlap = "100",
-                                            k = 5, s = 0.5, Fst = 0.1,
+                                            k = 3, s = 0.5, Fst = 0.1,
                                             b0 = 0,
-                                            eta = 0.1, sigma2 = 1)
+                                            eta = 0.1, sigma2 = 1,
+                                            train_tune_test = c(0.99,.005,0.005))
 )
 # str(dat)
 # dev.off()
@@ -96,21 +98,27 @@ par(omi = c(0.3,0.3,0.3,0.3))
 # popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
 #                    titles = c("block", "1D", "circular"),
 #                    marPad = 0.05)
-popkin::plotPopkin(x = list(dat[[1]]$kin),
-                   titles = c("Empirical Kinship Matrix with Block Structure"),
-                   marPad = 0.05)
-
+# popkin::plot_popkin(kinship = list(dat[[1]]$kin_train),
+#                     titles = c("Empirical Kinship Matrix with 1D Structure"),
+#                     marPad = 0.05)
+popkin::plot_popkin(kinship = list(dat[[1]]$kinship),
+                    # titles = c("Empirical Kinship Matrix with 1D Structure"),
+                    marPad = 0.05)
+# popkin::plot_popkin(kinship = list(dat[[1]]$coancestry),
+#                     # titles = c("Empirical Kinship Matrix with 1D Structure"),
+#                     marPad = 0.05)
 
 ## ---- plot-pc-sim ----
 
 xlabs <- "1st principal component"
 ylabs <- "2nd principal component"
 
+
 # par(mfrow = c(1,3))
-plot(dat[[1]]$x_lasso[,5001],dat[[1]]$x_lasso[,5002],
-     pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
+plot(dat[[1]]$PC[,1],dat[[1]]$PC[,2],
+     pch = 19, col = rep(RColorBrewer::brewer.pal(3,"Paired"), each = table(dat[[1]]$subpops)[1]),
      xlab = xlabs, ylab = ylabs,
-     main = "Block Structure")
+     main = "1D Structure")
 # plot(dat[[2]]$x_lasso[,5001],dat[[2]]$x_lasso[,5002],
 #      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
 #      xlab = xlabs, ylab = ylabs,

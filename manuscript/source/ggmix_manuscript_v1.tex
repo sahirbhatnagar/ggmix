@@ -202,8 +202,8 @@
 \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
 %\usepackage[left=.1in,right=.1in,top=.1in,bottom=.1in]{geometry}
 \usepackage[margin=1in]{geometry}
-\usepackage{setspace}
-\doublespacing
+\usepackage[doublespacing]{setspace}
+%\doublespacing
 
 
 %########################################################################################
@@ -368,62 +368,76 @@ Section 5 discusses some limitations and future directions.
 
 \section{Results}
 
+In this section we demonstrate the performance of \texttt{ggmix} in a simulation study and two real data applications. 
+%results should be written in past tense for plos genetics
 \subsection{Simulation Study} \label{simustudy}
 
-To assess the performance of \texttt{ggmix}, we simulated random genotypes from the BN-PSD admixture model using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}.
-We used a block diagonal kinship structure with 5 subpopulations.
-In Figure~\ref{fig:plot-kinship-sim}, we plot an estimated kinship matrix  ($\bPhi$), based on a single simulated dataset, in the form of a heatmap.
-Each block represents a subpopulation, and a darker color indicates a closer genetic relationship.
-
-
-
-In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
-
-
-
-
-For other parameters in our simulation study, we define the following quantities:
-
+We evaluated the performance of \texttt{ggmix} in a variety of simulated scenarios. For each simulation scenario we compared \texttt{ggmix} to the lasso and the twostep method. For the lasso, we included the top 10 principal components from the simulated genotypes used to calculate the kinship matrix as unpenalized predictors in the design matrix. For the twostep method, we first fitted an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\citep{gilmour1995average} as implemented in the \texttt{gaston} R package~\citep{gaston}. The residuals from this model were then used as the response in a regular lasso model. Note that in the twostep method, we removed the kinship effect in the first step and therefore did not need to make any further adjustments when fitting the penalized model. We fitted the lasso using the default settings in the \texttt{glmnet} package~\citep{friedman2010regularization}. For other parameters in our simulation study, we defined the following quantities:
 
 \begin{itemize}
+	\item $n$: sample size
 	\item $c$: percentage of causal SNPs
+	%\item $p_{fixed}$: number of fixed effects
+	\item $\bbeta$: true effect size vector of length $p_{fixed}$ 
+	\item $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set with cardinality $ |S_0| = c\times p_{fixed}$
+	
+	%\item $\beta_j^0$: true effect size for the $j^{th}$ SNP, simulated from a $Normal(0,1)$ distribution for $j \in S_0$ where $S_0 = \left\lbrace j; \beta_j^0 \neq 0 \right \rbrace$ is the index of the active set 
 	%\item $\rho$: linkage disequilibrium between two SNPs
-	\item $\bX^{(fixed)}$: $n \times p_{fixed}$ matrix of SNPs that will be included as fixed effects in our model.
-	\item $\bX^{(causal)}$: $n \times (c*p_{fixed})$ matrix of SNPs that will be truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
-	\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that will be used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(test)}$ will be used in construction of the kinship matrix. We will alter the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship.
-	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix.
-	\item $\beta_j$: effect size for the $j^{th}$ SNP, simulated from a $Uniform(0.3,0.7)$ distribution for $j = 1, \ldots, (c*p_{fixed})$
+	\item $\bX^{(fixed)}$: $n \times p_{fixed}$ matrix of SNPs that were included as fixed effects in the model
+	\item $\bX^{(causal)}$: $n \times |S_0|$ matrix of SNPs that were truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
+	\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that were used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(fixed)}$ were used in construction of the kinship matrix. We altered the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship
+	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix
+	
 	%\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
 	%\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
 \end{itemize}
 
-We simulate data from the model
+We simulated data from the model
 \begin{equation}
 \bY = \bX^{(fixed)} \bbeta + \mathbf{P} + \be
 \end{equation}
-where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.5 \rbrace$, sample size $n=1000$, number of fixed effects $p_{fixed} = 5000$, number of SNPs used to calculate the kinship matrix $k = 10000$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios:
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix calculated from $\bX^{(kinship)}$, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.5 \rbrace$, number of fixed effects $p_{fixed} = 5000$, number of SNPs used to calculate the kinship matrix $k = 10000$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios:
+
 \begin{enumerate}
 	\item None of the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} \right]$$
 	\item All the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right].$$
 \end{enumerate}
-Both kinship matrices are meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects.
-These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}.
-This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix.
 
-We compare \ggmix ~to the lasso and the twostep method. For the lasso, we include the first 10 principal components of the estimated kinship as unpenalized predictors in the design matrix. For the twostep method, we first fit an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\citep{gilmour1995average} as implemented in the \texttt{gaston} R package~\citep{gaston}. The residuals from this model are then used as the response in a regular lasso model. Note that in the twostep method, we have removed the kinship effect in the first step and therefore do not need to make any further adjustments when fitting the penalized model. We fit the lasso using the default settings in the \texttt{glmnet} package~\citep{friedman2010regularization} and select the optimal value of the regularization parameter using 10-fold cross-validation.
+Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 3 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter selected via cross-validation or GIC, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set, $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients, and $|A|$ the cardinality of set $A$.
+{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1} 
 
-We evaluate the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
+}
+
+\caption[Example of an empirical kinship matrix used in simulation studies]{Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.}\label{fig:plot-kinship-sim}
+\end{figure}
+
+
+\end{knitrout}
+In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the simulated genotypes used to calculate the kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1} 
+
+}
+
+\caption[First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 3 simulated subpopulations]{First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 3 simulated subpopulations.}\label{fig:plot-pc-sim}
+\end{figure}
+
+
+\end{knitrout}
+Using this set-up, we randomly partitioned 2000 simulated observations into 60\% for training, 20\% for model selection and 20\% for testing. The training set was used to fit the model, the model selection set was used to select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. We evaluated the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
 $$A_j = \begin{cases}
 1 & \tm{if } (\widehat{\bbeta}_{\hat{\lambda}})_j= (\bbeta)_j = 0\\
 1 & \tm{if } (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0, (\bbeta)_j \neq 0\\
 0 & \tm{if } \tm{else}.
-\end{cases}$$
-We also compare the model error $(\norm*{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{\hat{\lambda}}}_2)$, true positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \in  S_0|}{|S_0|}$), false positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \notin S_0|}{|j \notin S_0|}$), and the variance components for the random effect and error term. The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
-\begin{equation}
-\frac{1}{n - \widehat{S}_{\hat{\lambda}}} \norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2
-\end{equation}
+\end{cases}$$ We also compared the test set prediction error, true positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \in  S_0|}{|S_0|}$), false positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \notin S_0|}{|j \notin S_0|}$), and the variance components ($\eta, \sigma^2$) for the polygenic random effect and error term. %The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
+%\begin{equation}
+%\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2
+%\end{equation}
 
 \subsection{Results}
 
