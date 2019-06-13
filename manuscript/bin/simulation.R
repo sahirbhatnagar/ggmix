@@ -68,9 +68,9 @@ DT[, me2 := (1/1000) * me^2]
 # DT[Method == "twostep"]
 appender <- function(string) latex2exp::TeX(paste(string))
 
-theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+theme_box <- theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16, axis = T, ticks = F, axis_col = "black") +
   theme(legend.position = "bottom",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.x = element_text(angle = 0, hjust = 0.5, size = 16),
         axis.text.y = element_text(size = 16),
         legend.text = element_text(size = 16), legend.title = element_text(size = 16),
         strip.text = element_text(size = 18))
@@ -196,7 +196,7 @@ pm_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"][eta_p == "10%
   scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
   labs(x = "", y = "correct sparsity",
        # title = "Correct Sparsity results for the Model with 1% Causal SNPs",
-       subtitle = "A"
+       subtitle = "(A)"
        # caption = ""
        ) +
   theme_box + theme(legend.position = "none")
@@ -239,10 +239,11 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Root mean squared prediction error",
        # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
-       subtitle = "B",
+       subtitle = "(B)",
        caption = "mean +/- 1 standard deviation"
        ) +
-  theme_box+ theme(legend.position = "none")
+  theme_box+ theme(legend.position = "none") + 
+  scale_x_continuous(limits = c(0,1200), breaks = seq(0,1200,300))
 
 
 
@@ -257,8 +258,8 @@ pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
   geom_point(size = 2.1) +
   geom_text_repel(
     data = subset(df_me_nactive, mean.nactive < 150),
-    nudge_x      = 10,
-    nudge_y = 0.05,
+    nudge_x      = 11,
+    nudge_y = 0.04,
     # size = 8,
     direction    = "y",
     hjust        = 0,
@@ -266,8 +267,8 @@ pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
   ) +
   geom_text_repel(
     data = subset(df_me_nactive, mean.nactive >= 150),
-    nudge_x      = 5,
-    nudge_y = .2,
+    nudge_x      = 11,
+    nudge_y = .06,
     # size = 8,
     direction    = "y",
     hjust        = 0,
@@ -279,13 +280,14 @@ pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
   # repeat.tick.labels = 'left',
   # labeller = as_labeller(appender,
   # default = label_parsed)) +
-  scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
+  scale_color_manual(values = cbbPalette[c(3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Root mean squared prediction error",
        # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
-       subtitle = "C",
+       subtitle = "(C)",
        caption = "mean +/- 1 standard deviation"
   ) +
-  theme_box+ theme(legend.position = "none")
+  theme_box+ theme(legend.position = "none") + 
+  scale_x_continuous(limits = c(0,350))
 
 
 # dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
@@ -301,13 +303,14 @@ pm_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% 
   scale_fill_manual(values = cbbPalette[c(7,4)]) +
   labs(x = "", y = TeX("Estimated heritability $(\\hat{\\eta})$"),
        # title = TeX("Estimated Heritability for the Model with 1% Causal SNPs"),
-       subtitle = "E",
+       subtitle = "(E)",
        caption = "horizontal dashed line is the true value") +
-  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16, axis = T, ticks = F, axis_col = "black") +
   theme(legend.position = "none",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.x = element_text(angle = 0, hjust = 0.5, size = 16),
         axis.text.y = element_text(size = 16),
-        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16), 
+        legend.title = element_text(size = 16),
         strip.text = element_text(size = 18)) +
   geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
 
@@ -324,11 +327,11 @@ pm_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"][eta_p =
   scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
   labs(x = "", y = TeX("Estimated error variance $(\\hat{\\sigma^2})$"),
        # title = TeX("Estimated Error Variance for the Model with 1% Causal SNPs"),
-       subtitle = "F",
+       subtitle = "(F)",
        caption = "horizontal dashed line is the true value") +
-  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 16, axis = T, ticks = F, axis_col = "black") +
   theme(legend.position = "none",title = element_text(size = 20),
-        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.x = element_text(angle = 0, hjust = 0.5, size = 16),
         axis.text.y = element_text(size = 16),
         legend.text = element_text(size = 16), legend.title = element_text(size = 16),
         strip.text = element_text(size = 18)) +
@@ -367,7 +370,7 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
   scale_color_manual(values = cbbPalette[c(7,3,4)], guide=guide_legend(ncol=3)) +
   labs(x="False positive rate", y="True positive rate",
        # title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Model with 1% Causal SNPs",
-       subtitle="D",
+       subtitle="(D)",
        caption="mean +/- 1 standard deviation") +  
   theme_box + scale_y_continuous(limits = c(0.6,1), breaks = seq(0.6,1, 0.1)) + 
   scale_x_continuous(limits = c(0,.2), breaks = seq(0,0.2, 0.05)) + theme(legend.position = "none")
@@ -976,7 +979,7 @@ p1_mse
 ## ---- plot-runtime-sim-null-model ----
 
 # dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
-p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"],
+p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
                       aes(Method, log(time), fill = Method)) +
   ggplot2::geom_boxplot() +
   facet_rep_grid(p_overlap ~ eta_p, scales = "free",
