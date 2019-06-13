@@ -239,8 +239,8 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Root mean squared prediction error",
        # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
-       subtitle = "B"
-       # caption = ""
+       subtitle = "B",
+       caption = "mean +/- 1 standard deviation"
        ) +
   theme_box+ theme(legend.position = "none")
 
@@ -282,8 +282,8 @@ pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Root mean squared prediction error",
        # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
-       subtitle = "C"
-       # caption = ""
+       subtitle = "C",
+       caption = "mean +/- 1 standard deviation"
   ) +
   theme_box+ theme(legend.position = "none")
 

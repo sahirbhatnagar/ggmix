@@ -397,41 +397,31 @@ $$A_j = \begin{cases}
 <<simulation-results, eval=finalversion, results = 'hide'>>=
 @
 
-Here we present the results for the model with 1\% causal SNPs ($c=0.01$), and results for the null model ($c=0$) in supplementary Section~\ref{ap:ggmix_sim_results}. In Figure~\ref{fig:plot-correct-sparsity-sim-1p-causal} we see that \ggmix outperforms both the twostep and lasso in terms of correct sparsity regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix. %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
+In Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}, we present the results for the scenario with 1\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\eta =$10\%  The complete simulation results are shown in supplementary Section~\ref{ap:ggmix_sim_results}. In Figure~\ref{fig:plot-correct-sparsity-sim-1p-causal} we see that \ggmix outperforms both the twostep and lasso in terms of correct sparsity regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix. %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
-<<plot-correct-sparsity-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
-
-
-
-
-<<plot-6in1-10percentHerit-1pcausal-allinkinship, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+<<plot-6in1-10percentHerit-1pcausal-allinkinship, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Results from 200 replications for the scenario with 1\\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\eta = 10\\%$. (A) Correct sparsity, (B) Root mean squared prediction error on the test set, (C) Root mean squared prediction error for \texttt{ggmix} and lasso only, (D) True positive vs. false postive rate, (E) Estimated heritability, (F) Estimated error variance.", eval=finalversion>>=
 @
 
 
 The true positive vs. false positive rate for the model with 1\% causal SNPs ($c=0.01$) is shown in Figure~\ref{fig:plot-tpr-fpr-sim-1p-causal}. Both the lasso and twostep outperform \ggmix ~in terms of identifying the true model. This accuracy however, comes at the cost of a very high false positive rate compared to \ggmix.
 
-<<plot-tpr-fpr-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
 
 We plot the twostep and \ggmix ~heritability estimates for $c=0$ (Figure~\ref{fig:plot-eta-sim-null-model}, Supplemental Section~\ref{ap:ggmix_sim_results}) and $c=0.01$ (Figure~\ref{fig:plot-eta-sim-1p-causal}). We see that both methods correctly estimate the heritability in the null model. When all of the causal SNPs are in the kinship matrix, both methods overestimate $\eta$ though \ggmix ~is closer to the true value. When none of the causal SNPs are in the kinship, both methods tend to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=50\%$.
 
-<<plot-eta-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
+
+
 
 
 In Figures~\ref{fig:plot-errorvar-sim-null-model} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-errorvar-sim-1p-causal}, we plot the error variance for $c=0$ and $c=0.01$, respectively.
 The twostep and \ggmix ~methods correctly estimate the error variance while the lasso overestimates it for the null model and for when 1\% of the causal SNPs are in the kinship matrix. We see an inflated estimated error variance across all three methods when $c=0.01$ and none of the causal SNPs are in the kinship matrix with the lasso and \ggmix ~performing similarly.
 
 
-<<plot-errorvar-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
+
 
 
 We compare the model error as a function of $\widehat{S}_{\hat{\lambda}}$ in Figures~\ref{fig:plot-me-nactive-sim-null} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-me-nactive-sim-1p-causal} for $c=0$ and $c=0.01$, respectively. Lasso achieves the smallest model error across all scenarios (for $c=0.01$), albeit with a large number of active variables. \ggmix ~has a smaller model error compared to twostep when all causal SNPs are in the kinship matrix and similar performance when none of the causal SNPs are in the kinship matrix.
 
-<<plot-me-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
+
 
 Overall, we observe that variable selection results for \ggmix ~are similar regardless of whether the causal SNPs are in the kinship matrix or not.
 This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal.
@@ -443,28 +433,6 @@ Both the lasso and twostep methods have better signal recovery as compared to \g
 However, this signal is being spread across many variables leading to many Type 1 errors.
 
 
-<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
-@
-
-<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the model with 1\\% causal SNPs.", eval=finalversion>>=
-@
-
-<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for 1\\% causal SNPs for ggmix and lasso.", eval=finalversion>>=
-@
-
-<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
-@
-
-
-\subsection{Run time}
-
-<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for twostep, lasso and ggmix.", eval=finalversion>>=
-@
-
-
-
-<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for 1\\% causal SNPs for twostep, lasso and ggmix.", eval=finalversion>>=
-@
 
 
 
@@ -1270,6 +1238,42 @@ and $(x)_+ = \max(x, 0)$.
 \newpage
 
 \section{Additional Simulation Results} \label{ap:ggmix_sim_results}
+
+<<plot-correct-sparsity-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+@
+
+
+<<plot-tpr-fpr-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+@
+
+<<plot-eta-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+@
+
+<<plot-errorvar-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+@
+
+<<plot-me-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+@
+
+<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the null model.", eval=finalversion>>=
+@
+
+<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for the model with 1\\% causal SNPs.", eval=finalversion>>=
+@
+
+<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results for 1\\% causal SNPs for ggmix and lasso.", eval=finalversion>>=
+@
+
+<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by kinship geography and number of causal SNPs that were included in the calculation of the kinship matrix.", eval=finalversion>>=
+@
+
+
+<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for twostep, lasso and ggmix.", eval=finalversion>>=
+@
+
+
+<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for 1\\% causal SNPs for twostep, lasso and ggmix.", eval=finalversion>>=
+@
 
 <<plot-correct-sparsity-sim-null-model, dev="cairo_pdf", fig.asp=0.7, fig.width=12, fig.height=9, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 50\\% \\rbrace$ for the null model ($c=0$).", eval=finalversion>>=
 @
