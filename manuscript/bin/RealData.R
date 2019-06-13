@@ -9,8 +9,8 @@ ggplot(RMSEACTIVE, aes(x=meanACTIVE,y=meanRMSE,colour=Method,label=Method)) + ge
   geom_errorbarh(aes(xmin=meanACTIVE,xmax=upper90ACTIVE,height=0), size = 1.1) +
   geom_errorbarh(aes(xmin=meanACTIVE,xmax=upper95ACTIVE,height=0), size = 1.1, lty = 3) +
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
-  labs(x = "Number of active variables", y = "Root mean square error",
-       title = "Prediction Root Mean Square Error vs. Number of Active Variables",
+  labs(x = "Number of active variables", y = "Root mean squared prediction error",
+       title = "Prediction Root Mean Squared Error vs. Number of Active Variables",
        subtitle = "Based on five-fold cross validation of 200 GAW20 simulations",
        caption = "") + theme_bw() + geom_text(aes(label=Method),hjust=-0.5,vjust=-0.5) +
   theme(legend.position = "bottom",title = element_text(size = 20),

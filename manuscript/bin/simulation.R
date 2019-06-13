@@ -1,3 +1,4 @@
+# source("manuscript/bin/setup.R")
 ## ---- simulation-results ----
 
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/june_29_2018_results.rds")
@@ -102,8 +103,9 @@ par(omi = c(0.3,0.3,0.3,0.3))
 #                     titles = c("Empirical Kinship Matrix with 1D Structure"),
 #                     marPad = 0.05)
 popkin::plot_popkin(kinship = list(dat[[1]]$kinship),
+                    # col = RColorBrewer::display.brewer.all(),
                     # titles = c("Empirical Kinship Matrix with 1D Structure"),
-                    marPad = 0.05)
+                    mar_pad = 0.05)
 # popkin::plot_popkin(kinship = list(dat[[1]]$coancestry),
 #                     # titles = c("Empirical Kinship Matrix with 1D Structure"),
 #                     marPad = 0.05)
@@ -117,8 +119,8 @@ ylabs <- "2nd principal component"
 # par(mfrow = c(1,3))
 plot(dat[[1]]$PC[,1],dat[[1]]$PC[,2],
      pch = 19, col = rep(RColorBrewer::brewer.pal(3,"Paired"), each = table(dat[[1]]$subpops)[1]),
-     xlab = xlabs, ylab = ylabs,
-     main = "1D Structure")
+     xlab = xlabs, ylab = ylabs)#,
+     # main = "1D Structure")
 # plot(dat[[2]]$x_lasso[,5001],dat[[2]]$x_lasso[,5002],
 #      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
 #      xlab = xlabs, ylab = ylabs,
@@ -181,6 +183,218 @@ p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kin
 
 p1_cs
 # reposition_legend(p1_mse, 'center', panel='panel-2-3')
+
+## ---- plot-6in1-10percentHerit-1pcausal-allinkinship ----
+
+pm_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
+                aes(Method, correct_sparsity, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
+  #                repeat.tick.labels = 'left',
+  #                labeller = as_labeller(appender,
+  #                                       default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", y = "correct sparsity",
+       # title = "Correct Sparsity results for the Model with 1% Causal SNPs",
+       subtitle = "A"
+       # caption = ""
+       ) +
+  theme_box + theme(legend.position = "none")
+
+
+
+# PATCH DOING RMSE instead of MSE, because that how RDA was done by Tianyuan
+df_me_nactive <- DT[structure == "block"][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(sqrt(mse), na.rm = TRUE), sd.me = sd(sqrt(mse), na.rm = TRUE),
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+
+pm_mse_nactive <- ggplot(data = df_me_nactive,
+                        aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive < 600),
+    nudge_x      = 3,
+    nudge_y = 1,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive >= 600),
+    nudge_x      = 12,
+    nudge_y = 1,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me, width=5), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive, height = 0.1), size = 1.1) +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 # repeat.tick.labels = 'left',
+                 # labeller = as_labeller(appender,
+                                        # default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
+  labs(x = "Number of active variables", y = "Root mean squared prediction error",
+       # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
+       subtitle = "B"
+       # caption = ""
+       ) +
+  theme_box+ theme(legend.position = "none")
+
+
+
+# DT[, table(Method)]
+df_me_nactive <- DT[structure == "block"][Method %in% c("lasso","ggmix")][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.me = mean(sqrt(mse), na.rm = TRUE), sd.me = sd(sqrt(mse), na.rm = TRUE),
+            mean.nactive = mean(nactive, na.rm = TRUE), sd.nactive = sd(nactive, na.rm = TRUE))
+
+pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
+                         aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive < 150),
+    nudge_x      = 10,
+    nudge_y = 0.05,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_me_nactive, mean.nactive >= 150),
+    nudge_x      = 5,
+    nudge_y = .2,
+    # size = 8,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me, width = 5), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive, height = 0.007), size = 1.1) +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+  # repeat.tick.labels = 'left',
+  # labeller = as_labeller(appender,
+  # default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
+  labs(x = "Number of active variables", y = "Root mean squared prediction error",
+       # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
+       subtitle = "C"
+       # caption = ""
+  ) +
+  theme_box+ theme(legend.position = "none")
+
+
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+dummy2 <- data.frame(eta_p = c("10% Heritability"), Z = c(0.1))
+
+pm_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% c("twostep","ggmix")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
+                 aes(Method, eta, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+                 # repeat.tick.labels = 'left',
+                 # labeller = as_labeller(appender,
+                                        # default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,4)]) +
+  labs(x = "", y = TeX("Estimated heritability $(\\hat{\\eta})$"),
+       # title = TeX("Estimated Heritability for the Model with 1% Causal SNPs"),
+       subtitle = "E",
+       caption = "horizontal dashed line is the true value") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) +
+  geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+dummy2 <- data.frame(eta_p = c("10% Heritability"), Z = c((1 - 0.1)))
+
+pm_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
+                      aes(Method, errorvar, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+  #                repeat.tick.labels = 'left',
+  #                labeller = as_labeller(appender,
+  #                                       default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4)]) +
+  labs(x = "", y = TeX("Estimated error variance $(\\hat{\\sigma^2})$"),
+       # title = TeX("Estimated Error Variance for the Model with 1% Causal SNPs"),
+       subtitle = "F",
+       caption = "horizontal dashed line is the true value") +
+  theme_ipsum_rc(axis_title_just = "bt",axis_title_size = 20, axis = T, ticks = F, axis_col = "black") +
+  theme(legend.position = "none",title = element_text(size = 20),
+        axis.text.x = element_text(angle = 0, hjust = 1, size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.text = element_text(size = 16), legend.title = element_text(size = 16),
+        strip.text = element_text(size = 18)) +
+  geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
+
+
+df_tpr_fpr <- DT[structure == "block"][p_causal != "Null model"][, c("Method", "eta_p", "p_overlap", "tpr", "fpr")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"] %>%
+  group_by(Method, eta_p, p_overlap) %>%
+  summarise(mean.tpr = mean(tpr, na.rm = TRUE), sd.tpr = sd(tpr, na.rm = TRUE),
+            mean.fpr = mean(fpr, na.rm = TRUE), sd.fpr = sd(fpr, na.rm = TRUE))
+
+pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = Method, label = Method)) +
+  geom_point(size = 2.1) +
+  # geom_text_repel() +
+  geom_text_repel(
+    data = subset(df_tpr_fpr, mean.fpr < 0.02),
+    nudge_x      = 0.002,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_text_repel(
+    data = subset(df_tpr_fpr, mean.fpr > 0.02),
+    nudge_x      = 0.005,
+    nudge_y = 0.015,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr, width=0.005), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr), size = 1.1) +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
+  #                repeat.tick.labels = 'left',
+  #                labeller = as_labeller(appender,
+  #                                       default = label_parsed)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4)], guide=guide_legend(ncol=3)) +
+  labs(x="False positive rate", y="True positive rate",
+       # title="True Positive Rate vs. False Positive Rate (Mean +/- 1 SD) for the Model with 1% Causal SNPs",
+       subtitle="D",
+       caption="mean +/- 1 standard deviation") +  
+  theme_box + scale_y_continuous(limits = c(0.6,1), breaks = seq(0.6,1, 0.1)) + 
+  scale_x_continuous(limits = c(0,.2), breaks = seq(0,0.2, 0.05)) + theme(legend.position = "none")
+
+
+pm_cs +
+pm_mse_nactive+
+pm_mse_nactive_zoom +
+pm_tpr_fpr + 
+pm_eta + 
+pm_errorvar
+# dev.off()
+# 
+# 
+# cowplot::plot_grid(pm_mse_nactive,
+#                    pm_mse_nactive_zoom,
+#                    pm_cs,
+#                    pm_eta,
+#                    pm_errorvar,
+#                    pm_tpr_fpr, nrow = 3)
+# library(cowplot)
+# plot_to_gtable(pm_eta)
+# plot_to_gtable(pm_errorvar)
+# plot_to_gtable(pm_cs)
+# plot_to_gtable(pm_mse_nactive)
+# plot_to_gtable(pm_mse_nactive_zoom)
+# plot_to_gtable(pm_tpr_fpr)
 
 ## ---- plot-correct-sparsity-sim-1p-causal ----
 

@@ -404,31 +404,13 @@ where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effe
 \end{enumerate}
 
 Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 3 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1} 
-
-}
-
-\caption[Example of an empirical kinship matrix used in simulation studies]{Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.}\label{fig:plot-kinship-sim}
-\end{figure}
 
 
-\end{knitrout}
+
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the simulated genotypes used to calculate the kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1} 
-
-}
-
-\caption[First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 3 simulated subpopulations]{First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 3 simulated subpopulations.}\label{fig:plot-pc-sim}
-\end{figure}
 
 
-\end{knitrout}
+
 Using this set-up, we randomly partitioned 2000 simulated observations into 60\% for training, 20\% for model selection and 20\% for testing. The training set was used to fit the model, the model selection set was used to select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. We evaluated the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
 $$A_j = \begin{cases}
 1 & \tm{if } (\widehat{\bbeta}_{\hat{\lambda}})_j= (\bbeta)_j = 0\\
@@ -439,24 +421,11 @@ $$A_j = \begin{cases}
 %\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2
 %\end{equation}
 
-\subsection{Results}
+%\subsection{Results}
 
 
 
-We first plot the correct sparsity results for the null model ($c=0$) and the model with 1\% causal SNPs ($c=0.01$) in Figures~\ref{fig:plot-correct-sparsity-sim-null-model} and~\ref{fig:plot-correct-sparsity-sim-1p-causal}, respectively. When the true model has no causal SNPs, we see that \ggmix ~has perfect Type 1 error control across all 200 replications while both the twostep and lasso methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
-
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
-
-{\centering \includegraphics[width=1\linewidth]{figure/plot-correct-sparsity-sim-null-model-1} 
-
-}
-
-\caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}\label{fig:plot-correct-sparsity-sim-null-model}
-\end{figure}
-
-
-\end{knitrout}
+Here we present the results for the model with 1\% causal SNPs ($c=0.01$), and results for the null model ($c=0$) in supplementary Section~\ref{ap:ggmix_sim_results}. In Figure~\ref{fig:plot-correct-sparsity-sim-1p-causal} we see that \ggmix outperforms both the twostep and lasso in terms of correct sparsity regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix. %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
@@ -466,6 +435,22 @@ We first plot the correct sparsity results for the null model ($c=0$) and the mo
 }
 
 \caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-correct-sparsity-sim-1p-causal}
+\end{figure}
+
+
+\end{knitrout}
+
+
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-6in1-10percentHerit-1pcausal-allinkinship-1} 
+
+}
+
+\caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}
 \end{figure}
 
 
@@ -1453,6 +1438,19 @@ and $(x)_+ = \max(x, 0)$.
 \newpage
 
 \section{Additional Simulation Results} \label{ap:ggmix_sim_results}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-correct-sparsity-sim-null-model-1} 
+
+}
+
+\caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}\label{fig:plot-correct-sparsity-sim-null-model}
+\end{figure}
+
+
+\end{knitrout}
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
