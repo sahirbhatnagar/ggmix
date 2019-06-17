@@ -62,7 +62,7 @@ test_that("test simulation function", {
                                 percent_overlap = "100",
                                 k = 5, s = 0.5, Fst = 0.1, nPC = 5,
                                 b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(sim1d, 16)
+  expect_length(sim1d, 20)
   expect_is(sim1d, "list")
 
   simcirc <- gen_structured_model(n = 500,
@@ -73,7 +73,7 @@ test_that("test simulation function", {
                                   percent_overlap = "100",
                                   k = 5, s = 0.5, Fst = 0.1, nPC = 5,
                                   b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simcirc, 16)
+  expect_length(simcirc, 20)
   expect_is(simcirc, "list")
 
   simind <- gen_structured_model(n = 500,
@@ -84,7 +84,7 @@ test_that("test simulation function", {
                                  percent_overlap = "100",
                                  k = 5, s = 0.5, Fst = 0.1, nPC = 10,
                                  b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simind, 16)
+  expect_length(simind, 20)
   expect_is(simind, "list")
 })
 
