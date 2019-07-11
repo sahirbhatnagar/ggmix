@@ -16,7 +16,8 @@
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_02_2019_results.rds")
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
 # df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_06_2019_results.rds")
-df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_07_2019_results.rds")
+# df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/may_07_2019_results.rds")
+df <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/jul_10_2019_results.rds")
 
 df <- df %>% separate(Model,
                       into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
@@ -44,13 +45,15 @@ DT[geography == "geography_1d", structure := "block"]
 # DT[, structure := factor(structure, levels = c("block","1D","circular"))]
 DT[, structure := factor(structure, levels = c("block"))]
 DT[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
-                        eta_p == "eta_0.5" ~ "50% Heritability")]
+                        eta_p == "eta_0.3" ~ "30% Heritability")]
 # DT[, table(eta_p)]
 # use twostepY, which compares to the original Y
 # DT[, table(Method)]
 # DT <- DT[Method %ni% c("twostep","twostepY","lasso1se")]
 # DT[Method == "twostepY", Method := "twostep"]
-DT[Method == "twostepYVC", Method := "twostep"]
+DT[Method == "twostepYVCCV", Method := "twostep"]
+DT[Method == "lassoCV", Method := "lasso"]
+DT[Method == "ggmixHDBIC", Method := "ggmix"]
 # DT <- DT[Method != "lasso"]
 # DT[Method == "lasso1se", Method := "lasso"]
 # DT[,table(Method)]
@@ -87,7 +90,7 @@ dat <- lapply(#list("ind","1d","circ"),
                                             geography = i,
                                             percent_causal = 0.01,
                                             percent_overlap = "100",
-                                            k = 3, s = 0.5, Fst = 0.1,
+                                            k = 10, s = 0.5, Fst = 0.1,
                                             b0 = 0,
                                             eta = 0.1, sigma2 = 1,
                                             train_tune_test = c(0.99,.005,0.005))
@@ -118,8 +121,8 @@ ylabs <- "2nd principal component"
 
 # par(mfrow = c(1,3))
 plot(dat[[1]]$PC[,1],dat[[1]]$PC[,2],
-     pch = 19, col = rep(RColorBrewer::brewer.pal(3,"Paired"), each = table(dat[[1]]$subpops)[1]),
-     xlab = xlabs, ylab = ylabs)#,
+     pch = 19, col = rep(RColorBrewer::brewer.pal(10,"Paired"), each = table(dat[[1]]$subpops)[1]),
+     xlab = xlabs, ylab = ylabs, cex = 0.5)#,
      # main = "1D Structure")
 # plot(dat[[2]]$x_lasso[,5001],dat[[2]]$x_lasso[,5002],
 #      pch = 19, col = rep(RColorBrewer::brewer.pal(5,"Paired"), each = 200),
@@ -194,14 +197,29 @@ pm_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"][eta_p == "10%
   #                labeller = as_labeller(appender,
   #                                       default = label_parsed)) +
   scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
-  labs(x = "", y = "correct sparsity",
+  labs(x = "", y = "Correct sparsity",
        # title = "Correct Sparsity results for the Model with 1% Causal SNPs",
        subtitle = "(A)"
        # caption = ""
        ) +
   theme_box + theme(legend.position = "none")
 
-
+pm_esterror <- ggplot(DT[p_causal != "Null model"][structure == "block"][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
+                aes(Method, estimationerror, fill = Method)) +
+  ggplot2::geom_boxplot(outlier.shape = NA) +
+  # facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
+  #                repeat.tick.labels = 'left',
+  #                labeller = as_labeller(appender,
+  #                                       default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", 
+       y = latex2exp::TeX("Estimation error"),
+       # y = latex2exp::TeX("Estimation error $(||\\hat{\\beta} - \\beta_{truth}||_2^2)$"),
+       # title = "Correct Sparsity results for the Model with 1% Causal SNPs",
+       subtitle = "(C)"
+       # caption = ""
+  ) +
+  theme_box + theme(legend.position = "none")+ scale_y_continuous(limits = quantile(DT$estimationerror, c(0.1, 0.9)))
 
 # PATCH DOING RMSE instead of MSE, because that how RDA was done by Tianyuan
 df_me_nactive <- DT[structure == "block"][p_causal != "Null model", c("Method", "eta_p", "p_overlap", "nactive", "mse")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"] %>%
@@ -213,25 +231,34 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
                         aes(x = mean.nactive, y = mean.me, color = Method, label = Method)) +
   geom_point(size = 2.1) +
   geom_text_repel(
-    data = subset(df_me_nactive, mean.nactive < 600),
-    nudge_x      = 3,
-    nudge_y = 1,
+    data = subset(df_me_nactive, Method == "ggmix"),
+    nudge_x      = 15,
+    nudge_y = 0.15,
     # size = 8,
     direction    = "y",
     hjust        = 0,
     segment.size = 0.2
   ) +
+    geom_text_repel(
+      data = subset(df_me_nactive, Method == "lasso"),
+      nudge_x      = -40,
+      nudge_y = -0.10,
+      # size = 8,
+      direction    = "y",
+      hjust        = 0,
+      segment.size = 0.2
+    ) +
   geom_text_repel(
-    data = subset(df_me_nactive, mean.nactive >= 600),
-    nudge_x      = 12,
-    nudge_y = 1,
+    data = subset(df_me_nactive, mean.nactive >= 287),
+    nudge_x      = 35,
+    nudge_y = 0.10,
     # size = 8,
     direction    = "y",
     hjust        = 0,
     segment.size = 0.2
   ) +
   geom_errorbar(aes(ymin = mean.me - sd.me, ymax = mean.me + sd.me, width=5), size = 1.1) +
-  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive, height = 0.1), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.nactive - sd.nactive, xmax = mean.nactive + sd.nactive, height = 0.02), size = 1.1) +
   # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
                  # repeat.tick.labels = 'left',
                  # labeller = as_labeller(appender,
@@ -243,7 +270,7 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
        caption = "mean +/- 1 standard deviation"
        ) +
   theme_box+ theme(legend.position = "none") + 
-  scale_x_continuous(limits = c(0,1200), breaks = seq(0,1200,300))
+  scale_x_continuous(limits = c(0,400), breaks = seq(0,400,100))
 
 
 
@@ -290,7 +317,7 @@ pm_mse_nactive_zoom <- ggplot(data = df_me_nactive,
   scale_x_continuous(limits = c(0,350))
 
 
-# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c(0.1, 0.5))
 dummy2 <- data.frame(eta_p = c("10% Heritability"), Z = c(0.1))
 
 pm_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% c("twostep","ggmix")][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
@@ -314,7 +341,7 @@ pm_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% 
         strip.text = element_text(size = 18)) +
   geom_hline(data = dummy2, aes(yintercept = Z), linetype = 2, col = "#2f4f4f")
 
-# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c((1 - 0.1), (1 - 0.3)))
 dummy2 <- data.frame(eta_p = c("10% Heritability"), Z = c((1 - 0.1)))
 
 pm_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"][eta_p == "10% Heritability"][p_overlap == "All causal SNPs in Kinship"],
@@ -354,15 +381,23 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
     segment.size = 0.2
   ) +
   geom_text_repel(
-    data = subset(df_tpr_fpr, mean.fpr > 0.02),
-    nudge_x      = 0.005,
-    nudge_y = 0.015,
+    data = subset(df_tpr_fpr, Method == "lasso"),
+    nudge_x      = -0.009,
+    nudge_y = 0.049,
     direction    = "y",
     hjust        = 0,
     segment.size = 0.2
   ) +
-  geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr, width=0.005), size = 1.1) +
-  geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr), size = 1.1) +
+  geom_text_repel(
+    data = subset(df_tpr_fpr, Method == "twostep"),
+    nudge_x      = 0.005,
+    nudge_y = 0.03,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2
+  ) +
+  geom_errorbar(aes(ymin = mean.tpr - sd.tpr, ymax = mean.tpr + sd.tpr, width=0.0005), size = 1.1) +
+  geom_errorbarh(aes(xmin = mean.fpr - sd.fpr, xmax = mean.fpr + sd.fpr, height = 0.009), size = 1.1) +
   # facet_rep_grid(p_overlap ~ eta_p, scales = "free",
   #                repeat.tick.labels = 'left',
   #                labeller = as_labeller(appender,
@@ -373,15 +408,16 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
        subtitle="(D)",
        caption="mean +/- 1 standard deviation") +  
   theme_box + scale_y_continuous(limits = c(0.6,1), breaks = seq(0.6,1, 0.1)) + 
-  scale_x_continuous(limits = c(0,.2), breaks = seq(0,0.2, 0.05)) + theme(legend.position = "none")
+  scale_x_continuous(limits = c(0,.06), breaks = seq(0,0.06, 0.02)) + theme(legend.position = "none")
 
 
 pm_cs +
-pm_mse_nactive+
-pm_mse_nactive_zoom +
-pm_tpr_fpr + 
-pm_eta + 
-pm_errorvar
+  pm_mse_nactive+
+  # pm_mse_nactive_zoom +
+  pm_esterror+  
+  pm_tpr_fpr + 
+  pm_eta + 
+  pm_errorvar
 # dev.off()
 # 
 # 
@@ -769,7 +805,7 @@ p1_nactive
 
 ## ---- plot-eta-sim-null-model ----
 
-dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c(0.1, 0.3))
 p1_eta <- ggplot(DT[structure == "block"][p_causal == "Null model"][Method %in% c("twostep","ggmix")][p_overlap == "No causal SNPs in Kinship"],
                  aes(Method, eta, fill = Method)) +
   ggplot2::geom_boxplot() +
@@ -794,7 +830,7 @@ p1_eta
 
 ## ---- plot-eta-sim-1p-causal ----
 
-dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c(0.1, 0.5))
+dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c(0.1, 0.3))
 
 p1_eta <- ggplot(DT[structure == "block"][p_causal != "Null model"][Method %in% c("twostep","ggmix")],
                  aes(Method, eta, fill = Method)) +
@@ -822,7 +858,7 @@ p1_eta
 
 ## ---- plot-errorvar-sim-null-model ----
 
-dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c((1 - 0.1), (1 - 0.3)))
 
 p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
                     aes(Method, errorvar, fill = Method)) +
@@ -849,7 +885,7 @@ p1_errorvar
 
 ## ---- plot-errorvar-sim-1p-causal ----
 
-dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c((1 - 0.1), (1 - 0.3)))
 p1_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"],
                     aes(Method, errorvar, fill = Method)) +
   ggplot2::geom_boxplot() +
@@ -978,7 +1014,7 @@ p1_mse
 
 ## ---- plot-runtime-sim-null-model ----
 
-# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c((1 - 0.1), (1 - 0.3)))
 p1_errorvar <- ggplot(DT[structure == "block"][p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"],
                       aes(Method, log(time), fill = Method)) +
   ggplot2::geom_boxplot() +
@@ -1005,7 +1041,7 @@ p1_errorvar
 
 ## ---- plot-runtime-sim-1p-causal ----
 
-# dummy2 <- data.frame(eta_p = c("10% Heritability", "50% Heritability"), Z = c((1 - 0.1), (1 - 0.5)))
+# dummy2 <- data.frame(eta_p = c("10% Heritability", "30% Heritability"), Z = c((1 - 0.1), (1 - 0.3)))
 p1_errorvar <- ggplot(DT[structure == "block"][p_causal != "Null model"],
                       aes(Method, log(time), fill = Method)) +
   ggplot2::geom_boxplot() +
