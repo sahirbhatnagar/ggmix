@@ -185,6 +185,26 @@ p1_cs <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kin
   theme_box
 
 p1_cs
+
+
+## ---- plot-estimation-error-sim-null-model ----
+
+p1_esterror <- ggplot(DT[p_causal == "Null model"][p_overlap == "No causal SNPs in Kinship"][structure == "block"],
+                aes(Method, estimationerror, fill = Method)) +
+  ggplot2::geom_boxplot() +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", y = "",
+       title = "Estimation Error Results for the Null Model",
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_box
+
+p1_esterror
+
 # reposition_legend(p1_mse, 'center', panel='panel-2-3')
 
 ## ---- plot-6in1-10percentHerit-1pcausal-allinkinship ----
@@ -216,7 +236,7 @@ pm_esterror <- ggplot(DT[p_causal != "Null model"][structure == "block"][eta_p =
        y = latex2exp::TeX("Estimation error"),
        # y = latex2exp::TeX("Estimation error $(||\\hat{\\beta} - \\beta_{truth}||_2^2)$"),
        # title = "Correct Sparsity results for the Model with 1% Causal SNPs",
-       subtitle = "(C)"
+       subtitle = "(B)"
        # caption = ""
   ) +
   theme_box + theme(legend.position = "none")+ scale_y_continuous(limits = quantile(DT$estimationerror, c(0.1, 0.9)))
@@ -241,7 +261,7 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
   ) +
     geom_text_repel(
       data = subset(df_me_nactive, Method == "lasso"),
-      nudge_x      = -40,
+      nudge_x      = -90,
       nudge_y = -0.10,
       # size = 8,
       direction    = "y",
@@ -266,7 +286,7 @@ pm_mse_nactive <- ggplot(data = df_me_nactive,
   scale_color_manual(values = cbbPalette[c(7,3,4,2)], guide = guide_legend(ncol=3)) +
   labs(x = "Number of active variables", y = "Root mean squared prediction error",
        # title = "Mean Squared Error vs. Number of Active Variable (Mean +/- 1 SD) for Model with 1% Causal SNPs",
-       subtitle = "(B)",
+       subtitle = "(C)",
        caption = "mean +/- 1 standard deviation"
        ) +
   theme_box+ theme(legend.position = "none") + 
@@ -382,7 +402,7 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
   ) +
   geom_text_repel(
     data = subset(df_tpr_fpr, Method == "lasso"),
-    nudge_x      = -0.009,
+    nudge_x      = -0.012,
     nudge_y = 0.049,
     direction    = "y",
     hjust        = 0,
@@ -390,7 +410,7 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
   ) +
   geom_text_repel(
     data = subset(df_tpr_fpr, Method == "twostep"),
-    nudge_x      = 0.005,
+    nudge_x      = 0.007,
     nudge_y = 0.03,
     direction    = "y",
     hjust        = 0,
@@ -412,9 +432,9 @@ pm_tpr_fpr <- ggplot(data = df_tpr_fpr, aes(x = mean.fpr, y = mean.tpr, color = 
 
 
 pm_cs +
+  pm_esterror+  
   pm_mse_nactive+
   # pm_mse_nactive_zoom +
-  pm_esterror+  
   pm_tpr_fpr + 
   pm_eta + 
   pm_errorvar
@@ -453,6 +473,26 @@ p1_cs <- ggplot(DT[p_causal != "Null model"][structure == "block"],
 
 
 p1_cs
+
+
+## ---- plot-estimation-error-sim-1p-causal ----
+
+p1_esterror_1p <- ggplot(DT[p_causal != "Null model"][structure == "block"],
+                aes(Method, estimationerror, fill = Method)) +
+  ggplot2::geom_boxplot(outlier.shape = NA) +
+  facet_rep_grid(p_overlap ~ eta_p, scales = "fixed",
+                 repeat.tick.labels = 'left',
+                 labeller = as_labeller(appender,
+                                        default = label_parsed)) +
+  scale_fill_manual(values = cbbPalette[c(7,3,4,2)]) +
+  labs(x = "", y = "",
+       title = "Estimation Error results for the Model with 1% Causal SNPs",
+       subtitle = "Based on 200 simulations",
+       caption = "") +
+  theme_box+ scale_y_continuous(limits = quantile(DT$estimationerror, c(0.1, 0.9)))
+
+
+p1_esterror_1p
 
 
 ## ---- plot-me-nactive-sim-null ----
