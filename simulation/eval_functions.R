@@ -25,6 +25,11 @@ tpr <- new_metric("tpr", "True Positive Rate",
                     length(intersect(out$nonzero_names, out$causal))/length(out$causal)
                   })
 
+tprFPR5 <- new_metric("tprFPR5", "True Positive Rate at FPR of 5%",
+                  metric = function(model, out) {
+                    out$TPR_at_5_percent_FPR
+                  })
+
 "%ni%" <- Negate("%in%")
 
 fpr <- new_metric("fpr", "False Positive Rate",
@@ -40,6 +45,11 @@ nactive <- new_metric("nactive", "Number of Active Variables",
                         length(out$nonzero_names)
                       })
 
+nactiveFPR5 <- new_metric("nactiveFPR5", "Number of Active Variablesat FPR of 5%",
+                      metric = function(model, out) {
+                        length(out$ACTIVES_at_5_percent_FPR)
+                      })
+
 
 correct_sparsity <- new_metric("correct_sparsity", "Correct Sparsity",
                                metric = function(model, out){
@@ -47,7 +57,7 @@ correct_sparsity <- new_metric("correct_sparsity", "Correct Sparsity",
                                  not_causal <- out$not_causal
                                  active <- out$nonzero_names
                                  p <- out$p
-                                 
+
                                  correct_nonzeros <- sum(active %in% causal)
                                  correct_zeros <- length(setdiff(not_causal, active))
                                  #correct sparsity

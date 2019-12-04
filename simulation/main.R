@@ -11,7 +11,8 @@
 # and then create figures based on that
 # Author: Sahir Bhatnagar
 # Created: 2018
-# Updated: July 9, 2019
+# Updated: Dec 4, 2019
+# To address referee comments. Need to add simulation where n is approx equal to p
 #####################################
 
 
@@ -39,6 +40,7 @@ source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 # name_of_simulation <- "ggmix-may7" # this has train/test/validation split 60/20/20 split
 # name_of_simulation <- "ggmix-jul8" # this has train/test/validation split 60/20/20 split but with dfmax not specified in ggmix
 name_of_simulation <- "ggmix-jul10" # this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction
+name_of_simulation <- "ggmix-dec4" # this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction, and n = p simulation for referee comments
 ## @knitr main
 
 # nsim needs to be at least 2
@@ -57,9 +59,9 @@ name_of_simulation <- "ggmix-jul10" # this has train/validation split 80/20 spli
 #
 # sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
 # save_simulation(sim)
+# sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
 
-
-sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
+sim <- new_simulation(name_of_simulation, "dec-4", dir = "simulation/") %>%
   generate_model(make_ADmixed_model_train_validate,
                  b0 = 1,
                  sigma2 = 1,
@@ -68,14 +70,14 @@ sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
                  s = 0.5,
                  Fst = 0.1,
                  geography = "1d",
-                 n = 1000, # 80/20 split
+                 n = list(1000,10000), # 80/20 split
                  p_design = 5000,
                  p_kinship = 10000,
                  percent_causal = list(0, 0.01),
                  percent_overlap = list("0","100"),
                  eta = list(0.1, 0.3),
-                 vary_along = c("percent_overlap","percent_causal","eta")
-                 
+                 vary_along = c("n","percent_overlap","percent_causal","eta")
+
                  # n = 1000, # 80/20 split
                  # p_design = 5000,
                  # p_kinship = 10000,
@@ -83,7 +85,7 @@ sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
                  # percent_overlap = "0",
                  # eta = 0.1#,
                  # vary_along = c("percent_overlap","percent_causal","eta")
-                 
+
                  # n = 500, # 60/20/20 split
                  # p_design = 500,
                  # p_kinship = 1000
@@ -94,7 +96,7 @@ sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
                  # n = 800, # 50% train, 50% test
                  # p_design = 500,
                  # p_kinship = 1000
-                 
+
   ) %>%
   # simulate_from_model(nsim = 5, index = 1:40) %>%
   simulate_from_model(nsim = 5, index = 1:40) %>%
@@ -102,7 +104,7 @@ sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
              # run_method(list(lasso, ggmixed, twostepYVC, lassoNOPC),
              parallel = list(socket_names = 40,
                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
-  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2,
+  evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, tprFPR5, nactiveFPR5,
                 correct_sparsity,mse, errorvariance, estimationerror))
 save_simulation(sim)
 as.data.frame(evals(sim))
