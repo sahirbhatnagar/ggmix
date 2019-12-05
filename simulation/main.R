@@ -39,29 +39,99 @@ source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 # name_of_simulation <- "ggmix-apr29" # this has train/test split 50/50 split
 # name_of_simulation <- "ggmix-may7" # this has train/test/validation split 60/20/20 split
 # name_of_simulation <- "ggmix-jul8" # this has train/test/validation split 60/20/20 split but with dfmax not specified in ggmix
-name_of_simulation <- "ggmix-jul10" # this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction
-name_of_simulation <- "ggmix-dec4" # this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction, and n = p simulation for referee comments
+# name_of_simulation <- "ggmix-jul10" # this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction, and TPR at fixed FPR of 5%
+
 ## @knitr main
 
-# nsim needs to be at least 2
 
-# sim <- new_simulation(name_of_simulation, "Thesis 2018", dir = "simulation/") %>%
-#   generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = list(2, 4),
-#                  eta = list(0.1, 0.5),
-#                  percent_causal = 1,
-#                  beta_mean = list(0.2, 0.6, 1),
-#                  percent_overlap = list("0","100"),
-#                  vary_along = c("sigma2","eta","beta_mean","percent_overlap")) %>%
-#   simulate_from_model(nsim = 4, index = 1:50) %>%
-#   run_method(list(lasso, ggmix, twostep),
-#              parallel = list(socket_names = 35,
-#                              libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
-#
-# sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
+# I used this on Decemerb 4th 2019, because I wanted to re-use the simulated data,
+# but apply the three methods with the TPR calculated at a fixed TPR of 5%
+# For the n=p simulation, I need to create a new simulatior object. See below.
+# sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
+# sim <- sim %>%
+#   run_method(list(twostepYVCCV, lassoCV, ggmixedHDBIC),
+#              # run_method(list(lasso, ggmixed, twostepYVC, lassoNOPC),
+#              parallel = list(socket_names = 40,
+#                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
+#   evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, tprFPR5, nactiveFPR5,
+#                 correct_sparsity,mse, errorvariance, estimationerror))
 # save_simulation(sim)
-# sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
+# as.data.frame(evals(sim))
+# ls()
+# # nsim needs to be at least 2
+#
+# # sim <- new_simulation(name_of_simulation, "Thesis 2018", dir = "simulation/") %>%
+# #   generate_model(make_mixed_model_SSC, b0 = 0, sigma2 = list(2, 4),
+# #                  eta = list(0.1, 0.5),
+# #                  percent_causal = 1,
+# #                  beta_mean = list(0.2, 0.6, 1),
+# #                  percent_overlap = list("0","100"),
+# #                  vary_along = c("sigma2","eta","beta_mean","percent_overlap")) %>%
+# #   simulate_from_model(nsim = 4, index = 1:50) %>%
+# #   run_method(list(lasso, ggmix, twostep),
+# #              parallel = list(socket_names = 35,
+# #                              libraries = c("glmnet","magrittr","MASS","progress","Matrix","coxme","gaston")))
+# #
+# # sim <- sim %>% evaluate(list(modelerror, tpr, fpr, nactive, eta, sigma2))
+# # save_simulation(sim)
+# # sim <- new_simulation(name_of_simulation, "jul-10", dir = "simulation/") %>%
+#
+# sim <- new_simulation(name_of_simulation, "dec-4", dir = "simulation/") %>%
+#   generate_model(make_ADmixed_model_train_validate,
+#                  b0 = 1,
+#                  sigma2 = 1,
+#                  beta_mean = 1,
+#                  k = 10,
+#                  s = 0.5,
+#                  Fst = 0.1,
+#                  geography = "1d",
+#                  n = 1000, # 80/20 split
+#                  p_design = 5000,
+#                  p_kinship = 10000,
+#                  percent_causal = list(0, 0.01),
+#                  percent_overlap = list("0","100"),
+#                  eta = list(0.1, 0.3),
+#                  vary_along = c("percent_overlap","percent_causal","eta")
+#
+#                  # n = 1000, # 80/20 split
+#                  # p_design = 5000,
+#                  # p_kinship = 10000,
+#                  # percent_causal = 0.01,
+#                  # percent_overlap = "0",
+#                  # eta = 0.1#,
+#                  # vary_along = c("percent_overlap","percent_causal","eta")
+#
+#                  # n = 500, # 60/20/20 split
+#                  # p_design = 500,
+#                  # p_kinship = 1000
+#                  # eta = 0.50,
+#                  # geography = "1d",
+#                  # percent_causal = 0,
+#                  # percent_overlap = "0",
+#                  # n = 800, # 50% train, 50% test
+#                  # p_design = 500,
+#                  # p_kinship = 1000
+#
+#   ) %>%
+#   # simulate_from_model(nsim = 5, index = 1:40) %>%
+#   simulate_from_model(nsim = 5, index = 1:40) %>%
+#   run_method(list(twostepYVCCV, lassoCV, ggmixedHDBIC),
+#              # run_method(list(lasso, ggmixed, twostepYVC, lassoNOPC),
+#              parallel = list(socket_names = 40,
+#                              libraries = c("glmnet","magrittr","MASS","Matrix","coxme","gaston","ggmix","popkin","bnpsd"))) %>%
+#   evaluate(list(modelerror, prederror,tpr, fpr, nactive, eta, sigma2, tprFPR5, nactiveFPR5,
+#                 correct_sparsity,mse, errorvariance, estimationerror))
+# save_simulation(sim)
+# as.data.frame(evals(sim))
+# ls()
 
-sim <- new_simulation(name_of_simulation, "dec-4", dir = "simulation/") %>%
+
+
+# n=p simulation ----------------------------------------------------------
+# December 5th, 2019
+# this has train/validation split 80/20 split and HDBIC for ggmix ,with lm on active snps for prediction, and n = p simulation for referee comments
+name_of_simulation <- "ggmix-dec5"
+sim <- new_simulation(name_of_simulation, "dec-5", dir = "simulation/") %>%
   generate_model(make_ADmixed_model_train_validate,
                  b0 = 1,
                  sigma2 = 1,
@@ -70,13 +140,13 @@ sim <- new_simulation(name_of_simulation, "dec-4", dir = "simulation/") %>%
                  s = 0.5,
                  Fst = 0.1,
                  geography = "1d",
-                 n = list(1000,10000), # 80/20 split
+                 n = 1000, # 80/20 split
                  p_design = 5000,
-                 p_kinship = 10000,
+                 p_kinship = 1000,
                  percent_causal = list(0, 0.01),
                  percent_overlap = list("0","100"),
                  eta = list(0.1, 0.3),
-                 vary_along = c("n","percent_overlap","percent_causal","eta")
+                 vary_along = c("percent_overlap","percent_causal","eta")
 
                  # n = 1000, # 80/20 split
                  # p_design = 5000,
@@ -109,6 +179,10 @@ sim <- new_simulation(name_of_simulation, "dec-4", dir = "simulation/") %>%
 save_simulation(sim)
 as.data.frame(evals(sim))
 ls()
+
+
+
+
 # make sure most recent version of ggmix is installed for the parallel code to work!!!!#!#@$!@$!@$
 # remotes::install_github('sahirbhatnagar/ggmix', ref = "validate")
 
@@ -149,7 +223,8 @@ ls()
 #
 # sim <- load_simulation(name = name_of_simulation, dir = "/home/sahir/git_repositories/ggmix/simulation/")
 # sim %>% subset_simulation(methods = c("lasso","ggmix")) %>% plot_eval("mse")
-#
+# sim %>% plot_eval("tprFPR5")
+# sim %>% plot_eval("nactiveFPR5")
 # sim2 <- sim %>% subset_simulation(percent_overlap == "100" & percent_causal == 0.01 & eta == 0.10)
 # name_of_simulation <- "ggmix-jul8"
 # label = "jul-8"
