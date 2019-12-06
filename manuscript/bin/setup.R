@@ -16,6 +16,7 @@ pacman::p_load(lemon)
 pacman::p_load(qwraps2) # used for simulation results table
 pacman::p_load(kableExtra) # used for simulation results table
 pacman::p_load(magrittr)
+pacman::p_load(tidyr)
 pacman::p_load_gh("thomasp85/patchwork")
 pacman::p_load(simulator)
 pacman::p_load(dplyr)

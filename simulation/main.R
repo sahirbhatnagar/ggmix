@@ -47,7 +47,7 @@ source("/home/sahir/git_repositories/ggmix/simulation/eval_functions.R")
 # I used this on Decemerb 4th 2019, because I wanted to re-use the simulated data,
 # but apply the three methods with the TPR calculated at a fixed TPR of 5%
 # For the n=p simulation, I need to create a new simulatior object. See below.
-# sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
+sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
 # sim <- sim %>%
 #   run_method(list(twostepYVCCV, lassoCV, ggmixedHDBIC),
 #              # run_method(list(lasso, ggmixed, twostepYVC, lassoNOPC),
@@ -288,7 +288,7 @@ df <- as.data.frame(evals(sim))
 # saveRDS(df, file = "simulation/simulation_results/may_02_2019_results.rds")
 # saveRDS(df, file = "simulation/simulation_results/may_05_2019_results.rds") # this has lasso1se
 # saveRDS(df, file = "simulation/simulation_results/may_06_2019_results.rds") # this has lasso1se + proper variance components for twostep, but im not using lasso1se
-saveRDS(df, file = "simulation/simulation_results/jul_10_2019_results.rds") # this has train/validate split only. and doing re-fit for MSE and HDBIC for ggmix
+saveRDS(df, file = "simulation/simulation_results/jul_10_2019_results_v2.rds") # this has train/validate split only. and doing re-fit for MSE and HDBIC for ggmix and TPR at FPR 5 %
 df %>% filter(Method=="twostepYVCCV")
 
 simulator::tabulate_eval(sim, "mse")

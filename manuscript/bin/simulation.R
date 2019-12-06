@@ -100,6 +100,8 @@ tt <- DT %>%
 
 tt[tt$Method=="lasso","Heritability"] <- "--"
 
+
+
 pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estimationerror","Nactive"),
                     names_to = "metric") %>%
   unite(col = "type", p_causal,p_overlap,eta_p) %>%
@@ -125,17 +127,32 @@ pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estim
          "1% of SNPs are causal_No causal SNPs in Kinship_10% Heritability",
          "1% of SNPs are causal_No causal SNPs in Kinship_30% Heritability",
          "1% of SNPs are causal_All causal SNPs in Kinship_10% Heritability",
-         "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability")
+         "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability") %>%
+  mutate(metric = paste0(metric,
+                         footnote_marker_alphabet(c(1:6))))
+
 
 ## ---- print-sim-table ----
 
 kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
-      caption = c("Results from 200 replications for the scenario with 1\\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\\eta =10\\%$. (A) Correct sparsity as defined by Equation~\\eqref{eq:correct_sparsity}. (B) Estimation error defined as the squared distance between the estimated and true effect sizes (C) Root mean squared prediction error on the test set as a function of the number of selected variables. (D) True positive vs. false positive rate. (E) Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\\eta$ is explictly modeled in \\ggmix. There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment. (F) Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect\\norm{\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}}_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$."),
+      escape = FALSE,
+      caption = c("Results from 200 replications for the scenario with 1\\% causal SNPs ($c=0.01$) which are all
+                  used in the calculation of the kinship matrix and true heritability $\\eta =10\\%$.
+                  (A) Correct sparsity as defined by Equation~\\eqref{eq:correct_sparsity}.
+                  (B) Estimation error defined as the squared distance between the estimated and true effect sizes
+                  (C) Root mean squared prediction error on the test set as a function of the number of selected variables.
+                  (D) True positive vs. false positive rate.
+                  (E) Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively.
+                  $\\eta$ is explictly modeled in \\ggmix.
+                  There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment.
+                  (F) Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix.
+                  For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect\\norm{\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}}_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$."),
       col.names = c("Metric","Method",rep(c("10%","30%"),4))) %>%
   kable_styling(latex_options = "striped", full_width = TRUE,
                 position = "center",font_size = 7, stripe_index = c(1:3,7:9,13:15)) %>%
-  add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2)) %>%
-  add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4)) %>%
+  add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2),
+                   escape = F) %>%
+  add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4), escape = F) %>%
   column_spec(1, bold=T) %>%
   collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
   footnote(general = "Here is a general comments of the table. ",
