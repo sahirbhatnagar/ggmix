@@ -37,6 +37,16 @@
 \newcolumntype{L}{>{\centering\arraybackslash}m{3cm}} % used for text wrapping in ctable
 \usepackage{color, colortbl, xcolor, comment}
 \usepackage{subfig}
+\usepackage{tabu}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
 \usepackage{tcolorbox} % for box around text
 %\usepackage[ruled,vlined,linesnumbered,noresetcount]{algorithm2e}
 \usepackage[ruled,vlined,noresetcount]{algorithm2e}
@@ -200,13 +210,13 @@ knitr::read_chunk("../bin/simulation.R")
 knitr::read_chunk("../bin/RealData.R")
 
 # set to FALSE if still in development and you dont want to run the R code
-finalversion <- TRUE
+finalversion <- FALSE
 @
 
-<<packages, eval=finalversion>>=
+<<packages, eval=TRUE>>=
 @
 
-<<globals, eval=finalversion>>=
+<<globals, eval=TRUE>>=
 @
 
 \maketitle
@@ -395,7 +405,7 @@ A_j = \begin{cases}
 
 %\subsection{Results}
 
-<<simulation-results, eval=finalversion, results = 'hide'>>=
+<<simulation-results, eval=TRUE, results = 'hide'>>=
 @
 
 In Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}, we present the results for the scenario with 1\% causal SNPs ($c=0.01$) which were all used in the calculation of the kinship matrix and true heritability $\eta =$10\%. The complete simulation results are shown in supplementary Section~\ref{ap:ggmix_sim_results}. We see that \ggmix ~outperformed both the \texttt{twostep} and \texttt{lasso} in terms of correct sparsity and estimation error (Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panels A and B). This was true regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix (Figures~\ref{fig:plot-correct-sparsity-sim-null-model},~\ref{fig:plot-correct-sparsity-sim-1p-causal},~\ref{fig:plot-estimation-error-sim-null-model} and~\ref{fig:plot-estimation-error-sim-1p-causal}). Across all simulation scenarios, \texttt{ggmix} had the smallest root mean squared prediction error (RMSE) on the test set while also producing the most parsimonious models (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel B,~\ref{fig:plot-mse-nactive-sim-null} and \ref{fig:plot-mse-nactive-sim-1p-causal}). Both the \texttt{lasso} and \texttt{twostep} had on average, slightly higher true positive rate compared to \ggmix ~but came at the cost of a higher false positive rate (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel D,~\ref{fig:plot-tpr-fpr-sim-null-model} and~\ref{fig:plot-tpr-fpr-sim-1p-causal}). Both the \texttt{twostep} and \ggmix ~overestimated the heritability though \ggmix ~was closer to the true value (Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel E). When none of the causal SNPs were in the kinship, both methods tended to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=30\%$ (Figure~\ref{fig:plot-eta-sim-1p-causal}). Across all simulation scenarios \texttt{ggmix} was able to (on average) correctly estimate the error variance (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel F, \ref{fig:plot-errorvar-sim-null-model} and~\ref{fig:plot-errorvar-sim-1p-causal}). The \texttt{lasso} tended to overestimate $\sigma^2$ in the null model while the \texttt{twostep} overestimated $\sigma^2$ when none of the causal SNPs were in the kinship matrix. 
@@ -420,6 +430,14 @@ This result is encouraging since in practice the kinship matrix is constructed f
 %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
 <<plot-6in1-10percentHerit-1pcausal-allinkinship, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Results from 200 replications for the scenario with 1\\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\\eta =10\\%$. (A) Correct sparsity as defined by Equation~\\eqref{eq:correct_sparsity}. (B) Estimation error defined as the squared distance between the estimated and true effect sizes (C) Root mean squared prediction error on the test set as a function of the number of selected variables. (D) True positive vs. false positive rate. (E) Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\\eta$ is explictly modeled in \\ggmix. There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment. (F) Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect\\norm{\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}}_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$.", eval=finalversion>>=
+@
+
+
+<<table-of-results>>=
+@
+
+
+<<print-sim-table, results='asis'>>=
 @
 
 
