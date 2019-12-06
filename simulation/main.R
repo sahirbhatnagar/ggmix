@@ -181,7 +181,9 @@ as.data.frame(evals(sim))
 ls()
 
 
-
+sim <- simulator::load_simulation(name_of_simulation, dir = "simulation/")
+df <- as.data.frame(evals(sim))
+saveRDS(df, file = "simulation/simulation_results/dec_5_2019_results.rds") # this has train/validate split only. and doing re-fit for MSE and HDBIC for ggmix and TPR at FPR 5 % and n=1000=kinship=1000
 
 # make sure most recent version of ggmix is installed for the parallel code to work!!!!#!#@$!@$!@$
 # remotes::install_github('sahirbhatnagar/ggmix', ref = "validate")
