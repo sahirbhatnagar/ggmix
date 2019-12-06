@@ -127,42 +127,120 @@ pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estim
          "1% of SNPs are causal_No causal SNPs in Kinship_10% Heritability",
          "1% of SNPs are causal_No causal SNPs in Kinship_30% Heritability",
          "1% of SNPs are causal_All causal SNPs in Kinship_10% Heritability",
-         "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability") %>%
-  mutate(metric = paste0(metric,
-                         footnote_marker_alphabet(c(1:6))))
+         "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability")
 
 
 ## ---- print-sim-table ----
 
 kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
-      escape = FALSE,
-      caption = c("Results from 200 replications for the scenario with 1\\% causal SNPs ($c=0.01$) which are all
-                  used in the calculation of the kinship matrix and true heritability $\\eta =10\\%$.
-                  (A) Correct sparsity as defined by Equation~\\eqref{eq:correct_sparsity}.
-                  (B) Estimation error defined as the squared distance between the estimated and true effect sizes
-                  (C) Root mean squared prediction error on the test set as a function of the number of selected variables.
-                  (D) True positive vs. false positive rate.
-                  (E) Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively.
-                  $\\eta$ is explictly modeled in \\ggmix.
-                  There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment.
-                  (F) Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix.
-                  For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect\\norm{\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}}_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$."),
+      caption = c("Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\\%, 30\\%).
+                  For all simulations, sample size is $n=1000$, the number of fixed effects is $p_{fixed}=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  TPR at FPR=5\\% is the true positive rate at a fixed false positive rate of 5\\%.
+                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
+                  RMSE is the root mean squared error on the test set.
+                  Estimation error is the squared distance between the estimated and true effect sizes.
+                  Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect||\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}||_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$.
+                  Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\\eta$ is explictly modeled in \\ggmix. There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment."),
       col.names = c("Metric","Method",rep(c("10%","30%"),4))) %>%
   kable_styling(latex_options = "striped", full_width = TRUE,
                 position = "center",font_size = 7, stripe_index = c(1:3,7:9,13:15)) %>%
-  add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2),
-                   escape = F) %>%
-  add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4), escape = F) %>%
+  add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2)) %>%
+  add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4)) %>%
   column_spec(1, bold=T) %>%
-  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
-  footnote(general = "Here is a general comments of the table. ",
-           number = c("Footnote 1; ", "Footnote 2; "),
-           alphabet = c("Footnote A; ", "Footnote B; "),
-           symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"),
-           general_title = "General: ", number_title = "Type I: ",
-           alphabet_title = "Type II: ", symbol_title = "Type III: ",
-           footnote_as_chunk = T, title_format = c("italic", "underline")
-  )
+  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") #%>%
+  # footnote(general = "",
+           # general_title = "Note:") %>%
+  # footnote(general = "Model Size is the number of selected variables using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.")
+  #          # number = c("", "Footnote 2; "),
+  #          # alphabet = c("Footnote A; ", "Footnote B; "),
+  #          # symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"),
+  #          general_title = "Note: ", number_title = "Type I: ",
+  #          alphabet_title = "Type II: ", symbol_title = "Type III: ",
+  #          footnote_as_chunk = T, title_format = c("italic", "underline")
+  # )
+
+
+## ---- table-of-results-for-n-equal-to-k ----
+
+DT$RMSE <- sqrt(DT$mse)
+# tt <- DT %>% tidyr::pivot_longer(cols = c("me","prederror","tpr","fpr","nactive",
+#                                     "eta","sigma2","tprFPR5","nactiveFPR5",
+#                                     "correct_sparsity","mse","RMSE","errorvar","estimationerror",
+#                                     "time","tau","sigma2","me2"),
+#                                  names_to = "metric")
+
+tt <- DT %>%
+  group_by(Method, eta_p, p_overlap, p_causal) %>%
+  summarise(RMSE = qwraps2::mean_sd(RMSE, denote_sd = "paren"),
+            TPR = qwraps2::mean_sd(tprFPR5, denote_sd = "paren"),
+            Heritability = qwraps2::mean_sd(eta, denote_sd = "paren"),
+            Errorvar = qwraps2::mean_sd(errorvar, denote_sd = "paren"),
+            Estimationerror = qwraps2::mean_sd(estimationerror, denote_sd = "paren"),
+            Nactive = qwraps2::mean_sd(nactive, digits = 0, denote_sd = "paren"))
+
+tt[tt$Method=="lasso","Heritability"] <- "--"
+
+
+
+pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estimationerror","Nactive"),
+                          names_to = "metric") %>%
+  unite(col = "type", p_causal,p_overlap,eta_p) %>%
+  mutate(type = factor(type,
+                       levels = c("Null model_No causal SNPs in Kinship_10% Heritability",
+                                  "Null model_No causal SNPs in Kinship_30% Heritability",
+                                  "Null model_All causal SNPs in Kinship_10% Heritability",
+                                  "Null model_All causal SNPs in Kinship_30% Heritability",
+                                  "1% of SNPs are causal_No causal SNPs in Kinship_10% Heritability",
+                                  "1% of SNPs are causal_No causal SNPs in Kinship_30% Heritability",
+                                  "1% of SNPs are causal_All causal SNPs in Kinship_10% Heritability",
+                                  "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability")),
+         metric = factor(metric,
+                         labels = c("TPR at FPR=5%","Model Size","RMSE","Estimation Error","Error Variance","Heritability"),
+                         levels = c("TPR","Nactive","RMSE","Estimationerror","Errorvar","Heritability"))
+  ) %>%
+  pivot_wider(id_cols = c("metric","Method"), names_from = "type", values_from = "value") %>%
+  arrange(metric, Method) %>%
+  select("metric","Method","Null model_No causal SNPs in Kinship_10% Heritability",
+         "Null model_No causal SNPs in Kinship_30% Heritability",
+         "Null model_All causal SNPs in Kinship_10% Heritability",
+         "Null model_All causal SNPs in Kinship_30% Heritability",
+         "1% of SNPs are causal_No causal SNPs in Kinship_10% Heritability",
+         "1% of SNPs are causal_No causal SNPs in Kinship_30% Heritability",
+         "1% of SNPs are causal_All causal SNPs in Kinship_10% Heritability",
+         "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability")
+
+
+## ---- print-sim-table ----
+
+kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
+      caption = c("Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\\%, 30\\%).
+                  For all simulations, sample size is $n=1000$, the number of fixed effects is $p_{fixed}=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  TPR at FPR=5\\% is the true positive rate at a fixed false positive rate of 5\\%.
+                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
+                  RMSE is the root mean squared error on the test set.
+                  Estimation error is the squared distance between the estimated and true effect sizes.
+                  Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect||\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}||_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$.
+                  Heritability ($\\eta$) for \\texttt{twostep} is estimated as $\\sigma_g^2 / (\\sigma_g^2 + \\sigma_e^2)$ from an intercept only LMM with a single random effect where $\\sigma_g^2$ and $\\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\\eta$ is explictly modeled in \\ggmix. There is no positive way to calculate $\\eta$ for the \\texttt{lasso} since we are using a PC adjustment."),
+      col.names = c("Metric","Method",rep(c("10%","30%"),4))) %>%
+  kable_styling(latex_options = "striped", full_width = TRUE,
+                position = "center",font_size = 7, stripe_index = c(1:3,7:9,13:15)) %>%
+  add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2)) %>%
+  add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4)) %>%
+  column_spec(1, bold=T) %>%
+  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") #%>%
+# footnote(general = "",
+# general_title = "Note:") %>%
+# footnote(general = "Model Size is the number of selected variables using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.")
+#          # number = c("", "Footnote 2; "),
+#          # alphabet = c("Footnote A; ", "Footnote B; "),
+#          # symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"),
+#          general_title = "Note: ", number_title = "Type I: ",
+#          alphabet_title = "Type II: ", symbol_title = "Type III: ",
+#          footnote_as_chunk = T, title_format = c("italic", "underline")
+# )
+
+
+
 
 ## ---- plot-kinship-sim ----
 
