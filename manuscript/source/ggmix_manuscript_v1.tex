@@ -414,11 +414,33 @@ where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effe
 
 Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1} 
+
+}
+
+\caption[Example of an empirical kinship matrix used in simulation studies]{Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.}\label{fig:plot-kinship-sim}
+\end{figure}
+
+
+\end{knitrout}
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the simulated genotypes used to calculate the kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1} 
+
+}
+
+\caption[First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations]{First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations.}\label{fig:plot-pc-sim}
+\end{figure}
+
+
+\end{knitrout}
 
 Using this set-up, we randomly partitioned 1000 simulated observations into 80\% for training and 20\% for testing. The training set was used to fit the model and select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. We evaluated the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
 \begin{equation}\label{eq:correct_sparsity}
@@ -457,7 +479,18 @@ This result is encouraging since in practice the kinship matrix is constructed f
 
 %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=1\linewidth]{figure/plot-6in1-10percentHerit-1pcausal-allinkinship-1} 
+
+}
+
+\caption{Results from 200 replications for the scenario with 1\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\eta =10\%$. (A) Correct sparsity as defined by Equation~\eqref{eq:correct_sparsity}. (B) Estimation error defined as the squared distance between the estimated and true effect sizes (C) Root mean squared prediction error on the test set as a function of the number of selected variables. (D) True positive vs. false positive rate. (E) Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment. (F) Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect\norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.}\label{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}
+\end{figure}
+
+
+\end{knitrout}
 
 
 
@@ -525,6 +558,8 @@ Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
 
 
 
+
+
 %The true positive vs. false positive rate for the model with 1\% causal SNPs ($c=0.01$) is shown in Figure~\ref{fig:plot-tpr-fpr-sim-1p-causal}. B
 
 
@@ -564,7 +599,18 @@ On each simulated replicate, we calibrated the methods so that they could be eas
 All of the three mothods precisely choose the correct predictor without any false positives in more than half of the replicates, given the strong causal signal. When some false positives are selected, \ggmix ~performs comparably to \texttt{twostep}, and the \texttt{lasso} tends to select more false positives (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
 In terms of phenotype prediction, we observed that \ggmix ~outperforms the \texttt{twostep} method without requiring more SNPs, while it achieves roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=1\linewidth]{figure/GAW20-prediction-RMSE-activeVariable-1} 
+
+}
+
+\caption[Mean $\pm 1$ standard deviation of root mean squared error vs]{Mean $\pm 1$ standard deviation of root mean squared error vs. number of active variables used by each method on the GAW20 data. Diamonds represent median number of active variables and the corresponding root mean square error. Horizontal solid lines span from median to the 90th percentile; Horizontal dotted lines span from the 90th percentile to the 95th percentile.}\label{fig:GAW20-prediction-RMSE-activeVariable}
+\end{figure}
+
+
+\end{knitrout}
 
 \subsubsection{Mouse Crosses and Sensitivity to Mycobacterial Infection}
 
@@ -584,7 +630,18 @@ Significant markers are defined as those captured in at least half of the bootst
 We demonstrate that \ggmix ~recognizes the true associations more robustly than \texttt{twostep} and \texttt{lasso}. In almost all (99\%) bootstrap replicates, \ggmix ~is able to capture both true positives, while \texttt{twostep} failed in 19\% of the replicates and \texttt{lasso} failed in 56\% of the replicates by missing of at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}).
 We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. This locus is considered significant by our definition for both \ggmix ~and \texttt{lasso}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=1\linewidth]{figure/Mice-comparison-fixTPR-1} 
+
+}
+
+\caption[Comparison of model performance on the mouse cross data]{Comparison of model performance on the mouse cross data. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate $p$ value thresholds.}\label{fig:Mice-comparison-fixTPR}
+\end{figure}
+
+
+\end{knitrout}
 
 \newcolumntype{C}[1]{>{\Centering}m{#1}}
 \renewcommand\tabularxcolumn[1]{C{#1}}
@@ -1386,8 +1443,72 @@ and $(x)_+ = \max(x, 0)$.
 \newpage
 
 \section{Additional Simulation Results} \label{ap:ggmix_sim_results}
+
+
  
-\subsection{Null Model $(c = 0)$}
+\begin{table}
+
+\caption{\label{tab:print-sim-table-for-n-equal-to-k}Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\%, 30\%).
+                  For all simulations, sample size is $n=1000$ which is also equal to the number of SNPs used to estimate the kinship matrix is $k=1000$, and the number of fixed effects is $p_{fixed}=5000$.
+                  TPR at FPR=5\% is the true positive rate at a fixed false positive rate of 5\%.
+                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
+                  RMSE is the root mean squared error on the test set.
+                  Estimation error is the squared distance between the estimated and true effect sizes.
+                  Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect||\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}||_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.
+                  Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment.}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabu} to \linewidth {>{\bfseries}l>{\raggedright}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{4}{c}{Null model} & \multicolumn{4}{c}{1\% Causal SNPs} \\
+\cmidrule(l{3pt}r{3pt}){3-6} \cmidrule(l{3pt}r{3pt}){7-10}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10}
+Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
+\midrule
+\rowcolor{gray!6}   & twostep & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.84 (0.05) & 0.85 (0.05) & 0.29 (0.05) & 0.27 (0.05)\\
+
+\rowcolor{gray!6}   & lasso & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.86 (0.04) & 0.86 (0.05) & 0.87 (0.05)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash TPR at FPR=5\%} & ggmix & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.85 (0.05) & 0.84 (0.05) & 0.62 (0.07) & 0.65 (0.07)\\
+\cmidrule{1-10}
+ & twostep & 7 (18) & 6 (14) & 7 (18) & 6 (14) & 327 (61) & 332 (62) & 32 (38) & 27 (38)\\
+
+ & lasso & 9 (17) & 8 (16) & 9 (17) & 8 (16) & 284 (45) & 291 (51) & 289 (54) & 290 (54)\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Model Size} & ggmix & 0 (0) & 1 (1) & 0 (0) & 1 (1) & 44 (8) & 44 (8) & 2 (5) & 1 (2)\\
+\cmidrule{1-10}
+\rowcolor{gray!6}   & twostep & 1.02 (0.07) & 1.02 (0.07) & 1.02 (0.07) & 1.02 (0.07) & 1.41 (0.10) & 1.40 (0.10) & 3.64 (0.79) & 3.77 (0.77)\\
+
+\rowcolor{gray!6}   & lasso & 1.03 (0.07) & 1.03 (0.07) & 1.03 (0.07) & 1.03 (0.07) & 1.39 (0.09) & 1.39 (0.08) & 1.38 (0.09) & 1.36 (0.08)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash RMSE} & ggmix & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.23 (0.12) & 1.22 (0.12) & 4.11 (0.74) & 4.23 (0.67)\\
+\cmidrule{1-10}
+ & twostep & 0.12 (0.23) & 0.11 (0.20) & 0.12 (0.23) & 0.11 (0.20) & 2.90 (0.58) & 2.85 (0.61) & 35.07 (13.53) & 37.29 (13.21)\\
+
+ & lasso & 0.15 (0.24) & 0.14 (0.23) & 0.15 (0.24) & 0.14 (0.23) & 2.77 (0.47) & 2.77 (0.50) & 2.78 (0.45) & 2.73 (0.43)\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Estimation Error} & ggmix & 0.00 (0.01) & 0.02 (0.04) & 0.00 (0.01) & 0.02 (0.04) & 2.26 (1.41) & 2.20 (1.38) & 43.63 (13.31) & 45.48 (12.11)\\
+\cmidrule{1-10}
+\rowcolor{gray!6}   & twostep & 0.90 (0.06) & 0.70 (0.05) & 0.90 (0.06) & 0.70 (0.05) & 17.36 (2.93) & 17.24 (2.93) & 0.80 (0.19) & 0.61 (0.16)\\
+
+\rowcolor{gray!6}   & lasso & 0.98 (0.05) & 0.96 (0.06) & 0.98 (0.05) & 0.96 (0.06) & 1.04 (0.12) & 1.01 (0.12) & 1.01 (0.14) & 0.98 (0.14)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash Error Variance} & ggmix & 0.91 (0.06) & 0.70 (0.05) & 0.91 (0.06) & 0.70 (0.05) & 2.30 (0.43) & 2.07 (0.46) & 0.79 (0.19) & 0.60 (0.16)\\
+\cmidrule{1-10}
+ & twostep & 0.10 (0.05) & 0.30 (0.06) & 0.10 (0.05) & 0.30 (0.06) & 0.11 (0.05) & 0.12 (0.05) & 0.96 (0.02) & 0.97 (0.01)\\
+
+ & lasso & -- & -- & -- & -- & -- & -- & -- & --\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Heritability} & ggmix & 0.09 (0.05) & 0.30 (0.06) & 0.09 (0.05) & 0.30 (0.06) & 0.08 (0.06) & 0.15 (0.07) & 0.95 (0.02) & 0.97 (0.01)\\
+\bottomrule
+\end{tabu}
+\end{table}
+
+
+ 
+ 
+%\subsection{Null Model $(c = 0)$}
 
 
 
@@ -1414,7 +1535,7 @@ and $(x)_+ = \max(x, 0)$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{1\% of SNPs are Causal $(c = 0.01)$}
+%\subsection{1\% of SNPs are Causal $(c = 0.01)$}
 
 
 
@@ -1480,6 +1601,12 @@ To showcase the main functions in \ggmix, ~we will use the simulated data which 
 \hlkwd{data}\hlstd{(}\hlstr{"admixed"}\hlstd{)}
 \hlkwd{names}\hlstd{(admixed)}
 \end{alltt}
+\begin{verbatim}
+##  [1] "y"               "x"               "causal"         
+##  [4] "beta"            "kin"             "Xkinship"       
+##  [7] "not_causal"      "causal_positive" "causal_negative"
+## [10] "x_lasso"
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1502,6 +1629,13 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 \hlstd{popkin}\hlopt{::}\hlkwd{plotPopkin}\hlstd{(admixed}\hlopt{$}\hlstd{kin)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-popkin-1} 
+
+}
+
+
+
 \end{knitrout}
 
 \subsection{Fit the linear mixed model with Lasso Penalty}
@@ -1513,8 +1647,19 @@ We will use the most basic call to the main function of this package, which is c
 \begin{alltt}
 \hlstd{fit} \hlkwb{<-} \hlkwd{ggmix}\hlstd{(}\hlkwc{x} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{y} \hlstd{= admixed}\hlopt{$}\hlstd{y,} \hlkwc{kinship} \hlstd{= admixed}\hlopt{$}\hlstd{kin)}
 \hlkwd{names}\hlstd{(fit)}
+\end{alltt}
+\begin{verbatim}
+##  [1] "result"       "ggmix_object" "n_design"     "p_design"    
+##  [5] "lambda"       "coef"         "b0"           "beta"        
+##  [9] "df"           "eta"          "sigma2"       "nlambda"     
+## [13] "cov_names"    "call"
+\end{verbatim}
+\begin{alltt}
 \hlkwd{class}\hlstd{(fit)}
 \end{alltt}
+\begin{verbatim}
+## [1] "lassofullrank" "ggmix_fit"
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1526,6 +1671,13 @@ We can see the solution path for each variable by calling the \texttt{plot} meth
 \hlkwd{plot}\hlstd{(fit)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-solution-path-1} 
+
+}
+
+
+
 \end{knitrout}
 
 We can also get the coefficients for given value(s) of lambda using the \texttt{coef} method for objects of class \texttt{ggmix\_fit}:
@@ -1536,6 +1688,15 @@ We can also get the coefficients for given value(s) of lambda using the \texttt{
 \hlcom{# only the first 5 coefficients printed here for brevity}
 \hlkwd{coef}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{))[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ]}
 \end{alltt}
+\begin{verbatim}
+## 5 x 2 Matrix of class "dgeMatrix"
+##                      1            2
+## (Intercept) -0.3824525 -0.030224599
+## X62          0.0000000  0.000000000
+## X185         0.0000000  0.001444518
+## X371         0.0000000  0.009513475
+## X420         0.0000000  0.000000000
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 Here, \texttt{s} specifies the value(s) of $\lambda$ at which the extraction is made. The function uses linear interpolation to make predictions for values of \texttt{s} that do not coincide with the lambda sequence used in the fitting algorithm.
@@ -1549,6 +1710,14 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 \hlcom{# predict for the first 5 subjects}
 \hlkwd{predict}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{),} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
+\begin{verbatim}
+##               1          2
+## id1 -1.19165061 -1.3123392
+## id2 -0.02913052  0.3885923
+## id3 -2.00084875 -2.6460043
+## id4 -0.37255277 -0.9542463
+## id5 -1.03967831 -2.1377268
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1563,7 +1732,11 @@ We use the Generalized Information Criterion (GIC) to select the optimal value f
 \hlcom{# pass the fitted object from ggmix to the gic function:}
 \hlstd{hdbic} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit)}
 \hlkwd{class}\hlstd{(hdbic)}
-
+\end{alltt}
+\begin{verbatim}
+## [1] "ggmix_gic"     "lassofullrank" "ggmix_fit"
+\end{verbatim}
+\begin{alltt}
 \hlcom{# we can also fit the BIC by specifying the an argument}
 \hlstd{bicfit} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit,} \hlkwc{an} \hlstd{=} \hlkwd{log}\hlstd{(}\hlkwd{length}\hlstd{(admixed}\hlopt{$}\hlstd{y)))}
 \end{alltt}
@@ -1578,6 +1751,13 @@ We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} met
 \hlkwd{plot}\hlstd{(hdbic)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-hdbic-1} 
+
+}
+
+
+
 \end{knitrout}
 
 The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that leads to the minium HDBIC is:
@@ -1587,6 +1767,9 @@ The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that
 \begin{alltt}
 \hlstd{hdbic[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
+\begin{verbatim}
+## [1] 0.05596623
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1597,8 +1780,20 @@ We can also plot the BIC results:
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(bicfit,} \hlkwc{ylab} \hlstd{=} \hlstr{"BIC"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-bic-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
 \hlstd{bicfit[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
+\begin{verbatim}
+## [1] 0.05596623
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1612,6 +1807,15 @@ We can use the object outputted by the \texttt{gic} function to extract the coef
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ,} \hlkwc{drop} \hlstd{=} \hlnum{FALSE}\hlstd{]}
 \end{alltt}
+\begin{verbatim}
+## 5 x 1 sparse Matrix of class "dgCMatrix"
+##                      1
+## (Intercept) -0.2668419
+## X62          .        
+## X185         .        
+## X371         .        
+## X420         .
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1622,6 +1826,19 @@ We can also extract just the nonzero coefficients which also provide the estimat
 \begin{alltt}
 \hlkwd{coef}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"nonzero"}\hlstd{)}
 \end{alltt}
+\begin{verbatim}
+##                       1
+## (Intercept) -0.26684191
+## X336        -0.67986393
+## X7638        0.43403365
+## X1536        0.93994982
+## X1943        0.56600730
+## X2849       -0.58157979
+## X56         -0.08244685
+## X4106       -0.35939830
+## eta          0.26746240
+## sigma2       0.98694300
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1632,6 +1849,14 @@ We can also make predictions from the \texttt{hdbic} object, which by default wi
 \begin{alltt}
 \hlkwd{predict}\hlstd{(hdbic,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
+\begin{verbatim}
+##              1
+## id1 -1.3061041
+## id2  0.2991654
+## id3 -2.3453664
+## id4 -0.4486012
+## id5 -1.3895793
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1645,6 +1870,9 @@ The user can compute the random effects using the provided \texttt{ranef} method
 \begin{alltt}
 \hlkwd{ranef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{]}
 \end{alltt}
+\begin{verbatim}
+## [1] -0.02548691 -0.10011680  0.13020240 -0.30650997  0.16045768
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -1663,6 +1891,13 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"predicted"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-obs-pred-1} 
+
+}
+
+
+
 \end{knitrout}
 
 
@@ -1672,9 +1907,25 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQranef"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQresid"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-qqplot-2} 
+
+}
+
+
+
 \end{knitrout}
 
 
@@ -1686,6 +1937,13 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"Tukey"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
 \end{alltt}
 \end{kframe}
+
+{\centering \includegraphics[width=1\linewidth]{figure/ggmix-tukey-1} 
+
+}
+
+
+
 \end{knitrout}
 
 

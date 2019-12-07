@@ -36,7 +36,7 @@ DT[, p_causal := case_when(percentcausal == "percent_causal_0" ~ "Null model",
 
 DT[, p_causal := factor(p_causal, levels = c("Null model","1% of SNPs are causal"))]
 
-DT[,table(geography)]
+# DT[,table(geography)]
 # DT[geography == "geography_ind", structure := "block"]
 # DT[geography == "geography_circ", structure := "circular"]
 ## --PATCH- # to keep code with as little change as possible, im renaming 1D to block
@@ -162,14 +162,67 @@ kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","
 
 ## ---- table-of-results-for-n-equal-to-k ----
 
-DT$RMSE <- sqrt(DT$mse)
+df2 <- readRDS("/home/sahir/git_repositories/ggmix/simulation/simulation_results/dec_5_2019_results.rds") # this has n=1000=k=1000
+
+df2 <- df2 %>% separate(Model,
+                      into = c("simnames","b0","beta_mean","eta_p","Fst","geography","k","n",
+                               "pkinship","ptest","percentcausal",
+                               "percentoverlap","s","sigma2_p"),
+                      sep = "/")
+
+DT2 <- data.table::as.data.table(df2, stringsAsFactors = FALSE)
+
+# DT[, table(percentoverlap, p_overlap)]
+DT2[, p_overlap := case_when(percentoverlap == "percent_overlap_0" ~ "No causal SNPs in Kinship",
+                            percentoverlap == "percent_overlap_100" ~ "All causal SNPs in Kinship")]
+DT2[, p_causal := case_when(percentcausal == "percent_causal_0" ~ "Null model",
+                           percentcausal == "percent_causal_0.01" ~ "1% of SNPs are causal")]
+
+DT2[, p_causal := factor(p_causal, levels = c("Null model","1% of SNPs are causal"))]
+
+# DT2[,table(geography)]
+# DT[geography == "geography_ind", structure := "block"]
+# DT[geography == "geography_circ", structure := "circular"]
+## --PATCH- # to keep code with as little change as possible, im renaming 1D to block
+## because everything below is for "block". Even though, the may7th results are for 1D structure.
+DT2[geography == "geography_1d", structure := "block"]
+# DT[, table(geography, structure)]
+# DT[, structure := factor(structure, levels = c("block","1D","circular"))]
+DT2[, structure := factor(structure, levels = c("block"))]
+DT2[, eta_p := case_when(eta_p == "eta_0.1" ~ "10% Heritability",
+                        eta_p == "eta_0.3" ~ "30% Heritability")]
+# DT[, table(eta_p)]
+# use twostepY, which compares to the original Y
+# DT[, table(Method)]
+# DT <- DT[Method %ni% c("twostep","twostepY","lasso1se")]
+# DT[Method == "twostepY", Method := "twostep"]
+DT2[Method == "twostepYVCCV", Method := "twostep"]
+DT2[Method == "lassoCV", Method := "lasso"]
+DT2[Method == "ggmixHDBIC", Method := "ggmix"]
+# DT <- DT[Method != "lasso"]
+# DT[Method == "lasso1se", Method := "lasso"]
+# DT[,table(Method)]
+# DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
+DT2[, Method := factor(Method, levels = c("twostep","lasso","ggmix"))]
+# DT[, table(percentcausal,p_causal)]
+# DT[, Method := factor(Method, levels = c("twostep","twostepY","lasso","ggmix"))]
+# DT[, table(Method)]
+
+DT2[Method == "twostep", errorvar := sigma2]
+DT2[Method == "twostep", tau := eta]
+DT2[Method == "twostep", eta := tau/(tau + sigma2)]
+
+DT2[, me2 := (1/1000) * me^2]
+
+
+DT2$RMSE <- sqrt(DT2$mse)
 # tt <- DT %>% tidyr::pivot_longer(cols = c("me","prederror","tpr","fpr","nactive",
 #                                     "eta","sigma2","tprFPR5","nactiveFPR5",
 #                                     "correct_sparsity","mse","RMSE","errorvar","estimationerror",
 #                                     "time","tau","sigma2","me2"),
 #                                  names_to = "metric")
 
-tt <- DT %>%
+tt2 <- DT2 %>%
   group_by(Method, eta_p, p_overlap, p_causal) %>%
   summarise(RMSE = qwraps2::mean_sd(RMSE, denote_sd = "paren"),
             TPR = qwraps2::mean_sd(tprFPR5, denote_sd = "paren"),
@@ -178,11 +231,11 @@ tt <- DT %>%
             Estimationerror = qwraps2::mean_sd(estimationerror, denote_sd = "paren"),
             Nactive = qwraps2::mean_sd(nactive, digits = 0, denote_sd = "paren"))
 
-tt[tt$Method=="lasso","Heritability"] <- "--"
+tt2[tt2$Method=="lasso","Heritability"] <- "--"
 
 
 
-pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estimationerror","Nactive"),
+pt2 <- tt2 %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estimationerror","Nactive"),
                           names_to = "metric") %>%
   unite(col = "type", p_causal,p_overlap,eta_p) %>%
   mutate(type = factor(type,
@@ -210,11 +263,11 @@ pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estim
          "1% of SNPs are causal_All causal SNPs in Kinship_30% Heritability")
 
 
-## ---- print-sim-table ----
+## ---- print-sim-table-for-n-equal-to-k ----
 
-kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
+kable(pt2, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
       caption = c("Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\\%, 30\\%).
-                  For all simulations, sample size is $n=1000$, the number of fixed effects is $p_{fixed}=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  For all simulations, sample size is $n=1000$ which is also equal to the number of SNPs used to estimate the kinship matrix is $k=1000$, and the number of fixed effects is $p_{fixed}=5000$.
                   TPR at FPR=5\\% is the true positive rate at a fixed false positive rate of 5\\%.
                   Model Size is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
                   RMSE is the root mean squared error on the test set.

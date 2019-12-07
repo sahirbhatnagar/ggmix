@@ -138,7 +138,7 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
     vnames <- dimnames(nall)[[1]]
     dimnames(nall) <- list(NULL, NULL)
     lambda <- object[["lambda"]]
-    lamlist <- glmnet::lambda.interp(lambda, s)
+    lamlist <- lambda.interp(lambda, s)
     if (length(s) == 1) {
       nall <- nall[, lamlist$left, drop = FALSE] * lamlist$frac +
         nall[, lamlist$right, drop = FALSE] * (1 -
@@ -161,9 +161,9 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
   if (type == "nonzero") {
     nall.mat <- as.matrix(nall)
     if (length(s) == 1) {
-      return(nall.mat[glmnet::nonzeroCoef(nall.mat, bystep = TRUE)[[1]], , drop = FALSE])
+      return(nall.mat[nonzeroCoef(nall.mat, bystep = TRUE)[[1]], , drop = FALSE])
     } else {
-      nzs <- glmnet::nonzeroCoef(nall.mat, bystep = TRUE)
+      nzs <- nonzeroCoef(nall.mat, bystep = TRUE)
       return(lapply(seq_along(nzs), function(i) nall.mat[nzs[[i]], i, drop = FALSE]))
     }
   }
@@ -388,7 +388,7 @@ coef.ggmix_gic <- function(object, s = c("lambda.min"), type, ...) {
 #     vnames <- dimnames(nbeta)[[1]]
 #     dimnames(nbeta) <- list(NULL, NULL)
 #     lambda <- object$lambda
-#     lamlist <- glmnet::lambda.interp(lambda, s)
+#     lamlist <- lambda.interp(lambda, s)
 #     if (length(s) == 1) {
 #       nbeta <- nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
 #         nbeta[, lamlist$right, drop = FALSE] * (1 -

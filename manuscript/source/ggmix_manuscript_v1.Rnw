@@ -210,7 +210,7 @@ knitr::read_chunk("../bin/simulation.R")
 knitr::read_chunk("../bin/RealData.R")
 
 # set to FALSE if still in development and you dont want to run the R code
-finalversion <- FALSE
+finalversion <- TRUE
 @
 
 <<packages, eval=TRUE>>=
@@ -381,14 +381,14 @@ where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effe
 
 Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
 
-<<plot-kinship-sim, fig.pos = 'H', fig.cap="Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.", eval=finalversion>>=
+<<plot-kinship-sim, fig.pos = 'H', fig.cap="Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.", eval=finalversion, cache=TRUE>>=
 # need to fixed the gen_structured_function for updated functions. use model_functions make_ADmixed_model to make
 # a non-simulator version to replce the gen_structured_function
 @
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the simulated genotypes used to calculate the kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
 
-<<plot-pc-sim, fig.pos = 'H', fig.cap="First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations.", eval=finalversion>>=
+<<plot-pc-sim, fig.pos = 'H', fig.cap="First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations.", eval=finalversion, cache=TRUE>>=
 @
 
 Using this set-up, we randomly partitioned 1000 simulated observations into 80\% for training and 20\% for testing. The training set was used to fit the model and select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. We evaluated the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
@@ -439,6 +439,8 @@ This result is encouraging since in practice the kinship matrix is constructed f
 
 <<print-sim-table, results='asis'>>=
 @
+
+
 
 
 %The true positive vs. false positive rate for the model with 1\% causal SNPs ($c=0.01$) is shown in Figure~\ref{fig:plot-tpr-fpr-sim-1p-causal}. B
@@ -1306,31 +1308,38 @@ and $(x)_+ = \max(x, 0)$.
 \newpage
 
 \section{Additional Simulation Results} \label{ap:ggmix_sim_results}
+
+<<table-of-results-for-n-equal-to-k>>=
+@
  
-\subsection{Null Model $(c = 0)$}
+<<print-sim-table-for-n-equal-to-k, results='asis'>>=
+@
+ 
+ 
+%\subsection{Null Model $(c = 0)$}
 
-<<plot-correct-sparsity-sim-null-model, dev="cairo_pdf", fig.asp=0.7, fig.width=12, fig.height=9, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
+<<plot-correct-sparsity-sim-null-model, dev="cairo_pdf", fig.asp=0.7, fig.width=12, fig.height=9, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
 @
 
-<<plot-estimation-error-sim-null-model, dev="cairo_pdf", fig.asp=0.7, fig.width=12, fig.height=9, fig.pos = 'h', fig.cap="Boxplots of the estimation error from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
+<<plot-estimation-error-sim-null-model, dev="cairo_pdf", fig.asp=0.7, fig.width=12, fig.height=9, fig.pos = 'h', fig.cap="Boxplots of the estimation error from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
 @
 
-<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Root mean squared prediction error on the test set vs number of active variables from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
-@
-
-
-<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
-@
-
-
-<<plot-eta-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=9, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
-@
-
-<<plot-errorvar-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=finalversion>>=
+<<plot-mse-nactive-sim-null, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Root mean squared prediction error on the test set vs number of active variables from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
 @
 
 
-<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for \\texttt{twostep}, \\texttt{lasso} and \\texttt{ggmix}.", eval=finalversion>>=
+<<plot-tpr-fpr-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
+@
+
+
+<<plot-eta-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=9, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 simulations by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
+@
+
+<<plot-errorvar-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$.", eval=FALSE>>=
+@
+
+
+<<plot-runtime-sim-null-model, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) for null model for \\texttt{twostep}, \\texttt{lasso} and \\texttt{ggmix}.", eval=FALSE>>=
 @
 
 
@@ -1343,38 +1352,38 @@ and $(x)_+ = \max(x, 0)$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{1\% of SNPs are Causal $(c = 0.01)$}
+%\subsection{1\% of SNPs are Causal $(c = 0.01)$}
 
-<<plot-correct-sparsity-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+<<plot-correct-sparsity-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the correct sparsity from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
-<<plot-estimation-error-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the estimation error from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+<<plot-estimation-error-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'h', fig.cap="Boxplots of the estimation error from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
 \FloatBarrier
 
-<<plot-tpr-fpr-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+<<plot-tpr-fpr-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Means $\\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
-<<plot-eta-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+<<plot-eta-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Boxplots of the heritability estimate $\\hat{\\eta}$ from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
-<<plot-errorvar-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
-
-
-
-<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Root mean squared prediction error on the test set vs. the number of active variables from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
-@
-
-
-<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$), for 1\\% causal SNPs for \\texttt{ggmix} and \\texttt{lasso} only.", eval=finalversion>>=
+<<plot-errorvar-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.heigh=11, fig.pos = 'H', fig.cap="Boxplots of the estimated error variance from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
 
 
+<<plot-mse-nactive-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Root mean squared prediction error on the test set vs. the number of active variables from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
+@
 
-<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=finalversion>>=
+
+<<plot-mse-nactive-sim-1p-causal-zoom-in, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Mean squared error vs number of active variables results from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$), for 1\\% causal SNPs for \\texttt{ggmix} and \\texttt{lasso} only.", eval=FALSE>>=
+@
+
+
+
+
+<<plot-runtime-sim-1p-causal, dev="cairo_pdf", fig.asp=0.8, fig.width=12, fig.height=11, fig.pos = 'H', fig.cap="Run time (in log seconds) from 200 replications by the true heritability $\\eta = \\lbrace 10\\%, 30\\% \\rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\\% causal SNPs ($c=0.01$).", eval=FALSE>>=
 @
 
 

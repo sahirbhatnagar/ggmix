@@ -408,7 +408,77 @@ l2norm <- function(x) sqrt(sum(x^2))
 
 "%ni%" <- Negate("%in%")
 
+# internal function
+# taken verbatim from glmnet package.
+# it used to be exported by glmnet, but is no longer exported.
+lambda.interp <- function (lambda, s) {
+  if (length(lambda) == 1) {
+    nums = length(s)
+    left = rep(1, nums)
+    right = left
+    sfrac = rep(1, nums)
+  }
+  else {
+    s[s > max(lambda)] = max(lambda)
+    s[s < min(lambda)] = min(lambda)
+    k = length(lambda)
+    sfrac <- (lambda[1] - s)/(lambda[1] - lambda[k])
+    lambda <- (lambda[1] - lambda)/(lambda[1] - lambda[k])
+    coord <- approx(lambda, seq(lambda), sfrac)$y
+    left <- floor(coord)
+    right <- ceiling(coord)
+    sfrac = (sfrac - lambda[right])/(lambda[left] - lambda[right])
+    sfrac[left == right] = 1
+    sfrac[abs(lambda[left] - lambda[right]) < .Machine$double.eps] = 1
+  }
+  list(left = left, right = right, frac = sfrac)
+}
 
+
+
+# internal function
+# taken verbatim from glmnet package.
+# it used to be exported by glmnet, but is no longer exported.
+nonzeroCoef <- function (beta, bystep = FALSE) {
+  nr = nrow(beta)
+  if (nr == 1) {
+    if (bystep)
+      apply(beta, 2, function(x) if (abs(x) > 0)
+        1
+        else NULL)
+    else {
+      if (any(abs(beta) > 0))
+        1
+      else NULL
+    }
+  }
+  else {
+    beta = abs(beta) > 0
+    which = seq(nr)
+    ones = rep(1, ncol(beta))
+    nz = as.vector((beta %*% ones) > 0)
+    which = which[nz]
+    if (bystep) {
+      if (length(which) > 0) {
+        beta = as.matrix(beta[which, , drop = FALSE])
+        nzel = function(x, which) if (any(x))
+          which[x]
+        else NULL
+        which = apply(beta, 2, nzel, which)
+        if (!is.list(which))
+          which = data.frame(which)
+        which
+      }
+      else {
+        dn = dimnames(beta)[[2]]
+        which = vector("list", length(dn))
+        names(which) = dn
+        which
+      }
+    }
+    else which
+  }
+}
 
 
 
