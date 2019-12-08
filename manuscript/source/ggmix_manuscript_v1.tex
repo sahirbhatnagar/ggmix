@@ -381,7 +381,7 @@ In this section we demonstrate the performance of \texttt{ggmix} in a simulation
 %results should be written in past tense for plos genetics
 \subsection{Simulation Study} \label{simustudy}
 
-We evaluated the performance of \texttt{ggmix} in a variety of simulated scenarios. For each simulation scenario we compared \texttt{ggmix} to the \texttt{lasso} and the \texttt{twostep} method. For the \texttt{lasso}, we included the top 10 principal components from the simulated genotypes used to calculate the kinship matrix as unpenalized predictors in the design matrix. For the \texttt{twostep} method, we first fitted an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\citep{gilmour1995average} as implemented in the \texttt{gaston} R package~\citep{gaston}. The residuals from this model were then used as the response in a regular \texttt{lasso} model. Note that in the \texttt{twostep} method, we removed the kinship effect in the first step and therefore did not need to make any further adjustments when fitting the penalized model. We fitted the \texttt{lasso} using the default settings and \texttt{standardize=FALSE} in the \texttt{glmnet} package~\citep{friedman2010regularization}. For other parameters in our simulation study, we defined the following quantities:
+We evaluated the performance of \texttt{ggmix} in a variety of simulated scenarios. For each simulation scenario we compared \texttt{ggmix} to the \texttt{lasso} and the \texttt{twostep} method. For the \texttt{lasso}, we included the top 10 principal components from the simulated genotypes used to calculate the kinship matrix as unpenalized predictors in the design matrix. For the \texttt{twostep} method, we first fitted an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\citep{gilmour1995average} as implemented in the \texttt{gaston} R package~\citep{gaston}. The residuals from this model were then used as the response in a regular \texttt{lasso} model. Note that in the \texttt{twostep} method, we removed the kinship effect in the first step and therefore did not need to make any further adjustments when fitting the penalized model. We fitted the \texttt{lasso} using the default settings and \texttt{standardize=FALSE} in the \texttt{glmnet} package~\citep{friedman2010regularization}, with 10-fold cross-validation to select the optimal tuning parameter. For other parameters in our simulation study, we defined the following quantities:
 
 \begin{itemize}
 	\item $n$: sample size
@@ -408,14 +408,14 @@ We simulated data from the model
 \begin{equation}
 \bY = \bX \bbeta + \mathbf{P} + \be
 \end{equation}
-where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix calculated from the \textit{kinship} SNPs, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.3 \rbrace$, number of covariates $p = 5,000$, number of \textit{kinship} SNPs $k = 10,000$, percentage of \textit{causal} SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the \textit{causal} list and the \textit{kinship} list. We considered two main scenarios:
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix based on the \textit{kinship} SNPs from $n$ individuals, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.3 \rbrace$, number of covariates $p = 5,000$, number of \textit{kinship} SNPs $k = 10,000$, percentage of \textit{causal} SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the \textit{causal} list and the \textit{kinship} list. We considered two main scenarios:
 
 \begin{enumerate}
 	\item None of the \textit{causal} SNPs are included in \textit{kinship} set.
 	\item All of the \textit{causal} SNPs are included in the \textit{kinship} set.
 \end{enumerate}
 
-Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
+Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects (referred to as proximal contamination~\citep{lippert2011fast}) versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -445,14 +445,7 @@ In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores
 
 \end{knitrout}
 
-Using this set-up, we randomly partitioned 1000 simulated observations into 80\% for training and 20\% for testing. The training set was used to fit the model and select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. We evaluated the methods based on correct sparsity defined as $\frac{1}{p} \sum_{j=1}^{p} A_j$, where
-\begin{equation}\label{eq:correct_sparsity}
-A_j = \begin{cases}
-1 & \tm{if } (\widehat{\bbeta}_{\hat{\lambda}})_j= (\bbeta)_j = 0\\
-1 & \tm{if } (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0, (\bbeta)_j \neq 0\\
-0 & \tm{otherwise}.
-\end{cases}
-\end{equation} We also compared the test set prediction error based on the refitted unpenalized estimates for each selected model, the estimation error ($||\widehat{\bbeta} - \bbeta||_2^2$), true positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \in  S_0|}{|S_0|}$), false positive rate ($\sfrac{|\widehat{S}_{\hat{\lambda}} \notin S_0|}{|j \notin S_0|}$), and the variance components ($\eta, \sigma^2$) for the polygenic random effect and error term. %The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
+Using this set-up, we randomly partitioned 1000 simulated observations into 80\% for training and 20\% for testing. The training set was used to fit the model and select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. To compare the methods in the context of true positive rate (TPR), we selected the largest tuning parameter that would result in a false positive rate (FPR) closest to 5\%, but not more. We also compared the model size ($|\widehat{S}_{\hat{\lambda}}|$), test set prediction error based on the refitted unpenalized estimates for each selected model, the estimation error ($||\widehat{\bbeta} - \bbeta||_2^2$), and the variance components ($\eta, \sigma^2$) for the polygenic random effect and error term. %The following estimator is used for the error variance of the lasso~\citep{reid2016study}:
 %\begin{equation}
 %\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2
 %\end{equation}
@@ -461,10 +454,16 @@ A_j = \begin{cases}
 
 
 
-In Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}, we present the results for the scenario with 1\% causal SNPs ($c=0.01$) which were all used in the calculation of the kinship matrix and true heritability $\eta =$10\%. The complete simulation results are shown in supplementary Section~\ref{ap:ggmix_sim_results}. We see that \ggmix ~outperformed both the \texttt{twostep} and \texttt{lasso} in terms of correct sparsity and estimation error (Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panels A and B). This was true regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix (Figures~\ref{fig:plot-correct-sparsity-sim-null-model},~\ref{fig:plot-correct-sparsity-sim-1p-causal},~\ref{fig:plot-estimation-error-sim-null-model} and~\ref{fig:plot-estimation-error-sim-1p-causal}). Across all simulation scenarios, \texttt{ggmix} had the smallest root mean squared prediction error (RMSE) on the test set while also producing the most parsimonious models (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel B,~\ref{fig:plot-mse-nactive-sim-null} and \ref{fig:plot-mse-nactive-sim-1p-causal}). Both the \texttt{lasso} and \texttt{twostep} had on average, slightly higher true positive rate compared to \ggmix ~but came at the cost of a higher false positive rate (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel D,~\ref{fig:plot-tpr-fpr-sim-null-model} and~\ref{fig:plot-tpr-fpr-sim-1p-causal}). Both the \texttt{twostep} and \ggmix ~overestimated the heritability though \ggmix ~was closer to the true value (Figure~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel E). When none of the causal SNPs were in the kinship, both methods tended to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=30\%$ (Figure~\ref{fig:plot-eta-sim-1p-causal}). Across all simulation scenarios \texttt{ggmix} was able to (on average) correctly estimate the error variance (Figures~\ref{fig:plot-6in1-10percentHerit-1pcausal-allinkinship} panel F, \ref{fig:plot-errorvar-sim-null-model} and~\ref{fig:plot-errorvar-sim-1p-causal}). The \texttt{lasso} tended to overestimate $\sigma^2$ in the null model while the \texttt{twostep} overestimated $\sigma^2$ when none of the causal SNPs were in the kinship matrix. 
+The results are summarized in Table~\ref{tab:print-sim-table}. We see that \ggmix ~outperformed the \texttt{twostep} in terms of TPR, and was comparable to the \texttt{lasso}. This was the case, regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix. Across all simulation scenarios, \texttt{ggmix} had the smallest estimation error, and smallest root mean squared prediction error (RMSE) on the test set while also producing the most parsimonious models. Both the \texttt{lasso} and \texttt{twostep} selected more false positives, even in the null model scenario. Both the \texttt{twostep} and \ggmix ~overestimated the heritability though \ggmix ~was closer to the true value. When none of the causal SNPs were in the kinship, both methods tended to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=30\%$. Across all simulation scenarios \texttt{ggmix} was able to (on average) correctly estimate the error variance. The \texttt{lasso} tended to overestimate $\sigma^2$ in the null model while the \texttt{twostep} overestimated $\sigma^2$ when none of the causal SNPs were in the kinship matrix. 
 
 Overall, we observed that variable selection results and RMSE for \ggmix ~were similar regardless of whether the causal SNPs were in the kinship matrix or not.
-This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal, particularly in polygenic traits. \ggmix ~had very good Type 1 and II error control, while both the \texttt{lasso} and \texttt{twostep} had a very high false positive rate in all simulation scenarios. In particular, our simulation results show that the principal component adjustment method may not be the best approach to control for confounding by population structure, particularly when variable selection is of interest. 
+This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal, particularly in polygenic traits. %However, as pointed out by a reviewer, Yang et al.~\citep{yang2014advantages} showed that proximal contamination is not likely to be an issue 
+
+
+%\ggmix ~had very good Type 1 and II error control, while both the \texttt{lasso} and \texttt{twostep} had a very high false positive rate in all simulation scenarios. 
+
+
+In particular, our simulation results show that the principal component adjustment method may not be the best approach to control for confounding by population structure, particularly when variable selection is of interest. 
 
 
 %Inclusion of the causal SNPs in the kinship calculation had the strongest impact on the variance component estimation with the heritabilty and error variance estimates working in opposite directions.
@@ -491,9 +490,9 @@ This result is encouraging since in practice the kinship matrix is constructed f
 \begin{table}
 
 \caption{\label{tab:print-sim-table}Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\%, 30\%).
-                  For all simulations, sample size is $n=1000$, the number of fixed effects is $p_{fixed}=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  For all simulations, sample size is $n=1000$, the number of covariates is $p=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
                   TPR at FPR=5\% is the true positive rate at a fixed false positive rate of 5\%.
-                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
+                  Model Size ($|\widehat{S}_{\hat{\lambda}}|$) is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
                   RMSE is the root mean squared error on the test set.
                   Estimation error is the squared distance between the estimated and true effect sizes.
                   Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect||\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}||_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.
@@ -514,11 +513,11 @@ Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
 
 \rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash TPR at FPR=5\%} & ggmix & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.86 (0.05) & 0.85 (0.05) & 0.86 (0.05)\\
 \cmidrule{1-10}
- & twostep & 7 (15) & 5 (12) & 7 (15) & 5 (12) & 338 (71) & 339 (68) & 289 (62) & 286 (55)\\
+ & twostep & 0 (0, 5) & 0 (0, 2) & 0 (0, 5) & 0 (0, 2) & 328 (289, 388) & 332 (287, 385) & 284 (250, 329) & 284 (253, 319)\\
 
- & lasso & 7 (14) & 7 (17) & 7 (14) & 7 (17) & 282 (51) & 281 (52) & 286 (51) & 284 (54)\\
+ & lasso & 0 (0, 6) & 0 (0, 5) & 0 (0, 6) & 0 (0, 5) & 278 (246, 317) & 276 (245, 314) & 279 (252, 321) & 285 (244, 319)\\
 
-\multirow{-3}{*}{\raggedright\arraybackslash Model Size} & ggmix & 0 (0) & 0 (0) & 0 (0) & 0 (0) & 44 (8) & 44 (8) & 44 (8) & 43 (9)\\
+\multirow{-3}{*}{\raggedright\arraybackslash Model Size} & ggmix & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 43 (39, 49) & 43 (39, 48) & 44 (38, 49) & 43 (38, 48)\\
 \cmidrule{1-10}
 \rowcolor{gray!6}   & twostep & 1.02 (0.07) & 1.02 (0.06) & 1.02 (0.07) & 1.02 (0.06) & 1.42 (0.10) & 1.41 (0.10) & 1.44 (0.33) & 1.40 (0.22)\\
 
@@ -544,6 +543,8 @@ Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
 
 \multirow{-3}{*}{\raggedright\arraybackslash Heritability} & ggmix & 0.15 (0.18) & 0.37 (0.21) & 0.15 (0.18) & 0.37 (0.21) & 0.18 (0.16) & 0.23 (0.17) & 0.59 (0.20) & 0.68 (0.19)\\
 \bottomrule
+\multicolumn{10}{l}{\textit{Note:}}\\
+\multicolumn{10}{l}{Median (Inter-quartile range) is given for Model Size.}\\
 \end{tabu}
 \end{table}
 
@@ -572,37 +573,84 @@ Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
 
 \subsection{Real Data Applications}
 
-Two datasets with contrasting features are used to illustrate the potential advantages of ~\ggmix ~over existing approaches such as PC adjustment in a \texttt{lasso} regression. In one dataset, family structure induces low levels of correlation and sparsity in signals. In the second, a dataset involving mouse crosses, correlations are extremely strong and can confound signals.
+Three datasets with different features were used to illustrate the potential advantages of ~\ggmix ~over existing approaches such as PC adjustment in a \texttt{lasso} regression. In the first two datasets, family structure induced low levels of correlation and sparsity in signals. In the last, a dataset involving mouse crosses, correlations were extremely strong and could confound signals.
 
-\subsubsection{GAW20}
+\subsubsection{UK Biobank}
 
-In the most recent Genetic Analysis Workship 20 (GAW20), the causal modeling group investigated causal relationships between DNA methylation (exposure) within some genes and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}.
-Penalized regression methods were used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV)~\citep{cherlin2018using,zhou2018analysis}.
-However, since GAW20 data consisted of families, \texttt{twostep} methods were used which could have resulted in a large number of false positives or false negatives. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the family structure of the data.
+With more than 500,000 participants, the UK Biobank is one of the largest genotyped health care registry. Among these participants, 147,731 have been inferred to be related to at least one individual in this cohort~\citep{bycroft2018uk}. Such a widespread genetic relatedness can largely confound association studies and bias trait predictions if not properly accounted for. Among these related individuals, 18,150 have documented familial relationship (parent-offspring, full siblings, second degree or third degree) that was previously inferred in ~\citep{biobank2015genotyping}. We attempted to derive a polygenic risk score for height among these individuals. We compared the \ggmix-derived polygenic risk score to those derived by the \texttt{twostep} and \texttt{lasso} methods.
 
-We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observations, and compared its performance to the \texttt{twostep} and \texttt{lasso} methods.
-Using a FaST-LMM (Factored Spectrally Transformed Linear Mixed Model)~\citep{howey2018application}, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
-Though several other SNPs are also associated with the phenotype, these associations are probably mediated by CpG-SNP interaction pairs and do not reach statistical significance.
-Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs where rs9661059 resides.
-Given that population admixture in the GAW20 data is likely, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix~.
-For both the \texttt{lasso} and \texttt{twostep} methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}, supplying the same kinship matrix estimated by REAP.
+We first estimated the pairwise kinship coefficient among the 18,150 reportedly related individuals based on 784,256 genotyped SNPs using KING~\citep{manichaikul2010robust}. We grouped related individuals with a kinship coefficient > 0.044~\citep{manichaikul2010robust} into 8,300 pedigrees. We then randomly split the dataset into a training set, a model selection set and a test set of roughly equal sample size, ensuring all individuals in the same pedigree were assigned into the same set. We inverse normalized the standing height after adjusting for age, sex, genotyping array, assessment center following Yengo et al~\citep{yengo2018meta}. 
 
-On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing the true positive rate to 1 and then minimizing the false positive rate. Hence, the selected SNP, rs9661059, is likely to be the true positive for each method, and non-causal SNPs are excluded to the greatest extent.
-All of the three mothods precisely choose the correct predictor without any false positives in more than half of the replicates, given the strong causal signal. When some false positives are selected, \ggmix ~performs comparably to \texttt{twostep}, and the \texttt{lasso} tends to select more false positives (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
-In terms of phenotype prediction, we observed that \ggmix ~outperforms the \texttt{twostep} method without requiring more SNPs, while it achieves roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Figure~\ref{fig:GAW20-prediction-RMSE-activeVariable}).
+To reduce computational complexity, we selected 10,000 SNPs with the largest effect sizes associated with height from a recent large meta-analysis~\citep{yengo2018meta}. Among these 10,000 SNPs, 1,233 were genotyped and were used for estimating the kinship whereas the rest 8,767 were imputed based on the Haplotype Reference Consortium reference panel~\citep{mccarthy2016reference}. We used \ggmix, \texttt{twostep} and \texttt{lasso} methods respectively to select SNPs being most predictive of the inverse normalized height on the training set. We optimized the choice of $\lambda$ based on prediction RMSE on the model selection set for each method. We finally examined the performance of each derived polygenic risk score on the test set. Similar to section ~\ref{simustudy}, we adjusted for the top 10 genetic PCs as unpenalized predictors when fitting the \texttt{lasso} models; in contrast to \ggmix, we removed the kinship effect in the first step of the \texttt{twostep} models using an AIREML algorithm~\citep{gilmour1995average}.
+
+We found that with a kinship matrix estimated using all genotyped SNPs, \ggmix ~had the possibility to achieve a lower RMSE on the model selection set compared to the \texttt{twostep} and \texttt{lasso} methods (Figure~\ref{fig:UKB-Figure}a). An optimized \ggmix-derived polygenic risk score that utilized the least number of SNPs was also able to better predict the trait with lower RMSE on the test set (Figure~\ref{fig:UKB-Figure}b).
+
+We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\citep{zhou2013polygenic} implemented in the GEMMA package~\citep{zhou2012genome} to derive a polygenic risk score on the training set. Subsequently, we found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}b).
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth]{figure/GAW20-prediction-RMSE-activeVariable-1} 
+{\centering \includegraphics[width=1\linewidth]{figure/UKB-Figure-1} 
 
 }
 
-\caption[Mean $\pm 1$ standard deviation of root mean squared error vs]{Mean $\pm 1$ standard deviation of root mean squared error vs. number of active variables used by each method on the GAW20 data. Diamonds represent median number of active variables and the corresponding root mean square error. Horizontal solid lines span from median to the 90th percentile; Horizontal dotted lines span from the 90th percentile to the 95th percentile.}\label{fig:GAW20-prediction-RMSE-activeVariable}
+\caption[Model selection and testing in the UK Biobank]{Model selection and testing in the UK Biobank. (A) Root-mean-square error of three methods on the model selection set with respect to a grid search of penalty factor used on the training set. (B) Performance of four methods on the test set with penalty factor optimized on the model selection set. The x-axis has a logarithmic scale. The BSLMM method optimized coefficients of each SNP through an MCMC process on the training set and was directly evaluated on the test set.}\label{fig:UKB-Figure}
 \end{figure}
 
 
 \end{knitrout}
+
+\begin{comment}
+\begin{knitrout}\scriptsize
+	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+		
+		{\centering \includegraphics[width=0.9\linewidth]{figure/UKB-Figure} 
+			
+		}
+		
+		\caption[Model selection and testing in the UK Biobank.]{Model selection and testing in the UK Biobank. (a) Root-mean-square error of three methods on the model selection set with respect to a grid search of penalty factor used on the training set. (b) Performance of four methods on the test set with penalty factor optimized on the model selection set. The x-axis has a logarithmic scale. The BSLMM method optimized coefficients of each SNP through an MCMC process on the training set and was directly evaluated on the test set.}\label{fig:UKB-Figure}
+	\end{figure}
+	
+	
+\end{knitrout}
+\end{comment}
+
+
+\subsubsection{GAW20}
+
+In the most recent Genetic Analysis Workship 20 (GAW20), the causal modeling group investigated causal relationships between DNA methylation (exposure) within some genes and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian Randomization (MR)~\citep{davey2003mendelian}.
+Penalized regression methods were used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV)~\citep{cherlin2018using,zhou2018analysis}.
+However, since GAW20 data consisted of families, \texttt{twostep} methods were used which could have resulted in a large number of false positives or false negatives. \ggmix~now provides an alternative approach that could be used for selecting the IV while accounting for the family structure of the data.
+
+We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observations, and compared its performance to the \texttt{twostep} and \texttt{lasso} methods.
+Using a Factored Spectrally Transformed Linear Mixed Model (FaST-LMM)~\citep{howey2018application} adjusted for age and sex, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
+Though several other SNPs were also associated with the phenotype, these associations were probably mediated by CpG-SNP interaction pairs and did not reach statistical significance.
+Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs, including rs9661059.
+Given that population admixture in the GAW20 data was likely, we estimated the population kinship using REAP~\citep{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\citep{alexander2009fast}. We supplied the estimated kinship matrix directly to \ggmix .
+For both the \texttt{lasso} and \texttt{twostep} methods, we adopted the same strategies as described in our simulation study in section ~\ref{simustudy}. We adjusted for age and sex and performed five-fold cross-validation on each simulation dataset.
+
+On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing the true positive rate to 1 and then minimizing the false positive rate. Hence, the selected SNP, rs9661059, was likely to be the true positive for each method, and non-causal SNPs were excluded to the greatest extent.
+All of the three methods precisely chose the correct predictor without any false positives in more than half of the replicates, as the causal signal was strong. However, when some false positives were selected (i.e. when the number of active variables > 1), \ggmix ~performed comparably to \texttt{twostep}, while the \texttt{lasso} was inclined to select more false positives as suggested by the larger third quartile number of active variables (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}).
+We also observed that \ggmix ~outperformed the \texttt{twostep} method with lower cross-validation RMSE without requiring more SNPs. Meanwhile, it achieved roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}).
+
+Again, we applied the \texttt{BSLMM} method by iteratively preforming five-fold cross-validation on each of the 200 simulated replicates. We found that the \texttt{BSLMM} achieved a lower cross-validation RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}). However, this relatively higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs supplied given the nature of this method. This may suggest overfitting in this dataset. It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} modeling, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.
+
+\newcolumntype{C}[1]{>{\Centering}m{#1}}
+\renewcommand\tabularxcolumn[1]{C{#1}}
+
+\begin{minipage}{\linewidth}
+	\bigskip
+	\captionof{table}{Summary of model performance based on 200 GAW20 simulations. Five-fold cross-validation root-mean-square error was reported for each simulation replicate.} \label{tab:GAW20-prediction-RMSE-activeVariable}
+	\begin{tabular}{ C{0.9in} C{3.5in} C{1.9in}}\toprule[1.5pt]
+		\bf Method & \bf Median number of active variables (Inter-quartile range) & \bf RMSE (SD) \\\midrule
+		\texttt{twostep} & 1 (1 - 11) & 0.3604 (0.0242) \\
+		\texttt{lasso} & 1 (1 - 15) & 0.3105 (0.0199) \\
+		\texttt{ggmix} & 1 (1 - 12) & 0.3146 (0.0210) \\
+		\texttt{BSLMM} & 40,737 (39,901 - 41,539) & 0.2503 (0.0099)\\
+		\bottomrule[1.25pt]
+		\end {tabular}\par
+		\bigskip
+	\end{minipage}
 
 \subsubsection{Mouse Crosses and Sensitivity to Mycobacterial Infection}
 
@@ -614,13 +662,13 @@ Therefore, a previous study developed and implemented a mixed model to find loci
 Here we show that \ggmix ~can identify these loci, as well as potentially others, in a single analysis. We reanalyzed the growth permissiveness in the spleen, as measured by colony forming units (CFUs), 6 weeks after infection from $Mycobacterium$ $bovis$ Bacille Calmette-Guerin (BCG) Russia strain as reported in ~\citep{di2010strain}.
 
 By taking the consensus between the ``main model'' and the ``conditional model'' of the original study, we regarded markers D1Mit435 on chromosome 1 and D11Mit119 on chromosome 11 as two true positive loci.
-Similar to the strategy used when analyzing the GAW20 data, we optimized models by tuning the penalty factor such that these two loci are picked up, while the number of other active loci is minimized.
-To evaluate robustness of different models, we bootstrapped the 189-sample dataset and repeated the analysis 200 times.
-We directly estimated the kinship between mice using genotypes at 625 microsatellite markers. The estimated kinship entered directly into \ggmix ~and \texttt{twostep}. For the \texttt{lasso}, we calculated and included the first 10 principal components of the estimated kinship.
-Significant markers are defined as those captured in at least half of the bootstrap replicates, and in which the corresponding method successfully captures both pre-selected true positives with a penalty factor minimizing the number of active loci (Figure~\ref{fig:Mice-comparison-fixTPR}).
+We directly estimated the kinship between mice using genotypes at 625 microsatellite markers. The estimated kinship entered directly into \ggmix ~and \texttt{twostep}. For the \texttt{lasso}, we calculated and included the first 10 principal components of the estimated kinship. To evaluate the robustness of different models, we bootstrapped the 189-sample dataset and repeated the analysis 200 times. We then conceived a two-fold criteria to evaluate performance of each model. We first examined whether a model could pick up both true positive loci using some $\lambda$. If the model failed to pick up both loci simultaneously with any $\lambda$, we counted as modeling failure on the corresponding boostrap replicate; Otherwise, we counted as modeling success and recorded which other loci were picked up given the largest $\lambda$. Consequently, similar to the strategy used in the GAW20 analysis, we optimized the models by tuning the penalty factor such that these two true positive loci were picked up, while the number of other active loci was minimized. 
+Significant markers were defined as those captured in at least half of the successful bootstrap replicates (Figure~\ref{fig:Mice-comparison-fixTPR}).
 
-We demonstrate that \ggmix ~recognizes the true associations more robustly than \texttt{twostep} and \texttt{lasso}. In almost all (99\%) bootstrap replicates, \ggmix ~is able to capture both true positives, while \texttt{twostep} failed in 19\% of the replicates and \texttt{lasso} failed in 56\% of the replicates by missing of at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}).
-We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. This locus is considered significant by our definition for both \ggmix ~and \texttt{lasso}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered.
+We demonstrated that \ggmix ~recognized the true associations more robustly than \texttt{twostep} and \texttt{lasso}. In almost all (99\%) bootstrap replicates, \ggmix ~was able to capture both true positives, while the \texttt{twostep} failed in 19\% of the replicates and the \texttt{lasso} failed in 56\% of the replicates by missing at least one of the two true positives (Figure~\ref{fig:Mice-comparison-fixTPR}). 
+We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered.
+
+We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -629,7 +677,7 @@ We also identified several other loci that might also be associated with suscept
 
 }
 
-\caption[Comparison of model performance on the mouse cross data]{Comparison of model performance on the mouse cross data. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate $p$ value thresholds.}\label{fig:Mice-comparison-fixTPR}
+\caption[Comparison of model performance on the mouse cross data]{Comparison of model performance on the mouse cross data. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate significance thresholds.}\label{fig:Mice-comparison-fixTPR}
 \end{figure}
 
 
@@ -680,7 +728,7 @@ To our knowledge, we are the first to develop a coordinate gradient descent (CGD
 
 Although we derive a CGD algorithm for the $\ell_1$ penalty, our approach can also be easily extended to other penalties such as the elastic net and group lasso with the same guarantees of convergence.
 %To our knowledge, we are the first to develop a CGD algorithm in the specific context of fitting a penalized LMM for population structure correction with theoretical guarantees of convergence. Furthermore, we develop a principled method for automatic tuning parameter selection and provide an easy-to-use software implementation in order to promote wider uptake of these more complex methods by applied practitioners.
-A limitation of \ggmix ~is that it first requires computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. This computation becomes prohibitive for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. We are currently developing a low rank version of the penalized LMM developed here, which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$.
+A limitation of \ggmix ~is that it first requires computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. This computation becomes prohibitive for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. While this has been developed for the univariate case~\citep{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. We are currently developing a low rank version of the penalized LMM developed here, which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$. As was brought up by a reviewer, the simulations and real data analyses presented here contained many more markers used to estimate the kinship than the sample size ($n/k \leq 0.1$). In the single locus association test, Yang el al.~\citep{yang2014advantages} found that proximal contamination was an issue when $n/k \approx 1$. We believe further theoretical study is needed to see if these results can be generalized to the multivariable models being fit here. Once the computational limitations of sample size mentioned above have been addressed, these theoretical results can be supported by simulation studies.
 
 %There is thus a need to develop newer methodologies that reflect the increasing size and genetic heterogeneity of the large cohort studies being assembled today.
 
@@ -1183,6 +1231,7 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 \section*{Availability of data and material}
 %The data sets supporting the results of this article are available in the repositories:
 \begin{enumerate}
+  \item The UK Biobank data is available upon successful project application.
 	\item The GAW20 data is freely available upon request from \url{https://www.gaworkshop.org/data-sets}.
 	\item Mouse cross data is available from GitHub at \url{https://github.com/sahirbhatnagar/ggmix/blob/pgen/RealData/mice.RData}. 
 	\item The entire simulation study is reproducible. Source code available at \url{https://github.com/sahirbhatnagar/ggmix/tree/pgen/simulation}. This includes scripts for \ggmix, ~\texttt{lasso} and \texttt{twostep} methods. 
@@ -1430,73 +1479,35 @@ and $(x)_+ = \max(x, 0)$.
 %We note that the parameter update for $\beta_j$ given by~\eqref{eq:betaUpdateSoft} takes the same form as the weighted updates of the \texttt{glmnet} algorithm~\citep{friedman2010regularization} (Section 2.4, equation (10)) with $\alpha=1$.
 
 
-\FloatBarrier
+%\FloatBarrier
 
-\newpage
+%\newpage
 
-\section{Additional Simulation Results} \label{ap:ggmix_sim_results}
+\section{LD structure among the markers in the GAW20 and the mouse dataset}\label{ap:ldplots}
+
+%In Table~\ref{tab:print-sim-table-for-n-equal-to-k}, we present additional simulation results for the situation when the sample size ($n=1000$) is equal to the number of SNPs used to estimate the kinship matrix ($k=1000$).  
+
+We illustrate the LD structure among the markers in the GAW20 dataset and the mouse dataset separately in Figures~\ref{fig:gaw20r2} and~\ref{fig:miceR2}, respectively. In Figure~\ref{fig:gaw20r2}, we show the pairwise $r^2$ for 655 SNPs within a 1Mb-window around the causal SNP rs9661059 (indicated) that we focused on. The dotplot above the heatmap denotes $r^2$ between each SNP and the causal SNP. It is clear that although strong correlation does exist between some SNPs, none of these nearby SNPs is correlated with the causal SNP. The only dot denoting an $r^2=1$ represents the causal SNP itself.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{figure/gaw20R2}
+	\caption{LD structure among the markers in the GAW20 dataset}
+	\label{fig:gaw20r2}
+\end{figure}
+
+In Figure~\ref{fig:miceR2}, we show the pairwise $r^2$ for all microsatellite markers in the mouse dataset. It is clear that many markers are considerably strongly correlated with each other, as we expected.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{figure/miceR2}
+	\caption{LD structure among the markers in the mouse dataset}
+	\label{fig:miceR2}
+\end{figure}
+
 
 
  
-\begin{table}
-
-\caption{\label{tab:print-sim-table-for-n-equal-to-k}Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\%, 30\%).
-                  For all simulations, sample size is $n=1000$ which is also equal to the number of SNPs used to estimate the kinship matrix is $k=1000$, and the number of fixed effects is $p_{fixed}=5000$.
-                  TPR at FPR=5\% is the true positive rate at a fixed false positive rate of 5\%.
-                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
-                  RMSE is the root mean squared error on the test set.
-                  Estimation error is the squared distance between the estimated and true effect sizes.
-                  Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect||\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}||_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.
-                  Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment.}
-\centering
-\fontsize{7}{9}\selectfont
-\begin{tabu} to \linewidth {>{\bfseries}l>{\raggedright}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X}
-\toprule
-\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{4}{c}{Null model} & \multicolumn{4}{c}{1\% Causal SNPs} \\
-\cmidrule(l{3pt}r{3pt}){3-6} \cmidrule(l{3pt}r{3pt}){7-10}
-\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} \\
-\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10}
-Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
-\midrule
-\rowcolor{gray!6}   & twostep & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.84 (0.05) & 0.85 (0.05) & 0.29 (0.05) & 0.27 (0.05)\\
-
-\rowcolor{gray!6}   & lasso & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.86 (0.04) & 0.86 (0.05) & 0.87 (0.05)\\
-
-\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash TPR at FPR=5\%} & ggmix & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.85 (0.05) & 0.84 (0.05) & 0.62 (0.07) & 0.65 (0.07)\\
-\cmidrule{1-10}
- & twostep & 7 (18) & 6 (14) & 7 (18) & 6 (14) & 327 (61) & 332 (62) & 32 (38) & 27 (38)\\
-
- & lasso & 9 (17) & 8 (16) & 9 (17) & 8 (16) & 284 (45) & 291 (51) & 289 (54) & 290 (54)\\
-
-\multirow{-3}{*}{\raggedright\arraybackslash Model Size} & ggmix & 0 (0) & 1 (1) & 0 (0) & 1 (1) & 44 (8) & 44 (8) & 2 (5) & 1 (2)\\
-\cmidrule{1-10}
-\rowcolor{gray!6}   & twostep & 1.02 (0.07) & 1.02 (0.07) & 1.02 (0.07) & 1.02 (0.07) & 1.41 (0.10) & 1.40 (0.10) & 3.64 (0.79) & 3.77 (0.77)\\
-
-\rowcolor{gray!6}   & lasso & 1.03 (0.07) & 1.03 (0.07) & 1.03 (0.07) & 1.03 (0.07) & 1.39 (0.09) & 1.39 (0.08) & 1.38 (0.09) & 1.36 (0.08)\\
-
-\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash RMSE} & ggmix & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.23 (0.12) & 1.22 (0.12) & 4.11 (0.74) & 4.23 (0.67)\\
-\cmidrule{1-10}
- & twostep & 0.12 (0.23) & 0.11 (0.20) & 0.12 (0.23) & 0.11 (0.20) & 2.90 (0.58) & 2.85 (0.61) & 35.07 (13.53) & 37.29 (13.21)\\
-
- & lasso & 0.15 (0.24) & 0.14 (0.23) & 0.15 (0.24) & 0.14 (0.23) & 2.77 (0.47) & 2.77 (0.50) & 2.78 (0.45) & 2.73 (0.43)\\
-
-\multirow{-3}{*}{\raggedright\arraybackslash Estimation Error} & ggmix & 0.00 (0.01) & 0.02 (0.04) & 0.00 (0.01) & 0.02 (0.04) & 2.26 (1.41) & 2.20 (1.38) & 43.63 (13.31) & 45.48 (12.11)\\
-\cmidrule{1-10}
-\rowcolor{gray!6}   & twostep & 0.90 (0.06) & 0.70 (0.05) & 0.90 (0.06) & 0.70 (0.05) & 17.36 (2.93) & 17.24 (2.93) & 0.80 (0.19) & 0.61 (0.16)\\
-
-\rowcolor{gray!6}   & lasso & 0.98 (0.05) & 0.96 (0.06) & 0.98 (0.05) & 0.96 (0.06) & 1.04 (0.12) & 1.01 (0.12) & 1.01 (0.14) & 0.98 (0.14)\\
-
-\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash Error Variance} & ggmix & 0.91 (0.06) & 0.70 (0.05) & 0.91 (0.06) & 0.70 (0.05) & 2.30 (0.43) & 2.07 (0.46) & 0.79 (0.19) & 0.60 (0.16)\\
-\cmidrule{1-10}
- & twostep & 0.10 (0.05) & 0.30 (0.06) & 0.10 (0.05) & 0.30 (0.06) & 0.11 (0.05) & 0.12 (0.05) & 0.96 (0.02) & 0.97 (0.01)\\
-
- & lasso & -- & -- & -- & -- & -- & -- & -- & --\\
-
-\multirow{-3}{*}{\raggedright\arraybackslash Heritability} & ggmix & 0.09 (0.05) & 0.30 (0.06) & 0.09 (0.05) & 0.30 (0.06) & 0.08 (0.06) & 0.15 (0.07) & 0.95 (0.02) & 0.97 (0.01)\\
-\bottomrule
-\end{tabu}
-\end{table}
-
 
  
  

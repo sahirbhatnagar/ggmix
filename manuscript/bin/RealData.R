@@ -24,7 +24,7 @@ ggplot(RMSEACTIVE, aes(x=meanACTIVE,y=meanRMSE,colour=Method,label=Method)) + ge
   scale_x_continuous(breaks = seq(1,51,5))
 
 ## ---- Mice-comparison-fixTPR ----
-
+root <- "/home/sahir/git_repositories/ggmix/RealData/"
 load(paste0(root, "Mice-200Bootstrap.RData"))
 load(paste0(root, "mice.RData"))
 
@@ -128,3 +128,31 @@ for (chr in 1:20) {
     abline(h=(200-ggmixfail)/2,lty=2,col="red")
   }
 }
+
+
+## ---- UKB-Figure ----
+root <- "/home/sahir/git_repositories/ggmix/RealData/"
+load(paste0(root, "UKB-plot-data.RData"))
+p1 <- ggplot(valstats, aes(x=index,y=RMSE,color=method)) +
+  geom_line(size = 1.5) +
+  theme_bw() +
+  scale_color_manual(values = cbbPalette[c(7,3,4)]) +
+  theme(legend.position = "bottom", axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20),
+        legend.text = element_text(size = 15)) +
+  labs(color="",x=expression(lambda~index),y="RMSE in model selection set") +
+  ylim(0.8,1.3)
+
+p2 <- ggplot(teststats, aes(x=log2(coef),y=RMSE,color=method)) + ylim(0.9,1) + xlim(9,12) +
+  geom_point(size = 5) + xlab(expression(log[2](Number~of~active~variables))) +
+  ylab("RMSE in test set") +
+  labs(color="") +
+  theme_bw()  +
+  theme(legend.position = "bottom",
+        axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(angle = 45,hjust=1,vjust = 1)) +
+  scale_color_manual(values = cbbPalette[c(7,3,4,2)])
+
+p1+p2+plot_annotation(tag_levels = 'A', tag_prefix = "(", tag_suffix = ")")

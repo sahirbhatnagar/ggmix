@@ -96,10 +96,10 @@ tt <- DT %>%
             Heritability = qwraps2::mean_sd(eta, denote_sd = "paren"),
             Errorvar = qwraps2::mean_sd(errorvar, denote_sd = "paren"),
             Estimationerror = qwraps2::mean_sd(estimationerror, denote_sd = "paren"),
-            Nactive = qwraps2::mean_sd(nactive, digits = 0, denote_sd = "paren"))
+            Nactive = qwraps2::median_iqr(nactive, digits = 0))
 
 tt[tt$Method=="lasso","Heritability"] <- "--"
-
+# tt[tt$p_causal=="Null model","TPR"] <- "--"
 
 
 pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estimationerror","Nactive"),
@@ -134,9 +134,9 @@ pt <- tt %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Estim
 
 kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
       caption = c("Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\\%, 30\\%).
-                  For all simulations, sample size is $n=1000$, the number of fixed effects is $p_{fixed}=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  For all simulations, sample size is $n=1000$, the number of covariates is $p=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
                   TPR at FPR=5\\% is the true positive rate at a fixed false positive rate of 5\\%.
-                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
+                  Model Size ($|\\widehat{S}_{\\hat{\\lambda}}|$) is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
                   RMSE is the root mean squared error on the test set.
                   Estimation error is the squared distance between the estimated and true effect sizes.
                   Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect||\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}||_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$.
@@ -147,9 +147,9 @@ kable(pt, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","
   add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2)) %>%
   add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4)) %>%
   column_spec(1, bold=T) %>%
-  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") #%>%
-  # footnote(general = "",
-           # general_title = "Note:") %>%
+  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
+  footnote(general = "Median (Inter-quartile range) is given for Model Size.",
+           general_title = "Note:") #%>%
   # footnote(general = "Model Size is the number of selected variables using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.")
   #          # number = c("", "Footnote 2; "),
   #          # alphabet = c("Footnote A; ", "Footnote B; "),
@@ -229,7 +229,7 @@ tt2 <- DT2 %>%
             Heritability = qwraps2::mean_sd(eta, denote_sd = "paren"),
             Errorvar = qwraps2::mean_sd(errorvar, denote_sd = "paren"),
             Estimationerror = qwraps2::mean_sd(estimationerror, denote_sd = "paren"),
-            Nactive = qwraps2::mean_sd(nactive, digits = 0, denote_sd = "paren"))
+            Nactive = qwraps2::median_iqr(nactive, digits = 0))
 
 tt2[tt2$Method=="lasso","Heritability"] <- "--"
 
@@ -267,9 +267,9 @@ pt2 <- tt2 %>% pivot_longer(cols = c("RMSE","TPR","Heritability","Errorvar","Est
 
 kable(pt2, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c","c"),
       caption = c("Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\\%, 30\\%).
-                  For all simulations, sample size is $n=1000$ which is also equal to the number of SNPs used to estimate the kinship matrix is $k=1000$, and the number of fixed effects is $p_{fixed}=5000$.
+                  For all simulations, sample size is $n=1000$, the number of covariates is $p=5000$, and the number of SNPs used to estimate the kinship matrix is $k=1000$.
                   TPR at FPR=5\\% is the true positive rate at a fixed false positive rate of 5\\%.
-                  Model Size is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
+                  Model Size ($|\\widehat{S}_{\\hat{\\lambda}}|$) is the number of selected variables in the training set using the high-dimensional BIC for \\texttt{ggmix} and 10-fold cross validation for \\texttt{lasso} and \\texttt{twostep}.
                   RMSE is the root mean squared error on the test set.
                   Estimation error is the squared distance between the estimated and true effect sizes.
                   Error variance ($\\sigma^2$) for \\texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \\ggmix. For the \\texttt{lasso} we use $\\protect\\frac{1}{n - |\\widehat{S}_{\\hat{\\lambda}}|} \\protect||\\bY - \\bX \\widehat{\\bbeta}_{\\hat{\\lambda}}||_2^2$~\\citep{reid2016study} as an estimator for $\\sigma^2$.
@@ -280,8 +280,9 @@ kable(pt2, "latex", booktabs = T, align = c("l","l","c","c","c","c","c","c","c",
   add_header_above(c(" "," ","No overlap" = 2, "All causal SNPs\nin kinship" = 2, "No overlap" = 2, "All causal SNPs\nin kinship" = 2)) %>%
   add_header_above(c(" "," ","Null model" = 4, "1% Causal SNPs" = 4)) %>%
   column_spec(1, bold=T) %>%
-  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") #%>%
-# footnote(general = "",
+  collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
+  footnote(general = "Median (Inter-quartile range) is given for Model Size.",
+           general_title = "Note:") #%>%
 # general_title = "Note:") %>%
 # footnote(general = "Model Size is the number of selected variables using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.")
 #          # number = c("", "Footnote 2; "),
