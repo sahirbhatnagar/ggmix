@@ -387,15 +387,18 @@ We evaluated the performance of \texttt{ggmix} in a variety of simulated scenari
 	\item $n$: sample size
 	\item $c$: percentage of causal SNPs
 	%\item $p_{fixed}$: number of fixed effects
-	\item $\bbeta$: true effect size vector of length $p_{fixed}$ 
-	\item $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set with cardinality $ |S_0| = c\times p_{fixed}$
+	\item $\bbeta$: true effect size vector of length $p$ 
+	\item $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set with cardinality $ |S_0| = c\times p$
 	
 	%\item $\beta_j^0$: true effect size for the $j^{th}$ SNP, simulated from a $Normal(0,1)$ distribution for $j \in S_0$ where $S_0 = \left\lbrace j; \beta_j^0 \neq 0 \right \rbrace$ is the index of the active set 
 	%\item $\rho$: linkage disequilibrium between two SNPs
-	\item $\bX^{(fixed)}$: $n \times p_{fixed}$ matrix of SNPs that were included as fixed effects in the model
-	\item $\bX^{(causal)}$: $n \times |S_0|$ matrix of SNPs that were truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
-	\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that were used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(fixed)}$ were used in construction of the kinship matrix. We altered the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship
-	\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix
+	
+	\item \textit{causal}: the list of causal SNP indices
+	\item \textit{kinship}: the list of SNP indices for the kinship matrix
+	\item $\bX$: $n \times p$ matrix of SNPs that were included as covariates in the model
+	%\item $\bX^{(causal)}$: $n \times |S_0|$ matrix of SNPs that were truly associated with the simulated phenotype, where $\bX^{(causal)} \subseteq \bX^{(fixed)}$
+	%\item $\bX^{(other)}$: $n \times p_{other}$ matrix of SNPs that were used in the construction of the kinship matrix. Some of these $\bX^{(other)}$ SNPs, in conjunction with some of the SNPs in $\bX^{(fixed)}$ were used in construction of the kinship matrix. We altered the balance between these two contributors and with the proportion of causal SNPs used to calculate kinship
+	%\item $\bX^{(kinship)}$: $n \times k$ matrix of SNPs used to construct the kinship matrix
 	
 	%\item $Y^* = \sum_{j=1}^{c*1000} \beta_j \bX^{(causal)}_j$
 	%\item $Y = Y^* + k \cdot \varepsilon$, where the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR =\left(Var(Y^*)/Var(\varepsilon)\right)$ is 1
@@ -403,13 +406,13 @@ We evaluated the performance of \texttt{ggmix} in a variety of simulated scenari
 
 We simulated data from the model
 \begin{equation}
-\bY = \bX^{(fixed)} \bbeta + \mathbf{P} + \be
+\bY = \bX \bbeta + \mathbf{P} + \be
 \end{equation}
-where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix calculated from $\bX^{(kinship)}$, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.3 \rbrace$, number of fixed effects $p_{fixed} = 5,000$, number of SNPs used to calculate the kinship matrix $k = 10,000$, percentage of causal SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the causal SNPs and the SNPs used to generate the kinship matrix. We considered two main scenarios:
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix calculated from the \textit{kinship} SNPs, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.3 \rbrace$, number of covariates $p = 5,000$, number of \textit{kinship} SNPs $k = 10,000$, percentage of \textit{causal} SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the \textit{causal} list and the \textit{kinship} list. We considered two main scenarios:
 
 \begin{enumerate}
-	\item None of the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} \right]$$
-	\item All the causal SNPs are included in the calculation of the kinship matrix: $$\bX^{(kinship)} = \left[\bX^{(other)} ; \bX^{(causal)}\right].$$
+	\item None of the \textit{causal} SNPs are included in \textit{kinship} set.
+	\item All of the \textit{causal} SNPs are included in the \textit{kinship} set.
 \end{enumerate}
 
 Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\citep{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\citep{bnpsd1,bnpsd2}. In Figure~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
@@ -479,18 +482,7 @@ This result is encouraging since in practice the kinship matrix is constructed f
 
 %methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth]{figure/plot-6in1-10percentHerit-1pcausal-allinkinship-1} 
-
-}
-
-\caption{Results from 200 replications for the scenario with 1\% causal SNPs ($c=0.01$) which are all used in the calculation of the kinship matrix and true heritability $\eta =10\%$. (A) Correct sparsity as defined by Equation~\eqref{eq:correct_sparsity}. (B) Estimation error defined as the squared distance between the estimated and true effect sizes (C) Root mean squared prediction error on the test set as a function of the number of selected variables. (D) True positive vs. false positive rate. (E) Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment. (F) Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect\norm{\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}}_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.}\label{fig:plot-6in1-10percentHerit-1pcausal-allinkinship}
-\end{figure}
-
-
-\end{knitrout}
 
 
 
@@ -1192,7 +1184,7 @@ where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\
 %The data sets supporting the results of this article are available in the repositories:
 \begin{enumerate}
 	\item The GAW20 data is freely available upon request from \url{https://www.gaworkshop.org/data-sets}.
-	\item Mouse cross data is available from ES upon request. 
+	\item Mouse cross data is available from GitHub at \url{https://github.com/sahirbhatnagar/ggmix/blob/pgen/RealData/mice.RData}. 
 	\item The entire simulation study is reproducible. Source code available at \url{https://github.com/sahirbhatnagar/ggmix/tree/pgen/simulation}. This includes scripts for \ggmix, ~\texttt{lasso} and \texttt{twostep} methods. 
 	\item The R package \ggmix ~is freely available from GitHub at \url{https://github.com/greenwoodlab/ggmix}.
 	\item A website describing how to use the package is available at \url{https://sahirbhatnagar.com/ggmix/}.
@@ -1212,7 +1204,7 @@ SRB was supported by the Ludmer Centre for Neuroinformatics and Mental Health an
 Contains the following sections:
 \begin{itemize}
 	\item[A] \textbf{Block Coordinate Descent Algorithm} - a detailed description of the algorithm used to fit our \ggmix ~model
-	\item[B] \textbf{Additional Simulation Results} - complete simulation results
+	\item[B] \textbf{Additional Simulation Results} 
 	\item[C] \textbf{\ggmix ~Package Showcase} - a vignette describing how to use our \ggmix ~R package
 \end{itemize}
 
