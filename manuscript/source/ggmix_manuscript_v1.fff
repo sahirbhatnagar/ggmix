@@ -1,0 +1,64 @@
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1}
+
+}
+
+\caption[Example of an empirical kinship matrix used in simulation studies]{Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.}\label{fig:plot-kinship-sim}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1}
+
+}
+
+\caption[First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations]{First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations.}\label{fig:plot-pc-sim}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/UKB-Figure-1}
+
+}
+
+\caption[Model selection and testing in the UK Biobank]{Model selection and testing in the UK Biobank. (A) Root-mean-square error of three methods on the model selection set with respect to a grid search of penalty factor used on the training set. (B) Performance of four methods on the test set with penalty factor optimized on the model selection set. The x-axis has a logarithmic scale. The BSLMM method optimized coefficients of each SNP through an MCMC process on the training set and was directly evaluated on the test set.}\label{fig:UKB-Figure}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/Mice-comparison-fixTPR-1}
+
+}
+
+\caption[Comparison of model performance on the mouse cross data]{Comparison of model performance on the mouse cross data. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate significance thresholds.}\label{fig:Mice-comparison-fixTPR}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth]{figure/UKB-chromosome-distribution-1}
+
+}
+
+\caption[Distribution of SNPs used in UK Biobank analysis by chromosome and whether or not the SNP was imputed]{Distribution of SNPs used in UK Biobank analysis by chromosome and whether or not the SNP was imputed.}\label{fig:UKB-chromosome-distribution}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\linewidth]{figure/gaw20R2}
+\caption{LD structure among the markers in the GAW20 dataset}
+\label{fig:gaw20r2}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\linewidth]{figure/miceR2}
+\caption{LD structure among the markers in the mouse dataset}
+\label{fig:miceR2}
+\end{figure}
