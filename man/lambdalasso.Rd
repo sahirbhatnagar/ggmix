@@ -10,9 +10,18 @@ lambdalasso(ggmix_object, ...)
 
 \method{lambdalasso}{default}(ggmix_object, ...)
 
-\method{lambdalasso}{fullrank}(ggmix_object, ..., penalty.factor,
-  lambda_min_ratio, epsilon = 1e-14, tol.kkt = 1e-09, eta_init = 0.5,
-  nlambda = 100, scale_x = F, center_y = F)
+\method{lambdalasso}{fullrank}(
+  ggmix_object,
+  ...,
+  penalty.factor,
+  lambda_min_ratio,
+  epsilon = 1e-14,
+  tol.kkt = 1e-09,
+  eta_init = 0.5,
+  nlambda = 100,
+  scale_x = F,
+  center_y = F
+)
 }
 \arguments{
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or

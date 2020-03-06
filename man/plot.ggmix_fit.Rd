@@ -5,11 +5,20 @@
 \alias{plotCoef}
 \title{Plot Method for \code{ggmix_fit} object}
 \usage{
-\method{plot}{ggmix_fit}(x, ..., xvar = c("norm", "lambda", "dev"),
-  label = FALSE, sign.lambda = 1)
+\method{plot}{ggmix_fit}(x, ..., xvar = c("norm", "lambda", "dev"), label = FALSE, sign.lambda = 1)
 
-plotCoef(beta, norm, lambda, df, dev, label = FALSE, xvar = c("norm",
-  "lambda", "dev"), xlab = iname, ylab = "Coefficients", ...)
+plotCoef(
+  beta,
+  norm,
+  lambda,
+  df,
+  dev,
+  label = FALSE,
+  xvar = c("norm", "lambda", "dev"),
+  xlab = iname,
+  ylab = "Coefficients",
+  ...
+)
 }
 \arguments{
 \item{x}{a \code{ggmix_fit} object}

@@ -4,9 +4,22 @@
 \alias{gen_structured_model}
 \title{Simulation Scenarion from Bhatnagar et al. (2018+) ggmix paper}
 \usage{
-gen_structured_model(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10,
-  eta, sigma2, geography = c("ind", "1d", "circ"), percent_causal,
-  percent_overlap, train_tune_test = c(0.6, 0.2, 0.2))
+gen_structured_model(
+  n,
+  p_design,
+  p_kinship,
+  k,
+  s,
+  Fst,
+  b0,
+  nPC = 10,
+  eta,
+  sigma2,
+  geography = c("ind", "1d", "circ"),
+  percent_causal,
+  percent_overlap,
+  train_tune_test = c(0.6, 0.2, 0.2)
+)
 }
 \arguments{
 \item{n}{number of observations to simulate}
@@ -75,6 +88,5 @@ The kinship is estimated using the \code{popkin} function from the
   linear mixed models
 }
 \seealso{
-\code{\link[bnpsd]{q1d}},\code{\link[bnpsd]{qis}},
-  \code{\link[bnpsd]{q1dc}}, \code{\link[bnpsd]{rbnpsd}}
+\code{\link[bnpsd]{admix_prop_1d_linear}}
 }

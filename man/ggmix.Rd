@@ -4,13 +4,32 @@
 \alias{ggmix}
 \title{Fit Linear Mixed Model with Lasso or Group Lasso Regularization}
 \usage{
-ggmix(x, y, U, D, kinship, K, n_nonzero_eigenvalues, n_zero_eigenvalues,
-  estimation = c("full", "low"), penalty = c("lasso", "gglasso"),
-  group, penalty.factor = rep(1, p_design), lambda = NULL,
+ggmix(
+  x,
+  y,
+  U,
+  D,
+  kinship,
+  K,
+  n_nonzero_eigenvalues,
+  n_zero_eigenvalues,
+  estimation = c("full", "low"),
+  penalty = c("lasso", "gglasso"),
+  group,
+  penalty.factor = rep(1, p_design),
+  lambda = NULL,
   lambda_min_ratio = ifelse(n_design < p_design, 0.01, 1e-04),
-  nlambda = 100, eta_init = 0.5, maxit = 100, fdev = 1e-20,
-  standardize = FALSE, alpha = 1, thresh_glmnet = 1e-08,
-  epsilon = 1e-04, dfmax = p_design + 2, verbose = 0)
+  nlambda = 100,
+  eta_init = 0.5,
+  maxit = 100,
+  fdev = 1e-20,
+  standardize = FALSE,
+  alpha = 1,
+  thresh_glmnet = 1e-08,
+  epsilon = 1e-04,
+  dfmax = p_design + 2,
+  verbose = 0
+)
 }
 \arguments{
 \item{x}{input matrix, of dimension n x p; where n is the number of
@@ -136,11 +155,12 @@ Main function to fit the linear mixed model with lasso or group
 }
 \examples{
 data(admixed)
-fitlmm <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
-            estimation = "full")
+fitlmm <- ggmix(x = admixed$xtrain, y = admixed$ytrain,
+                kinship = admixed$kin_train,
+                estimation = "full")
 gicfit <- gic(fitlmm)
 coef(gicfit, type = "nonzero")
-predict(gicfit, newx = admixed$x)[1:5,,drop=FALSE]
+predict(gicfit, newx = admixed$xtest)[1:5,,drop=FALSE]
 plot(gicfit)
 plot(fitlmm)
 

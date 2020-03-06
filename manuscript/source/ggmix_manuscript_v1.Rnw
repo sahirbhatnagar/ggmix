@@ -1350,7 +1350,7 @@ Similarly, substituting~\eqref{eq:grad} and~\eqref{eq:hessian} in $\beta_j^{(k)}
 Finally, substituting~\eqref{eq:midleft} and~\eqref{eq:midright} into~\eqref{eq:betaMidpoint} we get
 \begin{align}
 	\beta_j^{(k+1)} & = \tm{mid}\left\lbrace \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2}, 0,\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \right\rbrace \nonumber \\
-	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft}
+	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft2}
 \end{align}
 
 Where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
@@ -1515,8 +1515,9 @@ pacman::p_load_gh('sahirbhatnagar/ggmix')
 
 To showcase the main functions in \ggmix, ~we will use the simulated data which ships with the package and can be loaded via:
 
-<<echo=T, eval=finalversion>>=
+<<echo=c(1,3,4), eval=c(2,3,4)>>=
 library(ggmix)
+devtools::load_all("~/git_repositories/ggmix/")
 data("admixed")
 names(admixed)
 @
@@ -1535,7 +1536,7 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 <<ggmix-popkin, echo=T, eval=finalversion>>=
 # need to install the package if you don't have it
 # pacman::p_load_gh('StoreyLab/popkin')
-popkin::plotPopkin(admixed$kin)
+popkin::plot_popkin(admixed$kin)
 @
 
 \subsection{Fit the linear mixed model with Lasso Penalty}
@@ -1543,7 +1544,9 @@ popkin::plotPopkin(admixed$kin)
 We will use the most basic call to the main function of this package, which is called \texttt{ggmix}. This function will by default fit a $L_1$ penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter $\lambda$. It will choose its own sequence:
 
 <<echo=T, eval=finalversion>>=
-fit <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin)
+fit <- ggmix(x = admixed$xtrain, 
+          	 y = admixed$ytrain, 
+			 kinship = admixed$kin_train)
 names(fit)
 class(fit)
 @
@@ -1567,7 +1570,7 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 <<echo=T, eval=finalversion>>=
 # need to provide x to the predict function
 # predict for the first 5 subjects
-predict(fit, s = c(0.1,0.02), newx = admixed$x[1:5,])
+predict(fit, s = c(0.1,0.02), newx = admixed$xtest[1:5,])
 @
 
 
@@ -1581,7 +1584,7 @@ hdbic <- gic(fit)
 class(hdbic)
 
 # we can also fit the BIC by specifying the an argument
-bicfit <- gic(fit, an = log(length(admixed$y)))
+bicfit <- gic(fit, an = log(length(admixed$ytrain)))
 @
 
 We can plot the HDBIC values against $\log(\lambda)$ using the \texttt{plot} method for objects of class \texttt{ggmix\_gic}:
@@ -1622,7 +1625,7 @@ coef(hdbic, type = "nonzero")
 We can also make predictions from the \texttt{hdbic} object, which by default will use the model corresponding to the optimal tuning parameter:
 
 <<echo=T, eval=finalversion>>=
-predict(hdbic, newx = admixed$x[1:5,])
+predict(hdbic, newx = admixed$xtest[1:5,])
 @
 
 
@@ -1644,22 +1647,22 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \subsubsection{Observed vs. Predicted Response}
 
 <<ggmix-obs-pred, echo=T, eval=finalversion>>=
-plot(hdbic, type = "predicted", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "predicted", newx = admixed$xtrain, newy = admixed$ytrain)
 @
 
 
 \subsubsection{QQ-plots for Residuals and Random Effects}
 
 <<ggmix-qqplot, echo=T, eval=finalversion>>=
-plot(hdbic, type = "QQranef", newx = admixed$x, newy = admixed$y)
-plot(hdbic, type = "QQresid", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "QQranef", newx = admixed$xtrain, newy = admixed$ytrain)
+plot(hdbic, type = "QQresid", newx = admixed$xtrain, newy = admixed$ytrain)
 @
 
 
 \subsubsection{Tukey-Anscombe Plot}
 
 <<ggmix-tukey, echo=T, eval=finalversion>>=
-plot(hdbic, type = "Tukey", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "Tukey", newx = admixed$xtrain, newy = admixed$ytrain)
 @
 
 

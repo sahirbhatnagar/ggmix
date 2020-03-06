@@ -6,7 +6,6 @@
 #' @seealso \code{\link{ggmix}}
 #' @param ggmix_object A ggmix_object object of class \code{lowrank} or
 #'   \code{fullrank}
-#' @inheritParams ggmix
 #' @param beta current estimate of the beta parameter including the intercept.
 #'   this should be of length p+1, where p is the number of variables.
 #' @param eta current estimate of the eta parameter

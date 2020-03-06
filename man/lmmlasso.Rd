@@ -10,9 +10,25 @@ lmmlasso(ggmix_object, ...)
 
 \method{lmmlasso}{default}(ggmix_object, ...)
 
-\method{lmmlasso}{fullrank}(ggmix_object, ..., penalty.factor, lambda,
-  lambda_min_ratio, nlambda, n_design, p_design, eta_init, maxit, fdev,
-  standardize, alpha, thresh_glmnet, epsilon, dfmax, verbose)
+\method{lmmlasso}{fullrank}(
+  ggmix_object,
+  ...,
+  penalty.factor,
+  lambda,
+  lambda_min_ratio,
+  nlambda,
+  n_design,
+  p_design,
+  eta_init,
+  maxit,
+  fdev,
+  standardize,
+  alpha,
+  thresh_glmnet,
+  epsilon,
+  dfmax,
+  verbose
+)
 }
 \arguments{
 \item{ggmix_object}{A ggmix_object object of class \code{lowrank} or

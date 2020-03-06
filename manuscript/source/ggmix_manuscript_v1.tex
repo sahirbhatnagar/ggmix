@@ -583,7 +583,8 @@ Three datasets with different features were used to illustrate the potential adv
 
 \textbf{We found that with a kinship matrix estimated using all genotyped SNPs, \ggmix ~had the possibility to achieve a lower RMSE on the model selection set compared to the \texttt{twostep} and \texttt{lasso} methods (Figure~\ref{fig:UKB-Figure}A). An optimized \ggmix-derived polygenic risk score that utilized the least number of SNPs was also able to better predict the trait with lower RMSE on the test set (Figure~\ref{fig:UKB-Figure}B).}
 
-\textbf{We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\citep{zhou2013polygenic} implemented in the GEMMA package~\citep{zhou2012genome} to derive a polygenic risk score on the training set. We found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}B).}
+\textbf{We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\citep{zhou2013polygenic} implemented in the GEMMA package~\citep{zhou2012genome} to derive a polygenic risk score on the training set. \texttt{A posterior probability of inclusion of each SNP was provided and prediction was based on all SNPs with a positive posterior probability.} We found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}B). \texttt{Likely due to the small effect sizes of these SNPs, only 94, 35 and 1 SNPs had a posterior inclusion probability above 0.05, 0.10 and 0.50, respectively. The model would have further reduced prediction accuracy if the prediction was based only on these SNPs.}}
+
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -630,7 +631,10 @@ On each simulated replicate, we calibrated the methods so that they could be eas
 All three methods precisely chose the correct predictor without any false positives in more than half of the replicates, as the causal signal was strong. However, when some false positives were selected (i.e. when the number of active variables > 1), \ggmix ~performed comparably to \texttt{twostep}, while the \texttt{lasso} was inclined to select more false positives as suggested by the larger third quartile number of active variables (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}).
 We also observed that \ggmix ~outperformed the \texttt{twostep} method with lower CV RMSE using the same number of SNPs. Meanwhile, it achieved roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}). \textbf{It is also worth mentioning that there was very little correlation between the causal SNP and SNPs within a 1Mb-window around it (Figure~\ref{fig:gaw20r2} in Supplemental Section~\ref{ap:ldplots}), making it an ideal scenario for the \texttt{lasso} and related methods.}
 
-\textbf{We also applied the \texttt{BSLMM} method by performing five-fold CV on each of the 200 simulated replicates. We found that while \texttt{BSLMM} achieved a lower CV RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}), this higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs supplied. This may suggest overfitting in this dataset. It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} model, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.}
+\textbf{We also applied the \texttt{BSLMM} method by performing five-fold CV on each of the 200 simulated replicates. 
+	We found that while \texttt{BSLMM} achieved a lower CV RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}), this higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs \texttt{with a positive posterior probability}. 
+	This may suggest overfitting in this dataset. 
+	\texttt{On the other hand, we found that imposing a posterior inclusion probability threshold might improve feature selection, but the results were sensitive to the arbitrary threshold as most SNPs had a low posterior probability.} It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} model, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.}
 
 
 \newcolumntype{C}[1]{>{\Centering}m{#1}}
@@ -638,13 +642,16 @@ We also observed that \ggmix ~outperformed the \texttt{twostep} method with lowe
 
 \begin{minipage}{\linewidth}
 	\bigskip
-	\captionof{table}{Summary of model performance based on 200 GAW20 simulations. Five-fold cross-validation root-mean-square error was reported for each simulation replicate.} \label{tab:GAW20-prediction-RMSE-activeVariable}
+	\captionof{table}{Summary of model performance based on 200 GAW20 simulations. Five-fold cross-validation root-mean-square error was reported for each simulation replicate. Prediction accuracy for BSLMM model with a positive posterior inclusion probability threshold was not reported because the model could contain no SNP.} \label{tab:GAW20-prediction-RMSE-activeVariable}
 	\begin{tabular}{ C{0.9in} C{3.5in} C{1.9in}}\toprule[1.5pt]
 		\bf Method & \bf Median number of active variables (Inter-quartile range) & \bf RMSE (SD) \\\midrule
 		\texttt{twostep} & 1 (1 - 11) & 0.3604 (0.0242) \\
 		\texttt{lasso} & 1 (1 - 15) & 0.3105 (0.0199) \\
 		\texttt{ggmix} & 1 (1 - 12) & 0.3146 (0.0210) \\
 		\texttt{BSLMM} & 40,737 (39,901 - 41,539) & 0.2503 (0.0099)\\
+		\texttt{BSLMM, posterior probability > 0.05} & 2 (1 - 4) & \\
+		\texttt{BSLMM, posterior probability > 0.10} & 0 (0 - 1)  & \\
+		\texttt{BSLMM, posterior probability > 0.50} & 0 (0 - 0)  & \\
 		\bottomrule[1.25pt]
 		\end {tabular}\par
 		\bigskip
@@ -668,7 +675,7 @@ We demonstrated that \ggmix ~recognized the true associations more robustly than
 
 We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered. 
 
-\textbf{We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.}
+%\textbf{We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.}
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -1469,7 +1476,7 @@ Similarly, substituting~\eqref{eq:grad} and~\eqref{eq:hessian} in $\beta_j^{(k)}
 Finally, substituting~\eqref{eq:midleft} and~\eqref{eq:midright} into~\eqref{eq:betaMidpoint} we get
 \begin{align}
 	\beta_j^{(k+1)} & = \tm{mid}\left\lbrace \frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) - \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2}, 0,\frac{  \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right) + \lambda}{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \right\rbrace \nonumber \\
-	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft}
+	& = \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft2}
 \end{align}
 
 Where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
@@ -1630,15 +1637,17 @@ To showcase the main functions in \ggmix, ~we will use the simulated data which 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{library}\hlstd{(ggmix)}
+\hlcom{## library(ggmix)}
 \hlkwd{data}\hlstd{(}\hlstr{"admixed"}\hlstd{)}
 \hlkwd{names}\hlstd{(admixed)}
 \end{alltt}
 \begin{verbatim}
-##  [1] "y"               "x"               "causal"         
-##  [4] "beta"            "kin"             "Xkinship"       
-##  [7] "not_causal"      "causal_positive" "causal_negative"
-## [10] "x_lasso"
+##  [1] "ytrain"         "ytune"          "ytest"          "xtrain"        
+##  [5] "xtune"          "xtest"          "xtrain_lasso"   "xtune_lasso"   
+##  [9] "xtest_lasso"    "Xkinship"       "kin_train"      "kin_tune_train"
+## [13] "kin_test_train" "mu_train"       "causal"         "beta"          
+## [17] "not_causal"     "kinship"        "coancestry"     "PC"            
+## [21] "subpops"
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1659,16 +1668,11 @@ We can visualize the kinship matrix in the \texttt{admixed} data using the \text
 \begin{alltt}
 \hlcom{# need to install the package if you don't have it}
 \hlcom{# pacman::p_load_gh('StoreyLab/popkin')}
-\hlstd{popkin}\hlopt{::}\hlkwd{plotPopkin}\hlstd{(admixed}\hlopt{$}\hlstd{kin)}
+\hlstd{popkin}\hlopt{::}\hlkwd{plot_popkin}\hlstd{(admixed}\hlopt{$}\hlstd{kin)}
 \end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=1\linewidth]{figure/ggmix-popkin-1} 
-
-}
 
 
-
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in popkin::plot\_popkin(admixed\$kin): Every element of list "{}kinship"{} is NULL!}}\end{kframe}
 \end{knitrout}
 
 \subsection{Fit the linear mixed model with Lasso Penalty}
@@ -1678,14 +1682,15 @@ We will use the most basic call to the main function of this package, which is c
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{fit} \hlkwb{<-} \hlkwd{ggmix}\hlstd{(}\hlkwc{x} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{y} \hlstd{= admixed}\hlopt{$}\hlstd{y,} \hlkwc{kinship} \hlstd{= admixed}\hlopt{$}\hlstd{kin)}
+\hlstd{fit} \hlkwb{<-} \hlkwd{ggmix}\hlstd{(}\hlkwc{x} \hlstd{= admixed}\hlopt{$}\hlstd{xtrain,}
+                 \hlkwc{y} \hlstd{= admixed}\hlopt{$}\hlstd{ytrain,}
+                         \hlkwc{kinship} \hlstd{= admixed}\hlopt{$}\hlstd{kin_train)}
 \hlkwd{names}\hlstd{(fit)}
 \end{alltt}
 \begin{verbatim}
-##  [1] "result"       "ggmix_object" "n_design"     "p_design"    
-##  [5] "lambda"       "coef"         "b0"           "beta"        
-##  [9] "df"           "eta"          "sigma2"       "nlambda"     
-## [13] "cov_names"    "call"
+##  [1] "result"       "ggmix_object" "n_design"     "p_design"     "lambda"      
+##  [6] "coef"         "b0"           "beta"         "df"           "eta"         
+## [11] "sigma2"       "nlambda"      "cov_names"    "call"
 \end{verbatim}
 \begin{alltt}
 \hlkwd{class}\hlstd{(fit)}
@@ -1723,12 +1728,12 @@ We can also get the coefficients for given value(s) of lambda using the \texttt{
 \end{alltt}
 \begin{verbatim}
 ## 5 x 2 Matrix of class "dgeMatrix"
-##                      1            2
-## (Intercept) -0.3824525 -0.030224599
-## X62          0.0000000  0.000000000
-## X185         0.0000000  0.001444518
-## X371         0.0000000  0.009513475
-## X420         0.0000000  0.000000000
+##                       1            2
+## (Intercept) -0.03715135  0.247105426
+## X23          0.00000000  0.098030248
+## X36          0.00000000 -0.013022250
+## X38          0.00000000  0.005378361
+## X40          0.00000000  0.004028934
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1741,15 +1746,15 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the \texttt{
 \begin{alltt}
 \hlcom{# need to provide x to the predict function}
 \hlcom{# predict for the first 5 subjects}
-\hlkwd{predict}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{),} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
+\hlkwd{predict}\hlstd{(fit,} \hlkwc{s} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,}\hlnum{0.02}\hlstd{),} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtest[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
 \begin{verbatim}
-##               1          2
-## id1 -1.19165061 -1.3123392
-## id2 -0.02913052  0.3885923
-## id3 -2.00084875 -2.6460043
-## id4 -0.37255277 -0.9542463
-## id5 -1.03967831 -2.1377268
+##                1           2
+## id26  2.30208546  2.45597763
+## id39  0.87334032  1.62931898
+## id45 -0.12296837 -0.06075786
+## id52 -0.03715135 -0.97519671
+## id53 -0.21046107 -0.23151040
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1771,7 +1776,7 @@ We use the Generalized Information Criterion (GIC) to select the optimal value f
 \end{verbatim}
 \begin{alltt}
 \hlcom{# we can also fit the BIC by specifying the an argument}
-\hlstd{bicfit} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit,} \hlkwc{an} \hlstd{=} \hlkwd{log}\hlstd{(}\hlkwd{length}\hlstd{(admixed}\hlopt{$}\hlstd{y)))}
+\hlstd{bicfit} \hlkwb{<-} \hlkwd{gic}\hlstd{(fit,} \hlkwc{an} \hlstd{=} \hlkwd{log}\hlstd{(}\hlkwd{length}\hlstd{(admixed}\hlopt{$}\hlstd{ytrain)))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1801,7 +1806,7 @@ The optimal value for $\lambda$ according to the HDBIC, i.e., the $\lambda$ that
 \hlstd{hdbic[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.05596623
+## [1] 0.09862269
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1825,7 +1830,7 @@ We can also plot the BIC results:
 \hlstd{bicfit[[}\hlstr{"lambda.min"}\hlstd{]]}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.05596623
+## [1] 0.07460445
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1842,12 +1847,12 @@ We can use the object outputted by the \texttt{gic} function to extract the coef
 \end{alltt}
 \begin{verbatim}
 ## 5 x 1 sparse Matrix of class "dgCMatrix"
-##                      1
-## (Intercept) -0.2668419
-## X62          .        
-## X185         .        
-## X371         .        
-## X420         .
+##                       1
+## (Intercept) -0.03660806
+## X23          .         
+## X36          .         
+## X38          .         
+## X40          .
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1861,16 +1866,12 @@ We can also extract just the nonzero coefficients which also provide the estimat
 \end{alltt}
 \begin{verbatim}
 ##                       1
-## (Intercept) -0.26684191
-## X336        -0.67986393
-## X7638        0.43403365
-## X1536        0.93994982
-## X1943        0.56600730
-## X2849       -0.58157979
-## X56         -0.08244685
-## X4106       -0.35939830
-## eta          0.26746240
-## sigma2       0.98694300
+## (Intercept) -0.03660806
+## X302        -0.17607392
+## X524         1.34951500
+## X538        -0.72052613
+## eta          0.99000000
+## sigma2       1.60476289
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1880,15 +1881,15 @@ We can also make predictions from the \texttt{hdbic} object, which by default wi
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{predict}\hlstd{(hdbic,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
+\hlkwd{predict}\hlstd{(hdbic,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtest[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,])}
 \end{alltt}
 \begin{verbatim}
-##              1
-## id1 -1.3061041
-## id2  0.2991654
-## id3 -2.3453664
-## id4 -0.4486012
-## id5 -1.3895793
+##                1
+## id26  2.31027410
+## id39  0.86922183
+## id45 -0.12814532
+## id52 -0.03660806
+## id53 -0.21268198
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1904,7 +1905,7 @@ The user can compute the random effects using the provided \texttt{ranef} method
 \hlkwd{ranef}\hlstd{(hdbic)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{]}
 \end{alltt}
 \begin{verbatim}
-## [1] -0.85505649 -0.88390831  0.09124002 -0.55031545 -0.20364743
+## [1] -2.4889655  1.1834200 -0.5641832 -0.9310334 -0.3458703
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1921,7 +1922,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"predicted"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"predicted"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtrain,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{ytrain)}
 \end{alltt}
 \end{kframe}
 
@@ -1939,7 +1940,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQranef"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQranef"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtrain,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{ytrain)}
 \end{alltt}
 \end{kframe}
 
@@ -1949,7 +1950,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQresid"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"QQresid"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtrain,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{ytrain)}
 \end{alltt}
 \end{kframe}
 
@@ -1967,7 +1968,7 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"Tukey"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{x,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{y)}
+\hlkwd{plot}\hlstd{(hdbic,} \hlkwc{type} \hlstd{=} \hlstr{"Tukey"}\hlstd{,} \hlkwc{newx} \hlstd{= admixed}\hlopt{$}\hlstd{xtrain,} \hlkwc{newy} \hlstd{= admixed}\hlopt{$}\hlstd{ytrain)}
 \end{alltt}
 \end{kframe}
 

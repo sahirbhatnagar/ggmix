@@ -45,8 +45,7 @@
 #'   regression coefficient} \item{causal_negative}{character vector of the
 #'   causal SNPs with negative regression coefficient}\item{x_lasso}{the design
 #'   matrix which also includes \code{nPC} principal components} }
-#' @seealso \code{\link[bnpsd]{q1d}},\code{\link[bnpsd]{qis}},
-#'   \code{\link[bnpsd]{q1dc}}, \code{\link[bnpsd]{rbnpsd}}
+#' @seealso \code{\link[bnpsd]{admix_prop_1d_linear}}
 gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10,
                                  eta, sigma2, geography = c("ind", "1d", "circ"),
                                  percent_causal, percent_overlap, train_tune_test = c(0.6, 0.2, 0.2)) {
@@ -383,6 +382,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
               xtune_lasso = xtune_lasso,
               xtest_lasso = xtest_lasso,
 
+              Xkinship = Xall[train_ind,snps_kinships, drop = F],
               kin_train = kin_train,
               kin_tune_train = kin_tune_train,
               kin_test_train = kin_test_train, # covaraince between train and test
@@ -424,7 +424,7 @@ lambda.interp <- function (lambda, s) {
     k = length(lambda)
     sfrac <- (lambda[1] - s)/(lambda[1] - lambda[k])
     lambda <- (lambda[1] - lambda)/(lambda[1] - lambda[k])
-    coord <- approx(lambda, seq(lambda), sfrac)$y
+    coord <- stats::approx(lambda, seq(lambda), sfrac)$y
     left <- floor(coord)
     right <- ceiling(coord)
     sfrac = (sfrac - lambda[right])/(lambda[left] - lambda[right])
