@@ -477,7 +477,8 @@ Three datasets with different features were used to illustrate the potential adv
 
 \textbf{We found that with a kinship matrix estimated using all genotyped SNPs, \ggmix ~had the possibility to achieve a lower RMSE on the model selection set compared to the \texttt{twostep} and \texttt{lasso} methods (Figure~\ref{fig:UKB-Figure}A). An optimized \ggmix-derived polygenic risk score that utilized the least number of SNPs was also able to better predict the trait with lower RMSE on the test set (Figure~\ref{fig:UKB-Figure}B).}
 
-\textbf{We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\citep{zhou2013polygenic} implemented in the GEMMA package~\citep{zhou2012genome} to derive a polygenic risk score on the training set. We found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}B).}
+\textbf{We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\citep{zhou2013polygenic} implemented in the GEMMA package~\citep{zhou2012genome} to derive a polygenic risk score on the training set. \texttt{A posterior probability of inclusion of each SNP was provided and prediction was based on all SNPs with a positive posterior probability.} We found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}B). \texttt{Likely due to the small effect sizes of these SNPs, only 94, 35 and 1 SNPs had a posterior inclusion probability above 0.05, 0.10 and 0.50, respectively. The model would have further reduced prediction accuracy if the prediction was based only on these SNPs.}}
+
 
 <<UKB-Figure, fig.width=10, fig.height=8, fig.pos = 'H', fig.cap="Model selection and testing in the UK Biobank. (A) Root-mean-square error of three methods on the model selection set with respect to a grid search of penalty factor used on the training set. (B) Performance of four methods on the test set with penalty factor optimized on the model selection set. The x-axis has a logarithmic scale. The BSLMM method optimized coefficients of each SNP through an MCMC process on the training set and was directly evaluated on the test set.", eval=finalversion>>=
 @
@@ -514,7 +515,10 @@ On each simulated replicate, we calibrated the methods so that they could be eas
 All three methods precisely chose the correct predictor without any false positives in more than half of the replicates, as the causal signal was strong. However, when some false positives were selected (i.e. when the number of active variables > 1), \ggmix ~performed comparably to \texttt{twostep}, while the \texttt{lasso} was inclined to select more false positives as suggested by the larger third quartile number of active variables (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}).
 We also observed that \ggmix ~outperformed the \texttt{twostep} method with lower CV RMSE using the same number of SNPs. Meanwhile, it achieved roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}). \textbf{It is also worth mentioning that there was very little correlation between the causal SNP and SNPs within a 1Mb-window around it (Figure~\ref{fig:gaw20r2} in Supplemental Section~\ref{ap:ldplots}), making it an ideal scenario for the \texttt{lasso} and related methods.}
 
-\textbf{We also applied the \texttt{BSLMM} method by performing five-fold CV on each of the 200 simulated replicates. We found that while \texttt{BSLMM} achieved a lower CV RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}), this higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs supplied. This may suggest overfitting in this dataset. It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} model, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.}
+\textbf{We also applied the \texttt{BSLMM} method by performing five-fold CV on each of the 200 simulated replicates. 
+	We found that while \texttt{BSLMM} achieved a lower CV RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}), this higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs \texttt{with a positive posterior probability}. 
+	This may suggest overfitting in this dataset. 
+	\texttt{On the other hand, we found that imposing a posterior inclusion probability threshold might improve feature selection, but the results were sensitive to the arbitrary threshold as most SNPs had a low posterior probability.} It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} model, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.}
 
 
 \newcolumntype{C}[1]{>{\Centering}m{#1}}
@@ -522,13 +526,16 @@ We also observed that \ggmix ~outperformed the \texttt{twostep} method with lowe
 
 \begin{minipage}{\linewidth}
 	\bigskip
-	\captionof{table}{Summary of model performance based on 200 GAW20 simulations. Five-fold cross-validation root-mean-square error was reported for each simulation replicate.} \label{tab:GAW20-prediction-RMSE-activeVariable}
+	\captionof{table}{Summary of model performance based on 200 GAW20 simulations. Five-fold cross-validation root-mean-square error was reported for each simulation replicate. Prediction accuracy for BSLMM model with a positive posterior inclusion probability threshold was not reported because the model could contain no SNP.} \label{tab:GAW20-prediction-RMSE-activeVariable}
 	\begin{tabular}{ C{0.9in} C{3.5in} C{1.9in}}\toprule[1.5pt]
 		\bf Method & \bf Median number of active variables (Inter-quartile range) & \bf RMSE (SD) \\\midrule
 		\texttt{twostep} & 1 (1 - 11) & 0.3604 (0.0242) \\
 		\texttt{lasso} & 1 (1 - 15) & 0.3105 (0.0199) \\
 		\texttt{ggmix} & 1 (1 - 12) & 0.3146 (0.0210) \\
 		\texttt{BSLMM} & 40,737 (39,901 - 41,539) & 0.2503 (0.0099)\\
+		\texttt{BSLMM, posterior probability > 0.05} & 2 (1 - 4) & \\
+		\texttt{BSLMM, posterior probability > 0.10} & 0 (0 - 1)  & \\
+		\texttt{BSLMM, posterior probability > 0.50} & 0 (0 - 0)  & \\
 		\bottomrule[1.25pt]
 		\end {tabular}\par
 		\bigskip
@@ -552,7 +559,7 @@ We demonstrated that \ggmix ~recognized the true associations more robustly than
 
 We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\citep{sohrabi2013mapping}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\citep{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\citep{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\citep{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered. 
 
-\textbf{We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.}
+%\textbf{We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.}
 
 <<Mice-comparison-fixTPR, dev="cairo_pdf", fig.asp=0.8, fig.width=20, fig.height=8, fig.pos = 'H', fig.cap="Comparison of model performance on the mouse cross data. Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate significance thresholds.", eval=finalversion>>=
 @
