@@ -315,17 +315,18 @@ dat <- lapply(#list("ind","1d","circ"),
 # str(dat)
 # dev.off()
 
-par(omi = c(0.3,0.3,0.3,0.3))
+# par(omi = c(0.3,0.3,0.3,0.3))
 # popkin::plotPopkin(x = list(dat[[1]]$kin, dat[[2]]$kin, dat[[3]]$kin),
 #                    titles = c("block", "1D", "circular"),
 #                    marPad = 0.05)
 # popkin::plot_popkin(kinship = list(dat[[1]]$kin_train),
 #                     titles = c("Empirical Kinship Matrix with 1D Structure"),
 #                     marPad = 0.05)
-popkin::plot_popkin(kinship = list(dat[[1]]$kinship),
+popkin::plot_popkin(kinship = list(dat[[1]]$kinship)#,
                     # col = RColorBrewer::display.brewer.all(),
                     # titles = c("Empirical Kinship Matrix with 1D Structure"),
-                    mar_pad = 0.05)
+                    # mar_pad = 0.05
+                    )
 # popkin::plot_popkin(kinship = list(dat[[1]]$coancestry),
 #                     # titles = c("Empirical Kinship Matrix with 1D Structure"),
 #                     marPad = 0.05)
