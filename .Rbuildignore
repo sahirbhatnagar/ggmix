@@ -20,3 +20,5 @@
 ^manuscript$
 ^doc$
 ^Meta$
+^appveyor\.yml$
+^LICENSE\.md$
