@@ -173,7 +173,7 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <a class="sourceLine" id="cb4-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(fit)</a>
 <a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; [1] "lassofullrank" "ggmix_fit"</span></a></code></pre></div>
 <p>We can see the solution path for each variable by calling the <code>plot</code> method for objects of class <code>ggmix_fit</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(fit)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(fit)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <p>We can also get the coefficients for given value(s) of lambda using the <code>coef</code> method for objects of class <code>ggmix_fit</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(fit, <span class="dt">s =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>,<span class="fl">0.02</span>))</a>
@@ -255,13 +255,13 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co"># we can also fit the BIC by specifying the an argument</span></a>
 <a class="sourceLine" id="cb8-7" data-line-number="7">bicfit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.html">gic</a></span>(fit, <span class="dt">an =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(admixed<span class="op">$</span>ytrain)))</a></code></pre></div>
 <p>We can plot the HDBIC values against <span class="math inline">\(\log(\lambda)\)</span> using the <code>plot</code> method for objects of class <code>ggmix_gic</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(hdbic)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <p>The optimal value for lambda according to the HDBIC is (i.e. the <span class="math inline">\(\lambda\)</span> that leads to the minium HDBIC):</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">hdbic[[<span class="st">"lambda.min"</span>]]</a>
 <a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; [1] 0.09862269</span></a></code></pre></div>
 <p>We can also plot the BIC:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(bicfit, <span class="dt">ylab =</span> <span class="st">"BIC"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(bicfit, <span class="dt">ylab =</span> <span class="st">"BIC"</span>)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">bicfit[[<span class="st">"lambda.min"</span>]]</a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; [1] 0.07460445</span></a></code></pre></div>
@@ -354,21 +354,21 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <div id="observed-vs-predicted-response" class="section level3">
 <h3 class="hasAnchor">
 <a href="#observed-vs-predicted-response" class="anchor"></a>Observed vs. Predicted Response</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"predicted"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"predicted"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 </div>
 <div id="qq-plots-for-residuals-and-random-effects" class="section level3">
 <h3 class="hasAnchor">
 <a href="#qq-plots-for-residuals-and-random-effects" class="anchor"></a>QQ-plots for Residuals and Random Effects</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQranef"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQranef"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQresid"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQresid"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-16-2.png" width="700"></p>
 </div>
 <div id="tukey-anscombe-plot" class="section level3">
 <h3 class="hasAnchor">
 <a href="#tukey-anscombe-plot" class="anchor"></a>Tukey-Anscombe Plot</h3>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"Tukey"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"Tukey"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 </div>
 </div>
