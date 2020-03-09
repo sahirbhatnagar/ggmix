@@ -26,7 +26,7 @@ this should be of length p+1, where p is the number of variables.}
 \item{eta}{current estimate of the eta parameter}
 }
 \value{
-A descreasing sequence of tuning parameters
+A decreasing sequence of tuning parameters
 }
 \description{
 \code{sigma2lasso} estimates the value of the sigma2 for the
@@ -34,7 +34,7 @@ A descreasing sequence of tuning parameters
 }
 \note{
 There is a closed form solution for sigma^2, given beta and eta. This
-  funciton isn't meant to be called directly by the user.
+  function isn't meant to be called directly by the user.
 }
 \seealso{
 \code{\link{ggmix}}

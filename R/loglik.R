@@ -13,8 +13,8 @@
 #' @param sigma2 current estimate of the sigma2 parameter
 #' @param nt total number of observations
 #' @param ... Extra parameters. Currently ignored.
-#' @return A descreasing sequence of tuning parameters
-#' @note This funciton isn't meant to be called directly by the user.
+#' @return A decreasing sequence of tuning parameters
+#' @note This function isn't meant to be called directly by the user.
 #' @seealso \code{\link{ggmix_data_object}}
 logliklasso <- function(ggmix_object, ...) UseMethod("logliklasso")
 

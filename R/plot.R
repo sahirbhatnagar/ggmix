@@ -173,7 +173,7 @@ plotGIC <- function(x, sign.lambda, lambda.min, ...) {
 #' @param label If TRUE, label the curves with variable sequence numbers.
 #' @param sign.lambda Either plot against log(lambda) (default) or its negative
 #'   if sign.lambda=-1
-#' @param ... other graphical paramters passed to \code{plot}
+#' @param ... other graphical parameters passed to \code{plot}
 #' @param beta fixed effects estimates
 #' @param norm l1 norm of fixed effect estimates. if missing, (default) this
 #'   function will calculate it

@@ -71,7 +71,7 @@ used in determining lambda.max and starting value for fitting algorithm.}
 \item{maxit}{Maximum number of passes over the data for all lambda values;
 default is 10^2.}
 
-\item{fdev}{Fractional deviance change theshold. If change in deviance
+\item{fdev}{Fractional deviance change threshold. If change in deviance
 between adjacent lambdas is less than fdev, the solution path stops early.
 factory default = 1.0e-5}
 

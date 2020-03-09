@@ -33,14 +33,14 @@ observations and p are the number of predictors.}
 \item{y}{response variable. must be a quantitative variable}
 }
 \value{
-A descreasing sequence of tuning parameters
+A decreasing sequence of tuning parameters
 }
 \description{
 \code{sigma2lasso} estimates the value of the sigma2 for the
   linear mixed model with lasso penalty
 }
 \note{
-This funciton isn't meant to be called directly by the user.
+This function isn't meant to be called directly by the user.
 }
 \seealso{
 \code{\link{ggmix}}

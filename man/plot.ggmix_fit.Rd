@@ -23,7 +23,7 @@ plotCoef(
 \arguments{
 \item{x}{a \code{ggmix_fit} object}
 
-\item{...}{other graphical paramters passed to \code{plot}}
+\item{...}{other graphical parameters passed to \code{plot}}
 
 \item{xvar}{What is on the X-axis. "norm" plots against the L1-norm of the
 coefficients, "lambda" against the log-lambda sequence, and "dev" against

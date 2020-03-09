@@ -11,9 +11,9 @@
 #' @param eta current estimate of the eta parameter
 #' @param n number of observations
 #' @param ... Extra parameters. Currently ignored.
-#' @return A descreasing sequence of tuning parameters
+#' @return A decreasing sequence of tuning parameters
 #' @note There is a closed form solution for sigma^2, given beta and eta. This
-#'   funciton isn't meant to be called directly by the user.
+#'   function isn't meant to be called directly by the user.
 sigma2lasso <- function(ggmix_object, ...) UseMethod("sigma2lasso")
 
 #' @rdname sigma2lasso
