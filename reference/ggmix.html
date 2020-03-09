@@ -159,8 +159,8 @@
   <span class='no'>K</span>,
   <span class='no'>n_nonzero_eigenvalues</span>,
   <span class='no'>n_zero_eigenvalues</span>,
-  <span class='kw'>estimation</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"full"</span>, <span class='st'>"low"</span>),
-  <span class='kw'>penalty</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lasso"</span>, <span class='st'>"gglasso"</span>),
+  <span class='kw'>estimation</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"full"</span>),
+  <span class='kw'>penalty</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lasso"</span>),
   <span class='no'>group</span>,
   <span class='kw'>penalty.factor</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='no'>p_design</span>),
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -231,30 +231,32 @@ length of <code>D</code>.</p></td>
     </tr>
     <tr>
       <th>n_zero_eigenvalues</th>
-      <td><p>the number of zero eigenvalues. This argument must
-be specified when <code>U</code> and <code>D</code> are specified and
-<code>estimation="low"</code>. This is required for low rank estimation because
-the number of zero eigenvalues and their corresponding eigenvalues appears
-in the likelihood. In general this would be the rank of the matrix used to
-calculate the eigen or singular value decomposition. When <code>kinship</code> is
-provided and <code>estimation="low"</code> the default value will be
-<code>nrow(kinship) - n_nonzero_eigenvalues</code>. When <code>K</code> is provided and
-<code>estimation="low"</code>, the default value is <code>rank(K) -
-n_nonzero_eigenvalues</code></p></td>
+      <td><p>Currently not being used. Represents the number of
+zero eigenvalues. This argument must be specified when <code>U</code> and
+<code>D</code> are specified and <code>estimation="low"</code>. This is required for
+low rank estimation because the number of zero eigenvalues and their
+corresponding eigenvalues appears in the likelihood. In general this would
+be the rank of the matrix used to calculate the eigen or singular value
+decomposition. When <code>kinship</code> is provided and <code>estimation="low"</code>
+the default value will be <code>nrow(kinship) - n_nonzero_eigenvalues</code>.
+When <code>K</code> is provided and <code>estimation="low"</code>, the default value is
+<code>rank(K) - n_nonzero_eigenvalues</code></p></td>
     </tr>
     <tr>
       <th>estimation</th>
-      <td><p>type of estimation</p></td>
+      <td><p>type of estimation. Currently only <code>type="full"</code> has
+been implemented.</p></td>
     </tr>
     <tr>
       <th>penalty</th>
-      <td><p>type of regularization penalty. if <code>penalty="gglasso"</code>
-then the <code>group</code> argument must also be specified</p></td>
+      <td><p>type of regularization penalty. Currently, only
+penalty="lasso" has been implemented.</p></td>
     </tr>
     <tr>
       <th>group</th>
       <td><p>a vector of consecutive integers describing the grouping of the
-coefficients</p></td>
+coefficients. Currently not implemented, but will be used when
+penalty="gglasso" is implemented.</p></td>
     </tr>
     <tr>
       <th>penalty.factor</th>
@@ -347,10 +349,15 @@ between. Default: 0.</p></td>
 
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Friedman, J., Hastie, T. and Tibshirani, R. (2008)
-  <em>Regularization Paths for Generalized Linear Models via Coordinate
-  Descent</em>, <a href='http://www.stanford.edu/~hastie/Papers/glmnet.pdf'>http://www.stanford.edu/~hastie/Papers/glmnet.pdf</a>
-  <em>Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010</em>
+    <p>Bhatnagar, Sahir R, Yang, Yi, Lu, Tianyuan, Schurr, Erwin,
+  Loredo-Osti, JC, Forest, Marie, Oualkacha, Karim, and Greenwood, Celia MT.
+  (2020) <em>Simultaneous SNP selection and adjustment for population
+  structure in high dimensional prediction models</em>
+  <a href='https://doi.org/10.1101/408484'>https://doi.org/10.1101/408484</a></p>
+<p>Friedman, J., Hastie, T. and Tibshirani, R. (2008) <em>Regularization
+  Paths for Generalized Linear Models via Coordinate Descent</em>,
+  <a href='http://www.stanford.edu/~hastie/Papers/glmnet.pdf'>http://www.stanford.edu/~hastie/Papers/glmnet.pdf</a> <em>Journal of
+  Statistical Software, Vol. 33(1), 1-22 Feb 2010</em>
   <a href='http://www.jstatsoft.org/v33/i01/'>http://www.jstatsoft.org/v33/i01/</a></p>
 <p>Yang, Y., &amp; Zou, H. (2015). A fast unified algorithm for solving
   group-lasso penalize learning problems. <em>Statistics and Computing</em>,

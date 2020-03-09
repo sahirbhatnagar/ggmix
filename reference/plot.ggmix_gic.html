@@ -225,6 +225,17 @@ made. Do not include the intercept. this is only required for
 
     <div class='dont-index'><p><code><a href='gic.html'>gic</a></code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"admixed"</span>)
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ggmix.html'>ggmix</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>xtrain</span>,
+             <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>ytrain</span>,
+             <span class='kw'>kinship</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>kin_train</span>)
+<span class='no'>hdbic</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='gic.html'>gic</a></span>(<span class='no'>fit</span>)
+
+<span class='co'># plot solution path</span>
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>fit</span>)</div><div class='img'><img src='plot.ggmix_gic-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># plot HDBIC curve as a function of lambda</span>
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>hdbic</span>)</div><div class='img'><img src='plot.ggmix_gic-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -233,6 +244,7 @@ made. Do not include the intercept. this is only required for
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

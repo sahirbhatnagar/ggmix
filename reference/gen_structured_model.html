@@ -235,23 +235,34 @@ will also be included in the calculation of the kinship matrix</p></td>
     </tr>
     <tr>
       <th>train_tune_test</th>
-      <td><p>the proportion of sample size used for training
-tuning parameter selection and testing. default is 60/20/20 split</p></td>
+      <td><p>the proportion of sample size used for training tuning
+parameter selection and testing. default is 60/20/20 split</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list with the following elements</p><dl class='dl-horizontal'>
- <dt>x</dt><dd><p>simulated design matrix</p></dd> <dt>causal</dt><dd><p>character
-  vector of the names of the causal SNPs</p></dd> <dt>beta</dt><dd><p>the vector of true
-  regression coefficients</p></dd> <dt>kin</dt><dd><p>2 times the estimated kinship</p></dd>
+ <dt>ytune</dt><dd><p>simulated response vector
+  for tuning parameter selection set</p></dd> <dt>ytest</dt><dd><p>simulated response vector
+  for test set</p></dd> <dt>xtrain</dt><dd><p>simulated design matrix for training
+  set</p></dd><dt>xtune</dt><dd><p>simulated design matrix for tuning paramter selection
+  set</p></dd><dt>xtest</dt><dd><p>simulated design matrix for testing set</p></dd>
+  <dt>xtrain_lasso</dt><dd><p>simulated design matrix for training set for lasso
+  model. This is the same as xtrain, but also includes the nPC principal
+  components</p></dd> <dt>xtune_lasso</dt><dd><p>simulated design matrix for tuning parameter
+  selection set for lasso model. This is the same as xtune, but also includes
+  the nPC principal components</p></dd><dt>xtest</dt><dd><p>simulated design matrix for
+  testing set for lasso model. This is the same as xtest, but also includes
+  the nPC principal components</p></dd> <dt>causal</dt><dd><p>character vector of the names
+  of the causal SNPs</p></dd> <dt>beta</dt><dd><p>the vector of true regression coefficients</p></dd>
+  <dt>kin_train</dt><dd><p>2 times the estimated kinship for the training set
+  individuals</p></dd> <dt>kin_tune_train</dt><dd><p>The covariance matrix between the tuning
+  set and the training set individuals</p></dd> <dt>kin_test_train</dt><dd><p>The covariance
+  matrix between the test set and training set individuals</p></dd>
   <dt>Xkinship</dt><dd><p>the matrix of SNPs used to estimate the kinship matrix</p></dd>
-  <dt>not_causal</dt><dd><p>character vector of the non-causal SNPs</p></dd>
-  <dt>causal_positive</dt><dd><p>character vector of the causal SNPs with positive
-  regression coefficient</p></dd> <dt>causal_negative</dt><dd><p>character vector of the
-  causal SNPs with negative regression coefficient</p></dd><dt>x_lasso</dt><dd><p>the design
-  matrix which also includes <code>nPC</code> principal components</p></dd> 
+  <dt>not_causal</dt><dd><p>character vector of the non-causal SNPs</p></dd> <dt>PC</dt><dd><p>the
+  principal components for population structure adjustment</p></dd> 
 </dl>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -264,6 +275,22 @@ tuning parameter selection and testing. default is 60/20/20 split</p></td>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/bnpsd/man/admix_prop_1d_linear.html'>admix_prop_1d_linear</a></code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>admixed</span> <span class='kw'>&lt;-</span> <span class='fu'>gen_structured_model</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+                                <span class='kw'>p_design</span> <span class='kw'>=</span> <span class='fl'>50</span>,
+                                <span class='kw'>p_kinship</span> <span class='kw'>=</span> <span class='fl'>5e2</span>,
+                                <span class='kw'>geography</span> <span class='kw'>=</span> <span class='st'>"1d"</span>,
+                                <span class='kw'>percent_causal</span> <span class='kw'>=</span> <span class='fl'>0.10</span>,
+                                <span class='kw'>percent_overlap</span> <span class='kw'>=</span> <span class='st'>"100"</span>,
+                                <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>Fst</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+                                <span class='kw'>b0</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>nPC</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+                                <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>sigma2</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+                                <span class='kw'>train_tune_test</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.1</span>))</div><div class='output co'>#&gt; <span class='message'>eta * sigma2 * kin not PD, using Matrix::nearPD</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>admixed</span>)</div><div class='output co'>#&gt;  [1] "ytrain"         "ytune"          "ytest"          "xtrain"        
+#&gt;  [5] "xtune"          "xtest"          "xtrain_lasso"   "xtune_lasso"   
+#&gt;  [9] "xtest_lasso"    "Xkinship"       "kin_train"      "kin_tune_train"
+#&gt; [13] "kin_test_train" "mu_train"       "causal"         "beta"          
+#&gt; [17] "not_causal"     "kinship"        "coancestry"     "PC"            
+#&gt; [21] "subpops"       </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -272,6 +299,7 @@ tuning parameter selection and testing. default is 60/20/20 split</p></td>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

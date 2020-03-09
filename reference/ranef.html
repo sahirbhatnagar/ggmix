@@ -194,6 +194,20 @@ used.</p></td>
 
     <div class='dont-index'><p><code><a href='gic.html'>gic</a></code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"admixed"</span>)
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ggmix.html'>ggmix</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>xtrain</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>ytrain</span>,
+            <span class='kw'>kinship</span> <span class='kw'>=</span> <span class='no'>admixed</span>$<span class='no'>kin_train</span>)
+<span class='no'>gicfit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='gic.html'>gic</a></span>(<span class='no'>fit</span>)
+<span class='co'># random effect at selected value of lambda</span>
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='kw pkg'>ggmix</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggmix/man/ranef.html'>ranef</a></span>(<span class='no'>gicfit</span>))</div><div class='img'><img src='ranef-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># random effects at specific values of lambda</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw pkg'>ggmix</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggmix/man/ranef.html'>ranef</a></span>(<span class='no'>gicfit</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.1</span>,<span class='fl'>0.2</span>)))</div><div class='output co'>#&gt;                1          2
+#&gt; [1,] -2.50068689 -3.3319049
+#&gt; [2,]  1.18958290  1.6479184
+#&gt; [3,] -0.56591630 -0.7010323
+#&gt; [4,] -0.93637814 -1.3405188
+#&gt; [5,] -0.35160641 -0.7833144
+#&gt; [6,]  0.05101435 -0.2833299</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -202,6 +216,7 @@ used.</p></td>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
