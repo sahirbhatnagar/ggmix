@@ -1,0 +1,11 @@
+pandoc: '2.2'
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  alternative-kinship-input: alternative-kinship-input.html
+  introduction-to-ggmix: introduction-to-ggmix.html
+  prior-annotation-weights: prior-annotation-weights.html
+urls:
+  reference: https://sahirbhatnagar.com/ggmix/reference
+  article: https://sahirbhatnagar.com/ggmix/articles
+
