@@ -11,8 +11,8 @@
 #' @param center_y should y be mean centered - default is FALSE.
 #' @param tol.kkt KKT tolerance. Currently ignored
 #' @param ... Extra parameters. Currently ignored.
-#' @note This funciton isn't meant to be called directly by the user.
-#' @return A descreasing sequence of tuning parameters
+#' @note This function isn't meant to be called directly by the user.
+#' @return A decreasing sequence of tuning parameters
 lambdalasso <- function(ggmix_object, ...) UseMethod("lambdalasso")
 
 #' @rdname lambdalasso

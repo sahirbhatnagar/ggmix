@@ -7,7 +7,7 @@
 #'   the rest are 0.}\item{kin1}{the true kinship matrix}\item{s.g}{polygenic
 #'   variance, set to be 1.26}\item{s.e}{error variance, set to be
 #'   1}\item{h.tot}{the total trait heritability. Set to be 60%.}\item{G}{matrix
-#'   of genotypes of dimension 600 x 1000 SNPs, with approximately 800 commun
+#'   of genotypes of dimension 600 x 1000 SNPs, with approximately 800 common
 #'   and 200 rare SNPs}}
 #' @details If you simulate data using the scenario provided in the example,
 #'   then the QTL heritability of y will be 8% (i.e. the 10 SNPs will explain 8%
@@ -25,7 +25,7 @@
 
 #' Simulated Dataset with 1D Geography
 #'
-#' A simualted dataset to show the utility of this package
+#' A simulated dataset to show the utility of this package
 #'
 #' @details The code used to simulate the data is available at
 #'   \url{https://github.com/sahirbhatnagar/ggmix/blob/master/data-raw/bnpsd-data.R}.
