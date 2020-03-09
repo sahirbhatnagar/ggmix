@@ -13,8 +13,8 @@ ggmix(
   K,
   n_nonzero_eigenvalues,
   n_zero_eigenvalues,
-  estimation = c("full", "low"),
-  penalty = c("lasso", "gglasso"),
+  estimation = c("full"),
+  penalty = c("lasso"),
   group,
   penalty.factor = rep(1, p_design),
   lambda = NULL,
@@ -67,24 +67,26 @@ is only used when \code{estimation="low"} and either \code{kinship} or
 have been provided, then \code{n_nonzero_eigenvalues} defaults to the
 length of \code{D}.}
 
-\item{n_zero_eigenvalues}{the number of zero eigenvalues. This argument must
-be specified when \code{U} and \code{D} are specified and
-\code{estimation="low"}. This is required for low rank estimation because
-the number of zero eigenvalues and their corresponding eigenvalues appears
-in the likelihood. In general this would be the rank of the matrix used to
-calculate the eigen or singular value decomposition. When \code{kinship} is
-provided and \code{estimation="low"} the default value will be
-\code{nrow(kinship) - n_nonzero_eigenvalues}. When \code{K} is provided and
-\code{estimation="low"}, the default value is \code{rank(K) -
-n_nonzero_eigenvalues}}
+\item{n_zero_eigenvalues}{Currently not being used. Represents the number of
+zero eigenvalues. This argument must be specified when \code{U} and
+\code{D} are specified and \code{estimation="low"}. This is required for
+low rank estimation because the number of zero eigenvalues and their
+corresponding eigenvalues appears in the likelihood. In general this would
+be the rank of the matrix used to calculate the eigen or singular value
+decomposition. When \code{kinship} is provided and \code{estimation="low"}
+the default value will be \code{nrow(kinship) - n_nonzero_eigenvalues}.
+When \code{K} is provided and \code{estimation="low"}, the default value is
+\code{rank(K) - n_nonzero_eigenvalues}}
 
-\item{estimation}{type of estimation}
+\item{estimation}{type of estimation. Currently only \code{type="full"} has
+been implemented.}
 
-\item{penalty}{type of regularization penalty. if \code{penalty="gglasso"}
-then the \code{group} argument must also be specified}
+\item{penalty}{type of regularization penalty. Currently, only
+penalty="lasso" has been implemented.}
 
 \item{group}{a vector of consecutive integers describing the grouping of the
-coefficients}
+coefficients. Currently not implemented, but will be used when
+penalty="gglasso" is implemented.}
 
 \item{penalty.factor}{Separate penalty factors can be applied to each
 coefficient. This is a number that multiplies lambda to allow differential
@@ -166,10 +168,16 @@ plot(fitlmm)
 
 }
 \references{
-Friedman, J., Hastie, T. and Tibshirani, R. (2008)
-  \emph{Regularization Paths for Generalized Linear Models via Coordinate
-  Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
-  \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
+Bhatnagar, Sahir R, Yang, Yi, Lu, Tianyuan, Schurr, Erwin,
+  Loredo-Osti, JC, Forest, Marie, Oualkacha, Karim, and Greenwood, Celia MT.
+  (2020) \emph{Simultaneous SNP selection and adjustment for population
+  structure in high dimensional prediction models}
+  \url{https://doi.org/10.1101/408484}
+
+  Friedman, J., Hastie, T. and Tibshirani, R. (2008) \emph{Regularization
+  Paths for Generalized Linear Models via Coordinate Descent},
+  \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf} \emph{Journal of
+  Statistical Software, Vol. 33(1), 1-22 Feb 2010}
   \url{http://www.jstatsoft.org/v33/i01/}
 
   Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving

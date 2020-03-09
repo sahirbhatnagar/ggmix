@@ -43,6 +43,16 @@ For objects of class "ggmix_gic", this function returns the
   subject-specific random effect value for the model which minimizes the GIC
   using the maximum a posteriori principle
 }
+\examples{
+data("admixed")
+fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain,
+            kinship = admixed$kin_train)
+gicfit <- gic(fit)
+# random effect at selected value of lambda
+plot(ggmix::ranef(gicfit))
+# random effects at specific values of lambda
+head(ggmix::ranef(gicfit, s = c(0.1,0.2)))
+}
 \seealso{
 \code{\link{gic}}
 }

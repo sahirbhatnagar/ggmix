@@ -12,7 +12,6 @@
 #'   intercept column
 #' @param ... Extra parameters. Currently ignored.
 #' @return A object of class \code{ggmix}
-#' @export
 lmmlasso <- function(ggmix_object, ...) UseMethod("lmmlasso")
 
 #' @rdname lmmlasso

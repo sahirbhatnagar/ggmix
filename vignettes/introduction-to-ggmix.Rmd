@@ -107,9 +107,7 @@ We will use the most basic call to the main function of this package `ggmix`. Th
 ```{r}
 fit <- ggmix(x = admixed$xtrain, 
              y = admixed$ytrain, 
-             kinship = admixed$kin_train, 
-             estimation = "low",
-             n_nonzero_eigenvalues = 5)
+             kinship = admixed$kin_train)
 names(fit)
 class(fit)
 ```

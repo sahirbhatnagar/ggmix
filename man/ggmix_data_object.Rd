@@ -66,7 +66,8 @@ of observations minus \code{n_nonzero_eigenvalues}}
 \value{
 A ggmix object, of the class that corresponds to the estimation
   method. These objects are lists that contain the data necessary for
-  computation.
+  computation. These functions are not meant to be called directly by the
+  user
 }
 \description{
 \code{new_fullrank_kinship}, \code{new_fullrank_K}, \code{new_fullrank_UD},
