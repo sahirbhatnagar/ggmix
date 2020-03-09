@@ -149,18 +149,32 @@
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
+    <p>An object of class <code>list</code> of length 21.</p>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
     <p>A list with the following elements</p><dl class='dl-horizontal'>
- <dt>x</dt><dd><p>simulated design matrix, 500 x 200 matrix</p></dd>
-  <dt>causal</dt><dd><p>character vector of the names of the causal SNPs</p></dd>
-  <dt>beta</dt><dd><p>the vector of true regression coefficients. 5<!-- % of the SNPs in x -->
-  are causal</p></dd> <dt>kin</dt><dd><p>2 times the estimated kinship</p></dd> <dt>Xkinship</dt><dd><p>the
-  matrix of SNPs used to estimate the kinship matrix, 500 x 10,000 matirx</p></dd>
-  <dt>not_causal</dt><dd><p>character vector of the non-causal SNPs</p></dd>
-  <dt>causal_positive</dt><dd><p>character vector of the causal SNPs with positive
-  regression coefficient</p></dd> <dt>causal_negative</dt><dd><p>character vector of the
-  causal SNPs with negative regression coefficient</p></dd><dt>x_lasso</dt><dd><p>the design
-  matrix which also includes <code>nPC</code> principal components</p></dd> 
+ <dt>ytune</dt><dd><p>simulated response vector
+  for tuning parameter selection set</p></dd> <dt>ytest</dt><dd><p>simulated response vector
+  for test set</p></dd> <dt>xtrain</dt><dd><p>simulated design matrix for training
+  set</p></dd><dt>xtune</dt><dd><p>simulated design matrix for tuning parameter selection
+  set</p></dd><dt>xtest</dt><dd><p>simulated design matrix for testing set</p></dd>
+  <dt>xtrain_lasso</dt><dd><p>simulated design matrix for training set for lasso
+  model. This is the same as xtrain, but also includes the nPC principal
+  components</p></dd> <dt>xtune_lasso</dt><dd><p>simulated design matrix for tuning parameter
+  selection set for lasso model. This is the same as xtune, but also includes
+  the nPC principal components</p></dd><dt>xtest</dt><dd><p>simulated design matrix for
+  testing set for lasso model. This is the same as xtest, but also includes
+  the nPC principal components</p></dd> <dt>causal</dt><dd><p>character vector of the names
+  of the causal SNPs</p></dd> <dt>beta</dt><dd><p>the vector of true regression coefficients</p></dd>
+  <dt>kin_train</dt><dd><p>2 times the estimated kinship for the training set
+  individuals</p></dd> <dt>kin_tune_train</dt><dd><p>The covariance matrix between the tuning
+  set and the training set individuals</p></dd> <dt>kin_test_train</dt><dd><p>The covariance
+  matrix between the test set and training set individuals</p></dd>
+  <dt>Xkinship</dt><dd><p>the matrix of SNPs used to estimate the kinship matrix</p></dd>
+  <dt>not_causal</dt><dd><p>character vector of the non-causal SNPs</p></dd> <dt>PC</dt><dd><p>the
+  principal components for population structure adjustment</p></dd> 
 </dl>
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The code used to simulate the data is available at
@@ -241,6 +255,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#format">Format</a></li>
+      <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#examples">Examples</a></li>
