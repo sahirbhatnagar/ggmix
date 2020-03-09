@@ -6,16 +6,17 @@ data("admixed")
 svdXkinship <- svd(admixed$Xkinship)
 number_nonzero_eigenvalues <- 20
 
-fullrank_kinship <- try(new_fullrank_kinship(x = admixed$x, y = admixed$y,
-                                             kinship = admixed$kin),
+fullrank_kinship <- try(new_fullrank_kinship(x = admixed$xtrain, y = admixed$ytrain,
+                                             kinship = admixed$kin_train),
                         silent = TRUE)
 
-fullrank_K <- try(new_fullrank_K(x = admixed$x, y = admixed$y,
+fullrank_K <- try(new_fullrank_K(x = admixed$xtrain, y = admixed$ytrain,
                                  K = admixed$Xkinship),
                   silent = TRUE)
 
-fullrank_UD <- try(new_fullrank_UD(x = admixed$x, y = admixed$y,
-                                   U = svdXkinship$u, D = svdXkinship$d),
+fullrank_UD <- try(new_fullrank_UD(x = admixed$xtrain, y = admixed$ytrain,
+                                   U = svdXkinship$u[,which(svdXkinship$d > 0), drop = F],
+                                   D = svdXkinship$d[which(svdXkinship$d > 0)]),
                    silent = TRUE)
 
 
@@ -38,13 +39,13 @@ test_that("no error in full rank constructor functions", {
 # kin <- gaston::GRM(gaston::as.bed.matrix(admixed$Xkinship), autosome.only = FALSE)
 # need to have pacman::p_load(RSpectra)
 
-lowrank_kinship <- try(new_lowrank_kinship(x = admixed$x, y = admixed$y,
-                                       kinship = admixed$kin,
+lowrank_kinship <- try(new_lowrank_kinship(x = admixed$xtrain, y = admixed$ytrain,
+                                       kinship = admixed$kin_train,
                                        n_nonzero_eigenvalues = number_nonzero_eigenvalues,
-                                       n_zero_eigenvalues = nrow(admixed$kin) - number_nonzero_eigenvalues),
+                                       n_zero_eigenvalues = nrow(admixed$kin_train) - number_nonzero_eigenvalues),
                        silent = TRUE)
 
-lowrank_K <- try(new_lowrank_K(x = admixed$x, y = admixed$y,
+lowrank_K <- try(new_lowrank_K(x = admixed$xtrain, y = admixed$ytrain,
                                K = admixed$Xkinship,
                                n_nonzero_eigenvalues = number_nonzero_eigenvalues,
                                n_zero_eigenvalues = min(nrow(admixed$Xkinship),
@@ -52,7 +53,7 @@ lowrank_K <- try(new_lowrank_K(x = admixed$x, y = admixed$y,
                                                           number_nonzero_eigenvalues),
                  silent = TRUE)
 
-lowrank_UD <- try(new_lowrank_UD(x = admixed$x, y = admixed$y,
+lowrank_UD <- try(new_lowrank_UD(x = admixed$xtrain, y = admixed$ytrain,
                                  U = svdXkinship$u, D = svdXkinship$d,
                                  n_nonzero_eigenvalues = length(svdXkinship$d),
                                  n_zero_eigenvalues = 50),

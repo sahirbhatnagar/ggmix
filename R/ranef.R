@@ -102,10 +102,9 @@ ranef.ggmix_gic <- function(object, s = "lambda.min", ...) {
 
 
 bi_lassofullrank <- function(eta, beta, eigenvalues, eigenvectors, x, y) {
-  di <- 1 + eta * (eigenvalues - 1)
-  D_tilde_inv <- diag(1 / di)
-  as.vector(eigenvectors %*% diag(1 / (1 / di + 1 / (eta * eigenvalues))) %*%
-              t(eigenvectors) %*% eigenvectors %*% D_tilde_inv %*% (y - x %*% beta))
+  D_inv <- diag(1 / eigenvalues)
+  p1 <- solve((diag(length(y)) + (1/eta) * (eigenvectors %*% D_inv %*% t(eigenvectors))))
+  as.vector( p1 %*% (y - x %*% beta))
 }
 
 

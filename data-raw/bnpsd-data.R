@@ -14,15 +14,16 @@ pacman::p_load(MASS)
 devtools::load_all()
 
 set.seed(2345)
-admixed <- gen_structured_model(n = 500,
-                                p_test = 200,
-                                p_kinship = 1e4,
+admixed <- gen_structured_model(n = 100,
+                                p_design = 50,
+                                p_kinship = 5e2,
                                 geography = "1d",
-                                percent_causal = 0.05,
+                                percent_causal = 0.10,
                                 percent_overlap = "100",
                                 k = 5, s = 0.5, Fst = 0.1,
                                 b0 = 0, nPC = 10,
-                                eta = 0.1, sigma2 = 1)
+                                eta = 0.1, sigma2 = 1,
+                                train_tune_test = c(0.8, 0.1, 0.1))
 
 usethis::use_data(admixed, overwrite = TRUE)
 

@@ -97,7 +97,7 @@ We can visualize the kinship matrix in the `admixed` data using the `popkin` pac
 ```{r}
 # need to install the package if you don't have it
 # pacman::p_load_gh('StoreyLab/popkin')
-popkin::plotPopkin(admixed$kin)
+popkin::plot_popkin(admixed$kin_train)
 ```
 
 ## Fit the linear mixed model with Lasso Penalty
@@ -105,7 +105,9 @@ popkin::plotPopkin(admixed$kin)
 We will use the most basic call to the main function of this package `ggmix`. This function by default will fit a $L_1$ penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter $\lambda$. It will choose its own sequence:  
 
 ```{r}
-fit <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin)
+fit <- ggmix(x = admixed$xtrain, 
+             y = admixed$ytrain, 
+             kinship = admixed$kin_train)
 names(fit)
 class(fit)
 ```
@@ -126,7 +128,7 @@ We can also get predictions ($X\widehat{\boldsymbol{\beta}}$) using the `predict
 
 ```{r}
 # need to provide x to the predict function
-head(predict(fit, s = 0.01, newx = admixed$x))
+head(predict(fit, s = 0.01, newx = admixed$xtest))
 ```
 
 
@@ -144,7 +146,7 @@ hdbic <- gic(fit)
 class(hdbic)
 
 # we can also fit the BIC by specifying the an argument
-bicfit <- gic(fit, an = log(length(admixed$y)))
+bicfit <- gic(fit, an = log(length(admixed$ytrain)))
 ```
 
 We can plot the HDBIC values against $\log(\lambda)$ using the `plot` method for objects of class `ggmix_gic`:  
@@ -186,7 +188,7 @@ coef(hdbic, type = "nonzero")
 Finally we can also make predictions from the `hdbic` object, which by default will use the model corresponding to the optimal tuning parameter:
 
 ```{r}
-predict(hdbic, newx = admixed$x)
+predict(hdbic, newx = admixed$xtest)
 ```
 
 
@@ -198,22 +200,22 @@ We can also plot some standard diagnotic plots such as the observed vs. predicte
 ### Observed vs. Predicted Response
 
 ```{r}
-plot(hdbic, type = "predicted", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "predicted", newx = admixed$xtrain, newy = admixed$ytrain)
 ```
 
 
 ### QQ-plots for Residuals and Random Effects
 
 ```{r}
-plot(hdbic, type = "QQranef", newx = admixed$x, newy = admixed$y)
-plot(hdbic, type = "QQresid", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "QQranef", newx = admixed$xtrain, newy = admixed$ytrain)
+plot(hdbic, type = "QQresid", newx = admixed$xtrain, newy = admixed$ytrain)
 ```
 
 
 ### Tukey-Anscombe Plot
 
 ```{r}
-plot(hdbic, type = "Tukey", newx = admixed$x, newy = admixed$y)
+plot(hdbic, type = "Tukey", newx = admixed$xtrain, newy = admixed$ytrain)
 ```
 
 

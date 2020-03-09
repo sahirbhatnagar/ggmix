@@ -45,8 +45,7 @@
 #'   regression coefficient} \item{causal_negative}{character vector of the
 #'   causal SNPs with negative regression coefficient}\item{x_lasso}{the design
 #'   matrix which also includes \code{nPC} principal components} }
-#' @seealso \code{\link[bnpsd]{q1d}},\code{\link[bnpsd]{qis}},
-#'   \code{\link[bnpsd]{q1dc}}, \code{\link[bnpsd]{rbnpsd}}
+#' @seealso \code{\link[bnpsd]{admix_prop_1d_linear}}
 gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10,
                                  eta, sigma2, geography = c("ind", "1d", "circ"),
                                  percent_causal, percent_overlap, train_tune_test = c(0.6, 0.2, 0.2)) {
@@ -360,7 +359,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
 
   # xtrain <- Xdesign[ind,,drop=FALSE]
   # xtune <- Xdesign[-ind,,drop=FALSE]
-
+  PC_all <- stats::prcomp(Xdesign)
   PC <- stats::prcomp(xtrain)
   xtrain_lasso <- cbind(xtrain, PC$x[,1:nPC])
   xtune_pc <- stats::predict(PC, newdata = xtune)
@@ -383,6 +382,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
               xtune_lasso = xtune_lasso,
               xtest_lasso = xtest_lasso,
 
+              Xkinship = Xall[train_ind,snps_kinships, drop = F],
               kin_train = kin_train,
               kin_tune_train = kin_tune_train,
               kin_test_train = kin_test_train, # covaraince between train and test
@@ -392,7 +392,13 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
               causal = causal,
               beta = beta,
 
-              not_causal = not_causal
+              not_causal = not_causal,
+
+              # used in manuscript to generate simulation study figures
+              kinship = kinship,
+              coancestry = coancestry,
+              PC = PC_all$x[,1:nPC],
+              subpops = subpops
   ))
 }
 
@@ -402,7 +408,77 @@ l2norm <- function(x) sqrt(sum(x^2))
 
 "%ni%" <- Negate("%in%")
 
+# internal function
+# taken verbatim from glmnet package.
+# it used to be exported by glmnet, but is no longer exported.
+lambda.interp <- function (lambda, s) {
+  if (length(lambda) == 1) {
+    nums = length(s)
+    left = rep(1, nums)
+    right = left
+    sfrac = rep(1, nums)
+  }
+  else {
+    s[s > max(lambda)] = max(lambda)
+    s[s < min(lambda)] = min(lambda)
+    k = length(lambda)
+    sfrac <- (lambda[1] - s)/(lambda[1] - lambda[k])
+    lambda <- (lambda[1] - lambda)/(lambda[1] - lambda[k])
+    coord <- stats::approx(lambda, seq(lambda), sfrac)$y
+    left <- floor(coord)
+    right <- ceiling(coord)
+    sfrac = (sfrac - lambda[right])/(lambda[left] - lambda[right])
+    sfrac[left == right] = 1
+    sfrac[abs(lambda[left] - lambda[right]) < .Machine$double.eps] = 1
+  }
+  list(left = left, right = right, frac = sfrac)
+}
 
+
+
+# internal function
+# taken verbatim from glmnet package.
+# it used to be exported by glmnet, but is no longer exported.
+nonzeroCoef <- function (beta, bystep = FALSE) {
+  nr = nrow(beta)
+  if (nr == 1) {
+    if (bystep)
+      apply(beta, 2, function(x) if (abs(x) > 0)
+        1
+        else NULL)
+    else {
+      if (any(abs(beta) > 0))
+        1
+      else NULL
+    }
+  }
+  else {
+    beta = abs(beta) > 0
+    which = seq(nr)
+    ones = rep(1, ncol(beta))
+    nz = as.vector((beta %*% ones) > 0)
+    which = which[nz]
+    if (bystep) {
+      if (length(which) > 0) {
+        beta = as.matrix(beta[which, , drop = FALSE])
+        nzel = function(x, which) if (any(x))
+          which[x]
+        else NULL
+        which = apply(beta, 2, nzel, which)
+        if (!is.list(which))
+          which = data.frame(which)
+        which
+      }
+      else {
+        dn = dimnames(beta)[[2]]
+        which = vector("list", length(dn))
+        names(which) = dn
+        which
+      }
+    }
+    else which
+  }
+}
 
 
 

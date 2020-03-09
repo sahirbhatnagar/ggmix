@@ -1,0 +1,60 @@
+\begin{table}
+
+\caption{\label{tab:print-sim-table}Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\%, 30\%).
+                  For all simulations, sample size is $n=1000$, the number of covariates is $p=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+                  TPR at FPR=5\% is the true positive rate at a fixed false positive rate of 5\%.
+                  Model Size ($|\widehat{S}_{\hat{\lambda}}|$) is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
+                  RMSE is the root mean squared error on the test set.
+                  Estimation error is the squared distance between the estimated and true effect sizes.
+                  Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect||\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}||_2^2$~\citep{reid2016study} as an estimator for $\sigma^2$.
+                  Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment.}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabu} to \linewidth {>{\bfseries}l>{\raggedright}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{4}{c}{Null model} & \multicolumn{4}{c}{1\% Causal SNPs} \\
+\cmidrule(l{3pt}r{3pt}){3-6} \cmidrule(l{3pt}r{3pt}){7-10}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10}
+Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
+\midrule
+\rowcolor{gray!6}   & twostep & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.84 (0.05) & 0.84 (0.05) & 0.76 (0.09) & 0.77 (0.08)\\
+
+\rowcolor{gray!6}   & lasso & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.85 (0.05) & 0.86 (0.05) & 0.86 (0.05)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash TPR at FPR=5\%} & ggmix & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.86 (0.05) & 0.85 (0.05) & 0.86 (0.05)\\
+\cmidrule{1-10}
+ & twostep & 0 (0, 5) & 0 (0, 2) & 0 (0, 5) & 0 (0, 2) & 328 (289, 388) & 332 (287, 385) & 284 (250, 329) & 284 (253, 319)\\
+
+ & lasso & 0 (0, 6) & 0 (0, 5) & 0 (0, 6) & 0 (0, 5) & 278 (246, 317) & 276 (245, 314) & 279 (252, 321) & 285 (244, 319)\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Model Size} & ggmix & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 43 (39, 49) & 43 (39, 48) & 44 (38, 49) & 43 (38, 48)\\
+\cmidrule{1-10}
+\rowcolor{gray!6}   & twostep & 1.02 (0.07) & 1.02 (0.06) & 1.02 (0.07) & 1.02 (0.06) & 1.42 (0.10) & 1.41 (0.10) & 1.44 (0.33) & 1.40 (0.22)\\
+
+\rowcolor{gray!6}   & lasso & 1.02 (0.06) & 1.02 (0.06) & 1.02 (0.06) & 1.02 (0.06) & 1.39 (0.09) & 1.38 (0.09) & 1.40 (0.08) & 1.38 (0.08)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash RMSE} & ggmix & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.22 (0.10) & 1.20 (0.10) & 1.23 (0.11) & 1.23 (0.12)\\
+\cmidrule{1-10}
+ & twostep & 0.12 (0.22) & 0.09 (0.19) & 0.12 (0.22) & 0.09 (0.19) & 2.97 (0.60) & 2.92 (0.60) & 3.60 (5.41) & 3.21 (3.46)\\
+
+ & lasso & 0.13 (0.21) & 0.12 (0.22) & 0.13 (0.21) & 0.12 (0.22) & 2.76 (0.46) & 2.69 (0.47) & 2.82 (0.48) & 2.75 (0.48)\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Estimation Error} & ggmix & 0.00 (0.01) & 0.01 (0.02) & 0.00 (0.01) & 0.01 (0.02) & 2.11 (1.28) & 2.04 (1.22) & 2.21 (1.24) & 2.28 (1.34)\\
+\cmidrule{1-10}
+\rowcolor{gray!6}   & twostep & 0.87 (0.11) & 0.69 (0.15) & 0.87 (0.11) & 0.69 (0.15) & 14.23 (3.53) & 14.13 (3.52) & 1.42 (1.71) & 1.28 (1.66)\\
+
+\rowcolor{gray!6}   & lasso & 0.98 (0.05) & 0.96 (0.05) & 0.98 (0.05) & 0.96 (0.05) & 1.04 (0.13) & 1.02 (0.13) & 1.03 (0.14) & 1.01 (0.14)\\
+
+\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash Error Variance} & ggmix & 0.85 (0.18) & 0.64 (0.20) & 0.85 (0.18) & 0.64 (0.20) & 2.00 (0.49) & 1.86 (0.51) & 1.06 (0.46) & 0.83 (0.45)\\
+\cmidrule{1-10}
+ & twostep & 0.13 (0.11) & 0.31 (0.15) & 0.13 (0.11) & 0.31 (0.15) & 0.26 (0.14) & 0.26 (0.14) & 0.92 (0.08) & 0.93 (0.08)\\
+
+ & lasso & -- & -- & -- & -- & -- & -- & -- & --\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash Heritability} & ggmix & 0.15 (0.18) & 0.37 (0.21) & 0.15 (0.18) & 0.37 (0.21) & 0.18 (0.16) & 0.23 (0.17) & 0.59 (0.20) & 0.68 (0.19)\\
+\bottomrule
+\multicolumn{10}{l}{\textit{Note:}}\\
+\multicolumn{10}{l}{Median (Inter-quartile range) is given for Model Size.}\\
+\end{tabu}
+\end{table}

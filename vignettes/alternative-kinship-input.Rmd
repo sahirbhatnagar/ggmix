@@ -41,7 +41,7 @@ library(ggmix)
 data("admixed")
 
 # supply p.fac to the penalty.factor argument
-res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin)
+res <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train)
 plot(res)
 coef(res, s = 0.059, type = "nonzero")
 ```
@@ -53,10 +53,11 @@ coef(res, s = 0.059, type = "nonzero")
 Alternatively we can directly supply the eigenvectors and eigenvalues of the kinship matrix:
 
 ```{r}
-eigKinship <- eigen(admixed$kin)
+eigKinship <- eigen(admixed$kin_train)
 
-resUD <- ggmix(x = admixed$x, y = admixed$y, U = eigKinship$vectors,
-               D = eigKinship$values)
+resUD <- ggmix(x = admixed$xtrain, y = admixed$ytrain, 
+               U = eigKinship$vectors[,which(eigKinship$values>0)],
+               D = eigKinship$values[which(eigKinship$values>0)])
 plot(resUD)
 coef(resUD, s = 0.059, type = "nonzero")
 ```
@@ -65,7 +66,7 @@ We can also run a singular value decomposition (SVD) on the matrix of SNPs used 
 
 ```{r}
 svdXkinship <- svd(admixed$Xkinship)
-resUDsvd <- ggmix(x = admixed$x, y = admixed$y, U = svdXkinship$u,
+resUDsvd <- ggmix(x = admixed$xtrain, y = admixed$ytrain, U = svdXkinship$u,
                   D = svdXkinship$d ^ 2)
 plot(resUDsvd)
 coef(resUDsvd, s = 0.059, type = "nonzero")
@@ -78,7 +79,7 @@ The results differ from the one using the kinship matrix above because this simu
 We can directly supply the matrix of SNPs used to calculated the kinship matrix also to the `K` argument:
 
 ```{r}
-resK <- ggmix(x = admixed$x, y = admixed$y, K = admixed$Xkinship)
+resK <- ggmix(x = admixed$xtrain, y = admixed$ytrain, K = admixed$kin_train)
 plot(resK)
 coef(resK, s = 0.059, type = "nonzero")
 ```

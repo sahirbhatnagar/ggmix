@@ -1,7 +1,7 @@
 Package: ggmix
 Type: Package
 Title: A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
   role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
@@ -40,5 +40,5 @@ Suggests:
     rmarkdown
 BugReports: https://github.com/sahirbhatnagar/ggmix/issues
 URL: https://github.com/sahirbhatnagar/ggmix
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 VignetteBuilder: knitr

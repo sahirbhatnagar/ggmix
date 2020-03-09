@@ -5,9 +5,14 @@
 \alias{coef.ggmix_fit}
 \title{Make predictions from a \code{ggmix_fit} object}
 \usage{
-\method{predict}{ggmix_fit}(object, newx, s = NULL, type = c("link",
-  "response", "coefficients", "all", "nonzero", "individual"), covariance,
-  ...)
+\method{predict}{ggmix_fit}(
+  object,
+  newx,
+  s = NULL,
+  type = c("link", "response", "coefficients", "all", "nonzero", "individual"),
+  covariance,
+  ...
+)
 
 \method{coef}{ggmix_fit}(object, s = NULL, type, ...)
 }
@@ -60,35 +65,19 @@ Similar to other predict methods, this functions predicts fitted
   examples for more details.
 }
 \examples{
-\dontrun{
-set.seed(1234)
-ind <- caret::createDataPartition(admixed$y, p = 0.8, list = FALSE)[,1]
-xtrain <- admixed$x[ind,,drop=FALSE]
-xtest <- admixed$x[-ind,,drop=FALSE]
-
-ytrain <- admixed$y[ind]
-ytest <- admixed$y[-ind]
-
-cov_train <- admixed$kin[ind,ind]
-cov_test_train <- admixed$kin[-ind,ind]
-
-fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
-bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
+data("admixed")
+fitlmm <- ggmix(x = admixed$xtrain, y = admixed$ytrain,
+                kinship = admixed$kin_train,
+                estimation = "full")
+bicGGMIX <- gic(fitlmm,
+                an = log(length(admixed$ytrain)))
 plot(bicGGMIX)
 coef(bicGGMIX, s = "lambda.min")
-yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
-covariance = cov_test_train)
+yhat_test <- predict(bicGGMIX, s="lambda.min",
+                     newx = admixed$xtest, type = "individual",
+                     covariance = admixed$kin_test_train)
+cor(yhat_test, admixed$ytest)
 yhat_test_population <- predict(bicGGMIX, s="lambda.min",
-newx = xtest, type = "response")
-
-# predict individual level response for each lambda:
-predict(bicGGMIX, newx = xtest, type = "individual",
-covariance = cov_test_train, s = bicGGMIX$lambda)
-
-# this is equivalent to supplying an object of class ggmix_fit
-identical(predict(fit_ggmix, newx = xtest, type = "individual",
-covariance = cov_test_train, s = bicGGMIX$lambda),
-       predict(bicGGMIX, newx = xtest, type = "individual",
-       covariance = cov_test_train, s = bicGGMIX$lambda))
-}
+                                newx = admixed$xtest,
+                                type = "response")
 }

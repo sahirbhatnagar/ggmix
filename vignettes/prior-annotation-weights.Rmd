@@ -34,16 +34,16 @@ library(ggmix)
 data("admixed")
 
 # the default penalty factor
-p.fac <- rep(1, ncol(admixed$x))
+p.fac <- rep(1, ncol(admixed$xtrain))
 
-# set 5 of the causal SNPs to not be penalized at all
-p.fac[match(sample(admixed$causal, 5),colnames(admixed$x))] <- 0
+# set 1 of the causal SNPs to not be penalized at all
+p.fac[match(sample(admixed$causal, 1),colnames(admixed$xtrain))] <- 0
 
 # supply p.fac to the penalty.factor argument
-res <- ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+res <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
              penalty.factor = p.fac)
 plot(res)
 ```
 
-We can see from the solution path plot above, that there are 5 lines that are never 0, because they are never penalized, and thus always remain in the model.
+We can see from the solution path plot above, that there is 1 line that is never 0, because that variable is never penalized, and thus always remain in the model.
 

@@ -7,17 +7,27 @@ sigma2 <- new_metric("sigma2", "sigma2",
                      metric = function(model, out) out$sigma2)
 
 modelerror <- new_metric("me", "model error",
-                     metric = function(model, out) out$model_error)
+                         metric = function(model, out) out$model_error)
 
 prederror <- new_metric("prederror", "Prediction error",
-                         metric = function(model, out) out$prediction_error)
+                        metric = function(model, out) out$prediction_error)
 
 errorvariance <- new_metric("errorvar", "Error variance",
-                        metric = function(model, out) out$error_variance)
+                            metric = function(model, out) out$error_variance)
+
+estimationerror <- new_metric("estimationerror", "Estimation error",
+                              metric = function(model, out) {
+                                l2norm(out$beta_refit - out$beta_truth)^2
+                              })
 
 tpr <- new_metric("tpr", "True Positive Rate",
                   metric = function(model, out) {
                     length(intersect(out$nonzero_names, out$causal))/length(out$causal)
+                  })
+
+tprFPR5 <- new_metric("tprFPR5", "True Positive Rate at FPR of 5%",
+                  metric = function(model, out) {
+                    out$TPR_at_5_percent_FPR
                   })
 
 "%ni%" <- Negate("%in%")
@@ -35,19 +45,24 @@ nactive <- new_metric("nactive", "Number of Active Variables",
                         length(out$nonzero_names)
                       })
 
+nactiveFPR5 <- new_metric("nactiveFPR5", "Number of Active Variablesat FPR of 5%",
+                      metric = function(model, out) {
+                        length(out$ACTIVES_at_5_percent_FPR)
+                      })
+
 
 correct_sparsity <- new_metric("correct_sparsity", "Correct Sparsity",
                                metric = function(model, out){
-  causal <- out$causal
-  not_causal <- out$not_causal
-  active <- out$nonzero_names
-  p <- out$p
+                                 causal <- out$causal
+                                 not_causal <- out$not_causal
+                                 active <- out$nonzero_names
+                                 p <- out$p
 
-  correct_nonzeros <- sum(active %in% causal)
-  correct_zeros <- length(setdiff(not_causal, active))
-  #correct sparsity
-  (1 / p) * (correct_nonzeros + correct_zeros)
-})
+                                 correct_nonzeros <- sum(active %in% causal)
+                                 correct_zeros <- length(setdiff(not_causal, active))
+                                 #correct sparsity
+                                 (1 / p) * (correct_nonzeros + correct_zeros)
+                               })
 
 
 mse <- new_metric("mse", "Test Set MSE",
@@ -57,9 +72,9 @@ mse <- new_metric("mse", "Test Set MSE",
 
 
 selected <- new_metric("selected", "Selected Variables",
-                  metric = function(model, out) {
-                    out$nonzero_names
-                  })
+                       metric = function(model, out) {
+                         out$nonzero_names
+                       })
 
 
 

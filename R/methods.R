@@ -75,37 +75,21 @@ print.ggmix_gic <- function(x, ..., digits = max(3, getOption("digits") - 3)) {
 #'   to the s argument. You can pass either a ggmix_fit or ggmix_gic object. See
 #'   examples for more details.
 #' @examples
-#' \dontrun{
-#' set.seed(1234)
-#' ind <- caret::createDataPartition(admixed$y, p = 0.8, list = FALSE)[,1]
-#' xtrain <- admixed$x[ind,,drop=FALSE]
-#' xtest <- admixed$x[-ind,,drop=FALSE]
-#'
-#' ytrain <- admixed$y[ind]
-#' ytest <- admixed$y[-ind]
-#'
-#' cov_train <- admixed$kin[ind,ind]
-#' cov_test_train <- admixed$kin[-ind,ind]
-#'
-#' fit_ggmix <- ggmix(x = xtrain, y = ytrain, kinship = cov_train, verbose = 1)
-#' bicGGMIX <- gic(fit_ggmix, an = log(length(ytrain)))
+#' data("admixed")
+#' fitlmm <- ggmix(x = admixed$xtrain, y = admixed$ytrain,
+#'                 kinship = admixed$kin_train,
+#'                 estimation = "full")
+#' bicGGMIX <- gic(fitlmm,
+#'                 an = log(length(admixed$ytrain)))
 #' plot(bicGGMIX)
 #' coef(bicGGMIX, s = "lambda.min")
-#' yhat_test <- predict(bicGGMIX, s="lambda.min", newx = xtest, type = "individual",
-#' covariance = cov_test_train)
+#' yhat_test <- predict(bicGGMIX, s="lambda.min",
+#'                      newx = admixed$xtest, type = "individual",
+#'                      covariance = admixed$kin_test_train)
+#' cor(yhat_test, admixed$ytest)
 #' yhat_test_population <- predict(bicGGMIX, s="lambda.min",
-#' newx = xtest, type = "response")
-#'
-#' # predict individual level response for each lambda:
-#' predict(bicGGMIX, newx = xtest, type = "individual",
-#' covariance = cov_test_train, s = bicGGMIX$lambda)
-#'
-#' # this is equivalent to supplying an object of class ggmix_fit
-#' identical(predict(fit_ggmix, newx = xtest, type = "individual",
-#' covariance = cov_test_train, s = bicGGMIX$lambda),
-#'        predict(bicGGMIX, newx = xtest, type = "individual",
-#'        covariance = cov_test_train, s = bicGGMIX$lambda))
-#' }
+#'                                 newx = admixed$xtest,
+#'                                 type = "response")
 #' @export
 predict.ggmix_fit <- function(object, newx, s = NULL,
                               type = c(
@@ -138,7 +122,7 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
     vnames <- dimnames(nall)[[1]]
     dimnames(nall) <- list(NULL, NULL)
     lambda <- object[["lambda"]]
-    lamlist <- glmnet::lambda.interp(lambda, s)
+    lamlist <- lambda.interp(lambda, s)
     if (length(s) == 1) {
       nall <- nall[, lamlist$left, drop = FALSE] * lamlist$frac +
         nall[, lamlist$right, drop = FALSE] * (1 -
@@ -161,9 +145,9 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
   if (type == "nonzero") {
     nall.mat <- as.matrix(nall)
     if (length(s) == 1) {
-      return(nall.mat[glmnet::nonzeroCoef(nall.mat, bystep = TRUE)[[1]], , drop = FALSE])
+      return(nall.mat[nonzeroCoef(nall.mat, bystep = TRUE)[[1]], , drop = FALSE])
     } else {
-      nzs <- glmnet::nonzeroCoef(nall.mat, bystep = TRUE)
+      nzs <- nonzeroCoef(nall.mat, bystep = TRUE)
       return(lapply(seq_along(nzs), function(i) nall.mat[nzs[[i]], i, drop = FALSE]))
     }
   }
@@ -242,10 +226,8 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
 
 }
 
-
-#' @inheritParams predict.ggmix_fit
-#' @param ... additional arguments to pass to predict function
 #' @rdname predict.ggmix_fit
+#' @param ... additional arguments to pass to predict function
 #' @export
 coef.ggmix_fit <- function(object, s = NULL, type, ...) {
 
@@ -388,7 +370,7 @@ coef.ggmix_gic <- function(object, s = c("lambda.min"), type, ...) {
 #     vnames <- dimnames(nbeta)[[1]]
 #     dimnames(nbeta) <- list(NULL, NULL)
 #     lambda <- object$lambda
-#     lamlist <- glmnet::lambda.interp(lambda, s)
+#     lamlist <- lambda.interp(lambda, s)
 #     if (length(s) == 1) {
 #       nbeta <- nbeta[, lamlist$left, drop = FALSE] * lamlist$frac +
 #         nbeta[, lamlist$right, drop = FALSE] * (1 -

@@ -42,9 +42,9 @@ test_that("Expect error when user has not provided number of (non)zero
   #                                 nrow(admixed$kin) -
   #                                   number_nonzero_eigenvalues))
 
-  expect_warning(ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
+  expect_warning(ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                        estimation = "full",
-                       U = svdXkinship$u, D = svdXkinship$d,
+                       U = svdXkinship$u[,which(svdXkinship$d>0),drop=F], D = svdXkinship$d[which(svdXkinship$d>0)],
                        K = admixed$Xkinship),
                  regexp = strwrap("kinship, U, D and K arguments have all been specified."))
 
@@ -54,37 +54,37 @@ context(strwrap("check simulation function with different geography"))
 
 test_that("test simulation function", {
   set.seed(2345)
-  sim1d <- gen_structured_model(n = 500,
-                                p_design = 200,
-                                p_kinship = 1e4,
+  sim1d <- gen_structured_model(n = 100,
+                                p_design = 50,
+                                p_kinship = 5e2,
                                 geography = "1d",
-                                percent_causal = 0.05,
+                                percent_causal = 0.10,
                                 percent_overlap = "100",
                                 k = 5, s = 0.5, Fst = 0.1, nPC = 5,
                                 b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(sim1d, 16)
+  expect_length(sim1d, 21)
   expect_is(sim1d, "list")
 
-  simcirc <- gen_structured_model(n = 500,
-                                  p_design = 200,
-                                  p_kinship = 1e4,
+  simcirc <- gen_structured_model(n = 100,
+                                  p_design = 50,
+                                  p_kinship = 5e2,
                                   geography = "circ",
-                                  percent_causal = 0.05,
+                                  percent_causal = 0.10,
                                   percent_overlap = "100",
                                   k = 5, s = 0.5, Fst = 0.1, nPC = 5,
                                   b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simcirc, 16)
+  expect_length(simcirc, 21)
   expect_is(simcirc, "list")
 
-  simind <- gen_structured_model(n = 500,
-                                 p_design = 200,
-                                 p_kinship = 1e4,
+  simind <- gen_structured_model(n = 100,
+                                 p_design = 50,
+                                 p_kinship = 5e2,
                                  geography = "ind",
-                                 percent_causal = 0.05,
+                                 percent_causal = 0.10,
                                  percent_overlap = "100",
                                  k = 5, s = 0.5, Fst = 0.1, nPC = 10,
                                  b0 = 0, eta = 0.1, sigma2 = 1)
-  expect_length(simind, 16)
+  expect_length(simind, 21)
   expect_is(simind, "list")
 })
 

@@ -235,7 +235,7 @@ lmmlasso.fullrank <- function(ggmix_object,
 
     # the minus 1 is because our intercept is actually the first coefficient
     # that shows up in the glmnet solution. the +2 is for the two variance parameters
-    df <- length(glmnet::nonzeroCoef(beta_next)) - 1 + 2
+    df <- length(nonzeroCoef(beta_next)) - 1 + 2
 
     out_print[LAMBDA, ] <- c(
       if (df == 0) 0 else df,
