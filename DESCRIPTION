@@ -12,13 +12,16 @@ Authors@R: c(
   person("Celia", "Greenwood", email = "celia.greenwood@mcgill.ca",
   role = c("aut"), comment = "http://www.mcgill.ca/statisticalgenetics/")
   )
-Description: Fit penalized multi variable linear mixed models with a single 
+Description: Fit penalized multivariable linear mixed models with a single 
     random effect to control for population structure in genetic association 
-    studies. This is a flexible framework which allows for both lasso and group 
-    lasso penalties. A low rank estimation procedure is implemented when the 
-    matrix of SNPs used to estimate the kinship matrix is not full rank. 
-    Can also handle prior annotation information, for example, rare variants, 
-    in the form of weights.
+    studies. The goal is to simultaneously fit many genetic variants at the 
+    same time, in order to select markers that are independently associated 
+    with the response. Can also handle prior annotation information, 
+    for example, rare variants, in the form of variable weights. For more 
+    information, see the website below and the accompanying paper: 
+    Bhatnagar et al., "Simultaneous SNP selection and adjustment for 
+    population structure in high dimensional prediction models", 2020, 
+    <DOI:10.1101/408484>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -35,7 +38,6 @@ Suggests:
     bnpsd,
     testthat,
     covr,
-    vdiffr,
     knitr,
     rmarkdown
 BugReports: https://github.com/sahirbhatnagar/ggmix/issues

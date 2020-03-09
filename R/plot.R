@@ -32,6 +32,18 @@
 #' @return plot depends on the type selected
 #' @details A plot is produced, and nothing is returned.
 #' @seealso \code{\link{gic}}
+#' @examples
+#' data("admixed")
+#' fit <- ggmix(x = admixed$xtrain,
+#'              y = admixed$ytrain,
+#'              kinship = admixed$kin_train)
+#' hdbic <- gic(fit)
+#'
+#' # plot solution path
+#' plot(fit)
+#'
+#' # plot HDBIC curve as a function of lambda
+#' plot(hdbic)
 #' @export
 plot.ggmix_gic <- function(x, ..., sign.lambda = 1,
                            type = c("gic", "QQranef", "QQresid", "predicted", "Tukey-Anscombe"),

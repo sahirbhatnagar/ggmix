@@ -63,6 +63,19 @@ Plots the Generalised Information Criteria curve, as a function
 \details{
 A plot is produced, and nothing is returned.
 }
+\examples{
+data("admixed")
+fit <- ggmix(x = admixed$xtrain,
+             y = admixed$ytrain,
+             kinship = admixed$kin_train)
+hdbic <- gic(fit)
+
+# plot solution path
+plot(fit)
+
+# plot HDBIC curve as a function of lambda
+plot(hdbic)
+}
 \seealso{
 \code{\link{gic}}
 }

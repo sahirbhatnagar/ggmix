@@ -29,23 +29,47 @@
 #'   generated from a standard normal distribution.
 #' @param percent_overlap this represents the percentage of causal SNPs that
 #'   will also be included in the calculation of the kinship matrix
-#' @param train_tune_test the proportion of sample size used for training
-#'   tuning parameter selection and testing. default is 60/20/20 split
+#' @param train_tune_test the proportion of sample size used for training tuning
+#'   parameter selection and testing. default is 60/20/20 split
 #' @details The kinship is estimated using the \code{popkin} function from the
 #'   \code{popkin} package. This function will multiple that kinship matrix by 2
 #'   to give the expected covariance matrix which is subsequently used in the
 #'   linear mixed models
-#' @return A list with the following elements \describe{\item{y}{simulated
-#'   response vector} \item{x}{simulated design matrix} \item{causal}{character
-#'   vector of the names of the causal SNPs} \item{beta}{the vector of true
-#'   regression coefficients} \item{kin}{2 times the estimated kinship}
+#' @return A list with the following elements \describe{\item{ytrain}{simulated
+#'   response vector for training set} \item{ytune}{simulated response vector
+#'   for tuning parameter selection set} \item{ytest}{simulated response vector
+#'   for test set} \item{xtrain}{simulated design matrix for training
+#'   set}\item{xtune}{simulated design matrix for tuning paramter selection
+#'   set}\item{xtest}{simulated design matrix for testing set}
+#'   \item{xtrain_lasso}{simulated design matrix for training set for lasso
+#'   model. This is the same as xtrain, but also includes the nPC principal
+#'   components} \item{xtune_lasso}{simulated design matrix for tuning parameter
+#'   selection set for lasso model. This is the same as xtune, but also includes
+#'   the nPC principal components}\item{xtest}{simulated design matrix for
+#'   testing set for lasso model. This is the same as xtest, but also includes
+#'   the nPC principal components} \item{causal}{character vector of the names
+#'   of the causal SNPs} \item{beta}{the vector of true regression coefficients}
+#'   \item{kin_train}{2 times the estimated kinship for the training set
+#'   individuals} \item{kin_tune_train}{The covariance matrix between the tuning
+#'   set and the training set individuals} \item{kin_test_train}{The covariance
+#'   matrix between the test set and training set individuals}
 #'   \item{Xkinship}{the matrix of SNPs used to estimate the kinship matrix}
-#'   \item{not_causal}{character vector of the non-causal SNPs}
-#'   \item{causal_positive}{character vector of the causal SNPs with positive
-#'   regression coefficient} \item{causal_negative}{character vector of the
-#'   causal SNPs with negative regression coefficient}\item{x_lasso}{the design
-#'   matrix which also includes \code{nPC} principal components} }
+#'   \item{not_causal}{character vector of the non-causal SNPs} \item{PC}{the
+#'   principal components for population structure adjustment} }
 #' @seealso \code{\link[bnpsd]{admix_prop_1d_linear}}
+#' @export
+#' @examples
+#' admixed <- gen_structured_model(n = 100,
+#'                                 p_design = 50,
+#'                                 p_kinship = 5e2,
+#'                                 geography = "1d",
+#'                                 percent_causal = 0.10,
+#'                                 percent_overlap = "100",
+#'                                 k = 5, s = 0.5, Fst = 0.1,
+#'                                 b0 = 0, nPC = 10,
+#'                                 eta = 0.1, sigma2 = 1,
+#'                                 train_tune_test = c(0.8, 0.1, 0.1))
+#' names(admixed)
 gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10,
                                  eta, sigma2, geography = c("ind", "1d", "circ"),
                                  percent_causal, percent_overlap, train_tune_test = c(0.6, 0.2, 0.2)) {

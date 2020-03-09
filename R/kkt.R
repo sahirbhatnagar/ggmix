@@ -16,7 +16,6 @@
 #' @rdname kkt_check
 #' @note \code{grr_sigma2} and \code{grr_beta0} are functions for the gradient
 #'   of sigma2 and beta0, respectively
-#' @export
 kkt_check <- function(eta, sigma2, beta, eigenvalues, x, y, nt,
                                     lambda, tol.kkt = 1e-3) {
 

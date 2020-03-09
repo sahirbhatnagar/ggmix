@@ -31,21 +31,23 @@
 #'   \code{n_nonzero_eigenvalues} largest eigenvalues. If \code{U} and \code{D}
 #'   have been provided, then \code{n_nonzero_eigenvalues} defaults to the
 #'   length of \code{D}.
-#' @param n_zero_eigenvalues the number of zero eigenvalues. This argument must
-#'   be specified when \code{U} and \code{D} are specified and
-#'   \code{estimation="low"}. This is required for low rank estimation because
-#'   the number of zero eigenvalues and their corresponding eigenvalues appears
-#'   in the likelihood. In general this would be the rank of the matrix used to
-#'   calculate the eigen or singular value decomposition. When \code{kinship} is
-#'   provided and \code{estimation="low"} the default value will be
-#'   \code{nrow(kinship) - n_nonzero_eigenvalues}. When \code{K} is provided and
-#'   \code{estimation="low"}, the default value is \code{rank(K) -
-#'   n_nonzero_eigenvalues}
-#' @param estimation type of estimation
-#' @param penalty type of regularization penalty. if \code{penalty="gglasso"}
-#'   then the \code{group} argument must also be specified
+#' @param n_zero_eigenvalues Currently not being used. Represents the number of
+#'   zero eigenvalues. This argument must be specified when \code{U} and
+#'   \code{D} are specified and \code{estimation="low"}. This is required for
+#'   low rank estimation because the number of zero eigenvalues and their
+#'   corresponding eigenvalues appears in the likelihood. In general this would
+#'   be the rank of the matrix used to calculate the eigen or singular value
+#'   decomposition. When \code{kinship} is provided and \code{estimation="low"}
+#'   the default value will be \code{nrow(kinship) - n_nonzero_eigenvalues}.
+#'   When \code{K} is provided and \code{estimation="low"}, the default value is
+#'   \code{rank(K) - n_nonzero_eigenvalues}
+#' @param estimation type of estimation. Currently only \code{type="full"} has
+#'   been implemented.
+#' @param penalty type of regularization penalty. Currently, only
+#'   penalty="lasso" has been implemented.
 #' @param group a vector of consecutive integers describing the grouping of the
-#'   coefficients
+#'   coefficients. Currently not implemented, but will be used when
+#'   penalty="gglasso" is implemented.
 #' @param dfmax limit the maximum number of variables in the model. Useful for
 #'   very large \code{p} (the total number of predictors in the design matrix),
 #'   if a partial path is desired. Default is the number of columns in the
@@ -106,10 +108,16 @@
 #' plot(gicfit)
 #' plot(fitlmm)
 #'
-#' @references Friedman, J., Hastie, T. and Tibshirani, R. (2008)
-#'   \emph{Regularization Paths for Generalized Linear Models via Coordinate
-#'   Descent}, \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf}
-#'   \emph{Journal of Statistical Software, Vol. 33(1), 1-22 Feb 2010}
+#' @references Bhatnagar, Sahir R, Yang, Yi, Lu, Tianyuan, Schurr, Erwin,
+#'   Loredo-Osti, JC, Forest, Marie, Oualkacha, Karim, and Greenwood, Celia MT.
+#'   (2020) \emph{Simultaneous SNP selection and adjustment for population
+#'   structure in high dimensional prediction models}
+#'   \url{https://doi.org/10.1101/408484}
+#'
+#'   Friedman, J., Hastie, T. and Tibshirani, R. (2008) \emph{Regularization
+#'   Paths for Generalized Linear Models via Coordinate Descent},
+#'   \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf} \emph{Journal of
+#'   Statistical Software, Vol. 33(1), 1-22 Feb 2010}
 #'   \url{http://www.jstatsoft.org/v33/i01/}
 #'
 #'   Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
@@ -123,8 +131,8 @@ ggmix <- function(x, y,
                   K,
                   n_nonzero_eigenvalues,
                   n_zero_eigenvalues,
-                  estimation = c("full", "low"),
-                  penalty = c("lasso", "gglasso"),
+                  estimation = c("full"),
+                  penalty = c("lasso"),
                   group,
                   penalty.factor = rep(1, p_design),
                   lambda = NULL,
@@ -146,7 +154,7 @@ ggmix <- function(x, y,
   estimation <- tryCatch(match.arg(estimation),
     error = function(c) {
       stop(strwrap("Estimation method should be
-                   \"full_rank\" or \"low_rank\""),
+                   \"full\""),
         call. = FALSE
       )
     }
@@ -154,8 +162,7 @@ ggmix <- function(x, y,
 
   penalty <- tryCatch(match.arg(penalty),
     error = function(c) {
-      stop(strwrap("Inference method should be \"lasso\" or
-                   \"group_lasso\""),
+      stop(strwrap("Penalty type should be \"lasso\""),
         call. = FALSE
       )
     }

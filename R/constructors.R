@@ -14,12 +14,12 @@
 #'
 #' @return A ggmix object, of the class that corresponds to the estimation
 #'   method. These objects are lists that contain the data necessary for
-#'   computation.
+#'   computation. These functions are not meant to be called directly by the
+#'   user
 #' @name ggmix_data_object
 NULL
 
 #' @rdname ggmix_data_object
-#' @export
 new_fullrank_kinship <- function(x, y, kinship) {
   phi_eigen <- eigen(kinship)
   U_kinship <- phi_eigen$vectors
@@ -43,7 +43,6 @@ new_fullrank_kinship <- function(x, y, kinship) {
 }
 
 #' @rdname ggmix_data_object
-#' @export
 new_fullrank_K <- function(x, y, K) {
   svdX <- svd(K)
   U_K <- svdX$u
@@ -67,7 +66,6 @@ new_fullrank_K <- function(x, y, K) {
 }
 
 #' @rdname ggmix_data_object
-#' @export
 new_fullrank_UD <- function(x, y, U, D) {
   x <- cbind("(Intercept)" = 1, x)
   utx <- crossprod(U, x)
@@ -85,7 +83,6 @@ new_fullrank_UD <- function(x, y, U, D) {
 
 
 #' @rdname ggmix_data_object
-#' @export
 new_lowrank_kinship <- function(x, y, kinship,
                                 n_nonzero_eigenvalues,
                                 n_zero_eigenvalues) {
@@ -113,7 +110,6 @@ new_lowrank_kinship <- function(x, y, kinship,
 }
 
 #' @rdname ggmix_data_object
-#' @export
 new_lowrank_K <- function(x, y, K,
                           n_nonzero_eigenvalues,
                           n_zero_eigenvalues) {
@@ -136,7 +132,6 @@ new_lowrank_K <- function(x, y, K,
 }
 
 #' @rdname ggmix_data_object
-#' @export
 new_lowrank_UD <- function(x, y, U, D,
                            n_nonzero_eigenvalues,
                            n_zero_eigenvalues) {
