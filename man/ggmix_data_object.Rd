@@ -58,7 +58,7 @@ is only used when \code{estimation="low"} and either \code{kinship} or
 have been provided, then \code{n_nonzero_eigenvalues} defaults to the
 length of \code{D}.}
 
-\item{n_zero_eigenvalues}{the number of desired or specifed zero eigenvalues.
+\item{n_zero_eigenvalues}{the number of desired or specified zero eigenvalues.
 This is only needed when \code{estimation="lowrank"}, and is calculated
 internally by the \code{\link{ggmix}} function. It is equal to the number
 of observations minus \code{n_nonzero_eigenvalues}}

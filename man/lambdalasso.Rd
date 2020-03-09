@@ -60,14 +60,14 @@ used in determining lambda.max and starting value for fitting algorithm.}
 \item{center_y}{should y be mean centered - default is FALSE.}
 }
 \value{
-A descreasing sequence of tuning parameters
+A decreasing sequence of tuning parameters
 }
 \description{
 \code{lambdalasso} estimates a decreasing sequence of tuning
   parameters
 }
 \note{
-This funciton isn't meant to be called directly by the user.
+This function isn't meant to be called directly by the user.
 }
 \seealso{
 \code{\link{ggmix}}

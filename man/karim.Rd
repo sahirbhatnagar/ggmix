@@ -9,7 +9,7 @@
   the rest are 0.}\item{kin1}{the true kinship matrix}\item{s.g}{polygenic
   variance, set to be 1.26}\item{s.e}{error variance, set to be
   1}\item{h.tot}{the total trait heritability. Set to be 60%.}\item{G}{matrix
-  of genotypes of dimension 600 x 1000 SNPs, with approximately 800 commun
+  of genotypes of dimension 600 x 1000 SNPs, with approximately 800 common
   and 200 rare SNPs}}}
 \usage{
 karim

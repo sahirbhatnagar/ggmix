@@ -19,7 +19,7 @@
 admixed
 }
 \description{
-A simualted dataset to show the utility of this package
+A simulated dataset to show the utility of this package
 }
 \details{
 The code used to simulate the data is available at

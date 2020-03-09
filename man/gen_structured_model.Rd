@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{gen_structured_model}
 \alias{gen_structured_model}
-\title{Simulation Scenarion from Bhatnagar et al. (2018+) ggmix paper}
+\title{Simulation Scenario from Bhatnagar et al. (2018+) ggmix paper}
 \usage{
 gen_structured_model(
   n,
@@ -69,7 +69,7 @@ A list with the following elements \describe{\item{ytrain}{simulated
   response vector for training set} \item{ytune}{simulated response vector
   for tuning parameter selection set} \item{ytest}{simulated response vector
   for test set} \item{xtrain}{simulated design matrix for training
-  set}\item{xtune}{simulated design matrix for tuning paramter selection
+  set}\item{xtune}{simulated design matrix for tuning parameter selection
   set}\item{xtest}{simulated design matrix for testing set}
   \item{xtrain_lasso}{simulated design matrix for training set for lasso
   model. This is the same as xtrain, but also includes the nPC principal
