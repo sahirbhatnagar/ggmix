@@ -4,19 +4,32 @@
 \name{admixed}
 \alias{admixed}
 \title{Simulated Dataset with 1D Geography}
-\format{A list with the following elements \describe{\item{y}{simulated
-  response vector} \item{x}{simulated design matrix, 500 x 200 matrix}
-  \item{causal}{character vector of the names of the causal SNPs}
-  \item{beta}{the vector of true regression coefficients. 5% of the SNPs in x
-  are causal} \item{kin}{2 times the estimated kinship} \item{Xkinship}{the
-  matrix of SNPs used to estimate the kinship matrix, 500 x 10,000 matirx}
-  \item{not_causal}{character vector of the non-causal SNPs}
-  \item{causal_positive}{character vector of the causal SNPs with positive
-  regression coefficient} \item{causal_negative}{character vector of the
-  causal SNPs with negative regression coefficient}\item{x_lasso}{the design
-  matrix which also includes \code{nPC} principal components} }}
+\format{An object of class \code{list} of length 21.}
 \usage{
 admixed
+}
+\value{
+A list with the following elements \describe{\item{ytrain}{simulated
+  response vector for training set} \item{ytune}{simulated response vector
+  for tuning parameter selection set} \item{ytest}{simulated response vector
+  for test set} \item{xtrain}{simulated design matrix for training
+  set}\item{xtune}{simulated design matrix for tuning parameter selection
+  set}\item{xtest}{simulated design matrix for testing set}
+  \item{xtrain_lasso}{simulated design matrix for training set for lasso
+  model. This is the same as xtrain, but also includes the nPC principal
+  components} \item{xtune_lasso}{simulated design matrix for tuning parameter
+  selection set for lasso model. This is the same as xtune, but also includes
+  the nPC principal components}\item{xtest}{simulated design matrix for
+  testing set for lasso model. This is the same as xtest, but also includes
+  the nPC principal components} \item{causal}{character vector of the names
+  of the causal SNPs} \item{beta}{the vector of true regression coefficients}
+  \item{kin_train}{2 times the estimated kinship for the training set
+  individuals} \item{kin_tune_train}{The covariance matrix between the tuning
+  set and the training set individuals} \item{kin_test_train}{The covariance
+  matrix between the test set and training set individuals}
+  \item{Xkinship}{the matrix of SNPs used to estimate the kinship matrix}
+  \item{not_causal}{character vector of the non-causal SNPs} \item{PC}{the
+  principal components for population structure adjustment} }
 }
 \description{
 A simulated dataset to show the utility of this package
