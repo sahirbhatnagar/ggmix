@@ -96,7 +96,7 @@
       <h1>Incorporating Prior Annotation Weights</h1>
                         <h4 class="author">Sahir Rai Bhatnagar</h4>
             
-            <h4 class="date">2020-03-09</h4>
+            <h4 class="date">2020-03-10</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/sahirbhatnagar/ggmix/blob/master/vignettes/prior-annotation-weights.Rmd"><code>vignettes/prior-annotation-weights.Rmd</code></a></small>
       <div class="hidden name"><code>prior-annotation-weights.Rmd</code></div>
@@ -122,7 +122,7 @@
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># supply p.fac to the penalty.factor argument</span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11">res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, <span class="dt">kinship =</span> admixed<span class="op">$</span>kin_train,</a>
 <a class="sourceLine" id="cb1-12" data-line-number="12">             <span class="dt">penalty.factor =</span> p.fac)</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(res)</a></code></pre></div>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(res)</a></code></pre></div>
 <p><img src="prior-annotation-weights_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>We can see from the solution path plot above, that there is 1 line that is never 0, because that variable is never penalized, and thus always remain in the model.</p>
 </div>
