@@ -11,4 +11,4 @@
 Please visit https://sahirbhatnagar.com/ggmix/ for details on this package.   
 The companion paper is available at https://www.biorxiv.org/content/10.1101/408484v4
 
-Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please note that the 'ggmix' project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.

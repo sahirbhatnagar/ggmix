@@ -22,3 +22,5 @@
 ^Meta$
 ^appveyor\.yml$
 ^LICENSE\.md$
+^CRAN-RELEASE$
+^CODE_OF_CONDUCT\.md$
