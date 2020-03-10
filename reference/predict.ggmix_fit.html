@@ -227,7 +227,7 @@ covariance matrix is q x (N-q)</p></td>
                 <span class='kw'>estimation</span> <span class='kw'>=</span> <span class='st'>"full"</span>)
 <span class='no'>bicGGMIX</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='gic.html'>gic</a></span>(<span class='no'>fitlmm</span>,
                 <span class='kw'>an</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>admixed</span>$<span class='no'>ytrain</span>)))
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>bicGGMIX</span>)</div><div class='img'><img src='predict.ggmix_fit-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>bicGGMIX</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='st'>"lambda.min"</span>)</div><div class='output co'>#&gt; 51 x 1 sparse Matrix of class "dgCMatrix"
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>bicGGMIX</span>)</div><div class='img'><img src='predict.ggmix_fit-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>bicGGMIX</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='st'>"lambda.min"</span>)</div><div class='output co'>#&gt; 51 x 1 sparse Matrix of class "dgCMatrix"
 #&gt;                        1
 #&gt; (Intercept)  0.005271703
 #&gt; X23          .          
