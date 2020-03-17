@@ -1,6 +1,6 @@
 Package: ggmix
 Type: Package
-Title: A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations
+Title: Variable Selection in Linear Mixed Models for SNP Data
 Version: 0.0.1
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",

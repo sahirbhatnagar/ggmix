@@ -8,3 +8,8 @@
 0 errors | 0 warnings | 1 note
 
 * This is a new release.
+
+
+## Additional CRAN comments (March 16, 2020)
+
+* I have reduced the length of the title of the package
