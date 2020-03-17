@@ -96,7 +96,7 @@
       <h1>Alternative Inputs for Population Structure</h1>
                         <h4 class="author">Sahir Rai Bhatnagar</h4>
             
-            <h4 class="date">2020-03-10</h4>
+            <h4 class="date">2020-03-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/sahirbhatnagar/ggmix/blob/master/vignettes/alternative-kinship-input.Rmd"><code>vignettes/alternative-kinship-input.Rmd</code></a></small>
       <div class="hidden name"><code>alternative-kinship-input.Rmd</code></div>
@@ -119,7 +119,7 @@
 <a class="sourceLine" id="cb1-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># supply p.fac to the penalty.factor argument</span></a>
 <a class="sourceLine" id="cb1-5" data-line-number="5">res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, <span class="dt">kinship =</span> admixed<span class="op">$</span>kin_train)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(res)</a></code></pre></div>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(res)</a></code></pre></div>
 <p><img src="alternative-kinship-input_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(res, <span class="dt">s =</span> <span class="fl">0.059</span>, <span class="dt">type =</span> <span class="st">"nonzero"</span>)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt;                        1</span></a>
@@ -145,7 +145,7 @@
 <a class="sourceLine" id="cb3-3" data-line-number="3">resUD &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, </a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">               <span class="dt">U =</span> eigKinship<span class="op">$</span>vectors[,<span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(eigKinship<span class="op">$</span>values<span class="op">&gt;</span><span class="dv">0</span>)],</a>
 <a class="sourceLine" id="cb3-5" data-line-number="5">               <span class="dt">D =</span> eigKinship<span class="op">$</span>values[<span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(eigKinship<span class="op">$</span>values<span class="op">&gt;</span><span class="dv">0</span>)])</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(resUD)</a></code></pre></div>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(resUD)</a></code></pre></div>
 <p><img src="alternative-kinship-input_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(resUD, <span class="dt">s =</span> <span class="fl">0.059</span>, <span class="dt">type =</span> <span class="st">"nonzero"</span>)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt;                        1</span></a>
@@ -180,7 +180,7 @@
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">svdXkinship &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/svd.html">svd</a></span>(admixed<span class="op">$</span>Xkinship)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">resUDsvd &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, <span class="dt">U =</span> svdXkinship<span class="op">$</span>u,</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">                  <span class="dt">D =</span> svdXkinship<span class="op">$</span>d <span class="op">^</span><span class="st"> </span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(resUDsvd)</a></code></pre></div>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(resUDsvd)</a></code></pre></div>
 <p><img src="alternative-kinship-input_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(resUDsvd, <span class="dt">s =</span> <span class="fl">0.059</span>, <span class="dt">type =</span> <span class="st">"nonzero"</span>)</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt;                         1</span></a>
@@ -212,7 +212,7 @@
 <a href="#the-k-argument" class="anchor"></a>The K argument</h2>
 <p>We can directly supply the matrix of SNPs used to calculated the kinship matrix also to the <code>K</code> argument:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">resK &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, <span class="dt">K =</span> admixed<span class="op">$</span>kin_train)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(resK)</a></code></pre></div>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(resK)</a></code></pre></div>
 <p><img src="alternative-kinship-input_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(resK, <span class="dt">s =</span> <span class="fl">0.059</span>, <span class="dt">type =</span> <span class="st">"nonzero"</span>)</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt;                        1</span></a>
