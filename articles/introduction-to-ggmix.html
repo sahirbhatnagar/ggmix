@@ -6,21 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Introduction to the ggmix package • ggmix</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Introduction to the ggmix package">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="ggmix">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -69,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sahirbhatnagar/ggmix">
+  <a href="https://github.com/sahirbhatnagar/ggmix/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -93,10 +93,10 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Introduction to the ggmix package</h1>
+      <h1 data-toc-skip>Introduction to the ggmix package</h1>
                         <h4 class="author">Sahir Rai Bhatnagar</h4>
             
-            <h4 class="date">2020-03-17</h4>
+            <h4 class="date">2020-04-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/sahirbhatnagar/ggmix/blob/master/vignettes/introduction-to-ggmix.Rmd"><code>vignettes/introduction-to-ggmix.Rmd</code></a></small>
       <div class="hidden name"><code>introduction-to-ggmix.Rmd</code></div>
@@ -132,114 +132,114 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>The package can be installed from <a href="https://github.com/sahirbhatnagar/ggmix">GitHub</a> via</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"pacman"</span>)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">pacman<span class="op">::</span><span class="kw">p_load_gh</span>(<span class="st">'sahirbhatnagar/ggmix'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"pacman"</span>)
+<span class="kw pkg">pacman</span><span class="kw ns">::</span><span class="fu">p_load_gh</span>(<span class="st">'sahirbhatnagar/ggmix'</span>)</pre></body></html></div>
 </div>
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick Start</h2>
 <p>We give a quick overview of the main functions and go into details in other vignettes. We will use the simulated data which ships with the package and can be loaded via:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggmix)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"admixed"</span>)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(admixed)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;  [1] "ytrain"         "ytune"          "ytest"          "xtrain"        </span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;  [5] "xtune"          "xtest"          "xtrain_lasso"   "xtune_lasso"   </span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt;  [9] "xtest_lasso"    "Xkinship"       "kin_train"      "kin_tune_train"</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; [13] "kin_test_train" "mu_train"       "causal"         "beta"          </span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; [17] "not_causal"     "kinship"        "coancestry"     "PC"            </span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; [21] "subpops"</span></a></code></pre></div>
-<p>For details on how this data was simulated, see <code><a href="https://rdrr.io/r/utils/help.html">help(admixed)</a></code>.</p>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggmix</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"admixed"</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">admixed</span>)
+<span class="co">#&gt;  [1] "ytrain"         "ytune"          "ytest"          "xtrain"        </span>
+<span class="co">#&gt;  [5] "xtune"          "xtest"          "xtrain_lasso"   "xtune_lasso"   </span>
+<span class="co">#&gt;  [9] "xtest_lasso"    "Xkinship"       "kin_train"      "kin_tune_train"</span>
+<span class="co">#&gt; [13] "kin_test_train" "mu_train"       "causal"         "beta"          </span>
+<span class="co">#&gt; [17] "not_causal"     "kinship"        "coancestry"     "PC"            </span>
+<span class="co">#&gt; [21] "subpops"</span></pre></body></html></div>
+<p>For details on how this data was simulated, see <code><a href="../reference/admixed.html">help(admixed)</a></code>.</p>
 <p>There are three basic inputs that <code>ggmix</code> needs:<br>
 1) <span class="math inline">\(Y\)</span>: a continuous response variable<br>
 2) <span class="math inline">\(X\)</span>: a matrix of covariates of dimension <span class="math inline">\(N \times p\)</span> where <span class="math inline">\(N\)</span> is the sample size and <span class="math inline">\(p\)</span> is the number of covariates<br>
 3) <span class="math inline">\(\boldsymbol{\Phi}\)</span>: a kinship matrix</p>
 <p>We can visualize the kinship matrix in the <code>admixed</code> data using the <code>popkin</code> package:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># need to install the package if you don't have it</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># pacman::p_load_gh('StoreyLab/popkin')</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">popkin<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/popkin/man/plot_popkin.html">plot_popkin</a></span>(admixed<span class="op">$</span>kin_train)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># need to install the package if you don't have it</span>
+<span class="co"># pacman::p_load_gh('StoreyLab/popkin')</span>
+<span class="kw pkg">popkin</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/popkin/man/plot_popkin.html">plot_popkin</a></span>(<span class="no">admixed</span>$<span class="no">kin_train</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 </div>
 <div id="fit-the-linear-mixed-model-with-lasso-penalty" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fit-the-linear-mixed-model-with-lasso-penalty" class="anchor"></a>Fit the linear mixed model with Lasso Penalty</h2>
 <p>We will use the most basic call to the main function of this package <code>ggmix</code>. This function by default will fit a <span class="math inline">\(L_1\)</span> penalized linear mixed model (LMM) for 100 distinct values of the tuning parameter <span class="math inline">\(\lambda\)</span>. It will choose its own sequence:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="dt">x =</span> admixed<span class="op">$</span>xtrain, </a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">             <span class="dt">y =</span> admixed<span class="op">$</span>ytrain, </a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">             <span class="dt">kinship =</span> admixed<span class="op">$</span>kin_train)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(fit)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt;  [1] "result"       "ggmix_object" "n_design"     "p_design"     "lambda"      </span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt;  [6] "coef"         "b0"           "beta"         "df"           "eta"         </span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; [11] "sigma2"       "nlambda"      "cov_names"    "call"</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(fit)</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; [1] "lassofullrank" "ggmix_fit"</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/ggmix.html">ggmix</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtrain</span>,
+             <span class="kw">y</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">ytrain</span>,
+             <span class="kw">kinship</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">kin_train</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">fit</span>)
+<span class="co">#&gt;  [1] "result"       "ggmix_object" "n_design"     "p_design"     "lambda"      </span>
+<span class="co">#&gt;  [6] "coef"         "b0"           "beta"         "df"           "eta"         </span>
+<span class="co">#&gt; [11] "sigma2"       "nlambda"      "cov_names"    "call"</span>
+<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="no">fit</span>)
+<span class="co">#&gt; [1] "lassofullrank" "ggmix_fit"</span></pre></body></html></div>
 <p>We can see the solution path for each variable by calling the <code>plot</code> method for objects of class <code>ggmix_fit</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(fit)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">fit</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <p>We can also get the coefficients for given value(s) of lambda using the <code>coef</code> method for objects of class <code>ggmix_fit</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(fit, <span class="dt">s =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>,<span class="fl">0.02</span>))</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt; 51 x 2 Matrix of class "dgeMatrix"</span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt;                       1            2</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt; (Intercept) -0.03715135  0.247105426</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt; X23          0.00000000  0.098030248</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; X36          0.00000000 -0.013022250</span></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; X38          0.00000000  0.005378361</span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; X40          0.00000000  0.004028934</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt; X53          0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; X74          0.00000000 -0.020729942</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt; X83          0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; X114         0.00000000 -0.296774993</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; X139         0.00000000  0.098848550</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; X143         0.00000000 -0.015094909</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; X168         0.00000000 -0.331811094</span></a>
-<a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; X176         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt; X244         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; X246         0.00000000 -0.005869031</span></a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; X249         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-20" data-line-number="20"><span class="co">#&gt; X266         0.00000000  0.046402450</span></a>
-<a class="sourceLine" id="cb6-21" data-line-number="21"><span class="co">#&gt; X271         0.00000000 -0.185995388</span></a>
-<a class="sourceLine" id="cb6-22" data-line-number="22"><span class="co">#&gt; X273         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-23" data-line-number="23"><span class="co">#&gt; X282         0.00000000 -0.008280108</span></a>
-<a class="sourceLine" id="cb6-24" data-line-number="24"><span class="co">#&gt; X286         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-25" data-line-number="25"><span class="co">#&gt; X300         0.00000000 -0.096994400</span></a>
-<a class="sourceLine" id="cb6-26" data-line-number="26"><span class="co">#&gt; X302        -0.17330971 -0.116695776</span></a>
-<a class="sourceLine" id="cb6-27" data-line-number="27"><span class="co">#&gt; X312         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-28" data-line-number="28"><span class="co">#&gt; X315         0.00000000 -0.182667959</span></a>
-<a class="sourceLine" id="cb6-29" data-line-number="29"><span class="co">#&gt; X330         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-30" data-line-number="30"><span class="co">#&gt; X336         0.00000000  0.138864533</span></a>
-<a class="sourceLine" id="cb6-31" data-line-number="31"><span class="co">#&gt; X344         0.00000000 -0.009241378</span></a>
-<a class="sourceLine" id="cb6-32" data-line-number="32"><span class="co">#&gt; X348         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-33" data-line-number="33"><span class="co">#&gt; X352         0.00000000 -0.069254814</span></a>
-<a class="sourceLine" id="cb6-34" data-line-number="34"><span class="co">#&gt; X375         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-35" data-line-number="35"><span class="co">#&gt; X383         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-36" data-line-number="36"><span class="co">#&gt; X403         0.00000000  0.021805050</span></a>
-<a class="sourceLine" id="cb6-37" data-line-number="37"><span class="co">#&gt; X404         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-38" data-line-number="38"><span class="co">#&gt; X420         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-39" data-line-number="39"><span class="co">#&gt; X422         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-40" data-line-number="40"><span class="co">#&gt; X431         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-41" data-line-number="41"><span class="co">#&gt; X435         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-42" data-line-number="42"><span class="co">#&gt; X441         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-43" data-line-number="43"><span class="co">#&gt; X447         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-44" data-line-number="44"><span class="co">#&gt; X468         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-45" data-line-number="45"><span class="co">#&gt; X485         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-46" data-line-number="46"><span class="co">#&gt; X503         0.00000000 -0.575054421</span></a>
-<a class="sourceLine" id="cb6-47" data-line-number="47"><span class="co">#&gt; X512         0.00000000 -0.042208022</span></a>
-<a class="sourceLine" id="cb6-48" data-line-number="48"><span class="co">#&gt; X515         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-49" data-line-number="49"><span class="co">#&gt; X516         0.00000000  0.248284875</span></a>
-<a class="sourceLine" id="cb6-50" data-line-number="50"><span class="co">#&gt; X407         0.00000000 -0.158077877</span></a>
-<a class="sourceLine" id="cb6-51" data-line-number="51"><span class="co">#&gt; X507         0.00000000  0.000000000</span></a>
-<a class="sourceLine" id="cb6-52" data-line-number="52"><span class="co">#&gt; X524         1.34292812  1.863827767</span></a>
-<a class="sourceLine" id="cb6-53" data-line-number="53"><span class="co">#&gt; X538        -0.71437257 -1.081309751</span></a>
-<a class="sourceLine" id="cb6-54" data-line-number="54"><span class="co">#&gt; X243         0.00000000 -0.229712870</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">fit</span>, <span class="kw">s</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>,<span class="fl">0.02</span>))
+<span class="co">#&gt; 51 x 2 Matrix of class "dgeMatrix"</span>
+<span class="co">#&gt;                       1            2</span>
+<span class="co">#&gt; (Intercept) -0.03715135  0.247105426</span>
+<span class="co">#&gt; X23          0.00000000  0.098030248</span>
+<span class="co">#&gt; X36          0.00000000 -0.013022250</span>
+<span class="co">#&gt; X38          0.00000000  0.005378361</span>
+<span class="co">#&gt; X40          0.00000000  0.004028934</span>
+<span class="co">#&gt; X53          0.00000000  0.000000000</span>
+<span class="co">#&gt; X74          0.00000000 -0.020729942</span>
+<span class="co">#&gt; X83          0.00000000  0.000000000</span>
+<span class="co">#&gt; X114         0.00000000 -0.296774993</span>
+<span class="co">#&gt; X139         0.00000000  0.098848550</span>
+<span class="co">#&gt; X143         0.00000000 -0.015094909</span>
+<span class="co">#&gt; X168         0.00000000 -0.331811094</span>
+<span class="co">#&gt; X176         0.00000000  0.000000000</span>
+<span class="co">#&gt; X244         0.00000000  0.000000000</span>
+<span class="co">#&gt; X246         0.00000000 -0.005869031</span>
+<span class="co">#&gt; X249         0.00000000  0.000000000</span>
+<span class="co">#&gt; X266         0.00000000  0.046402450</span>
+<span class="co">#&gt; X271         0.00000000 -0.185995388</span>
+<span class="co">#&gt; X273         0.00000000  0.000000000</span>
+<span class="co">#&gt; X282         0.00000000 -0.008280108</span>
+<span class="co">#&gt; X286         0.00000000  0.000000000</span>
+<span class="co">#&gt; X300         0.00000000 -0.096994400</span>
+<span class="co">#&gt; X302        -0.17330971 -0.116695776</span>
+<span class="co">#&gt; X312         0.00000000  0.000000000</span>
+<span class="co">#&gt; X315         0.00000000 -0.182667959</span>
+<span class="co">#&gt; X330         0.00000000  0.000000000</span>
+<span class="co">#&gt; X336         0.00000000  0.138864533</span>
+<span class="co">#&gt; X344         0.00000000 -0.009241378</span>
+<span class="co">#&gt; X348         0.00000000  0.000000000</span>
+<span class="co">#&gt; X352         0.00000000 -0.069254814</span>
+<span class="co">#&gt; X375         0.00000000  0.000000000</span>
+<span class="co">#&gt; X383         0.00000000  0.000000000</span>
+<span class="co">#&gt; X403         0.00000000  0.021805050</span>
+<span class="co">#&gt; X404         0.00000000  0.000000000</span>
+<span class="co">#&gt; X420         0.00000000  0.000000000</span>
+<span class="co">#&gt; X422         0.00000000  0.000000000</span>
+<span class="co">#&gt; X431         0.00000000  0.000000000</span>
+<span class="co">#&gt; X435         0.00000000  0.000000000</span>
+<span class="co">#&gt; X441         0.00000000  0.000000000</span>
+<span class="co">#&gt; X447         0.00000000  0.000000000</span>
+<span class="co">#&gt; X468         0.00000000  0.000000000</span>
+<span class="co">#&gt; X485         0.00000000  0.000000000</span>
+<span class="co">#&gt; X503         0.00000000 -0.575054421</span>
+<span class="co">#&gt; X512         0.00000000 -0.042208022</span>
+<span class="co">#&gt; X515         0.00000000  0.000000000</span>
+<span class="co">#&gt; X516         0.00000000  0.248284875</span>
+<span class="co">#&gt; X407         0.00000000 -0.158077877</span>
+<span class="co">#&gt; X507         0.00000000  0.000000000</span>
+<span class="co">#&gt; X524         1.34292812  1.863827767</span>
+<span class="co">#&gt; X538        -0.71437257 -1.081309751</span>
+<span class="co">#&gt; X243         0.00000000 -0.229712870</span></pre></body></html></div>
 <p>We can also get predictions (<span class="math inline">\(X\widehat{\boldsymbol{\beta}}\)</span>) using the <code>predict</code> method for objects of class <code>ggmix_fit</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># need to provide x to the predict function</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(fit, <span class="dt">s =</span> <span class="fl">0.01</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtest))</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt;                 1</span></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; id26  1.968013311</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; id39  2.195883150</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; id45  0.397200737</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; id52 -1.024678125</span></a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; id53  0.008077785</span></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; id79  1.799210989</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># need to provide x to the predict function</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="no">fit</span>, <span class="kw">s</span> <span class="kw">=</span> <span class="fl">0.01</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtest</span>))
+<span class="co">#&gt;                 1</span>
+<span class="co">#&gt; id26  1.968013311</span>
+<span class="co">#&gt; id39  2.195883150</span>
+<span class="co">#&gt; id45  0.397200737</span>
+<span class="co">#&gt; id52 -1.024678125</span>
+<span class="co">#&gt; id53  0.008077785</span>
+<span class="co">#&gt; id79  1.799210989</span></pre></body></html></div>
 </div>
 <div id="find-the-optimal-value-of-the-tuning-parameter" class="section level2">
 <h2 class="hasAnchor">
@@ -247,105 +247,105 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <p>We use the Generalized Information Criterion (GIC) to select the optimal value for <span class="math inline">\(\lambda\)</span>. The GIC takes the form</p>
 <p><span class="math display">\[GIC_{\lambda} = -2 \ell(\widehat{\boldsymbol{\beta}}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda}\]</span></p>
 <p>where <span class="math inline">\(\ell(\cdot)\)</span> is the log-likelihood evaluated at the converged values of the parameters, <span class="math inline">\(\widehat{df}_{\lambda}\)</span> is the number of non-zero elements in <span class="math inline">\(\widehat{\boldsymbol{\beta}}_{\lambda}\)</span> plus two (representing the variance parameters <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\sigma^2\)</span>), and <span class="math inline">\(a_n\)</span> is a non-negative penalty parameter. The BIC has <span class="math inline">\(a_n = \log(n)\)</span>, and AIC has <span class="math inline">\(a_n = 2\)</span>. The user can specify the value of <span class="math inline">\(a_n\)</span> that they want. The default is <span class="math inline">\(a_n = log(log(n)) * log(p)\)</span> which corresponds to a high-dimensional BIC (HDBIC):</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># pass the fitted object from ggmix to the gic function:</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">hdbic &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.html">gic</a></span>(fit)</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(hdbic)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt; [1] "ggmix_gic"     "lassofullrank" "ggmix_fit"</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co"># we can also fit the BIC by specifying the an argument</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">bicfit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gic.html">gic</a></span>(fit, <span class="dt">an =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(admixed<span class="op">$</span>ytrain)))</a></code></pre></div>
+<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># pass the fitted object from ggmix to the gic function:</span>
+<span class="no">hdbic</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/gic.html">gic</a></span>(<span class="no">fit</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="no">hdbic</span>)
+<span class="co">#&gt; [1] "ggmix_gic"     "lassofullrank" "ggmix_fit"</span>
+
+<span class="co"># we can also fit the BIC by specifying the an argument</span>
+<span class="no">bicfit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/gic.html">gic</a></span>(<span class="no">fit</span>, <span class="kw">an</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">admixed</span>$<span class="no">ytrain</span>)))</pre></body></html></div>
 <p>We can plot the HDBIC values against <span class="math inline">\(\log(\lambda)\)</span> using the <code>plot</code> method for objects of class <code>ggmix_gic</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">hdbic</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <p>The optimal value for lambda according to the HDBIC is (i.e. the <span class="math inline">\(\lambda\)</span> that leads to the minium HDBIC):</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">hdbic[[<span class="st">"lambda.min"</span>]]</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; [1] 0.09862269</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">hdbic</span><span class="kw">[[</span><span class="st">"lambda.min"</span>]]
+<span class="co">#&gt; [1] 0.09862269</span></pre></body></html></div>
 <p>We can also plot the BIC:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(bicfit, <span class="dt">ylab =</span> <span class="st">"BIC"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">bicfit</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"BIC"</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">bicfit[[<span class="st">"lambda.min"</span>]]</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; [1] 0.07460445</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">bicfit</span><span class="kw">[[</span><span class="st">"lambda.min"</span>]]
+<span class="co">#&gt; [1] 0.07460445</span></pre></body></html></div>
 </div>
 <div id="get-coefficients-corresponding-to-optimal-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#get-coefficients-corresponding-to-optimal-model" class="anchor"></a>Get Coefficients Corresponding to Optimal Model</h2>
 <p>We can use the object outputted by the <code>gic</code> function to extract the coefficients using the <code>coef</code> method for objects of class <code>ggmix_gic</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(hdbic)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; 51 x 1 sparse Matrix of class "dgCMatrix"</span></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt;                       1</span></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; (Intercept) -0.03660806</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt; X23          .         </span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt; X36          .         </span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt; X38          .         </span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt; X40          .         </span></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt; X53          .         </span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt; X74          .         </span></a>
-<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt; X83          .         </span></a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt; X114         .         </span></a>
-<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt; X139         .         </span></a>
-<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt; X143         .         </span></a>
-<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt; X168         .         </span></a>
-<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt; X176         .         </span></a>
-<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="co">#&gt; X244         .         </span></a>
-<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">#&gt; X246         .         </span></a>
-<a class="sourceLine" id="cb13-19" data-line-number="19"><span class="co">#&gt; X249         .         </span></a>
-<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="co">#&gt; X266         .         </span></a>
-<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="co">#&gt; X271         .         </span></a>
-<a class="sourceLine" id="cb13-22" data-line-number="22"><span class="co">#&gt; X273         .         </span></a>
-<a class="sourceLine" id="cb13-23" data-line-number="23"><span class="co">#&gt; X282         .         </span></a>
-<a class="sourceLine" id="cb13-24" data-line-number="24"><span class="co">#&gt; X286         .         </span></a>
-<a class="sourceLine" id="cb13-25" data-line-number="25"><span class="co">#&gt; X300         .         </span></a>
-<a class="sourceLine" id="cb13-26" data-line-number="26"><span class="co">#&gt; X302        -0.17607392</span></a>
-<a class="sourceLine" id="cb13-27" data-line-number="27"><span class="co">#&gt; X312         .         </span></a>
-<a class="sourceLine" id="cb13-28" data-line-number="28"><span class="co">#&gt; X315         .         </span></a>
-<a class="sourceLine" id="cb13-29" data-line-number="29"><span class="co">#&gt; X330         .         </span></a>
-<a class="sourceLine" id="cb13-30" data-line-number="30"><span class="co">#&gt; X336         .         </span></a>
-<a class="sourceLine" id="cb13-31" data-line-number="31"><span class="co">#&gt; X344         .         </span></a>
-<a class="sourceLine" id="cb13-32" data-line-number="32"><span class="co">#&gt; X348         .         </span></a>
-<a class="sourceLine" id="cb13-33" data-line-number="33"><span class="co">#&gt; X352         .         </span></a>
-<a class="sourceLine" id="cb13-34" data-line-number="34"><span class="co">#&gt; X375         .         </span></a>
-<a class="sourceLine" id="cb13-35" data-line-number="35"><span class="co">#&gt; X383         .         </span></a>
-<a class="sourceLine" id="cb13-36" data-line-number="36"><span class="co">#&gt; X403         .         </span></a>
-<a class="sourceLine" id="cb13-37" data-line-number="37"><span class="co">#&gt; X404         .         </span></a>
-<a class="sourceLine" id="cb13-38" data-line-number="38"><span class="co">#&gt; X420         .         </span></a>
-<a class="sourceLine" id="cb13-39" data-line-number="39"><span class="co">#&gt; X422         .         </span></a>
-<a class="sourceLine" id="cb13-40" data-line-number="40"><span class="co">#&gt; X431         .         </span></a>
-<a class="sourceLine" id="cb13-41" data-line-number="41"><span class="co">#&gt; X435         .         </span></a>
-<a class="sourceLine" id="cb13-42" data-line-number="42"><span class="co">#&gt; X441         .         </span></a>
-<a class="sourceLine" id="cb13-43" data-line-number="43"><span class="co">#&gt; X447         .         </span></a>
-<a class="sourceLine" id="cb13-44" data-line-number="44"><span class="co">#&gt; X468         .         </span></a>
-<a class="sourceLine" id="cb13-45" data-line-number="45"><span class="co">#&gt; X485         .         </span></a>
-<a class="sourceLine" id="cb13-46" data-line-number="46"><span class="co">#&gt; X503         .         </span></a>
-<a class="sourceLine" id="cb13-47" data-line-number="47"><span class="co">#&gt; X512         .         </span></a>
-<a class="sourceLine" id="cb13-48" data-line-number="48"><span class="co">#&gt; X515         .         </span></a>
-<a class="sourceLine" id="cb13-49" data-line-number="49"><span class="co">#&gt; X516         .         </span></a>
-<a class="sourceLine" id="cb13-50" data-line-number="50"><span class="co">#&gt; X407         .         </span></a>
-<a class="sourceLine" id="cb13-51" data-line-number="51"><span class="co">#&gt; X507         .         </span></a>
-<a class="sourceLine" id="cb13-52" data-line-number="52"><span class="co">#&gt; X524         1.34951500</span></a>
-<a class="sourceLine" id="cb13-53" data-line-number="53"><span class="co">#&gt; X538        -0.72052613</span></a>
-<a class="sourceLine" id="cb13-54" data-line-number="54"><span class="co">#&gt; X243         .</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">hdbic</span>)
+<span class="co">#&gt; 51 x 1 sparse Matrix of class "dgCMatrix"</span>
+<span class="co">#&gt;                       1</span>
+<span class="co">#&gt; (Intercept) -0.03660806</span>
+<span class="co">#&gt; X23          .         </span>
+<span class="co">#&gt; X36          .         </span>
+<span class="co">#&gt; X38          .         </span>
+<span class="co">#&gt; X40          .         </span>
+<span class="co">#&gt; X53          .         </span>
+<span class="co">#&gt; X74          .         </span>
+<span class="co">#&gt; X83          .         </span>
+<span class="co">#&gt; X114         .         </span>
+<span class="co">#&gt; X139         .         </span>
+<span class="co">#&gt; X143         .         </span>
+<span class="co">#&gt; X168         .         </span>
+<span class="co">#&gt; X176         .         </span>
+<span class="co">#&gt; X244         .         </span>
+<span class="co">#&gt; X246         .         </span>
+<span class="co">#&gt; X249         .         </span>
+<span class="co">#&gt; X266         .         </span>
+<span class="co">#&gt; X271         .         </span>
+<span class="co">#&gt; X273         .         </span>
+<span class="co">#&gt; X282         .         </span>
+<span class="co">#&gt; X286         .         </span>
+<span class="co">#&gt; X300         .         </span>
+<span class="co">#&gt; X302        -0.17607392</span>
+<span class="co">#&gt; X312         .         </span>
+<span class="co">#&gt; X315         .         </span>
+<span class="co">#&gt; X330         .         </span>
+<span class="co">#&gt; X336         .         </span>
+<span class="co">#&gt; X344         .         </span>
+<span class="co">#&gt; X348         .         </span>
+<span class="co">#&gt; X352         .         </span>
+<span class="co">#&gt; X375         .         </span>
+<span class="co">#&gt; X383         .         </span>
+<span class="co">#&gt; X403         .         </span>
+<span class="co">#&gt; X404         .         </span>
+<span class="co">#&gt; X420         .         </span>
+<span class="co">#&gt; X422         .         </span>
+<span class="co">#&gt; X431         .         </span>
+<span class="co">#&gt; X435         .         </span>
+<span class="co">#&gt; X441         .         </span>
+<span class="co">#&gt; X447         .         </span>
+<span class="co">#&gt; X468         .         </span>
+<span class="co">#&gt; X485         .         </span>
+<span class="co">#&gt; X503         .         </span>
+<span class="co">#&gt; X512         .         </span>
+<span class="co">#&gt; X515         .         </span>
+<span class="co">#&gt; X516         .         </span>
+<span class="co">#&gt; X407         .         </span>
+<span class="co">#&gt; X507         .         </span>
+<span class="co">#&gt; X524         1.34951500</span>
+<span class="co">#&gt; X538        -0.72052613</span>
+<span class="co">#&gt; X243         .</span></pre></body></html></div>
 <p>We can also extract just the nonzero coefficients:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"nonzero"</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt;                       1</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; (Intercept) -0.03660806</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; X302        -0.17607392</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt; X524         1.34951500</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; X538        -0.72052613</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; eta          0.99000000</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt; sigma2       1.60476289</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">hdbic</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"nonzero"</span>)
+<span class="co">#&gt;                       1</span>
+<span class="co">#&gt; (Intercept) -0.03660806</span>
+<span class="co">#&gt; X302        -0.17607392</span>
+<span class="co">#&gt; X524         1.34951500</span>
+<span class="co">#&gt; X538        -0.72052613</span>
+<span class="co">#&gt; eta          0.99000000</span>
+<span class="co">#&gt; sigma2       1.60476289</span></pre></body></html></div>
 <p>Finally we can also make predictions from the <code>hdbic</code> object, which by default will use the model corresponding to the optimal tuning parameter:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(hdbic, <span class="dt">newx =</span> admixed<span class="op">$</span>xtest)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;                1</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt; id26  2.31027410</span></a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co">#&gt; id39  0.86922183</span></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; id45 -0.12814532</span></a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; id52 -0.03660806</span></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt; id53 -0.21268198</span></a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; id79  1.94189580</span></a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; id80  2.48634802</span></a>
-<a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co">#&gt; id85  2.48634802</span></a>
-<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; id94  1.04529575</span></a>
-<a class="sourceLine" id="cb15-12" data-line-number="12"><span class="co">#&gt; id96  1.13683302</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="no">hdbic</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtest</span>)
+<span class="co">#&gt;                1</span>
+<span class="co">#&gt; id26  2.31027410</span>
+<span class="co">#&gt; id39  0.86922183</span>
+<span class="co">#&gt; id45 -0.12814532</span>
+<span class="co">#&gt; id52 -0.03660806</span>
+<span class="co">#&gt; id53 -0.21268198</span>
+<span class="co">#&gt; id79  1.94189580</span>
+<span class="co">#&gt; id80  2.48634802</span>
+<span class="co">#&gt; id85  2.48634802</span>
+<span class="co">#&gt; id94  1.04529575</span>
+<span class="co">#&gt; id96  1.13683302</span></pre></body></html></div>
 </div>
 <div id="diagnostic-plots" class="section level2">
 <h2 class="hasAnchor">
@@ -354,42 +354,31 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 <div id="observed-vs-predicted-response" class="section level3">
 <h3 class="hasAnchor">
 <a href="#observed-vs-predicted-response" class="anchor"></a>Observed vs. Predicted Response</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"predicted"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">hdbic</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"predicted"</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtrain</span>, <span class="kw">newy</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">ytrain</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 </div>
 <div id="qq-plots-for-residuals-and-random-effects" class="section level3">
 <h3 class="hasAnchor">
 <a href="#qq-plots-for-residuals-and-random-effects" class="anchor"></a>QQ-plots for Residuals and Random Effects</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQranef"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">hdbic</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"QQranef"</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtrain</span>, <span class="kw">newy</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">ytrain</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"QQresid"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">hdbic</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"QQresid"</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtrain</span>, <span class="kw">newy</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">ytrain</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-16-2.png" width="700"></p>
 </div>
 <div id="tukey-anscombe-plot" class="section level3">
 <h3 class="hasAnchor">
 <a href="#tukey-anscombe-plot" class="anchor"></a>Tukey-Anscombe Plot</h3>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(hdbic, <span class="dt">type =</span> <span class="st">"Tukey"</span>, <span class="dt">newx =</span> admixed<span class="op">$</span>xtrain, <span class="dt">newy =</span> admixed<span class="op">$</span>ytrain)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">hdbic</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"Tukey"</span>, <span class="kw">newx</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">xtrain</span>, <span class="kw">newy</span> <span class="kw">=</span> <span class="no">admixed</span>$<span class="no">ytrain</span>)</pre></body></html></div>
 <p><img src="introduction-to-ggmix_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#model">Model</a></li>
-      <li><a href="#installation">Installation</a></li>
-      <li><a href="#quick-start">Quick Start</a></li>
-      <li><a href="#fit-the-linear-mixed-model-with-lasso-penalty">Fit the linear mixed model with Lasso Penalty</a></li>
-      <li><a href="#find-the-optimal-value-of-the-tuning-parameter">Find the Optimal Value of the Tuning Parameter</a></li>
-      <li><a href="#get-coefficients-corresponding-to-optimal-model">Get Coefficients Corresponding to Optimal Model</a></li>
-      <li><a href="#diagnostic-plots">Diagnostic Plots</a></li>
-      </ul>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
 
@@ -400,7 +389,7 @@ Q_{\lambda}(\boldsymbol{\Theta}) = f(\boldsymbol{\Theta}) + \lambda \sum_{j\neq 
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
