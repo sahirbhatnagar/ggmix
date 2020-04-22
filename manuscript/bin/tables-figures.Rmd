@@ -1,0 +1,108 @@
+---
+title: "Code to reproduce tables and figures in _Simultaneous SNP selection and adjustment for population structure in high dimensional prediction models_. Bhatnagar et al. (2020). PLOS Genetics."
+author: "by Sahir Bhatnagar"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: false
+    number_sections: true
+    toc_depth: 4
+header-includes:
+   - \newcommand{\bx}{\textbf{\emph{x}}}
+   - \newcommand{\by}{\textbf{\emph{y}}}
+   - \newcommand{\bX}{\textbf{X}}
+   - \newcommand{\bW}{\textbf{W}}
+   - \newcommand{\bY}{\textbf{Y}}
+   - \newcommand{\bbeta}{\boldsymbol{\beta}}
+editor_options: 
+  chunk_output_type: console
+---
+
+This `.Rmd` file contains the code to reproduce the tables and figures in the paper _Simultaneous SNP selection and adjustment for population structure in high dimensional prediction models_. Bhatnagar et al. (2020). PLOS Genetics. 
+
+# How to compile this document
+
+The easiest way to compile this document is to clone the https://github.com/sahirbhatnagar/ggmix repository or download the zip file https://github.com/sahirbhatnagar/ggmix/archive/master.zip. Open the file `manuscript/bin/tables-figures.Rmd` in RStudio and click on the _Knit_ button. If you don't use RStudio, then from the `R` console enter `rmarkdown::render("manuscript/bin/tables-figures.Rmd")`. This assumes that you have installed both the `knitr` and `rmarkdown` packages, and are in the root of the `ggmix` folder. 
+
+The order in which the tables and figures appear follow that of the paper. The `R` scripts for each Table and Figure are listed below:
+
+- **Figure 1**: 
+
+# Load Requires Packages
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(digits = 4, scipen = 2)
+knitr::read_chunk(here::here("manuscript/bin/setup.R"))
+knitr::read_chunk(here::here("manuscript/bin/simulation.R"))
+knitr::read_chunk(here::here("manuscript/bin/GAW20.R"))
+knitr::read_chunk(here::here("manuscript/bin/UKB.R"))
+knitr::read_chunk(here::here("manuscript/bin/mice.R"))
+```
+
+```{r packages}
+```
+
+
+
+# Figure 1
+
+```{r plot-kinship-sim}
+```
+
+
+# Figure 2
+
+```{r plot-pc-sim}
+```
+
+
+# Table 1
+
+```{r simulation-results}
+```
+
+
+```{r table-of-results}
+```
+
+
+```{r print-sim-table, results='asis'}
+```
+
+
+
+### Text
+
+Text can be decorated with **bold** or *italics*.  It is also possible to 
+
+* create [links](http://rmarkdown.rstudio.com/) 
+* include mathematics like $e=mc^2$ or 
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2$$
+
+Be sure to put a space after the * when you are creating bullets and a space after # when 
+creating section headers, but **not** between $ and the mathematical formulas.
+
+
+### Destination formats
+
+This file can be knit to HTML, PDF, or Word.  In RStudio, just select the desired output file type
+and click on `Knit HTML`, `Knit PDF`, or `Knit Word`.  Use the dropdown menu next to that to 
+change the desired file type.
+
+### Documenting file creation 
+
+It's useful to record some information about how your file was created.
+
+  * File creation date: `r Sys.Date()`
+  * `r R.version.string`
+  * R version (short form): `r getRversion()`
+  * `mosaic` package version: `r packageVersion("mosaic")`
+  * Additional session information
+  
+```{r echo=FALSE}
+sessionInfo()  # could use devtools::session_info() if you prefer that
+```
+  
