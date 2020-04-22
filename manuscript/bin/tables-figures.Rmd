@@ -23,11 +23,10 @@ This `.Rmd` file contains the code to reproduce the tables and figures in the pa
 
 # How to compile this document
 
-The easiest way to compile this document is to clone the https://github.com/sahirbhatnagar/ggmix repository or download the zip file https://github.com/sahirbhatnagar/ggmix/archive/master.zip. Open the file `manuscript/bin/tables-figures.Rmd` in RStudio and click on the _Knit_ button. If you don't use RStudio, then from the `R` console enter `rmarkdown::render("manuscript/bin/tables-figures.Rmd")`. This assumes that you have installed both the `knitr` and `rmarkdown` packages, and are in the root of the `ggmix` folder. 
+The easiest way to compile this document is to clone the https://github.com/sahirbhatnagar/ggmix repository or download the zip file https://github.com/sahirbhatnagar/ggmix/archive/master.zip. Open the file [`manuscript/bin/tables-figures.Rmd`](https://github.com/sahirbhatnagar/ggmix/blob/master/manuscript/bin/tables-figures.Rmd) in RStudio and click on the _Knit_ button. If you don't use RStudio, then from the `R` console enter `rmarkdown::render("manuscript/bin/tables-figures.Rmd")`. This assumes that you have installed both the `knitr` and `rmarkdown` packages, and are in the root of the `ggmix` folder. 
 
-The order in which the tables and figures appear follow that of the paper. The `R` scripts for each Table and Figure are listed below:
+The order in which the tables and figures appear follow that of the paper. The `R` scripts for each Table and Figure are in separate `R` files found in the [`manuscript/bin`](https://github.com/sahirbhatnagar/ggmix/tree/master/manuscript/bin) folder. This `.Rmd` document uses [code externalization](https://yihui.org/knitr/demo/externalization/).
 
-- **Figure 1**: 
 
 # Load Requires Packages
 
@@ -45,9 +44,12 @@ knitr::read_chunk(here::here("manuscript/bin/mice.R"))
 ```{r packages}
 ```
 
+```{r globals}
+```
 
 
 # Figure 1
+
 
 ```{r plot-kinship-sim}
 ```
@@ -61,6 +63,15 @@ knitr::read_chunk(here::here("manuscript/bin/mice.R"))
 
 # Table 1
 
+The simulation study results were run on a cluster using the [simulator](https://cran.r-project.org/package=simulator) package. The simulator files can be found in the [`simulation`](https://github.com/sahirbhatnagar/ggmix/tree/master/simulation) folder:
+
+- [`simulation/main.R`](https://raw.githubusercontent.com/sahirbhatnagar/ggmix/master/simulation/main.R) contains the main file which runs the simulation. This can be thought of as a master file which  in turn calls the methods, model and eval functions  
+- [`simulation/model_functions.R`](https://raw.githubusercontent.com/sahirbhatnagar/ggmix/master/simulation/model_functions.R) contains the model functions, i.e., used to simulate the data  
+- [`simulation/method_functions.R`](https://raw.githubusercontent.com/sahirbhatnagar/ggmix/master/simulation/method_functions.R) contains the the individual methods which are applied on the simulated data  
+- [`simulation/eval_functions.R`](https://raw.githubusercontent.com/sahirbhatnagar/ggmix/master/simulation/eval_functions.R) contains the functions used to evaluate the different methods  
+
+
+
 ```{r simulation-results}
 ```
 
@@ -73,36 +84,53 @@ knitr::read_chunk(here::here("manuscript/bin/mice.R"))
 ```
 
 
+# Figure 3
 
-### Text
-
-Text can be decorated with **bold** or *italics*.  It is also possible to 
-
-* create [links](http://rmarkdown.rstudio.com/) 
-* include mathematics like $e=mc^2$ or 
-$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2$$
-
-Be sure to put a space after the * when you are creating bullets and a space after # when 
-creating section headers, but **not** between $ and the mathematical formulas.
+```{r UKB-Figure,fig.width=8, fig.height=7}
+```
 
 
-### Destination formats
+# Table 2
 
-This file can be knit to HTML, PDF, or Word.  In RStudio, just select the desired output file type
-and click on `Knit HTML`, `Knit PDF`, or `Knit Word`.  Use the dropdown menu next to that to 
-change the desired file type.
+```{r GAW20-prediction-RMSE-activeVariable}
+```
 
-### Documenting file creation 
 
-It's useful to record some information about how your file was created.
+
+# Figure 4
+
+```{r Mice-comparison-fixTPR, fig.width=12, fig.height=10}
+```
+
+
+# S1 Figure
+
+```{r UKB-chromosome-distribution}
+```
+
+
+# S2 Figure
+
+```{r GAW20-R2}
+```
+
+
+
+# S3 Figure
+
+```{r Mice-R2}
+```
+
+
+
+# File and Session Information 
 
   * File creation date: `r Sys.Date()`
   * `r R.version.string`
   * R version (short form): `r getRversion()`
-  * `mosaic` package version: `r packageVersion("mosaic")`
   * Additional session information
   
 ```{r echo=FALSE}
-sessionInfo()  # could use devtools::session_info() if you prefer that
+if (!requireNamespace("devtools")) sessionInfo() else devtools::session_info()
 ```
   

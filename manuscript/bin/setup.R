@@ -32,8 +32,3 @@ pacman::p_load(bnpsd)
 ## ---- globals ----
 
 cbbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-gg_sy <- ggplot2::theme(legend.position = "bottom", axis.text = element_text(size = 20),
-                        axis.title = element_text(size = 20), legend.text = element_text(size = 20),
-                        legend.title = element_text(size = 20))
-
-
