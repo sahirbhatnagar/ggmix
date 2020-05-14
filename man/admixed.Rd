@@ -4,7 +4,9 @@
 \name{admixed}
 \alias{admixed}
 \title{Simulated Dataset with 1D Geography}
-\format{An object of class \code{list} of length 21.}
+\format{
+An object of class \code{list} of length 21.
+}
 \usage{
 admixed
 }

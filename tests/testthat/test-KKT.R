@@ -14,7 +14,7 @@ draw <- gen_structured_model(n = 500,
 fit <- ggmix(x = draw[["xtrain"]],
              y = draw[["ytrain"]],
              kinship = draw[["kin_train"]],
-             estimation = "full")
+             estimation = "full", epsilon = 1e-7, verbose = 0)
 
 test_that("Check predict and coef methods with multiple s values", {
   # fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
@@ -31,4 +31,29 @@ test_that("Check predict and coef methods with multiple s values", {
                    lambda = gicfit$lambda.min, tol.kkt = 1e-2)
   expect_true(all(abs(kkt)[-1] < 0.02))
 
+})
+
+
+
+fit <- ggmix(x = draw[["xtrain"]],
+             y = draw[["ytrain"]],
+             kinship = draw[["kin_train"]],
+             estimation = "full", epsilon = 1e-10, 
+             verbose = 0, lambda = c(0.22150, 0.025, 0.01, 0.33))
+
+test_that("Check predict and coef methods with multiple s values and user defined lambda", {
+  # fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
+  #              estimation = "full")
+  gicfit <- gic(fit)
+  
+  coef_res <- coef(gicfit, type = "all")
+  et <- coef_res["eta",]
+  sigs <- coef_res["sigma2",]
+  bet <- coef_res[-which(rownames(coef_res) %in% c("eta","sigma2")),]
+  kkt <- kkt_check(eta = et, sigma2 = sigs, beta = bet,
+                   eigenvalues = fit$ggmix_object$D, x = fit$ggmix_object$x,
+                   y = fit$ggmix_object$y, nt = length(fit$ggmix_object$y),
+                   lambda = gicfit$lambda.min, tol.kkt = 1e-2)
+  expect_true(all(abs(kkt)[-1] < 0.02))
+  
 })

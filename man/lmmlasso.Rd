@@ -91,7 +91,7 @@ less than thresh times the null deviance. Defaults value is 1E-7}
 \item{epsilon}{Convergence threshold for block relaxation of the entire
 parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
-Defaults value is 1E-7}
+Defaults value is 1E-4}
 
 \item{dfmax}{limit the maximum number of variables in the model. Useful for
 very large \code{p} (the total number of predictors in the design matrix),
