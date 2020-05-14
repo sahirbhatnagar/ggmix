@@ -5,10 +5,31 @@
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/sahirbhatnagar/ggmix?branch=master&svg=true)](https://ci.appveyor.com/project/sahirbhatnagar/ggmix)
 [![Travis-CI Build Status](https://travis-ci.org/sahirbhatnagar/ggmix.svg?branch=master)](https://travis-ci.org/sahirbhatnagar/ggmix)
 [![Coverage status](https://codecov.io/gh/sahirbhatnagar/ggmix/branch/master/graph/badge.svg)](https://codecov.io/github/sahirbhatnagar/ggmix?branch=master)
+[![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/ggmix?color=green)](http://www.r-pkg.org/pkg/ggmix)
   <!-- badges: end -->
 
+<br>
 
-Please visit https://sahirbhatnagar.com/ggmix/ for details on this package.   
-The companion paper is available at https://www.biorxiv.org/content/10.1101/408484v4
+## Methodological Details
+
+The companion paper is available at https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1008766
+
+<br>
+
+## Documentation
+
+Please visit https://sahirbhatnagar.com/ggmix/ for details on how to use this package.   
+
+<br>
 
 Please note that the 'ggmix' project is released with a [Contributor Code of Conduct](https://sahirbhatnagar.com/ggmix/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+
+<br>
+
+## References
+
+If you use `ggmix` in your work, I would highly appreciate if you cite the paper and the package:
+
+1. Bhatnagar SR, Yang Y, Lu T, Schurr E, Loredo-Osti JC, Forest M, Oualkacha K, Greenwood CMT (2020). Simultaneous SNP selection and adjustment for population structure in high dimensional prediction models. PLoS Genet 16(5): e1008766. https://doi.org/10.1371/journal.pgen.1008766.
+
+2. Bhatnagar SR, Yang Y, Greenwood CMT (2020). ggmix: Variable Selection in Linear Mixed Models for SNP Data. R package version 0.0.1. https://github.com/sahirbhatnagar/ggmix.
