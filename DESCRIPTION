@@ -1,7 +1,7 @@
 Package: ggmix
 Type: Package
 Title: Variable Selection in Linear Mixed Models for SNP Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
   role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
