@@ -1,7 +1,7 @@
 Package: ggmix
 Type: Package
 Title: Variable Selection in Linear Mixed Models for SNP Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
   person("Sahir", "Bhatnagar", email = "sahir.bhatnagar@gmail.com",
   role = c("aut", "cre"), comment = "https://sahirbhatnagar.com/"),
@@ -21,7 +21,7 @@ Description: Fit penalized multivariable linear mixed models with a single
     information, see the website below and the accompanying paper: 
     Bhatnagar et al., "Simultaneous SNP selection and adjustment for 
     population structure in high dimensional prediction models", 2020, 
-    <DOI:10.1101/408484>.
+    <DOI:10.1371/journal.pgen.1008766>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -42,5 +42,5 @@ Suggests:
     rmarkdown
 BugReports: https://github.com/sahirbhatnagar/ggmix/issues
 URL: https://github.com/sahirbhatnagar/ggmix
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr

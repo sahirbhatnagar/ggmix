@@ -92,7 +92,7 @@
 #' @param epsilon Convergence threshold for block relaxation of the entire
 #'   parameter vector \eqn{\Theta = ( \beta, \eta, \sigma^2 )}. The algorithm
 #'   converges when \deqn{crossprod(\Theta_{j+1} - \Theta_{j}) < \epsilon}.
-#'   Defaults value is 1E-7
+#'   Defaults value is 1E-4
 #' @param verbose display progress. Can be either 0,1 or 2. 0 will not display
 #'   any progress, 2 will display very detailed progress and 1 is somewhere in
 #'   between. Default: 0.
