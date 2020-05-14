@@ -1,0 +1,1715 @@
+% Template for PLoS
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL plos_latex_template_ggmix_before.tex   Thu Apr 23 10:20:33 2020
+%DIF ADD plos_latex_template_ggmix.tex          Thu Apr 23 09:54:30 2020
+% Version 3.5 March 2018
+%
+% % % % % % % % % % % % % % % % % % % % % %
+%
+% -- IMPORTANT NOTE
+%
+% This template contains comments intended 
+% to minimize problems and delays during our production 
+% process. Please follow the template instructions
+% whenever possible.
+%
+% % % % % % % % % % % % % % % % % % % % % % % 
+%
+% Once your paper is accepted for publication, 
+% PLEASE REMOVE ALL TRACKED CHANGES in this file 
+% and leave only the final text of your manuscript. 
+% PLOS recommends the use of latexdiff to track changes during review, as this will help to maintain a clean tex file.
+% Visit https://www.ctan.org/pkg/latexdiff?lang=en for info or contact us at latex@plos.org.
+%
+%
+% There are no restrictions on package use within the LaTeX files except that 
+% no packages listed in the template may be deleted.
+%
+% Please do not include colors or graphics in the text.
+%
+% The manuscript LaTeX source should be contained within a single file (do not use \input, \externaldocument, or similar commands).
+%
+% % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- FIGURES AND TABLES
+%
+% Please include tables/figure captions directly after the paragraph where they are first cited in the text.
+%
+% DO NOT INCLUDE GRAPHICS IN YOUR MANUSCRIPT
+% - Figures should be uploaded separately from your manuscript file. 
+% - Figures generated using LaTeX should be extracted and removed from the PDF before submission. 
+% - Figures containing multiple panels/subfigures must be combined into one image file before submission.
+% For figure citations, please use "Fig" instead of "Figure".
+% See http://journals.plos.org/plosone/s/figures for PLOS figure guidelines.
+%
+% Tables should be cell-based and may not contain:
+% - spacing/line breaks within cells to alter layout or alignment
+% - do not nest tabular environments (no tabular environments within tabular environments)
+% - no graphics or colored text (cell background color/shading OK)
+% See http://journals.plos.org/plosone/s/tables for table guidelines.
+%
+% For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example table in text below.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- EQUATIONS, MATH SYMBOLS, SUBSCRIPTS, AND SUPERSCRIPTS
+%
+% IMPORTANT
+% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://journals.plos.org/plosone/s/latex
+%
+% For inline equations, please be sure to include all portions of an equation in the math environment.  For example, x$^2$ is incorrect; this should be formatted as $x^2$ (or $\mathrm{x}^2$ if the romanized font is desired).
+%
+% Do not include text that is not math in the math environment. For example, CO2 should be written as CO\textsubscript{2} instead of CO$_2$.
+%
+% Please add line breaks to long display equations when possible in order to fit size of the column. 
+%
+% For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part of the equation.
+%
+% When adding superscript or subscripts outside of brackets/braces, please group using {}.  For example, change "[U(D,E,\gamma)]^2" to "{[U(D,E,\gamma)]}^2". 
+%
+% Do not use \cal for caligraphic font.  Instead, use \mathcal{}
+%
+% % % % % % % % % % % % % % % % % % % % % % % % 
+%
+% Please contact latex@plos.org with any questions.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amsthm,amssymb,bbm,mathrsfs,mathtools,xfrac} %math stuff
+
+% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+
+% Use Unicode characters when possible
+\usepackage[utf8x]{inputenc}
+
+% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
+
+% cite package, to clean up citations in the main text. Do not remove.
+\usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+% line numbers
+\usepackage[right]{lineno}
+
+% ligatures disabled
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% color can be used to apply background shading to table cells only
+\usepackage[table]{xcolor}
+
+%tabu environment used in table
+\usepackage{tabu}
+
+%\usepackage{ctable} % load after tikz. used for tables
+
+% for toprule, midrule
+\usepackage{tabularx,ragged2e,booktabs,caption}
+
+% for multirow used in table
+\usepackage{multirow}
+
+% for makecell used in table
+\usepackage{makecell}
+
+% scientific notation
+\usepackage{siunitx}
+
+% for algorithm
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+
+
+% array package and thick rules for tables
+\usepackage{array}
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+
+% Remove comment for double spacing
+%\usepackage{setspace} 
+%\doublespacing
+
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in 
+\textheight 8.75in
+
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+% Use the PLoS provided BiBTeX style
+\bibliographystyle{plos2015}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+
+
+% Header and Footer with logo
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+%\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+%\setlength{\headheight}{27.023pt}
+%\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+
+%% Include all macros below
+
+\newcommand{\lorem}{{\bf LOREM}}
+\newcommand{\ipsum}{{\bf IPSUM}}
+
+
+%########################################################################################
+%            						CUSTOM COMMANDS
+%########################################################################################
+
+\newcommand{\tm}[1]{\textrm{{#1}}}
+\newcommand{\bA}{\mb{A}}
+\newcommand{\bB}{\mb{B}}
+\newcommand{\bC}{\mb{C}}
+
+%\usepackage{endfloat} 
+
+\newcommand{\bx}{\textbf{\emph{x}}}
+\newcommand{\by}{\textbf{\emph{y}}}
+\newcommand{\bX}{\textbf{X}}
+\newcommand{\bW}{\textbf{W}}
+\newcommand{\bY}{\textbf{Y}}
+\newcommand{\bD}{\textbf{D}}
+\newcommand{\bH}{\textbf{H}}
+\newcommand{\ggmix}{\texttt{ggmix}}
+\newcommand{\trans}{\top}
+\newcommand{\bXtilde}{\widetilde{\bX}}
+\newcommand{\bYtilde}{\widetilde{\bY}}
+\newcommand{\bDtilde}{\widetilde{\bD}}
+\newcommand{\Xtilde}{\widetilde{X}}
+\newcommand{\Ytilde}{\widetilde{Y}}
+\newcommand{\Dtilde}{\widetilde{D}}
+\newcommand{\bu}{\textbf{u}}
+\newcommand{\bU}{\textbf{U}}
+\newcommand{\bV}{\textbf{V}}
+\newcommand{\bb}{\textbf{\emph{b}}}
+\newcommand{\bI}{\textbf{I}}
+\newcommand{\be}{\boldsymbol{\varepsilon}}
+\newcommand{\bSigma}{\boldsymbol{\Sigma}}
+\newcommand{\bLambda}{\boldsymbol{\Lambda}}
+\newcommand{\bTheta}{\boldsymbol{\Theta}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand {\bs}{\boldsymbol}
+%\newcommand{\norm}[1]{\left\Vert #1 \right\Vert}
+\newcommand{\xf}{\mathcal{X}}
+\newcommand{\pfrac}[2]{\left( \frac{#1}{#2}\right)}
+\newcommand{\e}{{\mathsf E}}
+\newcommand{\bt}{\boldsymbol{\theta}}
+\newcommand{\bmu}{\boldsymbol{\mu}}
+\newcommand{\bbeta}{\boldsymbol{\beta}}
+\newcommand{\bbk}{\boldsymbol{\beta}_{(k)}}
+\newcommand{\bbkt}{\widetilde{\boldsymbol{\beta}}_{(k)}}
+\newcommand{\bPhi}{\boldsymbol{\Phi}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\diag}{diag} % operator and subscript
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+
+% Swap the definition of \abs* and \norm*, so that \abs
+% and \norm resizes the size of the brackets, and the
+% starred version does not.
+\makeatletter
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+
+
+%% END MACROS SECTION
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+\vspace*{0.2in}
+
+% Title must be 250 characters or less.
+\begin{flushleft}
+{\Large
+\textbf\newline{Simultaneous SNP selection and adjustment for population structure in high dimensional prediction models} % Please use "sentence case" for title and headings (capitalize only the first word in a title (or heading), the first word in a subtitle (or subheading), and any proper nouns).
+}
+\newline
+% Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
+\\
+Sahir R Bhatnagar\textsuperscript{1,2,*},
+Yi Yang\textsuperscript{3},
+Tianyuan Lu\textsuperscript{4,5},
+Erwin Schurr\textsuperscript{6},
+JC Loredo-Osti\textsuperscript{7},
+Marie Forest\textsuperscript{8},
+Karim Oualkacha\textsuperscript{9},
+Celia MT Greenwood\textsuperscript{1,4,5,10,11}
+\\
+\bigskip
+\textbf{1} Department of Epidemiology, Biostatistics and Occupational Health, McGill University, Montréal, Québec, Canada
+\\
+\textbf{2} Department of Diagnostic Radiology, McGill University, Montréal, Québec, Canada
+\\
+\textbf{3} Department of Mathematics and Statistics, McGill University, Montréal, Québec, Canada
+\\
+\textbf{4} Quantitative Life Sciences, McGill University, Montréal, Québec, Canada
+\\
+\textbf{5} Lady Davis Institute, Jewish General Hospital, Montréal, Québec, Canada
+\\
+\textbf{6} Department of Medicine, McGill University, Montréal, Québec, Canada
+\\
+\textbf{7} Department of Mathematics and Statistics, Memorial University, St. John's, Newfoundland \DIFaddbegin \DIFadd{and Labrador}\DIFaddend , Canada
+\\
+\textbf{8} École de Technologie Supérieure, Montréal, Québec, Canada
+\\
+\textbf{9} Département de Mathématiques, \DIFdelbegin \DIFdel{UQÀM}\DIFdelend \DIFaddbegin \DIFadd{Université du Québec à Montréal}\DIFaddend , Montréal, Québec, Canada
+\\
+\textbf{10} \DIFaddbegin \DIFadd{Gerald Bronfman }\DIFaddend Department of Oncology, McGill University, Montréal, Québec, Canada
+\\
+\textbf{11} Department of Human Genetics, McGill University, Montréal, Québec, Canada
+
+\bigskip
+
+% Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
+% 
+% Remove or comment out the author notes below if they aren't used.
+%
+% Primary Equal Contribution Note
+%\Yinyang These authors contributed equally to this work.
+
+% Additional Equal Contribution Note
+% Also use this double-dagger symbol for special authorship notes, such as senior authorship.
+%\ddag These authors also contributed equally to this work.
+
+% Current address notes
+%\textcurrency Current Address: Dept/Program/Center, Institution Name, City, State, Country % change symbol to "\textcurrency a" if more than one current address note
+% \textcurrency b Insert second current address 
+% \textcurrency c Insert third current address
+
+% Deceased author note
+%\dag Deceased
+
+% Group/Consortium Author Note
+%\textpilcrow Membership list can be found in the Acknowledgments section.
+
+% Use the asterisk to denote corresponding authorship and provide email address in note below.
+* sahir.bhatnagar@mcgill.ca
+
+\end{flushleft}
+% Please keep the abstract below 300 words
+\section*{Abstract}
+Complex traits are known to be influenced by a combination of environmental factors and rare and common genetic variants. However, detection of such multivariate associations can be compromised by low statistical power and confounding by population structure. Linear mixed effects models (LMM) can account for correlations due to relatedness but have not been applicable in high-dimensional (HD) settings where the number of fixed effect predictors greatly exceeds the number of samples. False positives or false negatives can result from two-stage approaches, where the residuals estimated from a null model adjusted for the subjects' relationship structure are subsequently used as the response in a standard penalized regression model. To overcome these challenges, we develop a general penalized LMM with a single random effect called \ggmix ~for simultaneous SNP selection and adjustment for population structure in high dimensional prediction models. We develop a blockwise coordinate descent algorithm with automatic tuning parameter selection which is highly scalable, computationally efficient and has theoretical guarantees of convergence. Through simulations and three real data examples, we show that \ggmix ~leads to more parsimonious models compared to the two-stage approach or principal component adjustment with better prediction accuracy. Our method performs well even in the presence of highly correlated markers, and when the causal SNPs are included in the kinship matrix. \ggmix ~can be used to construct polygenic risk scores and select instrumental variables in Mendelian randomization studies. Our algorithms are available in an R package available on CRAN (\url{https://cran.r-project.org/package=ggmix}).
+
+
+% Please keep the Author Summary between 150 and 200 words
+% Use first person. PLOS ONE authors please skip this step. 
+% Author Summary not valid for PLOS ONE submissions.   
+\section*{Author summary}
+This work addresses a recurring challenge in the analysis and interpretation of genetic association studies: which genetic variants can best predict and are independently associated with a given phenotype in the presence of population structure ? Not controlling confounding due to geographic population structure, family and/or cryptic relatedness can lead to spurious associations. Much of the existing research has therefore focused on modeling the association between a phenotype and a single genetic variant in a linear mixed model with a random effect. However, this univariate approach may miss true associations due to the stringent significance thresholds required to reduce the number of false positives and also ignores the correlations between markers. We propose an alternative method for fitting high-dimensional multivariable models, which selects SNPs that are independently associated with the phenotype while also accounting for population structure. We provide an efficient implementation of our algorithm and show through simulation studies and real data examples that our method outperforms existing methods in terms of prediction accuracy and controlling the false discovery rate. 
+
+
+\linenumbers
+
+% Use "Eq" instead of "Equation" for equation citations.
+\section*{Introduction}
+
+Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
+Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance; this is known as the missing heritability problem~\cite{manolio2009finding}.
+One plausible reason is that there are many causal variants that each explain a small amount of variation with small effect sizes~\cite{yang2010common}.
+Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, may miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\cite{manolio2009finding}.
+Another major issue to overcome is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\cite{astle2009population}.
+For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry.
+This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\cite{song2015testing,marchini2004effects}.
+Studies that separate their sample by ethnicity to address this confounding suffer from a loss in statistical power due to the drop in sample size.
+
+To address the first problem, multivariable regression methods have been proposed which simultaneously fit many SNPs in a single model~\cite{hoggart2008simultaneous,li2010bayesian}. Indeed, the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\cite{hoggart2008simultaneous}.
+
+Solutions for confounding by population structure have also received significant attention in the literature~\cite{lippert2011fast,kang2010variance,yu2006unified,eu2014comparison}.
+There are two main approaches to account for the relatedness between subjects: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
+The PC adjustment method includes the top PCs of genome-wide SNP genotypes as additional covariates in the model~\cite{price2006principal}.
+The LMM uses an estimated covariance matrix from the individuals' genotypes and includes this information in the form of a random effect~\cite{astle2009population}.
+
+While these problems have been addressed in isolation, there has been relatively little progress towards addressing them jointly at a large scale.
+Region-based tests of association have been developed where a linear combination of $p$ variants is regressed on the response variable in a mixed model framework~\cite{oualkacha2013adjusted}.
+In case-control data, a stepwise logistic-regression procedure was used to evaluate the relative importance of variants within a small genetic region~\cite{cordell2002unified}.
+These methods however are not applicable in the high-dimensional setting, i.e., when the number of variables $p$ is much larger than the sample size $n$, as is often the case in genetic studies where millions of variants are measured on thousands of individuals.
+
+There has been recent interest in using penalized linear mixed models, which place a constraint on the magnitude of the effect sizes while controlling for confounding factors such as population structure.
+For example, the LMM-lasso~\cite{rakitsch2013lasso} places a Laplace prior on all main effects while the adaptive mixed lasso~\cite{wang2011identifying} uses the $L_1$ penalty~\cite{tibshirani1996regression} with adaptively chosen weights~\cite{zou2006adaptive} to allow for differential shrinkage amongst the variables in the model.
+Another method applied a combination of both the lasso and group lasso penalties in order to select variants within a gene most associated with the response~\cite{ding20142}.
+However, methods such as the LMM-lasso are normally performed in two steps. First, the variance components are estimated once from a LMM with a single random effect. These LMMs normally use the estimated covariance matrix from the individuals' genotypes to account for the relatedness but assumes no SNP main effects (i.e. a null model).
+The residuals from this null model with a single random effect can be treated as independent observations because the relatedness has been effectively removed from the original response.
+In the second step, these residuals are used as the response in any high-dimensional model that assumes uncorrelated errors.
+This approach has both computational and practical advantages since existing penalized regression software such as \texttt{glmnet}~\cite{friedman2010regularization} and \texttt{gglasso}~\cite{yang2015fast}, which assume independent observations, can be applied directly to the residuals.
+However, recent work has shown that there can be a loss in power if a causal variant is included in the calculation of the covariance matrix as its effect will have been removed in the first step~\cite{oualkacha2013adjusted,yang2014advantages}.
+
+In this paper we develop a general penalized LMM framework called \texttt{ggmix} that simultaneously selects variables and estimates their effects, accounting for between-individual correlations. We develop a blockwise coordinate descent algorithm with automatic tuning parameter selection which is highly scalable, computationally efficient and has theoretical guarantees of convergence. Our method can handle several sparsity inducing penalties such as the lasso~\cite{tibshirani1996regression} and elastic net~\cite{zou2005regularization}. Through simulations and three real data examples, we show that \ggmix ~leads to more parsimonious models compared to the two-stage approach or principal component adjustment with better prediction accuracy. Our method performs well even in the presence of highly correlated markers, and when the causal SNPs are included in the kinship matrix. 
+
+All of our algorithms are implemented in the \texttt{ggmix} R package hosted on CRAN with extensive documentation (\url{https://sahirbhatnagar.com/ggmix}). We provide a brief demonstration of the \texttt{ggmix} package in \DIFdelbegin \DIFdel{Appendix~\ref{ap:showcase}}\DIFdelend \DIFaddbegin \nameref{S2_Text}\DIFaddend .
+
+The rest of the paper is organized as follows. In \DIFdelbegin \DIFdel{Section 3}\DIFdelend \DIFaddbegin \nameref{sec:results}\DIFaddend , we compare the performance of our proposed approach and demonstrate the scenarios where it can be advantageous to use over existing methods through simulation studies and three real data analyses. This is followed by a discussion of our results, some limitations and future directions in \DIFdelbegin \DIFdel{Section 4. Section 5 }\DIFdelend \DIFaddbegin \nameref{sec:discussion}\DIFadd{. }\nameref{sec:methods} \DIFaddend describes the \texttt{ggmix} model, the optimization procedure and the algorithm used to fit it.
+
+
+
+
+\section*{Results}\label{sec:results}
+
+In this section we demonstrate the performance of \texttt{ggmix} in a simulation study and three real data applications. 
+
+\subsection*{Simulation Study} \label{simustudy}
+
+We evaluated the performance of \texttt{ggmix} in a variety of simulated scenarios. For each simulation scenario we compared \texttt{ggmix} to the \texttt{lasso} and the \texttt{twostep} method. For the \texttt{lasso}, we included the top 10 principal components from the simulated genotypes used to calculate the kinship matrix as unpenalized predictors in the design matrix. For the \texttt{twostep} method, we first fitted an intercept only model with a single random effect using the average information restricted maximum likelihood (AIREML) algorithm~\cite{gilmour1995average} as implemented in the \texttt{gaston} R package~\cite{gaston}. The residuals from this model were then used as the response in a regular \texttt{lasso} model. Note that in the \texttt{twostep} method, we removed the kinship effect in the first step and therefore did not need to make any further adjustments when fitting the penalized model. We fitted the \texttt{lasso} using the default settings and \texttt{standardize=FALSE} in the \texttt{glmnet} package~\cite{friedman2010regularization}, with 10-fold cross-validation (CV) to select the optimal tuning parameter. For other parameters in our simulation study, we defined the following quantities:
+
+\begin{itemize}
+	\item $n$: sample size
+	\item $c$: percentage of causal SNPs
+	\item $\bbeta$: true effect size vector of length $p$ 
+	\item $S_0 = \left\lbrace j; (\bbeta)_j \neq 0 \right\rbrace$ the index of the true active set with cardinality $ |S_0| = c\times p$
+	\item \textit{causal}: the list of causal SNP indices
+	\item \textit{kinship}: the list of SNP indices for the kinship matrix
+	\item $\bX$: $n \times p$ matrix of SNPs that were included as covariates in the model
+\end{itemize}
+
+We simulated data from the model
+\DIFdelbegin \begin{displaymath}
+\DIFdel{\bY = \bX \bbeta + \mathbf{P} + \be
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{\bY = \bX \bbeta + \mathbf{P} + \be,
+}\end{equation*}\DIFaddend 
+where $\mathbf{P}\sim \mathcal{N}(0, \eta \sigma^2 \bPhi)$ is the polygenic effect and $\be \sim \mathcal{N}(0, (1-\eta) \sigma^2 \bI)$ is the error term. Here, $\bPhi_{n \times n}$ is the covariance matrix based on the \textit{kinship} SNPs from $n$ individuals, $\bI_{n \times n}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\mathbf{P}$ and $\be$. The values of the parameters that we used were as follows: narrow sense heritability $\eta=\lbrace 0.1, 0.3 \rbrace$, number of covariates $p = 5,000$, number of \textit{kinship} SNPs $k = 10,000$, percentage of \textit{causal} SNPs $c=\lbrace 0\%, 1\%\rbrace$ and $\sigma^2 = 1$. In addition to these parameters, we also varied the amount of overlap between the \textit{causal} list and the \textit{kinship} list. We considered two main scenarios:
+
+\begin{enumerate}
+	\item None of the \textit{causal} SNPs are included in \textit{kinship} set.
+	\item All of the \textit{causal} SNPs are included in the \textit{kinship} set.
+\end{enumerate}
+
+Both kinship matrices were meant to contrast the model behavior when the causal SNPs are included in both the main effects and random effects (referred to as proximal contamination~\cite{lippert2011fast}) versus when the causal SNPs are only included in the main effects. These scenarios are motivated by the current standard of practice in GWAS where the candidate marker is excluded from the calculation of the kinship matrix~\cite{lippert2011fast}. This approach becomes much more difficult to apply in large-scale multivariable models where there is likely to be overlap between the variables in the design matrix and kinship matrix. We simulated random genotypes from the BN-PSD admixture model with 1D geography and 10 subpopulations using the \texttt{bnpsd} package~\cite{bnpsd1,bnpsd2}. In \DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:plot-kinship-sim}, we plot the estimated kinship matrix from a single simulated dataset in the form of a heatmap where a darker color indicates a closer genetic relationship. 
+
+
+% Place figure captions after the first paragraph in which they are cited.
+\begin{figure}[!h]
+	\caption{{\bf Empirical kinship matrix.}
+		Example of an empirical kinship matrix used in simulation studies. This scenario models a 1D geography with extensive admixture.}
+	\label{fig:plot-kinship-sim}
+\end{figure}
+
+
+
+In \DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the simulated genotypes used to calculate the kinship matrix in \DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding.
+
+
+% Place figure captions after the first paragraph in which they are cited.
+\begin{figure}[!h]
+	\caption{{\bf First two principal components.}
+		First two principal component scores of the genotype data used to estimate the kinship matrix where each color represents one of the 10 simulated subpopulations.}
+	\label{fig:plot-pc-sim}
+\end{figure}
+
+
+Using this set-up, we randomly partitioned 1000 simulated observations into 80\% for training and 20\% for testing. The training set was used to fit the model and select the optimal tuning parameter only, and the resulting model was evaluated on the test set. Let $\hat{\lambda}$ be the estimated value of the optimal regularization parameter, $\widehat{\bbeta}_{\hat{\lambda}}$ the estimate of $\bbeta$ at regularization parameter $\hat{\lambda}$, and $\widehat{S}_{\hat{\lambda}} = \left\lbrace j; (\widehat{\bbeta}_{\hat{\lambda}})_j \neq 0 \right\rbrace$ the index of the set of non-zero estimated coefficients. To compare the methods in the context of true positive rate (TPR), we selected the largest tuning parameter that would result in a false positive rate (FPR) closest to 5\%, but not more. Note that in practice, this approach to selecting the tuning parameter is generally not possible since we do not know the underlying true model in advance. For real data, we suggest an information criterion approach described in \nameref{S1_Text} or a sample splitting approach such as the one we used for the \nameref{subsubsec:UKB} analysis. We also compared the model size ($|\widehat{S}_{\hat{\lambda}}|$), test set prediction error based on the refitted unpenalized estimates for each selected model, the estimation error ($||\widehat{\bbeta} - \bbeta||_2^2$), and the variance components ($\eta, \sigma^2$) for the polygenic random effect and error term. 
+
+
+The results are summarized in Table~\ref{tab:print-sim-table}. We see that \ggmix ~outperformed the \texttt{twostep} in terms of TPR, and was comparable to the \texttt{lasso}. This was the case, regardless of true heritability and whether the causal SNPs were included in the calculation of the kinship matrix. For the \texttt{twostep} however, the TPR at a FPR of 5\%, drops, on average, from 0.84 (when causal SNPs are not in the kinship) to 0.76 (when causal SNPs are in the kinship). Across all simulation scenarios, \texttt{ggmix} had the smallest estimation error, and smallest root mean squared prediction error (RMSE) on the test set while also producing the most parsimonious models. Both the \texttt{lasso} and \texttt{twostep} selected more false positives, even in the null model scenario. Both the \texttt{twostep} and \ggmix ~overestimated the heritability though \ggmix ~was closer to the true value. When none of the causal SNPs were in the kinship, both methods tended to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=30\%$. Across all simulation scenarios \texttt{ggmix} was able to (on average) correctly estimate the error variance. The \texttt{lasso} tended to overestimate $\sigma^2$ in the null model while the \texttt{twostep} overestimated $\sigma^2$ when none of the causal SNPs were in the kinship matrix. 
+
+Overall, we observed that variable selection results and RMSE for \ggmix ~were similar regardless of whether the causal SNPs were in the kinship matrix or not.
+This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal, particularly in polygenic traits. 
+
+In particular, our simulation results show that the principal component adjustment method may not be the best approach to control for confounding by population structure, particularly when variable selection is of interest. 
+
+
+
+
+
+
+
+
+
+
+\begin{table}[!ht]
+	\begin{adjustwidth}{-2.38in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+	\caption{\label{tab:print-sim-table} {\bf Simulation study results.} Mean (standard deviation) from 200 simulations stratified by the number of causal SNPs (null, 1\%), the overlap between causal SNPs and kinship matrix (no overlap, all causal SNPs in kinship), and true heritability (10\%, 30\%).
+		For all simulations, sample size is $n=1000$, the number of covariates is $p=5000$, and the number of SNPs used to estimate the kinship matrix is $k=10000$.
+		TPR at FPR=5\% is the true positive rate at a fixed false positive rate of 5\%.
+		Model Size ($|\widehat{S}_{\hat{\lambda}}|$) is the number of selected variables in the training set using the high-dimensional BIC for \texttt{ggmix} and 10-fold cross validation for \texttt{lasso} and \texttt{twostep}.
+		RMSE is the root mean squared error on the test set.
+		Estimation error is the squared distance between the estimated and true effect sizes.
+		Error variance ($\sigma^2$) for \texttt{twostep} is estimated from an intercept only LMM with a single random effect and is modeled explicitly in \ggmix. For the \texttt{lasso} we use $\protect\frac{1}{n - |\widehat{S}_{\hat{\lambda}}|} \protect||\bY - \bX \widehat{\bbeta}_{\hat{\lambda}}||_2^2$~\cite{reid2016study} as an estimator for $\sigma^2$.
+		Heritability ($\eta$) for \texttt{twostep} is estimated as $\sigma_g^2 / (\sigma_g^2 + \sigma_e^2)$ from an intercept only LMM with a single random effect where $\sigma_g^2$ and $\sigma_e^2$ are the variance components for the random effect and error term, respectively. $\eta$ is explictly modeled in \ggmix. There is no positive way to calculate $\eta$ for the \texttt{lasso} since we are using a PC adjustment.}
+	\centering
+	\fontsize{7}{9}\selectfont
+	\begin{tabu} to \linewidth {>{\bfseries}l>{\raggedright}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X[1.3]>{\centering}X[1.3]>{\centering}X[1.3]>{\centering}X[1.3]}
+		\toprule
+		\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{4}{c}{Null model} & \multicolumn{4}{c}{1\% Causal SNPs} \\
+		\cmidrule(l{3pt}r{3pt}){3-6} \cmidrule(l{3pt}r{3pt}){7-10}
+		\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} & \multicolumn{2}{c}{No overlap} & \multicolumn{2}{c}{\makecell[c]{All causal SNPs\\in kinship}} \\
+		\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10}
+		Metric & Method & 10\% & 30\% & 10\% & 30\% & 10\% & 30\% & 10\% & 30\%\\
+		\midrule
+		\rowcolor{gray!6} \multirow{1}{*}{\raggedright\arraybackslash TPR at}   & twostep & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.84 (0.05) & 0.84 (0.05) & 0.76 (0.09) & 0.77 (0.08)\\
+
+		   & lasso & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.85 (0.05) & 0.86 (0.05) & 0.86 (0.05)\\
+
+		\rowcolor{gray!6}  \multirow{-2}{*}{\raggedright\arraybackslash FPR} & ggmix & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.00 (0.00) & 0.86 (0.05) & 0.86 (0.05) & 0.85 (0.05) & 0.86 (0.05)\\
+		\cmidrule{1-10}
+			\multirow{1}{*}{\raggedright\arraybackslash Model} & twostep & 0 (0, 5) & 0 (0, 2) & 0 (0, 5) & 0 (0, 2) & 328 (289, 388) & 332 (287, 385) & 284 (250, 329) & 284 (253, 319)\\
+
+		& lasso & 0 (0, 6) & 0 (0, 5) & 0 (0, 6) & 0 (0, 5) & 278 (246, 317) & 276 (245, 314) & 279 (252, 321) & 285 (244, 319)\\
+
+		\multirow{-2}{*}{\raggedright\arraybackslash Size} & ggmix & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 0 (0, 0) & 43 (39, 49) & 43 (39, 48) & 44 (38, 49) & 43 (38, 48)\\
+		\cmidrule{1-10}
+		\rowcolor{gray!6}   & twostep & 1.02 (0.07) & 1.02 (0.06) & 1.02 (0.07) & 1.02 (0.06) & 1.42 (0.10) & 1.41 (0.10) & 1.44 (0.33) & 1.40 (0.22)\\
+
+		\rowcolor{gray!6}   & lasso & 1.02 (0.06) & 1.02 (0.06) & 1.02 (0.06) & 1.02 (0.06) & 1.39 (0.09) & 1.38 (0.09) & 1.40 (0.08) & 1.38 (0.08)\\
+
+		\rowcolor{gray!6}  \multirow{-3}{*}{\raggedright\arraybackslash RMSE} & ggmix & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.00 (0.05) & 1.22 (0.10) & 1.20 (0.10) & 1.23 (0.11) & 1.23 (0.12)\\
+		\cmidrule{1-10}
+		\multirow{-1}{*}{\raggedright\arraybackslash Estimation} & twostep & 0.12 (0.22) & 0.09 (0.19) & 0.12 (0.22) & 0.09 (0.19) & 2.97 (0.60) & 2.92 (0.60) & 3.60 (5.41) & 3.21 (3.46)\\
+
+		& lasso & 0.13 (0.21) & 0.12 (0.22) & 0.13 (0.21) & 0.12 (0.22) & 2.76 (0.46) & 2.69 (0.47) & 2.82 (0.48) & 2.75 (0.48)\\
+
+		\multirow{-2}{*}{\raggedright\arraybackslash Error} & ggmix & 0.00 (0.01) & 0.01 (0.02) & 0.00 (0.01) & 0.01 (0.02) & 2.11 (1.28) & 2.04 (1.22) & 2.21 (1.24) & 2.28 (1.34)\\
+		\cmidrule{1-10}
+		\rowcolor{gray!6}  \multirow{1}{*}{\raggedright\arraybackslash Error}   & twostep & 0.87 (0.11) & 0.69 (0.15) & 0.87 (0.11) & 0.69 (0.15) & 14.23 (3.53) & 14.13 (3.52) & 1.42 (1.71) & 1.28 (1.66)\\
+
+		\rowcolor{gray!6}   & lasso & 0.98 (0.05) & 0.96 (0.05) & 0.98 (0.05) & 0.96 (0.05) & 1.04 (0.13) & 1.02 (0.13) & 1.03 (0.14) & 1.01 (0.14)\\
+
+		\rowcolor{gray!6}  \multirow{-2}{*}{\raggedright\arraybackslash Variance} & ggmix & 0.85 (0.18) & 0.64 (0.20) & 0.85 (0.18) & 0.64 (0.20) & 2.00 (0.49) & 1.86 (0.51) & 1.06 (0.46) & 0.83 (0.45)\\
+		\cmidrule{1-10}
+		& twostep & 0.13 (0.11) & 0.31 (0.15) & 0.13 (0.11) & 0.31 (0.15) & 0.26 (0.14) & 0.26 (0.14) & 0.92 (0.08) & 0.93 (0.08)\\
+
+		& lasso & -- & -- & -- & -- & -- & -- & -- & --\\
+
+		\multirow{-3}{*}{\raggedright\arraybackslash Heritability} & ggmix & 0.15 (0.18) & 0.37 (0.21) & 0.15 (0.18) & 0.37 (0.21) & 0.18 (0.16) & 0.23 (0.17) & 0.59 (0.20) & 0.68 (0.19)\\
+		\bottomrule
+		%\multicolumn{10}{l}{\textit{Note:}}\\
+		\multicolumn{10}{l}{Note: median (inter-quartile range) is given for model size.}\\
+	\end{tabu}
+\end{adjustwidth}
+\end{table}
+
+
+
+\subsection*{Real Data Applications}
+
+Three datasets with different features were used to illustrate the potential advantages of ~\ggmix ~over existing approaches such as PC adjustment in a \texttt{lasso} regression. In the first two datasets, family structure induced low levels of correlation and sparsity in signals. In the last, a dataset involving mouse crosses, correlations were extremely strong and could confound signals.
+
+\subsubsection*{UK Biobank} \label{subsubsec:UKB}
+
+With more than 500,000 participants, the UK Biobank is one of the largest genotyped health care registries in the world. Among these participants, 147,731 have been inferred to be related to at least one individual in this cohort~\cite{bycroft2018uk}. Such a widespread genetic relatedness may confound association studies and bias trait predictions if not properly accounted for. Among these related individuals, 18,150 have a documented familial relationship (parent-offspring, full siblings, second degree or third degree) that was previously inferred in~\cite{biobank2015genotyping}. We attempted to derive a polygenic risk score for height among these individuals. As suggested by a reviewer, the goal of this analysis was to see how the different methods performed for a highly polygenic trait in a set of related individuals. We compared the \ggmix-derived polygenic risk score to those derived by the \texttt{twostep} and \texttt{lasso} methods.
+
+We first estimated the pairwise kinship coefficient among the 18,150 reportedly related individuals based on 784,256 genotyped SNPs using KING~\cite{manichaikul2010robust}. We grouped related individuals with a kinship coefficient $>$ 0.044~\cite{manichaikul2010robust} into 8,300 pedigrees. We then randomly split the dataset into a training set, a model selection set and a test set of roughly equal sample size, ensuring all individuals in the same pedigree were assigned into the same set. We inverse normalized the standing height after adjusting for age, sex, genotyping array, and assessment center following Yengo et al.~\cite{yengo2018meta}. 
+
+To reduce computational complexity, we selected 10,000 SNPs with the largest effect sizes associated with height from a recent large meta-analysis~\cite{yengo2018meta}. Among these 10,000 SNPs, 1,233 were genotyped and used for estimating the kinship whereas the other 8,767 SNPs were imputed based on the Haplotype Reference Consortium reference panel~\cite{mccarthy2016reference}. The distribution of the 10,000 SNPs by chromosome and whether or not the SNP was imputed is shown in~\nameref{S1_Fig}. We see that every chromosome contributed SNPs to the model with 15\% coming from chromosome 6. The markers we used are theoretically independent since Yengo et al. performed a COJO analysis which should have tuned down signals due to linkage disequilibrium~\cite{yengo2018meta}. We used \ggmix, \texttt{twostep} and \texttt{lasso} to select SNPs most predictive of the inverse normalized height on the training set, and chose the $\lambda$ with the lowest prediction RMSE on the model selection set for each method. We then examined the performance of each derived polygenic risk score on the test set. Similar to simulation study, we adjusted for the top 10 genetic PCs as unpenalized predictors when fitting the \texttt{lasso} models, and supplied the kinship matrix based on 784,256 genotyped SNPs to \texttt{ggmix} and \texttt{twostep}.
+
+We found that with a kinship matrix estimated using all genotyped SNPs, \ggmix ~had the possibility to achieve a lower RMSE on the model selection set compared to the \texttt{twostep} and \texttt{lasso} methods (\DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:UKB-Figure}A). An optimized \ggmix-derived polygenic risk score that utilized the least number of SNPs was also able to better predict the trait with lower RMSE on the test set (\DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:UKB-Figure}B).
+
+We additionally applied a Bayesian Sparse Linear Mixed Model (\texttt{BSLMM})~\cite{zhou2013polygenic} implemented in the GEMMA package~\cite{zhou2012genome} to derive a polygenic risk score on the training set. A posterior probability of inclusion of each SNP was provided and prediction was based on all SNPs with a positive posterior probability. We found that although the \texttt{BSLMM}-based polygenic risk score leveraged the most SNPs, it did not achieve a comparable prediction accuracy as the other three methods (Figure~\ref{fig:UKB-Figure}B). Likely due to the small effect sizes of these SNPs, only 94, 35 and 1 SNPs had a posterior inclusion probability above 0.05, 0.10 and 0.50, respectively. The model would have further reduced prediction accuracy if the prediction was based only on these SNPs.
+
+
+
+\begin{figure}[!h]
+	\caption{{\bf Model selection and testing in the UK Biobank.}
+	({\bf a}) Root-mean-square error of three methods on the model selection set with respect to a grid search of penalty factor used on the training set. ({\bf b}) Performance of four methods on the test set with penalty factor optimized on the model selection set. The x-axis has a logarithmic scale. The BSLMM method optimized coefficients of each SNP through an MCMC process on the training set and was directly evaluated on the test set.}\label{fig:UKB-Figure}
+\end{figure}
+
+
+
+
+
+
+
+
+\subsubsection*{GAW20}
+
+In the most recent Genetic Analysis Workship 20 (GAW20), the causal modeling group investigated causal relationships between DNA methylation (exposure) within some genes and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian Randomization (MR)~\cite{davey2003mendelian}.
+Penalized regression methods were used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV)~\cite{cherlin2018using,zhou2018analysis}.
+However, since GAW20 data consisted of families, \texttt{twostep} methods were used which could have resulted in a large number of false positives or false negatives. \ggmix~now provides an alternative approach that could be used for selecting the IV while accounting for the family structure of the data.
+
+We applied \ggmix ~to all 200 GAW20 simulation datasets, each of 679 observations, and compared its performance to the \texttt{twostep} and \texttt{lasso} methods.
+Using a Factored Spectrally Transformed Linear Mixed Model (FaST-LMM)~\cite{howey2018application} adjusted for age and sex, we validated the effect of rs9661059 on blood lipid trait to be significant (genome-wide $p$ = \num{6.29e-9}).
+Though several other SNPs were also associated with the phenotype, these associations were probably mediated by CpG-SNP interaction pairs and did not reach statistical significance.
+Therefore, to avoid ambiguity, we only focused on chromosome 1 containing 51,104 SNPs, including rs9661059.
+Given that population admixture in the GAW20 data was likely, we estimated the population kinship using REAP~\cite{thornton2012estimating} after decomposing population compositions using ADMIXTURE~\cite{alexander2009fast}. We used 100,276 LD-pruned whole-genome genotyped SNPs for estimating the kinship. Among these, 8100 were included as covariates in our models based on chromosome 1. The causal SNP was also among the 100,276 SNPs. All methods were fit according to the same settings described in our simulation study, and adjusting for age and sex. We calculated the median (inter-quartile range) number of active variables, and RMSE (standard deviation) based on five-fold CV on each simulated dataset.
+
+On each simulated replicate, we calibrated the methods so that they could be easily compared by fixing the true positive rate to 1 and then minimizing the false positive rate. Hence, the selected SNP, rs9661059, was likely to be the true positive for each method, and non-causal SNPs were excluded to the greatest extent.
+All three methods precisely chose the correct predictor without any false positives in more than half of the replicates, as the causal signal was strong. However, when some false positives were selected (i.e. when the number of active variables \DIFdelbegin \DIFdel{> }\DIFdelend \DIFaddbegin \DIFadd{$>$ }\DIFaddend 1), \ggmix ~performed comparably to \texttt{twostep}, while the \texttt{lasso} was inclined to select more false positives as suggested by the larger third quartile number of active variables (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}).
+We also observed that \ggmix ~outperformed the \texttt{twostep} method with lower CV RMSE using the same number of SNPs. Meanwhile, it achieved roughly the same prediction accuracy as \texttt{lasso} but with fewer non-causal SNPs (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}). It is also worth mentioning that there was very little correlation between the causal SNP and SNPs within a 1Mb-window around it (\DIFdelbegin \DIFdel{Figure~\ref{fig:gaw20r2} in Supplemental Section~\ref{ap:ldplots}}\DIFdelend \DIFaddbegin \DIFadd{see~}\nameref{S2_Fig}\DIFaddend ), making it an ideal scenario for the \texttt{lasso} and related methods.
+
+We also applied the \texttt{BSLMM} method by performing five-fold CV on each of the 200 simulated replicates. 
+We found that while \texttt{BSLMM} achieved a lower CV RMSE compared to the other methods (Table~\ref{tab:GAW20-prediction-RMSE-activeVariable}), this higher prediction accuracy relied on approximately 80\% of the 51,104 SNPs with a positive posterior inclusion probability. 
+This may suggest overfitting in this dataset. 
+We additionally tried imposing a stricter posterior inclusion probability threshold (0.05, 0.10 and 0.50) in order to improve feature selection. These thresholds however, resulted in overly sparse models as most SNPs had a low posterior probability.
+It is also noteworthy that we did not adjust for age and sex in the \texttt{BSLMM} model, as the current implementation of the method in the GEMMA package does not allow adjustment for covariates.
+
+
+%\newcolumntype{C}[1]{>{\Centering}m{#1}}
+%\renewcommand\tabularxcolumn[1]{C{#1}}
+
+
+
+\begin{table}[!ht]
+%	\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+		\caption{\label{tab:GAW20-prediction-RMSE-activeVariable} {\bf GAW20 simulation study results.} Summary of model performance based on 200 GAW20 simulations for the \texttt{twostep}, \texttt{lasso}, \texttt{ggmix} and \texttt{BSLMM} model with different posterior inclusion probability (PIP) thresholds. Five-fold cross-validation root-mean-square error (RMSE) was reported for each simulation replicate. Prediction performance was not reported for \texttt{BSLMM} with PIP greater than 0.05, 0.10 and 0.50 because some of the replications contained no active SNPs.}
+		\centering
+		%\fontsize{7}{9}\selectfont
+		\begin{tabu} to \linewidth {>{\bfseries}l>{\centering}X>{\centering}X}
+			\toprule
+			\bf Method & \bf Model Size & \bf RMSE (SD) \\
+			\midrule
+			\texttt{twostep} & 1 (1 - 11) & 0.3604 (0.0242) \\
+			\texttt{lasso} & 1 (1 - 15) & 0.3105 (0.0199) \\
+			\texttt{ggmix} & 1 (1 - 12) & 0.3146 (0.0210) \\
+			\texttt{BSLMM (PIP > 0) } & 40,737 (39,901 - 41,539) & 0.2503 (0.0099)\\
+			\texttt{BSLMM (PIP > 0.05)} & 2 (1 - 4) & - \\
+			\texttt{BSLMM (PIP > 0.10)} & 0 (0 - 1)  & - \\
+			\texttt{BSLMM (PIP > 0.50)} & 0 (0 - 0)  & - \\
+			\bottomrule
+			%\multicolumn{10}{l}{\textit{Note:}}\\
+		\multicolumn{3}{l}{Note: median (inter-quartile range) is given for model size.}\\
+		\end{tabu}
+%	\end{adjustwidth}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	\subsubsection*{Mouse Crosses and Sensitivity to Mycobacterial Infection}
+
+	Mouse inbred strains of genetically identical individuals are extensively used in research.
+	Crosses of different inbred strains are useful for various studies of heritability focusing on either observable phenotypes or molecular mechanisms, and in particular, recombinant congenic strains have been an extremely useful resource for many years~\cite{fortin2001recombinant}.
+	However, ignoring complex genetic relationships in association studies can lead to inflated false positives in genetic association studies when different inbred strains and their crosses are investigated~\cite{bennett2010high,flint2012genome,cheng2010genome}.
+	Therefore, a previous study developed and implemented a mixed model to find loci associated with mouse sensitivity to mycobacterial infection~\cite{di2010strain}. The random effects in the model captured complex correlations between the recombinant congenic mouse strains based on the proportion of the DNA shared identical by descent. Through a series of mixed model fits at each marker, new loci that impact growth of mycobacteria on chromosome 1 and chromosome 11 were identified.
+
+	Here we show that \ggmix ~can identify these loci, as well as potentially others, in a single analysis. We reanalyzed the growth permissiveness in the spleen, as measured by colony forming units (CFUs), 6 weeks after infection from $Mycobacterium$ $bovis$ Bacille Calmette-Guerin (BCG) Russia strain as reported in ~\cite{di2010strain}.
+
+	By taking the consensus between the ``main model'' and the ``conditional model'' of the original study, we regarded markers D1Mit435 on chromosome 1 and D11Mit119 on chromosome 11 as two true positive loci.
+	We directly estimated the kinship between mice using genotypes at 625 microsatellite markers. The estimated kinship entered directly into \ggmix ~and \texttt{twostep}. For the \texttt{lasso}, we calculated and included the first 10 principal components of the estimated kinship. To evaluate the robustness of different models, we bootstrapped the 189-sample dataset and repeated the analysis 200 times. We then conceived a two-fold criteria to evaluate performance of each model. We first examined whether a model could pick up both true positive loci using some $\lambda$. If the model failed to pick up both loci simultaneously with any $\lambda$, we counted as modeling failure on the corresponding boostrap replicate; otherwise, we counted as modeling success and recorded which other loci were picked up given the largest $\lambda$. Consequently, similar to the strategy used in the GAW20 analysis, we optimized the models by tuning the penalty factor such that these two true positive loci were picked up, while the number of other active loci was minimized.
+	Significant markers were defined as those captured in at least half of the successful bootstrap replicates (Figure~\ref{fig:Mice-comparison-fixTPR}).
+
+	We demonstrated that \ggmix ~recognized the true associations more robustly than \texttt{twostep} and \texttt{lasso}. In almost all (99\%) bootstrap replicates, \ggmix ~was able to capture both true positives, while the \texttt{twostep} failed in 19\% of the replicates and the \texttt{lasso} failed in 56\% of the replicates by missing at least one of the two true positives (\DIFdelbegin \DIFdel{Figure}\DIFdelend \DIFaddbegin \DIFadd{Fig}\DIFaddend ~\ref{fig:Mice-comparison-fixTPR}). The robustness of \ggmix ~is particularly noteworthy due to the strong correlations between all microsatellite markers in this dataset (\DIFdelbegin \DIFdel{Figure~\ref{fig:miceR2} in Supplemental Section~\ref{ap:ldplots}}\DIFdelend \DIFaddbegin \DIFadd{see~}\nameref{S3_Fig}\DIFaddend ). These strong correlations with the causal markers, partially explain the poor performance of the \texttt{lasso} as it suffers from unstable selections in the presence of correlated variables (e.g.~\cite{wang2018precision}).
+
+	
+	We also identified several other loci that might also be associated with susceptibility to mycobacterial infection (Table~\ref{tab:Marker}). Among these new potentially-associated markers, D2Mit156 was found to play a role in control of parasite numbers of $Leishmania$ $tropica$ in lymph nodes~\cite{sohrabi2013mapping}. An earlier study identified a parent-of-origin effect at D17Mit221 on CD4M levels~\cite{jackson1999multiple}. This effect was more visible in crosses than in parental strains. In addition, D14Mit131, selected only by \ggmix ~, was found to have a 9\% loss of heterozygosity in hybrids of two inbred mouse strains~\cite{c2000allelotype}, indicating the potential presence of putative suppressor genes pertaining to immune surveillance and tumor progression~\cite{lasko1991loss}. This result might also suggest association with anti-bacterial responses yet to be discovered. 
+
+	%\textbf{We did not apply the \texttt{BSLMM} method because the microsatellite marker-based genotypes could not be converted to a BIMBAM or PLINK format that the package demands.}
+
+
+\begin{figure}[!h]
+	\caption{{\bf Comparison of model performance on the mouse cross data.}
+		Pie charts depict model robustness where grey areas denote bootstrap replicates on which the corresponding model is unable to capture both true positives using any penalty factor, whereas colored areas denote successful replicates. Chromosome-based signals record in how many successful replicates the corresponding loci are picked up by the corresponding optimized model. Red dashed lines delineate significance thresholds.}\label{fig:Mice-comparison-fixTPR}
+\end{figure}
+
+
+	
+%	\newcolumntype{C}[1]{>{\Centering}m{#1}}
+%	\renewcommand\tabularxcolumn[1]{C{#1}}
+
+	
+	
+	
+	\begin{table}[!ht]
+		%	\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+		\caption{\label{tab:Marker} {\bf Mouse Crosses and Sensitivity to Mycobacterial Infection.} Additional loci significantly associated with mouse susceptibility to mycobacterial infection, after excluding two true positives. Loci needed to be identified in at least 50\% of the successful bootstrap replicates that captured both true positive loci.}
+		\centering
+		%\fontsize{7}{9}\selectfont
+		\begin{tabu} to \linewidth {>{\bfseries}l>{\centering}X>{\centering}X>{\centering}X}
+			\toprule
+			\bf Method & \bf Marker & \bf Position in cM & \bf Position in bp \\
+			\midrule
+				\texttt{twostep} & N/A & N/A & N/A\\
+			\hline
+			\texttt{lasso} & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+			& D14Mit155 & Chr14:31.52 & Chr14:59828398-59828596\\
+			\hline
+			\ggmix & D2Mit156 & Chr2:31.66 & Chr2:57081653-57081799\\
+			& D14Mit131 & Chr14:63.59 & Chr14:120006565-120006669\\
+			& D17Mit221 & Chr17:59.77 & Chr17:90087704-90087842\\
+			\bottomrule
+			%\multicolumn{10}{l}{\textit{Note:}}\\
+			\multicolumn{4}{l}{Note: median (inter-quartile range) is given for model size.}\\
+		\end{tabu}
+		%	\end{adjustwidth}
+	\end{table}
+
+		
+		
+		\section*{Discussion}\label{sec:discussion}
+
+		We have developed a general penalized LMM framework called \ggmix ~which simultaneously selects SNPs and adjusts for population structure in high dimensional prediction models. We compared our method to the \texttt{twostage} procedure, where in the first stage, the dependence between observations is adjusted for in a LMM with a single random effect and no covariates (i.e. null model). The residuals from this null model can then be used in any model for independent observations because the relatedness has been effectively removed from the original response. We also compared our method to the \texttt{lasso} and \texttt{BSLMM} which are closely related to \texttt{ggmix} since they also jointly model the relatedness and SNPs in a single step. The key differences are that the \texttt{lasso} uses a principal component adjustment and \texttt{BSLMM} is a Bayesian method focused on phenotype prediction.
+
+		Through an extensive simulation study and three real data analyses that mimic many experimental designs in genetics, we show that the current approaches of PC adjustment and two-stage procedures are not necessarily sufficient to control for confounding by population structure leading to a high number of false positives. Our simulation results show that \texttt{ggmix} outperforms existing methods in terms of sparsity and prediction error even when the causal variants are included in the kinship matrix (Table~\ref{tab:print-sim-table}). Many methods for single-SNP analyses avoid this proximal contamination~\cite{lippert2011fast} by using a leave-one-chromosome-out scheme~\cite{loh2015efficient}, i.e., construct the kinship matrix using all chromosomes except the one on which the marker being tested is located. However, this approach is not possible if we want to model many SNPs (across many chromosomes) jointly to create, for example, a polygenic risk score. For the purposes of variable selection, we would also want to model all chromosomes together since the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\cite{hoggart2008simultaneous}, particularly when the markers are highly correlated as in the mouse crosses example.
+
+		%Furthermore, \ggmix ~showed improved prediction performance with a more parsimonious model compared to the competing methods. Indeed, in the UK Biobank example, we saw that \texttt{ggmix} achieved a lower test set prediction error with a more parsimonious model compared to \texttt{twostep}, \texttt{lasso} and \texttt{BSLMM}. In the GAW20 example, \texttt{ggmix} and \texttt{lasso} had better test set prediction performance compared to \texttt{twostep}. The \texttt{BSLMM} had the best RMSE, but relied on approximately 80\% of the SNPs to achieve such a performance. In the mouse crosses example, \texttt{ggmix} had superior variable selection results compared to both the \texttt{twostep} and \texttt{lasso}.
+		%Our proposed method has excellent Type 1 error control and is robust to the inclusion of causal SNPs in the kinship matrix. 
+		In the UK Biobank, we found that with a kinship matrix estimated using all genotyped SNPs, \ggmix ~had achieved a lower RMSE on the model selection set compared to the \texttt{twostep} and \texttt{lasso} methods. Furthermore, an optimized \ggmix-derived polygenic risk score that utilized the least number of SNPs was also able to better predict the trait with lower RMSE on the test set.
+		In the GAW20 example, we showed that while all methods were able to select the strongest causal SNP, \ggmix ~did so with the least amount of false positives while also maintaining good predictive ability. In the mouse crosses example, we showed that \ggmix ~is robust to perturbations in the data using a bootstrap analysis. Indeed, \ggmix ~was able to consistently select the true positives across bootstrap replicates, while \texttt{twostep} failed in 19\% of the replicates and \texttt{lasso} failed in 56\% of the replicates by missing of at least one of the two true positives. Our re-analysis of the data also lead to some potentially new findings, not found by existing methods, that may warrant further study. This particular example had many markers that were strongly correlated with each other (see~\nameref{S3_Fig}). Nevertheless, we observed that the two true positive loci were the most often selected while none of the nearby markers were picked up in more than 50\% of the 200 bootstrap replicates. This shows that our method does recognize the true positives in the presence of highly correlated markers. Nevertheless, we think the issue of variable selection for correlated SNPs warrants further study. The recently proposed Precision Lasso~\cite{wang2018precision} seeks to address this problem in the high-dimensional fixed effects model.
+
+		
+		
+		%Our CGD algorithm is computationally efficient and has theoretical guarantees of convergence.
+		%We provide an easy-to-use software implementation of our algorithm along with a principled method for automatic tuning parameter selection.
+		%Through simulation studies, we show that existing approaches such as a two-stage approach or the \texttt{lasso} with a principal component adjustment lead to a large number of false positives.
+
+		We emphasize here that previously developed methods such as the LMM-lasso~\cite{rakitsch2013lasso} use a two-stage fitting procedure without any convergence details.
+		From a practical point of view, there is currently no implementation that provides a principled way of determining the sequence of tuning parameters to fit, nor a procedure that automatically selects the optimal value of the tuning parameter.
+		To our knowledge, we are the first to develop a coordinate gradient descent (CGD) algorithm in the specific context of fitting a penalized LMM for population structure correction with theoretical guarantees of convergence. Furthermore, we develop a principled method for automatic tuning parameter selection and provide an easy-to-use software implementation in order to promote wider uptake of these more complex methods by applied practitioners. 
+
+		
+		
+		
+		Although we derive a CGD algorithm for the $\ell_1$ penalty, our approach can also be easily extended to other penalties such as the elastic net and group lasso with the same guarantees of convergence. A limitation of \ggmix ~is that it first requires computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. This computation becomes prohibitive for large cohorts such as the UK Biobank~\cite{allen2012uk} which have collected genetic information on half a million individuals. When the matrix of genotypes used to construct the covariance matrix is low rank, there are additional computational speedups that can be implemented. While this has been developed for the univariate case~\cite{lippert2011fast}, to our knowledge, this has not been explored in the multivariable case. We are currently developing a low rank version of the penalized LMM developed here, which reduces the time complexity from $\mathcal{O}(n^2k)$ to $\mathcal{O}(nk^2)$. There is also the issue of how our model scales with an increasing number of covariates ($p$). Due to the coordinate-wise optimization procedure, we expect this to be less of an issue, but still prohibitive for \DIFdelbegin \DIFdel{$p>1e5$}\DIFdelend \DIFaddbegin \DIFadd{$p>$ \num{1e5}}\DIFaddend . The \texttt{biglasso} package~\cite{zeng2017biglasso} uses memory mapping strategies for large $p$, and this is something we are exploring for \texttt{ggmix}.
+
+		As was brought up by a reviewer, the simulations and real data analyses presented here contained many more markers used to estimate the kinship than the sample size ($n/k \leq 0.1$). In the single locus association test, Yang el al.~\cite{yang2014advantages} found that proximal contamination was an issue when $n/k \approx 1$. We believe further theoretical study is needed to see if these results can be generalized to the multivariable models being fit here. Once the computational limitations of sample size mentioned above have been addressed, these theoretical results can be supported by simulation studies.
+
+
+		There are other applications in which our method could be used as well.
+		For example, there has been a renewed interest in polygenic risk scores (PRS) which aim to predict complex diseases from genotypes. 
+		\ggmix ~could be used to build a PRS with the distinct advantage of modeling SNPs jointly, allowing for main effects as well as interactions to be accounted for. 
+		Based on our results, \ggmix ~has the potential to produce more robust and parsimonious models than the \texttt{lasso} with better predictive accuracy.
+
+		Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the undelying biological mechanisms of disease~\cite{spain2015strategies}.
+
+		
+		
+		
+
+
+
+\section*{Materials and Methods}\label{sec:methods}
+
+
+\subsection*{Model Set-up}
+
+Let $i = 1, \ldots, N$ be a grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses or phenotypes, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors $\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \DIFdelbegin %DIFDELCMD < \\%%%
+\DIFdelend \mbox{$\bX = (\bX_1^T, \ldots, \bX_N^T) \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following linear mixed model with a single random effect~\cite{pirinen2013efficient}:
+\DIFdelbegin \begin{displaymath}
+\DIFdel{\bY = \bX \bbeta + \bb + \be
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{\bY = \bX \bbeta + \bb + \be,
+}\end{equation*}\DIFaddend 
+where the random effect $\bb$ and the error variance $\be$ are assigned the distributions
+\DIFdelbegin \begin{displaymath}
+\DIFdel{\bb \sim \mathcal{N}(0, \eta \sigma^2 \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta)\sigma^2 \bI)
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{\bb \sim \mathcal{N}(0, \eta \sigma^2 \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta)\sigma^2 \bI).
+}\end{equation*}\DIFaddend 
+Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric covariance or kinship matrix calculated from SNPs sampled across the genome,   $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. Note that $\eta$ is also the narrow-sense heritability ($h^2$), defined as the proportion of phenotypic variance attributable to the additive genetic factors~\cite{manolio2009finding}. The joint density of $\bY$ is therefore multivariate normal:
+\begin{equation}
+\bY | (\bbeta, \eta, \sigma^2) \sim \mathcal{N}(\bX \bbeta, \eta \sigma^2 \bPhi + (1-\eta)\sigma^2 \bI) \label{eq:prinen}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{equation}
+
+The LMM-Lasso method~\cite{rakitsch2013lasso} considers an alternative but equivalent parameterization given by:
+\begin{equation}
+\bY | (\bbeta, \delta, \sigma_g^2) \sim \mathcal{N}(\bX \bbeta, \sigma_g^2(\bPhi + \delta\bI)) \label{eq:lippert}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{equation}
+
+where $\delta = \sigma^2_e / \sigma^2_g$, $\sigma^2_g$ is the genetic variance and $\sigma^2_e$ is the residual variance. We instead consider the parameterization in Eq~\ref{eq:prinen} since maximization is easier over the compact set $\eta \in [0,1]$ than over the unbounded interval $\delta \in [0, \infty)$~\cite{pirinen2013efficient}. We define the complete parameter vector as $\bTheta \coloneqq \left(\bbeta, \eta, \sigma^2 \right)$. The negative log-likelihood for Eq~\ref{eq:prinen} is given by
+\begin{align}
+-\ell(\bTheta) & \propto \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2}\log\left(\det(\bV)\right) + \frac{1}{2\sigma^2} \left(\bY - \bX \bbeta\right)^T \bV^{-1} \left(\bY - \bX \bbeta\right)  \label{eq:LogLike}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{align}
+where $\bV = \eta \bPhi + (1-\eta) \bI$ and $\det(\bV)$ is the determinant of $\bV$.
+
+Let $\bPhi = \bU \bD \bU^T$ be the eigen (spectral) decomposition of the kinship matrix $\bPhi$, where $\bU_{N_T \times N_T}$ is an orthonormal matrix of eigenvectors (i.e. $\bU \bU^T = \bI$) and $\bD_{N_T \times N_T}$ is a diagonal matrix of eigenvalues $\Lambda_i$. $\bV$ can then be further simplified~\cite{pirinen2013efficient}
+\begin{align}
+\bV & = \eta \bPhi + (1-\eta) \bI \nonumber \\
+& = \eta \bU \bD \bU^T + (1-\eta) \bU \bI \bU^T \nonumber \\
+& = \bU \eta  \bD \bU^T + \bU (1-\eta) \bI \bU^T \nonumber \\
+& = \bU \left(\eta  \bD + (1-\eta) \bI\right) \bU^T \nonumber \\
+& = \bU \widetilde{\bD} \bU^T  \label{eq:Vsimplified}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{align}
+where
+\begin{align}
+\widetilde{\bD} & = \eta  \bD + (1-\eta) \bI  \label{eq:LambdaTilde} \\
+& =  \eta \left[ \begin{array}{cccc}
+\Lambda_1 & \hfill & \hfill & \hfill  \\
+\hfill & \Lambda_2 & \hfill & \hfill  \\
+\hfill & \hfill & \ddots &\hfill  \\
+\hfill & \hfill & \hfill & \Lambda_{N_T}  \\
+\end{array} \right] + (1-\eta) \left[ \begin{array}{cccc}
+1 & \hfill & \hfill & \hfill  \\
+\hfill & 1 & \hfill & \hfill  \\
+\hfill & \hfill & \ddots &\hfill  \\
+\hfill & \hfill & \hfill & 1  \\
+\end{array} \right]  \nonumber \\
+& =   \left[ \begin{array}{cccc}
+1 + \eta (\Lambda_1-1) & \hfill & \hfill & \hfill  \\
+\hfill & 1 + \eta (\Lambda_2-1) & \hfill & \hfill  \\
+\hfill & \hfill & \ddots &\hfill  \\
+\hfill & \hfill & \hfill & 1 + \eta (\Lambda_{N_T}-1)  \\
+\end{array} \right]   \nonumber \\
+& = \diag\left\lbrace 1 + \eta (\Lambda_1-1), 1 + \eta (\Lambda_2-1), \ldots, 1 + \eta (\Lambda_{N_T}-1) \label{eq:DiagLambda} \right\rbrace\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{align}
+Since Eq~\ref{eq:LambdaTilde} is a diagonal matrix, its inverse is also a diagonal matrix:
+\begin{align}
+\widetilde{\bD}^{-1} & = \diag\left\lbrace \frac{1}{1 + \eta (\Lambda_1-1)}, \frac{1}{1 + \eta (\Lambda_2-1)}, \ldots, \frac{1}{1 + \eta (\Lambda_{N_T}-1)} \label{eq:DiagInvLambda} \right\rbrace\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{align}
+
+
+From Eq~\ref{eq:Vsimplified} and Eq~\ref{eq:DiagLambda}, $\log(\det(\bV))$ simplifies to
+\begin{align}
+\log(\det(\bV)) & =  \log  \left(  \det(\bU) \det\left(\widetilde{\bD}\right) \det(\bU^T)\right)   \nonumber \\
+& =\log\left\lbrace \prod_{i=1}^{N_T}  \left( 1 + \eta (\Lambda_i-1) \right)  \right\rbrace \nonumber \\
+& = \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) \label{eq:LogDetV}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{align}
+since $\det(\bU) = 1$. It also follows from Eq~\ref{eq:Vsimplified} that
+\begin{align}
+\bV^{-1} & = \left( \bU \widetilde{\bD} \bU^T \right)^{-1} \nonumber \\
+& = \left( \bU^T \right)^{-1}  \left(\widetilde{\bD}\right)^{-1}    \bU^{-1} \nonumber \\
+& = \bU \widetilde{\bD}^{-1} \bU^T \label{eq:Vinv}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{align}
+since for an orthonormal matrix $\bU^{-1} = \bU^T$. Substituting Eq~\ref{eq:DiagInvLambda}, Eq~\ref{eq:LogDetV} and Eq~\ref{eq:Vinv} into Eq~\ref{eq:LogLike} the negative log-likelihood becomes
+\begin{align}
+-\ell(\bTheta) & \propto \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2\sigma^2} \left(\bY - \bX \bbeta\right)^T \bU \widetilde{\bD}^{-1} \bU^T \left(\bY - \bX \bbeta\right) \DIFdelbegin %DIFDELCMD < \label{eq:Likelihood} %%%
+\DIFdelend \DIFaddbegin \nonumber  \DIFaddend \\
+& = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) \DIFaddbegin \nonumber \\
+& \DIFaddend + \frac{1}{2\sigma^2} \left(\bU^T\bY - \bU^T\bX \bbeta\right)^T \widetilde{\bD}^{-1} \left(\bU^T\bY - \bU^T\bX \bbeta\right)  \nonumber\\
+& = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2\sigma^2} \left(\bYtilde - \bXtilde \bbeta\right)^T \widetilde{\bD}^{-1} \left(\bYtilde - \bXtilde \bbeta\right)  \nonumber\\
+%DIF < & = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \bbeta]_i )^2}{1 + \eta (\Lambda_i-1)}  \label{eq:LikeFinal}\\
+& = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)}  \label{eq:LikeFinal}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{align}
+where $\bYtilde = \bU^T \bY$, $\bXtilde = \bU^T \bX$, $\Ytilde_i$ denotes the \DIFdelbegin \DIFdel{$i^{\tm{th}}$ }\DIFdelend \DIFaddbegin \DIFadd{$i$\textsuperscript{th} }\DIFaddend element of $\bYtilde$, $\Xtilde_{ij}$ is the \DIFdelbegin \DIFdel{$i,j^{\tm{th}}$ }\DIFdelend \DIFaddbegin \DIFadd{$i,j$\textsuperscript{th} }\DIFaddend entry of $\bXtilde$ and $\mathbf{1}$ is a column vector of $N_T$ ones.
+%DIF < and $[\bU^T \mathbf{1}]_{i}$ is the $i^{\tm{th}}$ element of $\bU^T \mathbf{1}$.
+
+
+
+%\subsection{Compressed LMM}
+
+%\cite{zhang2010mixed} propose a compressed LMM where substituting n individuals with a smaller number of groups, s (s $\leq$ n), clustered based on the kinship among individuals, e.g., by averaging the SNP data for individuals over the members of each group.
+
+
+\subsection*{Penalized Maximum Likelihood Estimator}
+We define the $p+3$  length vector of parameters $\bTheta \coloneqq \left(\Theta_0, \Theta_1, \ldots, \Theta_{p+1}, \Theta_{p+2}, \Theta_{p+3}\right) =  \left(\bbeta, \eta, \sigma^2 \right)$ where $\bbeta \in \mathbb{R}^{p+1}, \eta \in [0,1], \sigma^2 >0$. In what follows, $p+2$ and $p+3$ are the indices in $\bTheta$ for $\eta$ and $\sigma^2$, respectively. In light of our goals to select variables associated with the response in high-dimensional data, we propose to place a constraint on the magnitude of the regression coefficients. This can be achieved by adding a penalty term to the likelihood function Eq~\ref{eq:LikeFinal}. The penalty term is a necessary constraint because in our applications, the sample size is much smaller than the number of predictors. We define the following objective function:
+\DIFdelbegin \begin{displaymath}
+\DIFdel{Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda \sum_{j\neq 0} v_j P_j(\beta_j)
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda \sum_{j\neq 0} v_j P_j(\beta_j),
+}\end{equation*}\DIFaddend 
+where $f(\bTheta)\coloneqq-\ell(\bTheta)$ is defined in Eq~\ref{eq:LikeFinal}, $P_j(\cdot)$ is a penalty term on the fixed regression coefficients $\beta_1, \ldots, \beta_{p+1}$ (we do not penalize the intercept) controlled by the nonnegative regularization parameter $\lambda$, and $v_j$ is the penalty factor for $j$th covariate. These penalty factors serve as a way of allowing parameters to be penalized differently. Note that we do not penalize $\eta$ or $\sigma^2$. An estimate of the regression parameters $\widehat{\bTheta}_{\lambda}$ is obtained by
+\begin{equation}
+\widehat{\bTheta}_{\lambda} = \argmin_{\bTheta} Q_{\lambda}(\bTheta) \label{eq:estimator}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{equation}
+This is the general set-up for our model. In Section~\ref{sec:section3} we provide more specific details on how we solve Eq~\ref{eq:estimator}. We note here that the main difference between the proposed model, and the \texttt{lmmlasso}~\cite{schelldorfer2011estimation}, is that we rotate the response vector $Y$ and the design matrix $X$ by the eigen vectors of the kinship matrix. This results in a diagonal covariance matrix making our method orders of magnitude faster and usable for high-dimensional genetic data. A secondary difference is that we are limiting ourselves to a single unpenalized random effect.
+
+\subsection*{Computational Algorithm} \label{sec:section3}
+
+%To solve for Eq~\ref{eq:estimator} we use a block relaxation technique~\cite{de1994block} given by Algorithm~\ref{alg:cgd2}
+
+We use a general purpose block coordinate gradient descent algorithm (CGD)~\cite{tseng2009coordinate} to solve Eq~\ref{eq:estimator}. At each iteration, we cycle through the coordinates and minimize the objective function with respect to one coordinate only. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)}, Tseng and Yun~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and linear mixed models with an $\ell_1$ penalty~\cite{schelldorfer2011estimation}. In the next section we provide some brief details about Algorithm~\ref{alg:cgd2}. A more thorough treatment of the algorithm is given in~\nameref{S1_Text}.
+
+
+\begin{algorithm}[h]
+	\SetAlgoLined
+	%	\KwResult{Write here the result }
+	Set the iteration counter $k \leftarrow 0$, initial values for the parameter vector $\bTheta^{(0)}$ and convergence threshold $\epsilon$\;
+	\For{$\lambda \in \left\lbrace \lambda_{max}, \ldots, \lambda_{min} \right\rbrace$}{
+		\Repeat{convergence criterion is satisfied: $\norm{\bTheta^{(k+1)} - \bTheta^{(k)}}_2 < \epsilon$}{
+			\begin{align*}
+			\bbeta^{(k+1)} &\leftarrow \argmin_{\bbeta} Q_{\lambda}\left( \bbeta, \eta^{(k)}, {\sigma^2}^{\,\,(k)}\right) \\
+			\eta^{(k+1)} &\leftarrow \argmin_{\eta} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta, {\sigma^2}^{\,\,(k)}\right) \\
+			{\sigma^2}^{\,\,(k+1)} &\leftarrow \argmin_{\sigma^2} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta^{(k+1)}, \sigma^2\right)
+			\end{align*}
+
+			$k \leftarrow k +1$
+		}
+	}
+	\caption{Block Coordinate Gradient Descent} \label{alg:cgd2}
+\end{algorithm}
+
+
+
+
+\subsubsection*{Updates for the $\beta$ parameter}
+Recall that the part of the objective function that depends on $\bbeta$ has the form
+\DIFdelbegin \begin{displaymath}
+\DIFdel{Q_{\lambda}(\bTheta) = \frac{1}{2} \sum_{i=1}^{N_T}w_i\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} %DIFDELCMD < \label{eq:Qlambdalasso2}%%%
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{Q_{\lambda}(\bTheta) = \frac{1}{2} \sum_{i=1}^{N_T}w_i\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:Qlambdalasso2},
+}\end{equation*}\DIFaddend 
+where
+\DIFdelbegin \begin{displaymath}
+\DIFdel{w_i \coloneqq \frac{1}{{\sigma^2}\left(1+\eta(\Lambda_i-1)\right)} %DIFDELCMD < \label{eq:weights}%%%
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{w_i \coloneqq \frac{1}{{\sigma^2}\left(1+\eta(\Lambda_i-1)\right)} \label{eq:weights}.
+}\end{equation*}\DIFaddend 
+
+Conditional on $\eta^{(k)}$ and ${\sigma^2}^{\,(k)}$, it can be shown that the solution for $\beta_j$, $j=1, \ldots, p$ is given by
+\DIFdelbegin \begin{align*}
+\DIFdel{\beta_j^{(k+1)} }& \DIFdel{\gets \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} %DIFDELCMD < \label{eq:betaUpdateSoft}%%%
+}\end{align*}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{align*}
+\DIFadd{\beta_j^{(k+1)} }& \DIFadd{\gets \frac{\mathcal{S}_{\lambda}\left( \sum_{i=1}^{N_T} w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{\ell \neq j}\Xtilde_{i\ell} \beta_\ell^{(k)} \right)\right) }{\sum_{i=1}^{N_T} w_i \Xtilde_{ij}^2} \label{eq:betaUpdateSoft},
+}\end{align*}\DIFaddend 
+where $\mathcal{S}_{\lambda}(x)$ is the soft-thresholding operator
+\begin{equation*}
+\mathcal{S}_{\lambda}(x) = \tm{sign}(x)(|x| - \lambda)_+\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{equation*}
+$\textrm{sign}(x)$ is the signum function \[\textrm{sign}(x) = \begin{cases}
+-1 & x<0\\
+0 & x= 0\\
+1 & x>0
+\end{cases}\DIFaddbegin \DIFadd{,
+}\DIFaddend \] and $(x)_+ = \max(x, 0)$. We provide the full derivation in~\nameref{S1_Text}.
+
+
+
+
+
+
+\subsubsection*{Updates for the $\eta$ paramter}
+Given $\bbeta^{(k+1)}$ and ${\sigma^2}^{\,(k)}$, solving for $\eta^{(k+1)}$ becomes a univariate optimization problem:
+\DIFdelbegin \begin{displaymath}
+\DIFdel{\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}.
+}\end{equation*}\DIFaddend 
+We use a bound constrained optimization algorithm~\cite{byrd1995limited} implemented in the \texttt{optim} function in \texttt{R} and set the lower and upper bounds to be 0.01 and 0.99, respectively.
+
+
+
+\subsubsection*{Updates for the $\sigma^2$ parameter}
+
+Conditional on $\bbeta^{(k+1)}$ and $\eta^{(k+1)}$, ${\sigma^2}^{\,(k+1)}$ can be solved for using the following equation:
+\begin{equation}
+{\sigma^2}^{\,(k+1)} \leftarrow \argmin_{\sigma^2}  \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2\sigma^2} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)} \label{eq:sigma}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{equation}
+
+There exists an analytic solution for Eq~\ref{eq:sigma} given by:
+\DIFdelbegin \begin{align*}
+%DIF < \frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} = 0 \nonumber \\
+{\DIFdel{\sigma^2}}\DIFdel{^{\,(k+1)} }& \DIFdel{\gets \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} %DIFDELCMD < \label{eq:sigmahat2}%%%
+}\end{align*}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{align*}
+%DIF > \frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} = 0 \nonumber \\
+{\DIFadd{\sigma^2}}\DIFadd{^{\,(k+1)} }& \DIFadd{\gets \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)} \label{eq:sigmahat2}.
+}\end{align*}\DIFaddend 
+
+
+\subsubsection*{Regularization path}
+In this section we describe how determine the sequence of tuning parameters $\lambda$ at which to fit the model. Recall that our objective function has the form
+\begin{equation}
+Q_{\lambda}(\bTheta) = \frac{N_T}{2}\log(\sigma^2) + \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2} \sum_{i=1}^{N_T}w_i\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2 + \lambda \sum_{j=1}^{p}  v_j  \abs{\beta_j} \label{eq:Qlambdalasso}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{equation}
+The Karush-Kuhn-Tucker (KKT) optimality conditions for Eq~\ref{eq:Qlambdalasso} are given by:
+\begin{equation}
+\DIFdelbegin %DIFDELCMD < \begin{aligned}
+%DIFDELCMD < \frac{\partial}{\partial \beta_1, \ldots, \beta_p} Q_{\lambda}(\bTheta) &= \mathbf{0}_p   \\
+%DIFDELCMD < \frac{\partial}{\partial \beta_0} Q_{\lambda}(\bTheta) &= 0 \\
+%DIFDELCMD < \frac{\partial}{\partial \eta} Q_{\lambda}(\bTheta) &= 0  \\
+%DIFDELCMD < \frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= 0
+%DIFDELCMD < \end{aligned}%%%
+\DIFdelend \DIFaddbegin \begin{aligned}
+\frac{\partial}{\partial \beta_1, \ldots, \beta_p} Q_{\lambda}(\bTheta) &= \mathbf{0}_p   \\
+\frac{\partial}{\partial \beta_0} Q_{\lambda}(\bTheta) &= 0 \\
+\frac{\partial}{\partial \eta} Q_{\lambda}(\bTheta) &= 0  \\
+\frac{\partial}{\partial \sigma^2} Q_{\lambda}(\bTheta) &= 0.
+\end{aligned}\DIFaddend  \label{eq:kktgrad}
+\end{equation}
+
+
+
+The equations in Eq~\ref{eq:kktgrad} are equivalent to
+\begin{equation}
+\DIFdelbegin %DIFDELCMD < \begin{aligned}
+%DIFDELCMD < \sum_{i=1}^{N_T}w_i \Xtilde_{i1}\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right)  = 0\\
+%DIFDELCMD < \frac{1}{v_j} \sum_{i=1}^{N_T}w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) =  \lambda \gamma_j, \\
+%DIFDELCMD < \gamma_j \in \begin{cases}
+%DIFDELCMD < \tm{sign}(\hat{\beta}_j) & \tm{if} \quad \hat{\beta}_j \neq 0 \\
+%DIFDELCMD < [-1,1] & \tm{if}\quad \hat{\beta}_j = 0
+%DIFDELCMD < \end{cases}, \qquad \tm{for }j=1, \ldots, p   \\
+%DIFDELCMD < \frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{\sigma^2 (1+\eta(\Lambda_i-1))}  \right) = 0  \\
+%DIFDELCMD < {\sigma^2} - \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)} = 0
+%DIFDELCMD < \end{aligned}%%%
+\DIFdelend \DIFaddbegin \begin{aligned}
+\sum_{i=1}^{N_T}w_i \Xtilde_{i1}\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right)  = 0\\
+\frac{1}{v_j} \sum_{i=1}^{N_T}w_i \Xtilde_{ij}\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) =  \lambda \gamma_j \\
+\gamma_j \in \begin{cases}
+\tm{sign}(\hat{\beta}_j) & \tm{if} \quad \hat{\beta}_j \neq 0 \\
+[-1,1] & \tm{if}\quad \hat{\beta}_j = 0
+\end{cases}, \qquad \tm{for }j=1, \ldots, p   \\
+\frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{\sigma^2 (1+\eta(\Lambda_i-1))}  \right) = 0  \\
+{\sigma^2} - \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j \right) ^2}{1 + \eta (\Lambda_i-1)} = 0,
+\end{aligned}\DIFaddend \label{eq:kktsolved}
+\end{equation}
+where $w_i$ is given by Eq~\ref{eq:weights}, $\bXtilde^T_{-1}$ is $\bXtilde^T$ with the first column removed, $\bXtilde^T_1$ is the first column of $\bXtilde^T$, and $\boldsymbol{\gamma} \in \mathbb{R}^p$ is the subgradient function of the $\ell_1$ norm evaluated at $(\hat{\beta}_1, \ldots, \hat{\beta}_p)$. Therefore $\widehat{\bTheta}$ is a solution in Eq~\ref{eq:estimator} if and only if $\widehat{\bTheta}$ satisfies Eq~\ref{eq:kktsolved} for some $\gamma$. %The solution path is given by an inductive verification of the KKT conditions~\cite{osborne2000lasso}, i.e., if Eq~\ref{eq:kktsolved} holds as $\lambda$ decreases, then we know we have a solution.
+%we find the solutinon for the other paramters such that the KKT conditions are verified.
+%page 17 of sswith learning
+We can determine a decreasing sequence of tuning parameters by starting at a maximal value for $\lambda = \lambda_{max}$ for which $\hat{\beta}_j = 0$ for $j=1, \ldots, p$. In this case, the KKT conditions in Eq~\ref{eq:kktsolved} are equivalent to
+\begin{equation}
+\DIFdelbegin %DIFDELCMD < \begin{aligned}
+%DIFDELCMD < %\abs{\bXtilde^T_{j}\bW \bYtilde}  \leq \lambda, \quad \forall j=1, \ldots,p  \\
+%DIFDELCMD < \frac{1}{v_j} \sum_{i=1}^{N_T}\abs{w_i \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right)} \leq \lambda, \quad \forall j=1, \ldots,p \\
+%DIFDELCMD < %\gamma_j \in \begin{cases}
+%DIFDELCMD < %\tm{sign}(\hat{\beta}_j) & \tm{if} \quad \hat{\beta}_j \neq 0 \\
+%DIFDELCMD < %[-1,1] & \tm{if}\quad \hat{\beta}_j = 0
+%DIFDELCMD < %\end{cases}, \qquad \tm{for }j=1, \ldots, p   \\
+%DIFDELCMD < %\beta_0 = \frac{\bXtilde^T_1 \bW \bYtilde}{\bXtilde^T_1 \bW\bXtilde_1 } =  \frac{\bXtilde^T_1 \bDtilde^{-1} \bYtilde}{\bXtilde^T_1 \bDtilde^{-1}	\bXtilde_1 }  \\
+%DIFDELCMD < \beta_0 = \frac{\sum_{i=1}^{N_T}w_i \Xtilde_{i1}\Ytilde_i }{\sum_{i=1}^{N_T}w_i \Xtilde_{i1}^2}\\
+%DIFDELCMD < %\frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{(  \Ytilde_i - \Xtilde_{i1}\beta_0 ) ^2}{\sigma^2 (1 + \eta (\Lambda_i-1))}  \right) = 0  \\
+%DIFDELCMD < \frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right) ^2}{\sigma^2(1+\eta(\Lambda_i-1))}  \right) = 0\\
+%DIFDELCMD < %{\sigma^2} = \frac{1}{N_T}\left(\bYtilde - \bXtilde_1 \beta_0 \right)^T \widetilde{\bD}^{-1} \left(\bYtilde - \bXtilde_1 \beta_0\right) \\
+%DIFDELCMD < {\sigma^2} = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right) ^2}{1 + \eta (\Lambda_i-1)}
+%DIFDELCMD < \end{aligned}%%%
+\DIFdelend \DIFaddbegin \begin{aligned}
+%\abs{\bXtilde^T_{j}\bW \bYtilde}  \leq \lambda, \quad \forall j=1, \ldots,p  \\
+\frac{1}{v_j} \sum_{i=1}^{N_T}\abs{w_i \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right)} \leq \lambda, \quad \forall j=1, \ldots,p \\
+%\gamma_j \in \begin{cases}
+%\tm{sign}(\hat{\beta}_j) & \tm{if} \quad \hat{\beta}_j \neq 0 \\
+%[-1,1] & \tm{if}\quad \hat{\beta}_j = 0
+%\end{cases}, \qquad \tm{for }j=1, \ldots, p   \\
+%\beta_0 = \frac{\bXtilde^T_1 \bW \bYtilde}{\bXtilde^T_1 \bW\bXtilde_1 } =  \frac{\bXtilde^T_1 \bDtilde^{-1} \bYtilde}{\bXtilde^T_1 \bDtilde^{-1}	\bXtilde_1 }  \\
+\beta_0 = \frac{\sum_{i=1}^{N_T}w_i \Xtilde_{i1}\Ytilde_i }{\sum_{i=1}^{N_T}w_i \Xtilde_{i1}^2}\\
+%\frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{(  \Ytilde_i - \Xtilde_{i1}\beta_0 ) ^2}{\sigma^2 (1 + \eta (\Lambda_i-1))}  \right) = 0  \\
+\frac{1}{2} \sum_{i=1}^{N_T} \frac{\Lambda_i - 1}{1 + \eta(\Lambda_i - 1)} \left(1- \frac{\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right) ^2}{\sigma^2(1+\eta(\Lambda_i-1))}  \right) = 0\\
+%{\sigma^2} = \frac{1}{N_T}\left(\bYtilde - \bXtilde_1 \beta_0 \right)^T \widetilde{\bD}^{-1} \left(\bYtilde - \bXtilde_1 \beta_0\right) \\
+{\sigma^2} = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \Xtilde_{i1}\beta_0 \right) ^2}{1 + \eta (\Lambda_i-1)}.
+\end{aligned}\DIFaddend \label{eq:kktsolvedmax}
+\end{equation}
+We can solve the KKT system of equations in Eq~\ref{eq:kktsolvedmax} (with a numerical solution for $\eta$) in order to have an explicit form of the stationary point $\widehat{\bTheta}_0 = \left\lbrace \hat{\beta}_0, \mathbf{0}_p, \hat{\eta}, \widehat{\sigma}^2 \right\rbrace$. Once we have $\widehat{\bTheta}_0$, we can solve for the smallest value of $\lambda$ such that the entire vector ($\hat{\beta}_1, \ldots, \hat{\beta}_p$) is 0:
+%\begin{equation}
+%\lambda_{max} = \max_j \abs{\bXtilde^T_{j}\bW \bYtilde}, \quad j=1, \ldots, p
+%\end{equation}
+\DIFdelbegin \begin{displaymath}
+\DIFdel{\lambda_{max} = \max_j \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{N_T}\hat{w_i} \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\hat{\beta}_0 \right)}\right\rbrace , \quad j=1, \ldots, p
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{\lambda_{max} = \max_j \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{N_T}\hat{w_i} \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\hat{\beta}_0 \right)}\right\rbrace , \quad j=1, \ldots, p.
+}\end{equation*}\DIFaddend 
+Following Friedman et al.~\cite{friedman2010regularization}, we choose $\tau\lambda_{max}$ to be the smallest value of tuning parameters $\lambda_{min}$, and construct a
+sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the log scale. The defaults are set to $K = 100$, $\tau = 0.01$ if $n < p $ and $\tau = 0.001$ if $n \geq p $.
+
+
+\subsubsection*{Warm Starts}
+The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to implement warm starts. That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. This strategy leads to computational speedups and has been implemented in the \texttt{ggmix} R package.
+
+
+\subsubsection*{Prediction of the random effects}
+We use an empirical Bayes approach (e.g.~\cite{wakefield2013bayesian}) to predict the random effects $\bb$. Let the maximum a posteriori (MAP) estimate be defined as
+\begin{equation}
+\widehat{\bb} = \argmax_{\bb} f(\bb |  \bY, \bbeta, \eta, \sigma^2)  \label{eq:MAP}\DIFaddbegin \DIFadd{,
+}\DIFaddend \end{equation}
+where, by using Bayes rule, $f(\bb |  \bY, \bbeta, \eta, \sigma^2)$ can be expressed as
+\begin{align}
+f(\bb |  \bY, \bbeta, \eta, \sigma^2) & = \frac{f(\bY | \bb,  \bbeta, \eta, \sigma^2)  \pi(\bb | \eta, \sigma^2)}{f(\bY |  \bbeta, \eta, \sigma^2)} \nonumber \\
+& \propto f(\bY | \bb,  \bbeta, \eta, \sigma^2)  \pi(\bb | \eta, \sigma^2) \nonumber\\
+& \propto \exp \left\lbrace - \frac{1}{2 \sigma^2} (\bY - \bX \bbeta - \bb)^T  (\bY - \bX \bbeta - \bb) - \frac{1}{2\eta \sigma^2}\bb^T \bPhi^{-1}\bb   \right \rbrace \nonumber\\
+& = \exp \left\lbrace - \frac{1}{2 \sigma^2} \left[  (\bY - \bX \bbeta - \bb)^T (\bY - \bX \bbeta - \bb) + \frac{1}{\eta }\bb^T \bPhi^{-1}\bb \right]    \right \rbrace \label{eq:MAP2}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{align}
+Solving for Eq~\ref{eq:MAP} is equivalent to minimizing the exponent in Eq~\ref{eq:MAP2}:
+\begin{align}
+\widehat{\bb} = \argmin_{\bb} \left\lbrace (\bY - \bX \bbeta - \bb)^T  (\bY - \bX \bbeta - \bb) + \frac{1}{\eta }\bb^T \bPhi^{-1}\bb  \right\rbrace \label{eq:MAP3}\DIFaddbegin \DIFadd{.
+}\DIFaddend \end{align}
+Taking the derivative of Eq~\ref{eq:MAP3} with respect to $\bb$ and setting it to 0 we get:
+\begin{align}
+0 & = -2  (\bY - \bX \bbeta - \bb) + \frac{2}{\eta} \bPhi^{-1}\bb \nonumber \\
+& = - (\bY - \bX \bbeta ) + \bb +  \left( \frac{1}{\eta}\bPhi^{-1}\right) \bb  \nonumber\\
+(\bY - \bX \bbeta ) & = \left(\bI_{N_T \times N_T} +  \frac{1}{\eta}\bPhi^{-1}\right) \bb  \nonumber\\
+\widehat{\bb} & = \left( \bI_{N_T \times N_T} +  \frac{1}{\widehat{\eta}}\bPhi^{-1}\right)^{-1}  (\bY - \bX \widehat{\bbeta} ) \nonumber \\
+& = \left( \bI_{N_T \times N_T} +  \frac{1}{\widehat{\eta}} \bU \bD^{-1} \bU^T\right)^{-1}  (\bY - \bX \widehat{\bbeta} ) \DIFaddbegin \nonumber\DIFadd{,
+}\DIFaddend \end{align}
+where $(\widehat{\bbeta}, \widehat{\eta})$ are the estimates obtained from Algorithm~\ref{alg:cgd2}.
+%DIF <  \nonumber \\
+%DIF < & = \left(\bU \bDtilde^{-1} \bU^T + \frac{1}{\widehat{\eta}}\bU \bD^{-1} %\bU^T\right)^{-1} \bU \bDtilde^{-1} \bU^T (\bY - \bX \widehat{\bbeta} ) \nonumber \\
+%DIF < & = \left(\bU \left[\bDtilde^{-1} + \frac{1}{\widehat{\eta}} \bD^{-1} \right] %\bU^T \right)^{-1} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \widehat{\bbeta} ) \nonumber \\
+%DIF < & = \bU \left[\bDtilde^{-1} + \frac{1}{\widehat{\eta}} \bD^{-1} \right]^{-1} \bU^T \bU \bDtilde^{-1} (\bYtilde - \bXtilde \widehat{\bbeta} ) \nonumber
+%DIF < where $\bV^{-1}$ is given by Eq~\ref{eq:Vinv}, and $(\widehat{\bbeta}, \widehat{\eta})$ are the estimates obtained from Algorithm~\ref{alg:cgd2}.
+%DIF < Using standard results from linear mixed models (e.g.~\cite{wakefield2013bayesian}), the random effects are predicted by
+%DIF < \begin{equation}
+%DIF < \widehat{\bb} = \widehat{\eta} \bPhi \bU \bDtilde^{-1} \bU^T (\bY - \bX \widehat{\bbeta})
+%DIF < \end{equation}
+
+
+
+\subsubsection*{Phenotype prediction} \label{phenoprediction}
+
+Here we describe the method used for predicting the unobserved phenotype $\bY^\star$ in a set of individuals with predictor set $\bX^\star$ that were not used in the model training e.g. a testing set. Let $q$ denote the number of observations in the testing set and $N-q$ the number of observations in the training set. We assume that a \texttt{ggmix} model has been fit on a set of training individuals with observed phenotype $\bY$ and predictor set $\bX$.  We further assume that $\bY$ and $\bY^\star$ are jointly multivariate Normal:
+
+\begin{equation*}
+\left[ \begin{matrix*}[c]
+\bY^\star \\
+\bY
+\end{matrix*}\right] \sim \mathcal{N} \left( \left[\begin{matrix*}[c]
+\bmu_{1_{(q\times 1)}} \\
+\bmu_{2_{(N-q)\times 1}}
+\end{matrix*}\right], \left[ \begin{matrix}
+\bSigma_{11_{(q\times q)}} & \bSigma_{12_{q\times (N-q)}} \\
+\bSigma_{21_{(N-q)\times q}} & \bSigma_{22_{(N-q)\times (N-q)}}  \\
+\end{matrix}   \right]  \right).
+\end{equation*}
+
+
+Then, from standard multivariate Normal theory, the conditional distribution $\bY^\star | \bY, \eta, \sigma^2, \bbeta,\bX, \bX^\star$ is $\mathcal{N}(\bmu^\star, \bSigma^\star)$ where
+
+\begin{align*}
+\bmu^\star &= \bmu_1 + \bSigma_{12} \bSigma_{22}^{-1} (\bY - \mu_2) \\
+\bSigma^\star & = \bSigma_{11} - \bSigma_{12} \bSigma_{22}^{-1} \bSigma_{21}.
+\end{align*}
+
+The phenotype prediction is thus given by:
+
+\begin{align*}
+\bmu^\star_{q \times 1} & = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bV^{-1} (\bY - \bX \bbeta)\\
+& = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} \bU^T (\bY - \bX \bbeta)\\
+& = \bX^\star \bbeta + \frac{1}{\sigma^2} \bSigma_{12} \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
+& = \bX^\star \bbeta + \frac{1}{\sigma^2} \eta \sigma^2 \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ) \\
+& = \bX^\star \bbeta +  \eta  \bPhi^\star \bU \bDtilde^{-1} (\bYtilde - \bXtilde \bbeta ),
+\end{align*}
+
+where $\bPhi^\star$ is the $q \times (N-q)$ covariance matrix between the testing and training individuals.
+
+
+
+\subsubsection*{Choice of the optimal tuning parameter} \label{subsubsec:gic}
+
+In order to choose the optimal value of the tuning parameter $\lambda$, we use the generalized information criterion~\cite{nishii1984asymptotic} (GIC):
+\DIFdelbegin \begin{displaymath}
+\DIFdel{GIC_{\lambda} = -2 \ell(\widehat{\bbeta}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda}
+}\end{displaymath}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \begin{equation*}
+\DIFadd{GIC_{\lambda} = -2 \ell(\widehat{\bbeta}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda},
+}\end{equation*}\DIFaddend 
+where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\bbeta}_{\lambda}$~\cite{zou2007degrees} plus two (representing the variance parameters $\eta$ and $\sigma^2$). Several authors have used this criterion for variable selection in mixed models with $a_n = \log N_T$~\cite{bondell2010joint,schelldorfer2011estimation}, which corresponds to the BIC. We instead choose the high-dimensional BIC~\cite{fan2013tuning} given by $a_n = \log(\log(N_T)) * \log(p)$. This is the default choice in our \texttt{ggmix} R package, though the interface is flexible to allow the user to select their choice of $a_n$.
+
+
+
+
+\DIFdelbegin \section*{\DIFdel{Availability of data and material}}
+%DIFAUXCMD
+%DIF < The data sets supporting the results of this article are available in the repositories:
+%DIFDELCMD < \begin{enumerate}
+%DIFDELCMD < 	\item %%%
+\DIFdel{The UK Biobank data is available upon successful project application.
+	}%DIFDELCMD < \item %%%
+\DIFdel{The GAW20 data is freely available upon request from }%DIFDELCMD < \url{https://www.gaworkshop.org/data-sets}%%%
+\DIFdel{.
+	}%DIFDELCMD < \item %%%
+\DIFdel{Mouse cross data is available from GitHub at }%DIFDELCMD < \url{https://github.com/sahirbhatnagar/ggmix/blob/master/RealData/mice.RData}%%%
+\DIFdel{. 
+	}%DIFDELCMD < \item %%%
+\DIFdel{The entire simulation study is reproducible. Source code available at }%DIFDELCMD < \url{https://github.com/sahirbhatnagar/ggmix/tree/master/simulation}%%%
+\DIFdel{. This includes scripts for \ggmix , ~}\texttt{\DIFdel{lasso}} %DIFAUXCMD
+\DIFdel{and }\texttt{\DIFdel{twostep}} %DIFAUXCMD
+\DIFdel{methods. 
+	}%DIFDELCMD < \item %%%
+\DIFdel{The R package\ggmix ~}\DIFdelend \DIFaddbegin \subsection*{\DIFadd{Software availability}}
+
+\DIFadd{The \ggmix ~method is written in an R package, which }\DIFaddend is freely available \DIFdelbegin \DIFdel{from }\DIFdelend \DIFaddbegin \DIFadd{on }\DIFaddend CRAN at \url{https://cran.r-project.org/package=ggmix}. \DIFdelbegin %DIFDELCMD < \item %%%
+\DIFdel{A website describing how to use the }\DIFdelend \DIFaddbegin \DIFadd{The complete documentation for this }\DIFaddend package is available at \url{https://sahirbhatnagar.com/ggmix/}. \DIFdelbegin %DIFDELCMD < \end{enumerate}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\section*{\DIFdel{Competing interests}}
+%DIFAUXCMD
+\DIFdel{The authors declare that they have no competing interests.
+}%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\section*{\DIFdel{Author's contributions}}
+%DIFAUXCMD
+\DIFdel{SRB, KO, YY and CMTG conceived the idea. SRB developped the algorithms, software and simulation study. TL completed the real data analysis. ES and JCLO provided data and interpretations. SRB, TL and CMTG wrote a draft of the manuscript then all authors edited, read and approved the final manuscript }\DIFdelend \DIFaddbegin \DIFadd{Scripts for running the analyses and reproducing the tables and figures reported in the manuscript are available in an }\texttt{\DIFadd{RMarkdown}} \DIFadd{document at }\url{https://github.com/sahirbhatnagar/ggmix/blob/master/manuscript/bin/tables-figures.Rmd}\DIFaddend .
+
+
+
+\section*{\DIFdelbegin \DIFdel{Acknowledgements}\DIFdelend \DIFaddbegin \DIFadd{Supporting information}\DIFaddend }
+\DIFdelbegin \DIFdel{SRB was supported by the Ludmer Centre for Neuroinformatics and Mental Health and the Canadian Institutes for Health Research PJT 148620. This research was enabled in part by support provided by Calcul Québec (www.calculquebec. ca) and Compute Canada (www.computecanada.ca) . The funders had no role in study design, data collection and analysis, decision to publish, or preparation of }\DIFdelend \DIFaddbegin 
+
+
+%DIF >  Include only the SI item label in the paragraph heading. Use the \nameref{label} command to cite SI items in the text.
+
+\paragraph*{\DIFadd{S1 Fig.}}
+\label{S1_Fig}
+{\bf \DIFadd{Distribution of SNPs used in UK Biobank analysis.}} \DIFadd{Distribution of SNPs used in UK Biobank analysis by chromosome and whether or not the SNP was imputed.
+}
+
+\paragraph*{\DIFadd{S2 Fig.}}
+\label{S2_Fig}
+{\bf \DIFadd{LD structure among the markers in }\DIFaddend the \DIFdelbegin \DIFdel{manuscript}\DIFdelend \DIFaddbegin \DIFadd{GAW20 dataset.}} \DIFadd{We illustrate the LD structure among the markers in the GAW20 dataset. We show the pairwise $r^2$ for 655 SNPs within a 1Mb-window around the causal SNP rs9661059 (indicated) that we focused on. The dotplot above the heatmap denotes $r^2$ between each SNP and the causal SNP. It is clear that although strong correlation does exist between some SNPs, none of these nearby SNPs is correlated with the causal SNP. The only dot denoting an $r^2=1$ represents the causal SNP itself}\DIFaddend .
+
+\DIFdelbegin \section*{\DIFdel{Supporting Information}}
+%DIFAUXCMD
+%DIF < \subsection*{Additional file 1 -- Supplemental Methods and Simulation Results}
+\DIFdel{Contains the following sections:
+}%DIFDELCMD < \begin{itemize}
+%DIFDELCMD < 	\item[A] %%%
+\textbf{\DIFdel{Block Coordinate Descent Algorithm}} %DIFAUXCMD
+\DIFdel{- a detailed description }\DIFdelend \DIFaddbegin \paragraph*{\DIFadd{S3 Fig.}}
+\label{S3_Fig}
+{\bf \DIFadd{LD structure among the markers in the mouse dataset.}} \DIFadd{We illustrate the LD structure among the markers in the mouse dataset. Shown is the pairwise $r^2$ for all microsatellite markers. It is clear that many markers are considerably strongly correlated with each other, as we expected.
+}
+
+\paragraph*{\DIFadd{S1 Text.}}
+\label{S1_Text}
+{\bf \DIFadd{Block coordinate gradient descent algorithm.}} \DIFadd{We provide a full derivation }\DIFaddend of the algorithm used to \DIFdelbegin \DIFdel{fit our \ggmix ~model.
+}%DIFDELCMD < \item[B] %%%
+\textbf{\DIFdel{Additional Real Data Analysis Results}} %DIFAUXCMD
+\DIFdel{- supporting information for the GAW20 and UK Biobank analyses
+	}%DIFDELCMD < \item[C] %%%
+\textbf{\DIFdel{\ggmix ~Package Showcase}} %DIFAUXCMD
+\DIFdel{- a vignette describing how to use our \ggmix ~}\texttt{\DIFdel{R}} %DIFAUXCMD
+\DIFdel{package }%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{solve the \ggmix ~objective function.
+}
+
+
+\paragraph*{\DIFadd{S2 Text.}}
+\label{S2_Text}
+{\bf \DIFadd{\ggmix ~Package Showcase.}} \DIFadd{We introduce the freely available and open source \ggmix ~package in }\texttt{\DIFadd{R}} \DIFadd{available on CRAN (}\url{https://cran.r-project.org/package=ggmix}\DIFadd{).
+}
+
+
+
+
+\section*{\DIFadd{Acknowledgments}}
+\DIFadd{Part of this research has been conducted using the UK Biobank Resource under project number 27449. We appreciate the generosity of UK Biobank volunteers. MF was at the Lady Davis Institute when she undertook this research. We appreciate advice on an earlier version of the manuscript provided by Dr. Simon Gravel, Dr. David Fardo and Dr. Abbas Khalili. We would also like to thank the editors and referees for their help in significantly improving this article. 
+}
+
+
+
+
+
+%DIF > \section*{Financial Disclosure}
+%DIF > SRB and CMTG were supported by the Ludmer Centre for Neuroinformatics and Mental Health and the Canadian Institutes for Health Research PJT 148620. CMTG was also partially supported by NSERC RGPIN-2019-04482. This research was enabled in part by support provided by Calcul Québec (www.calculquebec.ca) and Compute Canada (www.computecanada.ca). YY was partially supported by NSERC RGPIN-2016-05174 and FRQ-NT NC-205972. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript. 
+\DIFaddend 
+
+\nolinenumbers
+
+% Either type in your references using
+% \begin{thebibliography}{}
+% \bibitem{}
+% Text
+% \end{thebibliography}
+%
+% or
+%
+% Compile your BiBTeX database using our plos2015.bst
+% style file and paste the contents of your .bbl file
+% here. See http://journals.plos.org/plosone/s/latex for 
+% step-by-step instructions.
+% 
+
+
+%\bibliography{ggmixbib}
+
+\begin{thebibliography}{10}
+
+	\bibitem{manolio2009finding}
+	Manolio TA, Collins FS, Cox NJ, Goldstein DB, Hindorff LA, Hunter DJ, et~al.
+	\newblock Finding the missing heritability of complex diseases.
+	\newblock Nature. 2009;461(7265):747.
+
+	\bibitem{yang2010common}
+	Yang J, Benyamin B, McEvoy BP, Gordon S, Henders AK, Nyholt DR, et~al.
+	\newblock Common SNPs explain a large proportion of the heritability for human
+	height.
+	\newblock Nature genetics. 2010;42(7):565.
+
+	\bibitem{astle2009population}
+	Astle W, Balding DJ, et~al.
+	\newblock Population structure and cryptic relatedness in genetic association
+	studies.
+	\newblock Statistical Science. 2009;24(4):451--471.
+
+	\bibitem{song2015testing}
+	Song M, Hao W, Storey JD.
+	\newblock Testing for genetic associations in arbitrarily structured
+	populations.
+	\newblock Nature genetics. 2015;47(5):550--554.
+
+	\bibitem{marchini2004effects}
+	Marchini J, Cardon LR, Phillips MS, Donnelly P.
+	\newblock The effects of human population structure on large genetic
+	association studies.
+	\newblock Nature genetics. 2004;36(5):512.
+
+	\bibitem{hoggart2008simultaneous}
+	Hoggart CJ, Whittaker JC, De~Iorio M, Balding DJ.
+	\newblock Simultaneous analysis of all SNPs in genome-wide and re-sequencing
+	association studies.
+	\newblock PLoS genetics. 2008;4(7):e1000130.
+
+	\bibitem{li2010bayesian}
+	Li J, Das K, Fu G, Li R, Wu R.
+	\newblock The Bayesian lasso for genome-wide association studies.
+	\newblock Bioinformatics. 2010;27(4):516--523.
+
+	\bibitem{lippert2011fast}
+	Lippert C, Listgarten J, Liu Y, Kadie CM, Davidson RI, Heckerman D.
+	\newblock FaST linear mixed models for genome-wide association studies.
+	\newblock Nature methods. 2011;8(10):833--835.
+
+	\bibitem{kang2010variance}
+	Kang HM, Sul JH, Zaitlen NA, Kong Sy, Freimer NB, Sabatti C, et~al.
+	\newblock Variance component model to account for sample structure in
+	genome-wide association studies.
+	\newblock Nature genetics. 2010;42(4):348.
+
+	\bibitem{yu2006unified}
+	Yu J, Pressoir G, Briggs WH, Bi IV, Yamasaki M, Doebley JF, et~al.
+	\newblock A unified mixed-model method for association mapping that accounts
+	for multiple levels of relatedness.
+	\newblock Nature genetics. 2006;38(2):203.
+
+	\bibitem{eu2014comparison}
+	Eu-Ahsunthornwattana J, Miller EN, Fakiola M, Jeronimo SM, Blackwell JM,
+	Cordell HJ, et~al.
+	\newblock Comparison of methods to account for relatedness in genome-wide
+	association studies with family-based data.
+	\newblock PLoS Genet. 2014;10(7):e1004445.
+
+	\bibitem{price2006principal}
+	Price AL, Patterson NJ, Plenge RM, Weinblatt ME, Shadick NA, Reich D.
+	\newblock Principal components analysis corrects for stratification in
+	genome-wide association studies.
+	\newblock Nature genetics. 2006;38(8):904.
+
+	\bibitem{oualkacha2013adjusted}
+	Oualkacha K, Dastani Z, Li R, Cingolani PE, Spector TD, Hammond CJ, et~al.
+	\newblock Adjusted sequence kernel association test for rare variants
+	controlling for cryptic and family relatedness.
+	\newblock Genetic epidemiology. 2013;37(4):366--376.
+
+	\bibitem{cordell2002unified}
+	Cordell HJ, Clayton DG.
+	\newblock A unified stepwise regression procedure for evaluating the relative
+	effects of polymorphisms within a gene using case/control or family data:
+	application to HLA in type 1 diabetes.
+	\newblock The American Journal of Human Genetics. 2002;70(1):124--141.
+
+	\bibitem{rakitsch2013lasso}
+	Rakitsch B, Lippert C, Stegle O, Borgwardt K.
+	\newblock A Lasso multi-marker mixed model for association mapping with
+	population structure correction.
+	\newblock Bioinformatics. 2013;29(2):206--214.
+
+	\bibitem{wang2011identifying}
+	Wang D, Eskridge KM, Crossa J.
+	\newblock Identifying QTLs and epistasis in structured plant populations using
+	adaptive mixed LASSO.
+	\newblock Journal of agricultural, biological, and environmental statistics.
+	2011;16(2):170--184.
+
+	\bibitem{tibshirani1996regression}
+	Tibshirani R.
+	\newblock Regression shrinkage and selection via the lasso.
+	\newblock Journal of the Royal Statistical Society Series B (Methodological).
+	1996; p. 267--288.
+
+	\bibitem{zou2006adaptive}
+	Zou H.
+	\newblock The adaptive lasso and its oracle properties.
+	\newblock Journal of the American statistical association.
+	2006;101(476):1418--1429.
+
+	\bibitem{ding20142}
+	Ding X, Su S, Nandakumar K, Wang X, Fardo DW.
+	\newblock A 2-step penalized regression method for family-based next-generation
+	sequencing association studies.
+	\newblock In: BMC proceedings. vol.~8. BioMed Central; 2014. p. S25.
+
+	\bibitem{friedman2010regularization}
+	Friedman J, Hastie T, Tibshirani R.
+	\newblock Regularization paths for generalized linear models via coordinate
+	descent.
+	\newblock Journal of statistical software. 2010;33(1):1.
+
+	\bibitem{yang2015fast}
+	Yang Y, Zou H.
+	\newblock A fast unified algorithm for solving group-lasso penalize learning
+	problems.
+	\newblock Statistics and Computing. 2015;25(6):1129--1141.
+
+	\bibitem{yang2014advantages}
+	Yang J, Zaitlen NA, Goddard ME, Visscher PM, Price AL.
+	\newblock Advantages and pitfalls in the application of mixed-model association
+	methods.
+	\newblock Nature genetics. 2014;46(2):100.
+
+	\bibitem{zou2005regularization}
+	Zou H, Hastie T.
+	\newblock Regularization and variable selection via the elastic net.
+	\newblock Journal of the Royal Statistical Society: Series B (Statistical
+	Methodology). 2005;67(2):301--320.
+
+	\bibitem{gilmour1995average}
+	Gilmour AR, Thompson R, Cullis BR.
+	\newblock Average information REML: an efficient algorithm for variance
+	parameter estimation in linear mixed models.
+	\newblock Biometrics. 1995; p. 1440--1450.
+
+	\bibitem{gaston}
+	Dandine-Roulland C. gaston: Genetic Data Handling (QC, GRM, LD, PCA) and Linear
+	Mixed Models; 2018.
+	\newblock Available from: \url{https://CRAN.R-project.org/package=gaston}.
+
+	\bibitem{bnpsd1}
+	Ochoa A, Storey JD.
+	\newblock {FST} and kinship for arbitrary population structures {I}:
+	Generalized definitions.
+	\newblock bioRxiv. 2016;doi:{10.1101/083915}.
+
+	\bibitem{bnpsd2}
+	Ochoa A, Storey JD.
+	\newblock {FST} and kinship for arbitrary population structures {II}: Method of
+	moments estimators.
+	\newblock bioRxiv. 2016;doi:{10.1101/083923}.
+
+	\bibitem{reid2016study}
+	Reid S, Tibshirani R, Friedman J.
+	\newblock A study of error variance estimation in lasso regression.
+	\newblock Statistica Sinica. 2016; p. 35--67.
+
+	\bibitem{bycroft2018uk}
+	Bycroft C, Freeman C, Petkova D, Band G, Elliott LT, Sharp K, et~al.
+	\newblock The UK Biobank resource with deep phenotyping and genomic data.
+	\newblock Nature. 2018;562(7726):203.
+
+	\bibitem{biobank2015genotyping}
+	Biobank U.
+	\newblock Genotyping and quality control of UK Biobank, a large-scale,
+	extensively phenotyped prospective resource.
+	\newblock Available at biobank ctsu ox ac uk/crystal/docs/genotyping\_qc pdf
+	Accessed April. 2015;1:2016.
+
+	\bibitem{manichaikul2010robust}
+	Manichaikul A, Mychaleckyj JC, Rich SS, Daly K, Sale M, Chen WM.
+	\newblock Robust relationship inference in genome-wide association studies.
+	\newblock Bioinformatics. 2010;26(22):2867--2873.
+
+	\bibitem{yengo2018meta}
+	Yengo L, Sidorenko J, Kemper KE, Zheng Z, Wood AR, Weedon MN, et~al.
+	\newblock Meta-analysis of genome-wide association studies for height and body
+	mass index in~ 700000 individuals of European ancestry.
+	\newblock Human molecular genetics. 2018;27(20):3641--3649.
+
+	\bibitem{mccarthy2016reference}
+	McCarthy S, Das S, Kretzschmar W, Delaneau O, Wood AR, Teumer A, et~al.
+	\newblock A reference panel of 64,976 haplotypes for genotype imputation.
+	\newblock Nature genetics. 2016;48(10):1279.
+
+	\bibitem{zhou2013polygenic}
+	Zhou X, Carbonetto P, Stephens M.
+	\newblock Polygenic modeling with Bayesian sparse linear mixed models.
+	\newblock PLoS genetics. 2013;9(2):e1003264.
+
+	\bibitem{zhou2012genome}
+	Zhou X, Stephens M.
+	\newblock Genome-wide efficient mixed-model analysis for association studies.
+	\newblock Nature genetics. 2012;44(7):821.
+
+	\bibitem{davey2003mendelian}
+	Davey~Smith G, Ebrahim S.
+	\newblock ‘Mendelian randomization’: can genetic epidemiology contribute to
+	understanding environmental determinants of disease?
+	\newblock International journal of epidemiology. 2003;32(1):1--22.
+
+	\bibitem{cherlin2018using}
+	Cherlin S, Howey RA, Cordell HJ.
+	\newblock Using penalized regression to predict phenotype from SNP data.
+	\newblock In: BMC proceedings. vol.~12. BioMed Central; 2018. p.~38.
+
+	\bibitem{zhou2018analysis}
+	Zhou W, Lo SH.
+	\newblock Analysis of genotype by methylation interactions through
+	sparsity-inducing regularized regression.
+	\newblock In: BMC proceedings. vol.~12. BioMed Central; 2018. p.~40.
+
+	\bibitem{howey2018application}
+	Howey RA, Cordell HJ.
+	\newblock Application of Bayesian networks to GAW20 genetic and blood lipid
+	data.
+	\newblock In: BMC proceedings. vol.~12. BioMed Central; 2018. p.~19.
+
+	\bibitem{thornton2012estimating}
+	Thornton T, Tang H, Hoffmann TJ, Ochs-Balcom HM, Caan BJ, Risch N.
+	\newblock Estimating kinship in admixed populations.
+	\newblock The American Journal of Human Genetics. 2012;91(1):122--138.
+
+	\bibitem{alexander2009fast}
+	Alexander DH, Novembre J, Lange K.
+	\newblock Fast model-based estimation of ancestry in unrelated individuals.
+	\newblock Genome research. 2009;19(9):1655--1664.
+
+	\bibitem{fortin2001recombinant}
+	Fortin A, Diez E, Rochefort D, Laroche L, Malo D, Rouleau GA, et~al.
+	\newblock Recombinant congenic strains derived from A/J and C57BL/6J: a tool
+	for genetic dissection of complex traits.
+	\newblock Genomics. 2001;74(1):21--35.
+
+	\bibitem{bennett2010high}
+	Bennett BJ, Farber CR, Orozco L, Kang HM, Ghazalpour A, Siemers N, et~al.
+	\newblock A high-resolution association mapping panel for the dissection of
+	complex traits in mice.
+	\newblock Genome research. 2010;20(2):281--290.
+
+	\bibitem{flint2012genome}
+	Flint J, Eskin E.
+	\newblock Genome-wide association studies in mice.
+	\newblock Nature Reviews Genetics. 2012;13(11):807.
+
+	\bibitem{cheng2010genome}
+	Cheng R, Lim JE, Samocha KE, Sokoloff G, Abney M, Skol AD, et~al.
+	\newblock Genome-wide association studies and the problem of relatedness among
+	advanced intercross lines and other highly recombinant populations.
+	\newblock Genetics. 2010;185(3):1033--1044.
+
+	\bibitem{di2010strain}
+	Di~Pietrantonio T, Hernandez C, Girard M, Verville A, Orlova M, Belley A,
+	et~al.
+	\newblock Strain-specific differences in the genetic control of two closely
+	related mycobacteria.
+	\newblock PLoS pathogens. 2010;6(10):e1001169.
+
+	\bibitem{wang2018precision}
+	Wang H, Lengerich BJ, Aragam B, Xing EP.
+	\newblock Precision Lasso: accounting for correlations and linear dependencies
+	in high-dimensional genomic data.
+	\newblock Bioinformatics. 2018;35(7):1181--1187.
+
+	\bibitem{sohrabi2013mapping}
+	Sohrabi Y, Havelkov{\'a} H, Kobets T, {\v{S}}{\'\i}ma M, Volkova V, Grekov I,
+	et~al.
+	\newblock Mapping the Genes for Susceptibility and Response to Leishmania
+	tropica in Mouse.
+	\newblock PLoS neglected tropical diseases. 2013;7(7):e2282.
+
+	\bibitem{jackson1999multiple}
+	Jackson AU, Forn{\'e}s A, Galecki A, Miller RA, Burke DT.
+	\newblock Multiple-trait quantitative trait loci analysis using a large mouse
+	sibship.
+	\newblock Genetics. 1999;151(2):785--795.
+
+	\bibitem{c2000allelotype}
+	C~Stern1 M, Benavides F, A~Klingelberger E, J~Conti2 C.
+	\newblock Allelotype analysis of chemically induced squamous cell carcinomas in
+	F1 hybrids of two inbred mouse strains with different susceptibility to tumor
+	progression.
+	\newblock Carcinogenesis. 2000;21(7):1297--1301.
+
+	\bibitem{lasko1991loss}
+	Lasko D, Cavenee W, Nordenskj{\"o}ld M.
+	\newblock Loss of constitutional heterozygosity in human cancer.
+	\newblock Annual review of genetics. 1991;25(1):281--314.
+
+	\bibitem{loh2015efficient}
+	Loh PR, Tucker G, Bulik-Sullivan BK, Vilhjalmsson BJ, Finucane HK, Salem RM,
+	et~al.
+	\newblock Efficient Bayesian mixed-model analysis increases association power
+	in large cohorts.
+	\newblock Nature genetics. 2015;47(3):284.
+
+	\bibitem{allen2012uk}
+	Allen N, Sudlow C, Downey P, Peakman T, Danesh J, Elliott P, et~al.
+	\newblock UK Biobank: Current status and what it means for epidemiology.
+	\newblock Health Policy and Technology. 2012;1(3):123--126.
+
+	\bibitem{zeng2017biglasso}
+	Zeng Y, Breheny P.
+	\newblock The biglasso package: a memory-and computation-efficient solver for
+	lasso model fitting with big data in R.
+	\newblock arXiv preprint arXiv:170105936. 2017;.
+
+	\bibitem{spain2015strategies}
+	Spain SL, Barrett JC.
+	\newblock Strategies for fine-mapping complex traits.
+	\newblock Human molecular genetics. 2015;24(R1):R111--R119.
+
+	\bibitem{pirinen2013efficient}
+	Pirinen M, Donnelly P, Spencer CC, et~al.
+	\newblock Efficient computation with a linear mixed model on large-scale data
+	sets with applications to genetic studies.
+	\newblock The Annals of Applied Statistics. 2013;7(1):369--390.
+
+	\bibitem{schelldorfer2011estimation}
+	Schelldorfer J, B{\"u}hlmann P, DE G, VAN S.
+	\newblock Estimation for High-Dimensional Linear Mixed-Effects Models Using
+	L1-Penalization.
+	\newblock Scandinavian Journal of Statistics. 2011;38(2):197--214.
+
+	\bibitem{tseng2009coordinate}
+	Tseng P, Yun S.
+	\newblock A coordinate gradient descent method for nonsmooth separable
+	minimization.
+	\newblock Mathematical Programming. 2009;117(1):387--423.
+
+	\bibitem{meier2008group}
+	Meier L, Van De~Geer S, B{\"u}hlmann P.
+	\newblock The group lasso for logistic regression.
+	\newblock Journal of the Royal Statistical Society: Series B (Statistical
+	Methodology). 2008;70(1):53--71.
+
+	\bibitem{byrd1995limited}
+	Byrd RH, Lu P, Nocedal J, Zhu C.
+	\newblock A limited memory algorithm for bound constrained optimization.
+	\newblock SIAM Journal on Scientific Computing. 1995;16(5):1190--1208.
+
+	\bibitem{wakefield2013bayesian}
+	Wakefield J.
+	\newblock Bayesian and frequentist regression methods.
+	\newblock Springer Science \& Business Media; 2013.
+
+	\bibitem{nishii1984asymptotic}
+	Nishii R.
+	\newblock Asymptotic properties of criteria for selection of variables in
+	multiple regression.
+	\newblock The Annals of Statistics. 1984; p. 758--765.
+
+	\bibitem{zou2007degrees}
+	Zou H, Hastie T, Tibshirani R, et~al.
+	\newblock On the “degrees of freedom” of the lasso.
+	\newblock The Annals of Statistics. 2007;35(5):2173--2192.
+
+	\bibitem{bondell2010joint}
+	Bondell HD, Krishna A, Ghosh SK.
+	\newblock Joint Variable Selection for Fixed and Random Effects in Linear
+	Mixed-Effects Models.
+	\newblock Biometrics. 2010;66(4):1069--1077.
+
+	\bibitem{fan2013tuning}
+	Fan Y, Tang CY.
+	\newblock Tuning parameter selection in high dimensional penalized likelihood.
+	\newblock Journal of the Royal Statistical Society: Series B (Statistical
+	Methodology). 2013;75(3):531--552.
+
+\end{thebibliography}
+
+
+\end{document}
+
