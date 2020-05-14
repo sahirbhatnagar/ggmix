@@ -10,6 +10,20 @@
 
 <br>
 
+## Installation
+
+```r
+# stable version from CRAN
+install.packages("ggmix")
+
+# development version from GitHub
+if (!requireNamespace("pacman")) install.packages("pacman")
+pacman::p_load_gh('sahirbhatnagar/ggmix')
+```
+
+
+<br>
+
 ## Methodological Details
 
 The companion paper is available at https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1008766
