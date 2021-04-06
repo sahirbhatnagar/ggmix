@@ -21,7 +21,7 @@ fullrank_UD <- try(new_fullrank_UD(x = admixed$xtrain, y = admixed$ytrain,
 
 
 test_that("no error in full rank constructor functions", {
-
+  skip_on_cran()
   expect_false(inherits(fullrank_kinship, "try-error"))
   expect_false(inherits(fullrank_K, "try-error"))
   expect_false(inherits(fullrank_UD, "try-error"))
@@ -62,7 +62,7 @@ lowrank_UD <- try(new_lowrank_UD(x = admixed$xtrain, y = admixed$ytrain,
 
 
 test_that("no error in low rank constructor functions", {
-
+  skip_on_cran()
   expect_false(inherits(lowrank_kinship, "try-error"))
   expect_false(inherits(lowrank_K, "try-error"))
   expect_false(inherits(lowrank_UD, "try-error"))

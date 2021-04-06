@@ -12,7 +12,7 @@ number_nonzero_eigenvalues <- 20
 
 test_that("Expect error when user has not provided number of (non)zero
           eigenvalues to ggmix", {
-
+  skip_on_cran()
   # use these when lowrank has been implemented
   # expect_error(ggmix(x = admixed$x, y = admixed$y, kinship = admixed$kin,
   #                    estimation = "low"),
@@ -53,6 +53,7 @@ test_that("Expect error when user has not provided number of (non)zero
 context(strwrap("check simulation function with different geography"))
 
 test_that("test simulation function", {
+  skip_on_cran()
   set.seed(2345)
   sim1d <- gen_structured_model(n = 100,
                                 p_design = 50,

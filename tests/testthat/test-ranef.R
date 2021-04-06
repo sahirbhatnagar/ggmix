@@ -5,7 +5,7 @@ context(strwrap("check random effects"))
 data("admixed")
 
 test_that("Check random effects for multiple s values", {
-
+  skip_on_cran()
   fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                estimation = "full")
   gicfit <- gic(fit)
@@ -20,7 +20,7 @@ test_that("Check random effects for multiple s values", {
 
 
 test_that("Check random effects for multiple s values and user lambda", {
-  
+  skip_on_cran()
   fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                estimation = "full", lambda = c(0.235, 0.55, 0.19, 0.25, 0.00235, 0.00003))
   gicfit <- gic(fit)
@@ -37,7 +37,7 @@ test_that("Check random effects for multiple s values and user lambda", {
 
 
 test_that("Check predicted random effects on test set", {
-
+  skip_on_cran()
   draw <- gen_structured_model(n = 500,
                                 p_design = 200,
                                 p_kinship = 1e4,
@@ -73,7 +73,7 @@ test_that("Check predicted random effects on test set", {
 
 
 test_that("Check predicted random effects on test set and user defined lambda", {
-  
+  skip_on_cran()
   draw <- gen_structured_model(n = 500,
                                p_design = 200,
                                p_kinship = 1e4,

@@ -5,7 +5,7 @@ context(strwrap("check user defined lambda"))
 data("admixed")
 
 test_that("Check predict and coef methods with multiple s values", {
-  
+  skip_on_cran()
   fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                estimation = "full", lambda = c(0.235, 0.55, 0.19, 0.25, 0.00235, 0.00003))
   gicfit <- gic(fit)
