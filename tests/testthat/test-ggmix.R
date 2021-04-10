@@ -44,7 +44,7 @@ test_that("Expect error when user has not provided number of (non)zero
 
   expect_warning(ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                        estimation = "full",
-                       U = svdXkinship$u[,which(svdXkinship$d>0),drop=F], D = svdXkinship$d[which(svdXkinship$d>0)],
+                       U = svdXkinship$u[,which(svdXkinship$d>0),drop=FALSE], D = svdXkinship$d[which(svdXkinship$d>0)],
                        K = admixed$Xkinship),
                  regexp = strwrap("kinship, U, D and K arguments have all been specified."))
 

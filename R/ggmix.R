@@ -96,7 +96,9 @@
 #' @param verbose display progress. Can be either 0,1 or 2. 0 will not display
 #'   any progress, 2 will display very detailed progress and 1 is somewhere in
 #'   between. Default: 0.
-#'
+#' @return list which includes the fitted object, lambda sequence, 
+#'  solution path, variance-covariance parameters, degrees of freedom, 
+#'  and singular values, vectors of kinship matrix
 #' @examples
 #' data(admixed)
 #' fitlmm <- ggmix(x = admixed$xtrain, y = admixed$ytrain,

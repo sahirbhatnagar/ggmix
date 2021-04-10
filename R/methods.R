@@ -102,7 +102,7 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
   type <- match.arg(type)
 
   if (missing(newx)) {
-    if (!match(type, c("coefficients", "nonzero","all"), FALSE)) {
+    if (!match(type, c("coefficients", "nonzero", "all"), FALSE)) {
       stop("You need to supply a value for 'newx' when type is link or response or individual")
     }
   }
@@ -138,7 +138,7 @@ predict.ggmix_fit <- function(object, newx, s = NULL,
 
   if (type == "all") return(nall)
 
-  nbeta <- nall[object[["cov_names"]], , drop = F]
+  nbeta <- nall[object[["cov_names"]], , drop = FALSE]
 
   if (type == "coefficients") return(nbeta)
 

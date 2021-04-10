@@ -15,7 +15,7 @@ fullrank_K <- try(new_fullrank_K(x = admixed$xtrain, y = admixed$ytrain,
                   silent = TRUE)
 
 fullrank_UD <- try(new_fullrank_UD(x = admixed$xtrain, y = admixed$ytrain,
-                                   U = svdXkinship$u[,which(svdXkinship$d > 0), drop = F],
+                                   U = svdXkinship$u[,which(svdXkinship$d > 0), drop = FALSE],
                                    D = svdXkinship$d[which(svdXkinship$d > 0)]),
                    silent = TRUE)
 

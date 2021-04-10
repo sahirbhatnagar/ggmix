@@ -13,3 +13,4 @@
 ## Additional CRAN comments (April 6, 2021)
 
 * I have fixed the issue for check-failures on M1mac
+* Changed http --> https

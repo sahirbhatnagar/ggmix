@@ -149,6 +149,11 @@ design matrix + 2 (for the variance components)}
 any progress, 2 will display very detailed progress and 1 is somewhere in
 between. Default: 0.}
 }
+\value{
+list which includes the fitted object, lambda sequence, 
+ solution path, variance-covariance parameters, degrees of freedom, 
+ and singular values, vectors of kinship matrix
+}
 \description{
 Main function to fit the linear mixed model with lasso or group
   lasso penalty for a sequence of tuning parameters. This is a penalized
