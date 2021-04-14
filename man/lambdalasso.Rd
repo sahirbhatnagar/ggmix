@@ -19,8 +19,8 @@ lambdalasso(ggmix_object, ...)
   tol.kkt = 1e-09,
   eta_init = 0.5,
   nlambda = 100,
-  scale_x = F,
-  center_y = F
+  scale_x = FALSE,
+  center_y = FALSE
 )
 }
 \arguments{

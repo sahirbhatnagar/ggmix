@@ -5,6 +5,7 @@
 #' @seealso \code{\link{logliklasso}}, \code{\link{kkt_check}}, \code{\link{lmmlasso}}
 #' @inheritParams logliklasso
 #' @inheritParams kkt_check
+#' @return returns the value of the function and gradient for the eta variance parameter
 gr_eta_lasso_fullrank <- function(eta, sigma2, beta, eigenvalues, x, y, nt) {
   di <- 1 + eta * (eigenvalues - 1)
 

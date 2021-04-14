@@ -27,6 +27,9 @@ observations and p are the number of predictors.}
 
 \item{nt}{total number of observations}
 }
+\value{
+returns the value of the function and gradient for the eta variance parameter
+}
 \description{
 Used for gradient of eta. Currently being passed to optim in
   \code{\link{lmmlasso}} and used in \code{\link{kkt_check}}

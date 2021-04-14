@@ -5,7 +5,7 @@ context(strwrap("check predict and coef methods"))
 data("admixed")
 
 test_that("Check predict and coef methods with multiple s values", {
-
+  skip_on_cran()
   fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
                estimation = "full")
   gicfit <- gic(fit)

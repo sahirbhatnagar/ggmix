@@ -185,7 +185,7 @@ plotGIC <- function(x, sign.lambda, lambda.min, ...) {
 #' @details A coefficient profile plot is produced
 #' @return A plot is produced and nothing is returned
 #' @export
-plot.ggmix_fit <- function(x,...,
+plot.ggmix_fit <- function(x, ..., 
                            xvar = c("norm", "lambda", "dev"),
                            label = FALSE, sign.lambda = 1) {
   xvar <- match.arg(xvar)

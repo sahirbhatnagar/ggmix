@@ -96,7 +96,9 @@
 #' @param verbose display progress. Can be either 0,1 or 2. 0 will not display
 #'   any progress, 2 will display very detailed progress and 1 is somewhere in
 #'   between. Default: 0.
-#'
+#' @return list which includes the fitted object, lambda sequence, 
+#'  solution path, variance-covariance parameters, degrees of freedom, 
+#'  and singular values, vectors of kinship matrix
 #' @examples
 #' data(admixed)
 #' fitlmm <- ggmix(x = admixed$xtrain, y = admixed$ytrain,
@@ -112,18 +114,18 @@
 #'   Loredo-Osti, JC, Forest, Marie, Oualkacha, Karim, and Greenwood, Celia MT.
 #'   (2020) \emph{Simultaneous SNP selection and adjustment for population
 #'   structure in high dimensional prediction models}
-#'   \url{https://doi.org/10.1101/408484}
+#'   \doi{10.1101/408484}
 #'
 #'   Friedman, J., Hastie, T. and Tibshirani, R. (2008) \emph{Regularization
 #'   Paths for Generalized Linear Models via Coordinate Descent},
-#'   \url{http://www.stanford.edu/~hastie/Papers/glmnet.pdf} \emph{Journal of
+#'   \url{https://web.stanford.edu/~hastie/Papers/glmnet.pdf} \emph{Journal of
 #'   Statistical Software, Vol. 33(1), 1-22 Feb 2010}
-#'   \url{http://www.jstatsoft.org/v33/i01/}
+#'   \url{https://www.jstatsoft.org/v33/i01/}
 #'
 #'   Yang, Y., & Zou, H. (2015). A fast unified algorithm for solving
 #'   group-lasso penalize learning problems. \emph{Statistics and Computing},
 #'   25(6), 1129-1141.
-#'   \url{http://www.math.mcgill.ca/yyang/resources/papers/gglasso.pdf}
+#'   \url{https://www.math.mcgill.ca/yyang/resources/papers/STCO_gglasso.pdf}
 #' @export
 ggmix <- function(x, y,
                   U, D,

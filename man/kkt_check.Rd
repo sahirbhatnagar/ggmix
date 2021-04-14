@@ -44,6 +44,9 @@ its often faster to fit a whole path than compute a single fit.}
 \item{tol.kkt}{Tolerance for determining if an entry of the subgradient is
 zero}
 }
+\value{
+returns the values of the gradient for each of the parameters
+}
 \description{
 This function checks the KKT conditions
 }

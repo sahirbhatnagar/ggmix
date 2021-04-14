@@ -19,6 +19,7 @@ fit <- ggmix(x = draw[["xtrain"]],
 test_that("Check predict and coef methods with multiple s values", {
   # fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
   #              estimation = "full")
+  skip_on_cran()
   gicfit <- gic(fit)
 
   coef_res <- coef(gicfit, type = "all")
@@ -44,6 +45,7 @@ fit <- ggmix(x = draw[["xtrain"]],
 test_that("Check predict and coef methods with multiple s values and user defined lambda", {
   # fit <- ggmix(x = admixed$xtrain, y = admixed$ytrain, kinship = admixed$kin_train,
   #              estimation = "full")
+  skip_on_cran()
   gicfit <- gic(fit)
   
   coef_res <- coef(gicfit, type = "all")

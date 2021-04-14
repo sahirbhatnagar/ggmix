@@ -355,9 +355,9 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
   y <- b0 + mu + P + E
 
   # partition the data into train/tune/test
-  spec = c(train = train_tune_test[1], tune = train_tune_test[2], test = train_tune_test[3])
+  spec <- c(train = train_tune_test[1], tune = train_tune_test[2], test = train_tune_test[3])
 
-  g = sample(cut(
+  g <- sample(cut(
     seq(nrow(Xdesign)),
     nrow(Xdesign)*cumsum(c(0,spec)),
     labels = names(spec)
@@ -406,7 +406,7 @@ gen_structured_model <- function(n, p_design, p_kinship, k, s, Fst, b0, nPC = 10
               xtune_lasso = xtune_lasso,
               xtest_lasso = xtest_lasso,
 
-              Xkinship = Xall[train_ind,snps_kinships, drop = F],
+              Xkinship = Xall[train_ind,snps_kinships, drop = FALSE],
               kin_train = kin_train,
               kin_tune_train = kin_tune_train,
               kin_test_train = kin_test_train, # covaraince between train and test

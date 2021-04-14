@@ -29,7 +29,7 @@ lambdalasso.fullrank <- function(ggmix_object,
                                  epsilon = 1e-14,
                                  tol.kkt = 1e-9,
                                  eta_init = 0.5,
-                                 nlambda = 100, scale_x = F, center_y = F) {
+                                 nlambda = 100, scale_x = FALSE, center_y = FALSE) {
   utx <- ggmix_object[["x"]]
   uty <- ggmix_object[["y"]]
   eigenvalues <- ggmix_object[["D"]]
